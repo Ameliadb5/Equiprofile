@@ -2323,6 +2323,13 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        const targetUser = await db.getUserById(input.userId);
+        if (!targetUser) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "User not found",
+          });
+        }
         const bcrypt = await import("bcrypt");
         const passwordHash = await bcrypt.hash(input.newPassword, 10);
         await db.updateUser(input.userId, {
@@ -2335,6 +2342,10 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           action: "admin_password_reset",
           entityType: "user",
           entityId: input.userId,
+          details: JSON.stringify({
+            targetEmail: targetUser.email,
+            resetBy: ctx.user!.email,
+          }),
         });
         return { success: true };
       }),
