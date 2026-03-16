@@ -901,9 +901,9 @@ function DashboardContent() {
                 {horses.slice(0, 4).map((horse: any) => (
                   <Link key={horse.id} href={`/horses/${horse.id}`}>
                     <div className="flex items-center gap-3 p-2.5 rounded-lg border border-muted/40 bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer">
-                      {horse.imageUrl ? (
+                      {horse.photoUrl ? (
                         <img
-                          src={horse.imageUrl}
+                          src={horse.photoUrl}
                           alt={horse.name}
                           className="w-8 h-8 rounded-full object-cover shrink-0 border border-border"
                           onError={(e) => {
