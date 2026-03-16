@@ -208,7 +208,6 @@ export default function Register() {
     }
   };
 
-  const stepIcons = [User, Mail, Lock, ShieldCheck];
   const stepLabels = ["Name", "Email", "Password", "Confirm"];
 
   return (

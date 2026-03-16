@@ -1028,13 +1028,16 @@ function DashboardContent() {
         </div>
         {subscription?.planTier !== "stable" && (
           <div className="mt-4 p-4 rounded-xl border border-yellow-500/20 bg-yellow-50/30 dark:bg-yellow-900/10 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
-                Stable Plan Features
-              </p>
-              <p className="text-xs text-yellow-700/70 dark:text-yellow-400/70">
-                Unlock team management, client portal & staff tools
-              </p>
+            <div className="flex items-start gap-3">
+              <Star className="w-5 h-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                  Stable Plan Features
+                </p>
+                <p className="text-xs text-yellow-700/70 dark:text-yellow-400/70">
+                  Unlock team management, client portal & staff tools
+                </p>
+              </div>
             </div>
             <Link href="/billing">
               <Button
