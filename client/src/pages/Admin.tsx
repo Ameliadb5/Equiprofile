@@ -78,6 +78,10 @@ function AdminContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [suspendReason, setSuspendReason] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [resetPasswordUserId, setResetPasswordUserId] = useState<number | null>(
+    null,
+  );
+  const [resetPasswordValue, setResetPasswordValue] = useState("");
   const [newApiKeyData, setNewApiKeyData] = useState<{
     id: number;
     key: string;
@@ -182,6 +186,15 @@ function AdminContent() {
     onSuccess: () => {
       toast.success("User role updated successfully");
       refetchUsers();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const resetPasswordMutation = trpc.admin.resetUserPassword.useMutation({
+    onSuccess: () => {
+      toast.success("Password reset successfully");
+      setResetPasswordUserId(null);
+      setResetPasswordValue("");
     },
     onError: (error) => toast.error(error.message),
   });
@@ -526,6 +539,66 @@ function AdminContent() {
                                   </DialogContent>
                                 </Dialog>
                               )}
+
+                              <Dialog
+                                open={resetPasswordUserId === user.id}
+                                onOpenChange={(open) => {
+                                  if (!open) {
+                                    setResetPasswordUserId(null);
+                                    setResetPasswordValue("");
+                                  }
+                                }}
+                              >
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      setResetPasswordUserId(user.id)
+                                    }
+                                  >
+                                    <Key className="w-4 h-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Reset Password</DialogTitle>
+                                    <DialogDescription>
+                                      Set a new password for{" "}
+                                      {user.name || user.email}.
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                      <Label>New Password (min 12 chars)</Label>
+                                      <Input
+                                        type="password"
+                                        value={resetPasswordValue}
+                                        onChange={(e) =>
+                                          setResetPasswordValue(e.target.value)
+                                        }
+                                        placeholder="Enter new password..."
+                                      />
+                                    </div>
+                                  </div>
+                                  <DialogFooter>
+                                    <Button
+                                      disabled={
+                                        resetPasswordValue.length < 12 ||
+                                        resetPasswordMutation.isPending
+                                      }
+                                      onClick={() => {
+                                        resetPasswordMutation.mutate({
+                                          userId: user.id,
+                                          newPassword: resetPasswordValue,
+                                        });
+                                      }}
+                                    >
+                                      Reset Password
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
 
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>

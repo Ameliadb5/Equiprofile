@@ -323,10 +323,10 @@ router.post("/change-password", async (req, res) => {
         .json({ error: "currentPassword and newPassword are required" });
     }
 
-    if (typeof newPassword !== "string" || newPassword.length < 8) {
+    if (typeof newPassword !== "string" || newPassword.length < 12) {
       return res
         .status(400)
-        .json({ error: "New password must be at least 8 characters" });
+        .json({ error: "New password must be at least 12 characters" });
     }
 
     // Verify the session cookie to get the current user

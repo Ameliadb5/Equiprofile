@@ -2314,6 +2314,31 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
+    // Admin password reset (for when SMTP is unavailable)
+    resetUserPassword: adminUnlockedProcedure
+      .input(
+        z.object({
+          userId: z.number(),
+          newPassword: z.string().min(12),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const bcrypt = await import("bcrypt");
+        const passwordHash = await bcrypt.hash(input.newPassword, 10);
+        await db.updateUser(input.userId, {
+          passwordHash,
+          resetToken: null,
+          resetTokenExpiry: null,
+        });
+        await db.logActivity({
+          userId: ctx.user!.id,
+          action: "admin_password_reset",
+          entityType: "user",
+          entityId: input.userId,
+        });
+        return { success: true };
+      }),
+
     // System stats
     getStats: adminUnlockedProcedure.query(async () => {
       return db.getSystemStats();
