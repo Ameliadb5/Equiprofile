@@ -1,24 +1,29 @@
 import { Link } from "wouter";
+import { Heart } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="py-12 lg:py-16 border-t border-white/10 bg-black">
-      <div className="container">
-        <div className="grid md:grid-cols-4 gap-8 mb-8">
+    <footer className="py-16 border-t border-white/10 bg-black relative">
+      <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/10 to-transparent pointer-events-none" />
+      <div className="container relative">
+        <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="text-2xl font-bold font-serif mb-4">
               <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
                 EquiProfile
               </span>
             </div>
-            <p className="text-gray-400 text-sm">
-              Professional horse management for the modern equestrian.
+            <p className="text-gray-400 text-sm leading-relaxed">
+              Professional horse management for the modern equestrian. Track
+              health, training, nutrition, and more — all in one platform.
             </p>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4 text-white">Product</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <h4 className="font-semibold mb-4 text-white text-sm uppercase tracking-wider">
+              Product
+            </h4>
+            <ul className="space-y-2.5 text-sm text-gray-400">
               <li>
                 <Link
                   href="/features"
@@ -35,12 +40,22 @@ export function Footer() {
                   Pricing
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/register"
+                  className="hover:text-white transition-colors"
+                >
+                  Start Free Trial
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4 text-white">Company</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <h4 className="font-semibold mb-4 text-white text-sm uppercase tracking-wider">
+              Company
+            </h4>
+            <ul className="space-y-2.5 text-sm text-gray-400">
               <li>
                 <Link
                   href="/about"
@@ -61,14 +76,16 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4 text-white">Legal</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <h4 className="font-semibold mb-4 text-white text-sm uppercase tracking-wider">
+              Legal
+            </h4>
+            <ul className="space-y-2.5 text-sm text-gray-400">
               <li>
                 <Link
                   href="/privacy"
                   className="hover:text-white transition-colors"
                 >
-                  Privacy
+                  Privacy Policy
                 </Link>
               </li>
               <li>
@@ -76,14 +93,14 @@ export function Footer() {
                   href="/terms"
                   className="hover:text-white transition-colors"
                 >
-                  Terms
+                  Terms of Service
                 </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 text-center text-sm text-gray-400">
+        <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
           <p
             aria-label={`© ${new Date().getFullYear()} EquiProfile.online · Part of AmarktAI Network`}
           >
@@ -97,6 +114,10 @@ export function Footer() {
               Amarkt<span className="text-blue-400 font-semibold">AI</span>{" "}
               Network
             </a>
+          </p>
+          <p className="flex items-center gap-1 text-xs text-gray-600">
+            Made with <Heart className="w-3 h-3 text-rose-500" /> for
+            equestrians
           </p>
         </div>
       </div>

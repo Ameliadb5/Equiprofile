@@ -10,13 +10,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useLocation } from "wouter";
 import { useState, FormEvent } from "react";
-import { Loader2, ArrowLeft, AlertCircle, ArrowRight } from "lucide-react";
+import {
+  Loader2,
+  ArrowLeft,
+  AlertCircle,
+  ArrowRight,
+  Mail,
+  Lock,
+} from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { PageTransition } from "@/components/PageTransition";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthSplitLayout } from "@/components/AuthSplitLayout";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
@@ -67,7 +73,7 @@ export default function Login() {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
         credentials: "include",
       });
 
@@ -100,7 +106,7 @@ export default function Login() {
             {/* Back button */}
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors mb-4"
+              className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors mb-6"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to home</span>
@@ -108,7 +114,17 @@ export default function Login() {
 
             {/* Login Form Card */}
             <Card className="bg-black/50 backdrop-blur-xl border border-white/10 shadow-2xl">
-              <CardHeader className="space-y-1">
+              <CardHeader className="space-y-3 pb-2">
+                {/* Step indicator */}
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div
+                    className={`h-1.5 w-12 rounded-full transition-colors duration-300 ${step >= 1 ? "bg-gradient-to-r from-indigo-500 to-cyan-500" : "bg-white/10"}`}
+                  />
+                  <div
+                    className={`h-1.5 w-12 rounded-full transition-colors duration-300 ${step >= 2 ? "bg-gradient-to-r from-indigo-500 to-cyan-500" : "bg-white/10"}`}
+                  />
+                </div>
+
                 <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
                   Welcome back
                 </CardTitle>
@@ -118,7 +134,7 @@ export default function Login() {
                     : "Enter your password to sign in"}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-4">
                 {error && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -152,16 +168,19 @@ export default function Login() {
                         <Label htmlFor="email" className="text-white">
                           Email
                         </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="you@example.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          autoFocus
-                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200"
-                        />
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="you@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            autoFocus
+                            className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200 pl-10"
+                          />
+                        </div>
                       </div>
 
                       <Button
@@ -182,6 +201,21 @@ export default function Login() {
                       onSubmit={handlePasswordStep}
                       className="space-y-4"
                     >
+                      {/* Show selected email */}
+                      <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                        <Mail className="w-4 h-4 text-gray-400 shrink-0" />
+                        <span className="text-sm text-gray-300 truncate">
+                          {email}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleChangeEmail}
+                          className="ml-auto text-xs text-indigo-400 hover:text-indigo-300 transition-colors shrink-0"
+                        >
+                          Change
+                        </button>
+                      </div>
+
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <Label htmlFor="password" className="text-white">
@@ -194,44 +228,36 @@ export default function Login() {
                             Forgot password?
                           </Link>
                         </div>
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="••••••••"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          disabled={isLoading}
-                          required
-                          autoFocus
-                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200"
-                        />
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                          <Input
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            disabled={isLoading}
+                            required
+                            autoFocus
+                            className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200 pl-10"
+                          />
+                        </div>
                       </div>
 
-                      <div className="flex gap-3">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={handleChangeEmail}
-                          className="flex-1 border-white/10 text-white hover:bg-white/10 h-12 text-base"
-                          disabled={isLoading}
-                        >
-                          Back
-                        </Button>
-                        <Button
-                          type="submit"
-                          className="flex-1 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Signing in...
-                            </>
-                          ) : (
-                            "Sign in"
-                          )}
-                        </Button>
-                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Signing in...
+                          </>
+                        ) : (
+                          "Sign in"
+                        )}
+                      </Button>
                     </motion.form>
                   )}
                 </AnimatePresence>
@@ -265,7 +291,6 @@ export default function Login() {
           </motion.div>
         </AuthSplitLayout>
       </PageTransition>
-      <Footer />
     </>
   );
 }

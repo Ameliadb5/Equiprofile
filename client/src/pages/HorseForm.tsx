@@ -132,7 +132,8 @@ function HorseFormContent() {
       return;
     }
     // Show preview immediately before upload starts
-    setPhotoPreview(URL.createObjectURL(file));
+    const objectUrl = URL.createObjectURL(file);
+    setPhotoPreview(objectUrl);
     setPhotoUploading(true);
     try {
       const reader = new FileReader();
@@ -154,6 +155,9 @@ function HorseFormContent() {
             description: "Horse profile photo",
           });
           setFormData((prev) => ({ ...prev, photoUrl: result.url }));
+          // Update preview to the server URL to avoid stale blob references
+          setPhotoPreview(result.url);
+          URL.revokeObjectURL(objectUrl);
           toast.success("Photo uploaded");
         } catch (err: any) {
           toast.error(err.message || "Failed to upload photo");

@@ -27,12 +27,15 @@ const loginLimiter = rateLimit({
  */
 router.post("/signup", async (req, res) => {
   try {
-    const { email: userEmail, password, name } = req.body;
+    const { email: rawEmail, password, name } = req.body;
 
     // Validation
-    if (!userEmail || !password) {
+    if (!rawEmail || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
+
+    // Normalise email to lowercase for consistent matching
+    const userEmail = rawEmail.trim().toLowerCase();
 
     if (password.length < 12) {
       return res
@@ -123,11 +126,14 @@ router.post("/signup", async (req, res) => {
  */
 router.post("/login", loginLimiter, async (req, res) => {
   try {
-    const { email: userEmail, password } = req.body;
+    const { email: rawEmail, password } = req.body;
 
-    if (!userEmail || !password) {
+    if (!rawEmail || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
+
+    // Normalise email to lowercase for consistent matching
+    const userEmail = rawEmail.trim().toLowerCase();
 
     // Find user by email
     const user = await db.getUserByEmail(userEmail);
@@ -194,11 +200,14 @@ router.post("/login", loginLimiter, async (req, res) => {
  */
 router.post("/request-reset", async (req, res) => {
   try {
-    const { email: userEmail } = req.body;
+    const { email: rawEmail } = req.body;
 
-    if (!userEmail) {
+    if (!rawEmail) {
       return res.status(400).json({ error: "Email is required" });
     }
+
+    // Normalise email to lowercase for consistent matching
+    const userEmail = rawEmail.trim().toLowerCase();
 
     // Find user by email
     const user = await db.getUserByEmail(userEmail);

@@ -11,13 +11,21 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link, useLocation } from "wouter";
 import { useState, FormEvent } from "react";
-import { Loader2, ArrowLeft, AlertCircle, ArrowRight } from "lucide-react";
+import {
+  Loader2,
+  ArrowLeft,
+  AlertCircle,
+  ArrowRight,
+  User,
+  Mail,
+  Lock,
+  ShieldCheck,
+} from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { PageTransition } from "@/components/PageTransition";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthSplitLayout } from "@/components/AuthSplitLayout";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
 import { trpc } from "@/lib/trpc";
 
@@ -25,7 +33,9 @@ import { trpc } from "@/lib/trpc";
  * Register page
  *
  * Step 1: Full name input
- * Step 2: Email + Password + Confirm Password + Terms
+ * Step 2: Email input
+ * Step 3: Password input
+ * Step 4: Confirm password + Terms
  *
  * Supports ?plan=pro&interval=monthly|yearly from the Pricing page:
  * after successful signup the user is automatically sent to Stripe checkout.
@@ -157,7 +167,11 @@ export default function Register() {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ email, password, name }),
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password,
+          name,
+        }),
         credentials: "include",
       });
 
@@ -194,6 +208,8 @@ export default function Register() {
     }
   };
 
+  const stepLabels = ["Name", "Email", "Password", "Confirm"];
+
   return (
     <>
       <Navbar alwaysDark />
@@ -207,7 +223,7 @@ export default function Register() {
             {/* Back button */}
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors mb-4"
+              className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors mb-6"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to home</span>
@@ -215,7 +231,25 @@ export default function Register() {
 
             {/* Dark Glass Form Card */}
             <Card className="bg-black/50 backdrop-blur-xl border border-white/10 shadow-2xl">
-              <CardHeader className="space-y-1">
+              <CardHeader className="space-y-3 pb-2">
+                {/* Step progress indicator */}
+                <div className="flex items-center justify-center gap-1 mb-2">
+                  {[1, 2, 3, 4].map((s) => (
+                    <div
+                      key={s}
+                      className={`h-1.5 w-8 rounded-full transition-colors duration-300 ${step >= s ? "bg-gradient-to-r from-indigo-500 to-cyan-500" : "bg-white/10"}`}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <span className="text-xs text-gray-500">
+                    Step {step} of 4 —{" "}
+                    <span className="text-gray-400">
+                      {stepLabels[step - 1]}
+                    </span>
+                  </span>
+                </div>
+
                 <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
                   Create an account
                 </CardTitle>
@@ -238,7 +272,7 @@ export default function Register() {
                   </p>
                 )}
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-4">
                 {error && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -272,16 +306,19 @@ export default function Register() {
                         <Label htmlFor="name" className="text-white">
                           Full Name
                         </Label>
-                        <Input
-                          id="name"
-                          type="text"
-                          placeholder="John Doe"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          required
-                          autoFocus
-                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200"
-                        />
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                          <Input
+                            id="name"
+                            type="text"
+                            placeholder="John Doe"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                            autoFocus
+                            className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200 pl-10"
+                          />
+                        </div>
                       </div>
 
                       <Button
@@ -306,16 +343,19 @@ export default function Register() {
                         <Label htmlFor="email" className="text-white">
                           Email
                         </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="you@example.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          autoFocus
-                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200"
-                        />
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="you@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            autoFocus
+                            className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200 pl-10"
+                          />
+                        </div>
                       </div>
 
                       <div className="flex gap-3">
@@ -350,16 +390,19 @@ export default function Register() {
                         <Label htmlFor="password" className="text-white">
                           Password
                         </Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="••••••••"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                          autoFocus
-                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200"
-                        />
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                          <Input
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            autoFocus
+                            className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200 pl-10"
+                          />
+                        </div>
                         <p className="text-xs text-gray-500">
                           At least 12 characters
                         </p>
@@ -400,16 +443,19 @@ export default function Register() {
                         >
                           Confirm Password
                         </Label>
-                        <Input
-                          id="confirm-password"
-                          type="password"
-                          placeholder="••••••••"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          required
-                          autoFocus
-                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200"
-                        />
+                        <div className="relative">
+                          <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                          <Input
+                            id="confirm-password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                            autoFocus
+                            className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200 pl-10"
+                          />
+                        </div>
                       </div>
 
                       <div className="flex items-start gap-2">
@@ -504,7 +550,6 @@ export default function Register() {
           </motion.div>
         </AuthSplitLayout>
       </PageTransition>
-      <Footer />
     </>
   );
 }

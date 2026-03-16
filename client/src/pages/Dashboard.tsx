@@ -50,6 +50,31 @@ import {
 } from "lucide-react";
 
 // Module categories with richer descriptions for premium grid
+// Grouped into logical sections for dashboard display
+const moduleSections = [
+  {
+    label: "Core",
+    description: "Essential horse management",
+    ids: ["horses", "health", "training", "nutrition"],
+  },
+  {
+    label: "Planning & Tools",
+    description: "Schedule, AI, and documents",
+    ids: ["schedule", "ai", "documents", "reports"],
+  },
+  {
+    label: "Advanced",
+    description: "Breeding, financials & settings",
+    ids: ["breeding", "financial", "settings"],
+  },
+  {
+    label: "Stable Management",
+    description: "Team, clients & messaging",
+    ids: ["stable"],
+    stableOnly: true,
+  },
+];
+
 const moduleCategories = [
   {
     id: "horses",
@@ -876,9 +901,9 @@ function DashboardContent() {
                 {horses.slice(0, 4).map((horse: any) => (
                   <Link key={horse.id} href={`/horses/${horse.id}`}>
                     <div className="flex items-center gap-3 p-2.5 rounded-lg border border-muted/40 bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer">
-                      {horse.imageUrl ? (
+                      {horse.photoUrl ? (
                         <img
-                          src={horse.imageUrl}
+                          src={horse.photoUrl}
                           alt={horse.name}
                           className="w-8 h-8 rounded-full object-cover shrink-0 border border-border"
                           onError={(e) => {
@@ -1004,6 +1029,69 @@ function DashboardContent() {
             </CardContent>
           </Card>
         </div>
+      </motion.div>
+
+      {/* ── Module Grid with Section Headers ──────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.34 }}
+        className="space-y-6"
+      >
+        {moduleSections
+          .filter(
+            (section) =>
+              !section.stableOnly || subscription?.planTier === "stable",
+          )
+          .map((section) => {
+            const sectionModules = moduleCategories.filter((cat) =>
+              section.ids.includes(cat.id),
+            );
+            if (sectionModules.length === 0) return null;
+
+            return (
+              <div key={section.label}>
+                <div className="flex items-center gap-2 mb-3">
+                  <h2 className="font-serif text-base font-semibold">
+                    {section.label}
+                  </h2>
+                  <span className="text-xs text-muted-foreground">
+                    · {section.description}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {sectionModules.map((cat, i) => (
+                    <PremiumModuleCard key={cat.id} category={cat} index={i} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+        {subscription?.planTier !== "stable" && (
+          <div className="mt-4 p-4 rounded-xl border border-yellow-500/20 bg-yellow-50/30 dark:bg-yellow-900/10 flex items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <Star className="w-5 h-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                  Stable Plan Features
+                </p>
+                <p className="text-xs text-yellow-700/70 dark:text-yellow-400/70">
+                  Unlock team management, client portal & staff tools
+                </p>
+              </div>
+            </div>
+            <Link href="/billing">
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0 border-yellow-500/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100 dark:hover:bg-yellow-900/20"
+              >
+                Upgrade
+              </Button>
+            </Link>
+          </div>
+        )}
       </motion.div>
     </div>
   );

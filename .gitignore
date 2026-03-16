@@ -100,3 +100,4 @@ uploads/
 .parcel-cache/
 # Root-level video assets (served from client/public/videos/ and client/public/assets/marketing/)
 /landingfinal.mp4
+dist/

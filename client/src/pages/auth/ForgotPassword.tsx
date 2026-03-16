@@ -10,11 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "wouter";
 import { useState, FormEvent } from "react";
-import { Loader2, ArrowLeft, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  Loader2,
+  ArrowLeft,
+  CheckCircle,
+  AlertCircle,
+  Mail,
+} from "lucide-react";
 import { PageTransition } from "@/components/PageTransition";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AuthSplitLayout } from "@/components/AuthSplitLayout";
+import { motion } from "framer-motion";
 
 export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +38,7 @@ export default function ForgotPassword() {
       const response = await fetch("/api/auth/request-reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
 
       const data = await response.json();
@@ -54,73 +61,103 @@ export default function ForgotPassword() {
     <>
       <Navbar alwaysDark />
       <PageTransition>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 px-4 pt-20">
-          <div className="w-full max-w-md">
+        <AuthSplitLayout>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             {/* Back button */}
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+              className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors mb-6"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to login
             </Link>
 
-            <Card className="shadow-xl">
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold text-center">
+            <Card className="bg-black/50 backdrop-blur-xl border border-white/10 shadow-2xl">
+              <CardHeader className="space-y-3 pb-2">
+                <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
                   Forgot password?
                 </CardTitle>
-                <CardDescription className="text-center">
+                <CardDescription className="text-center text-gray-400">
                   Enter your email and we'll send you a reset link
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-4">
                 {error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Alert
+                      variant="destructive"
+                      className="bg-red-950/50 border-red-500/50 backdrop-blur-sm"
+                    >
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription className="text-red-200">
+                        {error}
+                      </AlertDescription>
+                    </Alert>
+                  </motion.div>
                 )}
 
                 {success ? (
-                  <div className="text-center space-y-4">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center space-y-4"
+                  >
                     <div className="flex justify-center">
-                      <CheckCircle className="w-16 h-16 text-green-500" />
+                      <CheckCircle className="w-16 h-16 text-emerald-400" />
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-2">Check your email</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="font-semibold mb-2 text-white">
+                        Check your email
+                      </h3>
+                      <p className="text-sm text-gray-400">
                         If an account exists with that email, we've sent
                         password reset instructions.
                       </p>
                     </div>
                     <Link href="/login">
-                      <Button variant="outline" className="w-full">
+                      <Button
+                        variant="outline"
+                        className="w-full border-white/10 text-white hover:bg-white/10 h-12 text-base"
+                      >
                         Back to login
                       </Button>
                     </Link>
-                  </div>
+                  </motion.div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Email field */}
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={isLoading}
-                        required
-                      />
+                      <Label htmlFor="email" className="text-white">
+                        Email
+                      </Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          disabled={isLoading}
+                          required
+                          autoFocus
+                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-white/20 h-12 text-base transition-all duration-200 pl-10"
+                        />
+                      </div>
                     </div>
 
                     {/* Submit button */}
                     <Button
                       type="submit"
-                      className="w-full"
-                      size="lg"
+                      className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -134,12 +171,12 @@ export default function ForgotPassword() {
                     </Button>
 
                     <div className="text-center text-sm">
-                      <span className="text-muted-foreground">
+                      <span className="text-gray-400">
                         Remember your password?{" "}
                       </span>
                       <Link
                         href="/login"
-                        className="text-primary font-medium hover:underline"
+                        className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent font-medium hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
                       >
                         Sign in
                       </Link>
@@ -148,10 +185,9 @@ export default function ForgotPassword() {
                 )}
               </CardContent>
             </Card>
-          </div>
-        </div>
+          </motion.div>
+        </AuthSplitLayout>
       </PageTransition>
-      <Footer />
     </>
   );
 }
