@@ -37,10 +37,10 @@ router.post("/signup", async (req, res) => {
     // Normalise email to lowercase for consistent matching
     const userEmail = rawEmail.trim().toLowerCase();
 
-    if (password.length < 12) {
+    if (password.length < 8) {
       return res
         .status(400)
-        .json({ error: "Password must be at least 12 characters" });
+        .json({ error: "Password must be at least 8 characters" });
     }
 
     // Check if user already exists
@@ -282,10 +282,10 @@ router.post("/reset-password", async (req, res) => {
       return res.status(400).json({ error: "Token and password are required" });
     }
 
-    if (password.length < 12) {
+    if (password.length < 8) {
       return res
         .status(400)
-        .json({ error: "Password must be at least 12 characters" });
+        .json({ error: "Password must be at least 8 characters" });
     }
 
     // Find user by reset token (direct indexed lookup)
@@ -350,10 +350,10 @@ router.post("/change-password", async (req, res) => {
         .json({ error: "currentPassword and newPassword are required" });
     }
 
-    if (typeof newPassword !== "string" || newPassword.length < 12) {
+    if (typeof newPassword !== "string" || newPassword.length < 8) {
       return res
         .status(400)
-        .json({ error: "New password must be at least 12 characters" });
+        .json({ error: "New password must be at least 8 characters" });
     }
 
     // Verify the session cookie to get the current user

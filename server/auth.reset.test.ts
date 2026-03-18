@@ -42,10 +42,10 @@ async function handleResetPassword(
     return { status: 400, body: { error: "Token and password are required" } };
   }
 
-  if (password.length < 12) {
+  if (password.length < 8) {
     return {
       status: 400,
-      body: { error: "Password must be at least 12 characters" },
+      body: { error: "Password must be at least 8 characters" },
     };
   }
 
@@ -164,11 +164,11 @@ describe("password reset — direct DB lookup (replaces O(n) getAllUsers scan)",
     expect(mockGetAllUsers).not.toHaveBeenCalled();
   });
 
-  it("rejects passwords shorter than 12 characters before touching the DB", async () => {
+  it("rejects passwords shorter than 8 characters before touching the DB", async () => {
     const result = await handleResetPassword("any-token", "short", db);
 
     expect(result.status).toBe(400);
-    expect(result.body.error).toMatch(/12/);
+    expect(result.body.error).toMatch(/8/);
     // No DB calls should be made for a validation failure
     expect(mockGetUserByResetToken).not.toHaveBeenCalled();
     expect(mockGetAllUsers).not.toHaveBeenCalled();

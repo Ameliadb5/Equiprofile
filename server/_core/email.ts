@@ -1,43 +1,55 @@
 import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
 import type { User } from "../../drizzle/schema";
+import { getRuntimeConfig } from "../dynamicConfig";
 
-// SMTP Configuration from environment
-const SMTP_CONFIG = {
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: false, // Use STARTTLS
-  auth: {
-    user: process.env.SMTP_USER || "",
-    pass: process.env.SMTP_PASS || "",
-  },
-};
+// Initialize transporter lazily, checking DB settings as fallback
+async function getTransporter(): Promise<Transporter | null> {
+  const host =
+    process.env.SMTP_HOST ||
+    (await getRuntimeConfig("smtp_host", "SMTP_HOST")) ||
+    "smtp.gmail.com";
+  const port = parseInt(
+    process.env.SMTP_PORT ||
+      (await getRuntimeConfig("smtp_port", "SMTP_PORT")) ||
+      "587",
+  );
+  const user =
+    process.env.SMTP_USER ||
+    (await getRuntimeConfig("smtp_user", "SMTP_USER")) ||
+    "";
+  const pass =
+    process.env.SMTP_PASS ||
+    (await getRuntimeConfig("smtp_pass", "SMTP_PASS")) ||
+    "";
 
-const SMTP_FROM =
-  process.env.SMTP_FROM || '"EquiProfile" <noreply@equiprofile.online>';
-
-let transporter: Transporter | null = null;
-
-// Initialize transporter lazily
-function getTransporter(): Transporter | null {
-  if (!SMTP_CONFIG.auth.user || !SMTP_CONFIG.auth.pass) {
+  if (!user || !pass) {
     console.warn(
-      "[Email] SMTP not configured (SMTP_USER and SMTP_PASS required)",
+      "[Email] SMTP not configured (smtp_user and smtp_pass required)",
     );
     return null;
   }
 
-  if (!transporter) {
-    try {
-      transporter = nodemailer.createTransport(SMTP_CONFIG);
-      console.log("[Email] SMTP transporter initialized");
-    } catch (error) {
-      console.error("[Email] Failed to initialize transporter:", error);
-      return null;
-    }
+  try {
+    const t = nodemailer.createTransport({
+      host,
+      port,
+      secure: false,
+      auth: { user, pass },
+    });
+    return t;
+  } catch (error) {
+    console.error("[Email] Failed to initialize transporter:", error);
+    return null;
   }
+}
 
-  return transporter;
+async function getSmtpFrom(): Promise<string> {
+  return (
+    process.env.SMTP_FROM ||
+    (await getRuntimeConfig("smtp_from", "SMTP_FROM")) ||
+    '"EquiProfile" <noreply@equiprofile.online>'
+  );
 }
 
 /**
@@ -49,15 +61,16 @@ export async function sendEmail(
   html: string,
   text?: string,
 ): Promise<void> {
-  const transporter = getTransporter();
+  const transporter = await getTransporter();
   if (!transporter) {
     console.warn("[Email] Skipping email send - SMTP not configured");
     return;
   }
 
+  const from = await getSmtpFrom();
   try {
     await transporter.sendMail({
-      from: SMTP_FROM,
+      from,
       to,
       subject,
       html,
