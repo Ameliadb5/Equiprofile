@@ -55,6 +55,8 @@ import {
   Ban,
   Trash2,
   Shield,
+  ShieldCheck,
+  ShieldOff,
   RefreshCw,
   Search,
   Eye,
@@ -632,6 +634,69 @@ function AdminContent() {
                                   </DialogFooter>
                                 </DialogContent>
                               </Dialog>
+
+                              {/* Grant / Revoke Admin role */}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    title={
+                                      user.role === "admin"
+                                        ? "Revoke admin role"
+                                        : "Grant admin role"
+                                    }
+                                    className={
+                                      user.role === "admin"
+                                        ? "text-amber-600 hover:text-amber-700"
+                                        : "text-muted-foreground"
+                                    }
+                                  >
+                                    {user.role === "admin" ? (
+                                      <ShieldOff className="w-4 h-4" />
+                                    ) : (
+                                      <ShieldCheck className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      {user.role === "admin"
+                                        ? "Revoke Admin Role"
+                                        : "Grant Admin Role"}
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      {user.role === "admin"
+                                        ? `Remove admin privileges from ${user.name || user.email}? They will lose access to the Admin Panel.`
+                                        : `Grant admin privileges to ${user.name || user.email}? They will be able to unlock the Admin Panel and manage all users.`}
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      className={
+                                        user.role === "admin"
+                                          ? "bg-amber-600 text-white hover:bg-amber-700"
+                                          : ""
+                                      }
+                                      onClick={() =>
+                                        updateRoleMutation.mutate({
+                                          userId: user.id,
+                                          role:
+                                            user.role === "admin"
+                                              ? "user"
+                                              : "admin",
+                                        })
+                                      }
+                                    >
+                                      {user.role === "admin"
+                                        ? "Revoke Admin"
+                                        : "Grant Admin"}
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
 
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>

@@ -17,9 +17,10 @@ import { PageTransition } from "@/components/PageTransition";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { Bell, Lock, User, Moon, MapPin, Loader2, Info } from "lucide-react";
+import { Bell, Lock, User, Moon, MapPin, Loader2, Info, Shield } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
+import { AdminUnlockDialog } from "@/components/AdminUnlockDialog";
 
 export default function Settings() {
   const { user } = useAuth();
@@ -193,11 +194,42 @@ export default function Settings() {
     <DashboardLayout>
       <PageTransition>
         <div className="container max-w-4xl py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold font-serif mb-2">Settings</h1>
-            <p className="text-muted-foreground">
-              Manage your account settings and preferences
-            </p>
+          <div className="mb-8 flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold font-serif mb-2">Settings</h1>
+              <p className="text-muted-foreground">
+                Manage your account settings and preferences
+              </p>
+            </div>
+            {/* Admin panel shortcut — visible to users with role=admin */}
+            {user?.role === "admin" && (
+              <div className="shrink-0">
+                {adminStatus.data?.isUnlocked ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => (window.location.href = "/admin")}
+                    className="border-primary/40 text-primary hover:bg-primary/10"
+                  >
+                    <Shield className="mr-2 h-4 w-4" />
+                    Open Admin Panel
+                  </Button>
+                ) : (
+                  <AdminUnlockDialog
+                    trigger={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-primary/40 text-primary hover:bg-primary/10"
+                      >
+                        <Shield className="mr-2 h-4 w-4" />
+                        Open Admin Panel
+                      </Button>
+                    }
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">

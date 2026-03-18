@@ -92,6 +92,8 @@ router.post("/signup", async (req, res) => {
           prefs = {};
         }
       }
+      // "normal" is the UI label for the non-stable plan; internally it is
+      // stored as "pro" to match the billing plan tier name used elsewhere.
       prefs.planTier = planType === "stable" ? "stable" : "pro";
       userUpdates.preferences = JSON.stringify(prefs);
     }
