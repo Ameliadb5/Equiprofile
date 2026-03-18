@@ -243,12 +243,12 @@ export default function QAChecklistPage() {
     {
       label: "Landing page video",
       status: "ok",
-      detail: "/assets/marketing/hero/landingfinal.mp4",
+      detail: "/assets/marketing/hero/landing2.mp4",
     },
     {
       label: "Login/Register video",
       status: "ok",
-      detail: "/videos/LoginFinal2.mp4 (AuthSplitLayout)",
+      detail: "/videos/LoginRegister.mp4 (AuthSplitLayout)",
     },
     {
       label: "Auth layout starts at top",

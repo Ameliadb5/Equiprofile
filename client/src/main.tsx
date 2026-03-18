@@ -45,7 +45,24 @@ fetch("/visual-config.json")
     }
   });
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Do not retry on rate-limit (429) or auth errors — retrying floods the server
+      retry: (failureCount, error) => {
+        if (error instanceof TRPCClientError) {
+          const code = (error as any)?.data?.code;
+          if (code === "TOO_MANY_REQUESTS" || code === "UNAUTHORIZED" || code === "FORBIDDEN") return false;
+        }
+        return failureCount < 1;
+      },
+      staleTime: 60 * 1000, // 1 minute default stale time
+    },
+    mutations: {
+      retry: false,
+    },
+  },
+});
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;

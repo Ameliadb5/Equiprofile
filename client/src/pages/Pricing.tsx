@@ -38,11 +38,15 @@ export default function Pricing() {
   );
 
   const { data: pricing, isLoading: pricingLoading } =
-    trpc.billing.getPricing.useQuery();
+    trpc.billing.getPricing.useQuery(undefined, {
+      staleTime: 5 * 60 * 1000,
+      retry: false,
+    });
   const { data: subscriptionStatus } = trpc.billing.getStatus.useQuery(
     undefined,
     {
       enabled: !!user,
+      staleTime: 5 * 60 * 1000,
     },
   );
   const createCheckout = trpc.billing.createCheckout.useMutation();
@@ -84,9 +88,16 @@ export default function Pricing() {
         window.location.href = result.url;
       }
     } catch (error: any) {
-      toast.error("Error", {
-        description: error.message || "Failed to create checkout session",
-      });
+      const isBillingDisabled = error?.data?.code === "PRECONDITION_FAILED";
+      if (isBillingDisabled) {
+        toast.error("Billing unavailable", {
+          description: "Online billing is not currently available. Please contact support to upgrade your plan.",
+        });
+      } else {
+        toast.error("Error", {
+          description: error?.message || "Failed to create checkout session",
+        });
+      }
     } finally {
       setLoadingPlan(null);
     }

@@ -198,13 +198,13 @@ export function AIChatBox({
       style={{ height }}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b bg-gradient-to-r from-indigo-500/10 to-cyan-500/10">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 flex items-center justify-center">
-          <Sparkles className="size-4 text-indigo-500" />
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b bg-gradient-to-r from-indigo-600/15 via-purple-500/10 to-cyan-500/10">
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shadow-sm">
+          <Sparkles className="size-3.5 text-white" />
         </div>
         <div className="flex-1">
-          <h3 className="text-sm font-semibold">AI Assistant</h3>
-          <p className="text-xs text-muted-foreground">Ask me anything about horse care</p>
+          <h3 className="text-sm font-semibold tracking-tight">AI Assistant</h3>
+          <p className="text-xs text-muted-foreground leading-none mt-0.5">Horse care expert · powered by AI</p>
         </div>
       </div>
 

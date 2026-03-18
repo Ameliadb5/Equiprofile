@@ -254,14 +254,13 @@ export default function AIChat() {
           </TabsList>
 
           <TabsContent value="chat">
-            <Card>
-              <CardContent className="p-6">
+            <div className="rounded-xl overflow-hidden border shadow-sm">
                 <AIChatBox
                   messages={messages}
                   onSendMessage={handleSend}
                   isLoading={chatMutation.isPending}
                   placeholder="Ask about horse care, training, or management..."
-                  height="600px"
+                  height="calc(100vh - 320px)"
                   suggestedPrompts={[
                     "What can you help me with?",
                     "Show me horse care tips",
@@ -297,8 +296,7 @@ export default function AIChat() {
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="notes" className="space-y-4">

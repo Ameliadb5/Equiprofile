@@ -100,7 +100,6 @@ const menuItems = [
   { icon: Cloud, label: "Weather", path: "/weather" },
   { icon: Utensils, label: "Feeding Plans", path: "/feeding" },
   { icon: ListChecks, label: "Tasks", path: "/tasks" },
-  { icon: Baby, label: "Breeding", path: "/breeding" },
   { icon: DollarSign, label: "Billing", path: "/billing" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
@@ -288,8 +287,8 @@ function DashboardLayoutContent({
 
   // Check admin unlock status — available to any authenticated user
   const { data: adminStatus } = trpc.adminUnlock.getStatus.useQuery(undefined, {
-    staleTime: 60 * 1000,
-    refetchInterval: 60 * 1000,
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000,
   });
 
   // Check subscription tier for stable plan features
@@ -605,13 +604,20 @@ function DashboardLayoutContent({
                     </SheetTitle>
                   </SheetHeader>
                   <div className="space-y-4 pb-6">
-                    {moreModuleGroups.map((group) => (
+                    {moreModuleGroups.map((group) => {
+                      // Filter stable-only items for non-stable users
+                      const items = group.items.filter((item) => {
+                        if (item.label === "Breeding" && !isStablePlan) return false;
+                        return true;
+                      });
+                      if (items.length === 0) return null;
+                      return (
                       <div key={group.label}>
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                           {group.label}
                         </p>
                         <div className="grid grid-cols-3 gap-2">
-                          {group.items.map((item) => {
+                          {items.map((item) => {
                             const Icon = item.icon;
                             const isActive = location === item.path;
                             return (
@@ -636,7 +642,8 @@ function DashboardLayoutContent({
                           })}
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </SheetContent>
               </Sheet>

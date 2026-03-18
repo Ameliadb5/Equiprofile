@@ -94,7 +94,7 @@ async function startServer() {
             "https://fonts.googleapis.com",
           ],
           fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
-          imgSrc: ["'self'", "data:", "https:"],
+          imgSrc: ["'self'", "data:", "https:", "blob:"],
           connectSrc: ["'self'"],
           frameAncestors: ["'self'"],
           baseUri: ["'self'"],
@@ -128,10 +128,13 @@ async function startServer() {
   // Trust proxy is already set globally via app.set("trust proxy", 1)
   const limiter = rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 minutes
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"),
-    message: "Too many requests from this IP, please try again later.",
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "500"),
+    message: { error: "Too many requests", message: "Too many requests from this IP, please try again later." },
     standardHeaders: true,
     legacyHeaders: false,
+    handler: (req, res, next, options) => {
+      res.status(options.statusCode).json(options.message);
+    },
   });
   app.use("/api", limiter);
 
@@ -139,9 +142,12 @@ async function startServer() {
   const healthLimiter = rateLimit({
     windowMs: 60000, // 1 minute
     max: 60, // 60 requests per minute (1 per second average)
-    message: "Too many health check requests",
+    message: { error: "Too many requests", message: "Too many health check requests" },
     standardHeaders: true,
     legacyHeaders: false,
+    handler: (req, res, next, options) => {
+      res.status(options.statusCode).json(options.message);
+    },
   });
 
   // Stripe webhook - must be before body parser
@@ -641,9 +647,12 @@ async function startServer() {
   const contactLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 5, // 5 submissions per 15 minutes per IP
-    message: "Too many contact form submissions, please try again later.",
+    message: { error: "Too many requests", message: "Too many contact form submissions, please try again later." },
     standardHeaders: true,
     legacyHeaders: false,
+    handler: (req, res, next, options) => {
+      res.status(options.statusCode).json(options.message);
+    },
   });
   app.post("/api/contact", contactLimiter, async (req, res) => {
     try {
@@ -720,9 +729,12 @@ async function startServer() {
   const adminEmailLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
     max: 5, // 5 test emails per hour
-    message: "Too many test email requests, please try again later.",
+    message: { error: "Too many requests", message: "Too many test email requests, please try again later." },
     standardHeaders: true,
     legacyHeaders: false,
+    handler: (req, res, next, options) => {
+      res.status(options.statusCode).json(options.message);
+    },
   });
   app.post(
     "/api/admin/send-test-email",

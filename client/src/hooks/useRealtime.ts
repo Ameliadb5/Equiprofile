@@ -22,7 +22,7 @@ interface UseRealtimeOptions {
 export function useRealtime(options: UseRealtimeOptions = {}) {
   const {
     enabled = true,
-    reconnectDelay = 3000,
+    reconnectDelay = 5000,
     maxReconnectAttempts = 5,
   } = options;
 
@@ -78,15 +78,18 @@ export function useRealtime(options: UseRealtimeOptions = {}) {
         eventSource.close();
         eventSourceRef.current = null;
 
-        // Attempt reconnection
+        // Attempt reconnection with exponential backoff
         if (reconnectAttemptsRef.current < maxReconnectAttempts) {
+          const attempt = reconnectAttemptsRef.current;
           reconnectAttemptsRef.current++;
+          // Exponential backoff: 5s, 10s, 20s, 40s, 80s (capped at 120s / 120000ms)
+          const delay = Math.min(reconnectDelay * Math.pow(2, attempt), 120000);
           console.log(
-            `[SSE] Reconnecting... (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`,
+            `[SSE] Reconnecting in ${delay}ms... (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`,
           );
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
-          }, reconnectDelay);
+          }, delay);
         } else {
           console.error("[SSE] Max reconnect attempts reached");
         }
