@@ -33,17 +33,23 @@ const router: Router = Router();
 const chatLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 20, // 20 messages per minute per IP
-  message: "Too many messages, please slow down.",
+  message: { error: "Too many requests", message: "Too many messages, please slow down." },
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res, _next, options) => {
+    res.status(options.statusCode).json(options.message);
+  },
 });
 
 const leadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 lead submissions per 15 min per IP
-  message: "Too many requests, please try again later.",
+  message: { error: "Too many requests", message: "Too many requests, please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res, _next, options) => {
+    res.status(options.statusCode).json(options.message);
+  },
 });
 
 // ──────────────────────────────────────────────────────────

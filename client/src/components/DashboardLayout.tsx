@@ -42,7 +42,6 @@ import {
   FileText,
   Settings,
   Shield,
-  Lock,
   MessageSquare,
   ListChecks,
   BookTemplate,
@@ -78,7 +77,6 @@ import { Button } from "./ui/button";
 import { trpc } from "@/lib/trpc";
 import { ThemeToggle } from "./ThemeToggle";
 import { NotificationCenter } from "./NotificationCenter";
-import { AdminUnlockDialog } from "./AdminUnlockDialog";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
@@ -413,28 +411,6 @@ function DashboardLayoutContent({
                   })}
                 </>
               )}
-              {/* Admin unlock shortcut — shown to role=admin users who haven't
-                  yet unlocked their session this session */}
-              {!adminStatus?.isUnlocked && user?.role === "admin" && (
-                <>
-                  <div className="my-2 px-2">
-                    <div className="h-px bg-border" />
-                  </div>
-                  <SidebarMenuItem>
-                    <AdminUnlockDialog
-                      trigger={
-                        <SidebarMenuButton
-                          tooltip="Unlock Admin Panel"
-                          className="h-10 transition-all font-normal text-muted-foreground hover:text-primary"
-                        >
-                          <Lock className="h-4 w-4" />
-                          <span>Unlock Admin</span>
-                        </SidebarMenuButton>
-                      }
-                    />
-                  </SidebarMenuItem>
-                </>
-              )}
               {/* Stable plan menu items */}
               {isStablePlan && (
                 <>
@@ -607,7 +583,10 @@ function DashboardLayoutContent({
                     {moreModuleGroups.map((group) => {
                       // Filter stable-only items for non-stable users
                       const items = group.items.filter((item) => {
-                        if (item.label === "Breeding" && !isStablePlan) return false;
+                        if (!isStablePlan && (
+                          item.label === "Breeding" ||
+                          item.label === "Stable Management"
+                        )) return false;
                         return true;
                       });
                       if (items.length === 0) return null;

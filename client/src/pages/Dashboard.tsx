@@ -64,13 +64,13 @@ const moduleSections = [
   },
   {
     label: "Advanced",
-    description: "Breeding, financials & settings",
-    ids: ["breeding", "financial", "settings"],
+    description: "Financials & settings",
+    ids: ["financial", "settings"],
   },
   {
     label: "Stable Management",
-    description: "Team, clients & messaging",
-    ids: ["stable"],
+    description: "Breeding, team, clients & messaging",
+    ids: ["breeding", "stable"],
     stableOnly: true,
   },
 ];
@@ -225,14 +225,13 @@ const moduleCategories = [
   {
     id: "settings",
     name: "Settings",
-    description: "Account, security & admin",
+    description: "Account & security",
     icon: Settings,
     color: "from-gray-500 to-slate-600",
     accent: "border-gray-500/30",
     href: "/settings",
     modules: [
       { name: "Settings", href: "/settings", icon: Settings },
-      { name: "Admin", href: "/admin", icon: Shield },
     ],
   },
 ];
