@@ -27,7 +27,7 @@ const loginLimiter = rateLimit({
  */
 router.post("/signup", async (req, res) => {
   try {
-    const { email: rawEmail, password, name } = req.body;
+    const { email: rawEmail, password, name, planType } = req.body;
 
     // Validation
     if (!rawEmail || !password) {
@@ -78,9 +78,27 @@ router.post("/signup", async (req, res) => {
       return res.status(500).json({ error: "Failed to create user" });
     }
 
-    // Auto-grant admin role to primary admin email
+    // Auto-grant admin role to primary admin email, and store plan type preference
+    const userUpdates: Record<string, unknown> = {};
     if (userEmail === "amarktainetwork@gmail.com" && user.role !== "admin") {
-      await db.updateUser(user.id, { role: "admin" });
+      userUpdates.role = "admin";
+    }
+    if (planType === "stable" || planType === "normal") {
+      let prefs: Record<string, unknown> = {};
+      if (user.preferences) {
+        try {
+          prefs = JSON.parse(user.preferences);
+        } catch {
+          prefs = {};
+        }
+      }
+      // "normal" is the UI label for the non-stable plan; internally it is
+      // stored as "pro" to match the billing plan tier name used elsewhere.
+      prefs.planTier = planType === "stable" ? "stable" : "pro";
+      userUpdates.preferences = JSON.stringify(prefs);
+    }
+    if (Object.keys(userUpdates).length > 0) {
+      await db.updateUser(user.id, userUpdates as any);
     }
 
     // Generate JWT token

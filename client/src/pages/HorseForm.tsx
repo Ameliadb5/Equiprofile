@@ -499,7 +499,7 @@ function HorseFormContent() {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/jpeg,image/png,image/webp"
+                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                     className="hidden"
                     onChange={handlePhotoChange}
                   />
@@ -523,7 +523,7 @@ function HorseFormContent() {
                     )}
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    JPG, PNG or WebP. Max 5MB.
+                    JPG, PNG, WebP or HEIC. Max 5MB.
                   </p>
                 </div>
               </div>

@@ -170,7 +170,7 @@ export default function Register() {
     await performRegistration();
   };
 
-  const performRegistration = async () => {
+  const performRegistration = async (planType?: "normal" | "stable") => {
     setIsLoading(true);
 
     try {
@@ -184,6 +184,7 @@ export default function Register() {
           email: email.trim().toLowerCase(),
           password,
           name,
+          planType: planType || undefined,
         }),
         credentials: "include",
       });
@@ -225,7 +226,7 @@ export default function Register() {
     setSelectedPlanType(planType);
     // Store preference in sessionStorage so it persists to billing page after registration
     sessionStorage.setItem("preferredPlanType", planType);
-    await performRegistration();
+    await performRegistration(planType);
   };
 
   const stepLabels = ["Name", "Email", "Password", "Confirm", "Choose Plan"];

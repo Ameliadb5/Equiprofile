@@ -64,6 +64,9 @@ const ALLOWED_UPLOAD_MIME_TYPES = [
   "image/gif",
   "image/webp",
   "image/svg+xml",
+  // HEIC/HEIF — iPhone default photo format; converted to JPEG server-side
+  "image/heic",
+  "image/heif",
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -1848,18 +1851,62 @@ export const appRouter = router({
         // Sanitize filename — strip path separators
         const safeFileName = input.fileName.replace(/[/\\]/g, "_");
 
-        // Decode base64 and upload (Forge if enabled, otherwise local disk)
-        const buffer = Buffer.from(input.fileData, "base64");
-        const fileKey = `${ctx.user.id}/documents/${nanoid()}-${safeFileName}`;
-        const { url } = await storagePut(fileKey, buffer, input.fileType);
+        // Decode base64
+        let buffer = Buffer.from(input.fileData, "base64");
+        let finalFileType = input.fileType;
+        let finalFileName = safeFileName;
+
+        // HEIC/HEIF → JPEG conversion (iPhone default photo format)
+        if (
+          input.fileType === "image/heic" ||
+          input.fileType === "image/heif"
+        ) {
+          try {
+            const heicConvert = await import("heic-convert");
+            // Node.js Buffers may share the underlying ArrayBuffer with an
+            // offset, so we slice a dedicated copy to pass to heic-convert.
+            const srcArrayBuffer = buffer.buffer.slice(
+              buffer.byteOffset,
+              buffer.byteOffset + buffer.byteLength,
+            ) as ArrayBuffer;
+            const outputBuffer = await heicConvert.default({
+              buffer: srcArrayBuffer,
+              format: "JPEG",
+              quality: 0.9,
+            });
+            buffer = Buffer.from(outputBuffer);
+            finalFileType = "image/jpeg";
+            // Replace .heic/.heif extension with .jpg
+            finalFileName = finalFileName.replace(/\.(heic|heif)$/i, ".jpg");
+
+            // Re-validate converted size — a large HEIC can still produce a
+            // JPEG that exceeds the 10 MB limit after conversion.
+            if (buffer.length > MAX_FILE_SIZE) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message:
+                  "Converted image exceeds 10MB limit. Please use a smaller photo.",
+              });
+            }
+          } catch (err) {
+            if (err instanceof TRPCError) throw err;
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to convert HEIC image. Please try a JPEG or PNG.",
+            });
+          }
+        }
+
+        const fileKey = `${ctx.user.id}/documents/${nanoid()}-${finalFileName}`;
+        const { url } = await storagePut(fileKey, buffer, finalFileType);
 
         const id = await db.createDocument({
           userId: ctx.user!.id,
           horseId: input.horseId,
           healthRecordId: input.healthRecordId,
-          fileName: input.fileName,
-          fileType: input.fileType,
-          fileSize: input.fileSize,
+          fileName: finalFileName,
+          fileType: finalFileType,
+          fileSize: buffer.length,
           fileUrl: url,
           fileKey,
           category: input.category,
