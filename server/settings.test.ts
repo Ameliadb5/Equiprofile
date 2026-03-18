@@ -93,10 +93,10 @@ async function handleChangePassword(
       body: { error: "currentPassword and newPassword are required" },
     };
   }
-  if (newPassword.length < 12) {
+  if (newPassword.length < 8) {
     return {
       status: 400,
-      body: { error: "New password must be at least 12 characters" },
+      body: { error: "New password must be at least 8 characters" },
     };
   }
   if (!user.passwordHash) {
@@ -142,7 +142,7 @@ describe("auth.changePassword", () => {
       dbMock,
     );
     expect(result.status).toBe(400);
-    expect(result.body.error).toContain("12 characters");
+    expect(result.body.error).toContain("8 characters");
   });
 
   it("rejects when no password hash is set (OAuth user)", async () => {

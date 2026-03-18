@@ -1,5 +1,6 @@
 // Copyright (c) 2025-2026 Amarktai Network. All rights reserved.
 import { ENV } from "./env";
+import { getRuntimeConfig } from "../dynamicConfig";
 
 export type Role = "system" | "user" | "assistant" | "tool" | "function";
 
@@ -215,27 +216,40 @@ const normalizeToolChoice = (
   return toolChoice;
 };
 
-const resolveApiUrl = (): string | null =>
-  ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
-    ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`
+const resolveApiUrl = async (): Promise<string | null> => {
+  const url =
+    ENV.forgeApiUrl ||
+    (await getRuntimeConfig("forge_api_url", "BUILT_IN_FORGE_API_URL"));
+  return url && url.trim().length > 0
+    ? `${url.replace(/\/$/, "")}/v1/chat/completions`
     : null;
+};
 
-const assertApiKey = () => {
-  if (!ENV.forgeApiKey) {
+const assertApiKey = async (): Promise<string> => {
+  const key =
+    ENV.forgeApiKey ||
+    (await getRuntimeConfig("forge_api_key", "BUILT_IN_FORGE_API_KEY"));
+  if (!key) {
     throw new Error("AI service is not configured (API key missing)");
   }
+  return key;
 };
 
 /**
  * Check whether the AI service is configured (key present).
+ * Checks environment variables first, then database settings.
  * Use this before calling invokeLLM to provide a graceful fallback.
  */
-export function isAIConfigured(): boolean {
-  return !!(
+export async function isAIConfigured(): Promise<boolean> {
+  if (
     ENV.forgeApiKey ||
     process.env.OPENAI_API_KEY ||
     process.env.HUGGINGFACE_API_KEY
-  );
+  ) {
+    return true;
+  }
+  const dbKey = await getRuntimeConfig("forge_api_key", "BUILT_IN_FORGE_API_KEY");
+  return !!dbKey;
 }
 
 const normalizeResponseFormat = ({
@@ -284,9 +298,9 @@ const normalizeResponseFormat = ({
 };
 
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
-  assertApiKey();
+  const apiKey = await assertApiKey();
 
-  const apiUrl = resolveApiUrl();
+  const apiUrl = await resolveApiUrl();
   if (!apiUrl) {
     throw new Error("AI service is not configured (FORGE_API_URL is missing)");
   }
@@ -339,7 +353,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
+      authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(payload),
   });

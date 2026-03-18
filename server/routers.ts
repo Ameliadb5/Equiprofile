@@ -12,6 +12,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import * as db from "./db";
 import { invokeLLM, isAIConfigured } from "./_core/llm";
+import { invalidateConfigCache } from "./dynamicConfig";
 import { storagePut } from "./storage";
 import { nanoid } from "nanoid";
 import {
@@ -316,7 +317,7 @@ export const appRouter = router({
         }
 
         // Normal AI chat processing
-        if (!isAIConfigured()) {
+        if (!await isAIConfigured()) {
           return {
             role: "assistant" as const,
             content:
@@ -2045,7 +2046,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           return "good";
         })();
 
-        if (!isAIConfigured()) {
+        if (!await isAIConfigured()) {
           return {
             recommendation: basicRec,
             aiAnalysis:
@@ -2366,7 +2367,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
       .input(
         z.object({
           userId: z.number(),
-          newPassword: z.string().min(12),
+          newPassword: z.string().min(8),
         }),
       )
       .mutation(async ({ ctx, input }) => {
@@ -2727,6 +2728,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           .insert(siteSettings)
           .values({ key: input.key, value: input.value })
           .onDuplicateKeyUpdate({ set: { value: input.value } });
+        invalidateConfigCache(input.key);
         return { success: true };
       }),
 

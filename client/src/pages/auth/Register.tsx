@@ -134,8 +134,8 @@ export default function Register() {
   const handlePasswordStep = (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    if (password.length < 12) {
-      setError("Password must be at least 12 characters");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
       return;
     }
     setStep(4);
@@ -427,7 +427,7 @@ export default function Register() {
                           />
                         </div>
                         <p className="text-xs text-gray-500">
-                          At least 12 characters
+                          At least 8 characters
                         </p>
                       </div>
 

@@ -94,6 +94,23 @@ function AdminContent() {
     accessToken: "",
   });
 
+  // API key configuration form state
+  const [aiConfigForm, setAiConfigForm] = useState({
+    forge_api_url: "",
+    forge_api_key: "",
+  });
+  const [smtpForm, setSmtpForm] = useState({
+    smtp_host: "",
+    smtp_port: "",
+    smtp_user: "",
+    smtp_pass: "",
+    smtp_from: "",
+  });
+  const [stripeForm, setStripeForm] = useState({
+    stripe_secret_key: "",
+    stripe_webhook_secret: "",
+  });
+
   // Check admin session status
   const statusQuery = trpc.adminUnlock.getStatus.useQuery();
   const isUnlocked = !!statusQuery.data?.isUnlocked;
@@ -119,6 +136,9 @@ function AdminContent() {
   const { data: settings } = trpc.admin.getSettings.useQuery(undefined, {
     enabled: isUnlocked,
   });
+  const siteSettingsQuery = trpc.admin.getSiteSettings.useQuery(undefined, {
+    enabled: isUnlocked,
+  });
 
   // API Key queries
   const apiKeysQuery = trpc.admin.apiKeys.list.useQuery(undefined, {
@@ -136,6 +156,14 @@ function AdminContent() {
   });
 
   // All mutations (lazy — no enabled needed)
+  const setSiteSettingMutation = trpc.admin.setSiteSetting.useMutation({
+    onSuccess: (_data, variables) => {
+      toast.success(`${variables.key} saved`);
+      siteSettingsQuery.refetch();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
   const updateWhatsAppMutation = trpc.admin.updateWhatsAppConfig.useMutation({
     onSuccess: () => {
       toast.success("WhatsApp configuration saved");
@@ -221,6 +249,28 @@ function AdminContent() {
       }));
     }
   }, [whatsappConfigQuery.data]);
+
+  // Populate API key forms from stored siteSettings
+  useEffect(() => {
+    if (siteSettingsQuery.data) {
+      const s = siteSettingsQuery.data as Record<string, string>;
+      setAiConfigForm({
+        forge_api_url: s.forge_api_url ?? "",
+        forge_api_key: s.forge_api_key ? "••••••••" : "",
+      });
+      setSmtpForm({
+        smtp_host: s.smtp_host ?? "",
+        smtp_port: s.smtp_port ?? "",
+        smtp_user: s.smtp_user ?? "",
+        smtp_pass: s.smtp_pass ? "••••••••" : "",
+        smtp_from: s.smtp_from ?? "",
+      });
+      setStripeForm({
+        stripe_secret_key: s.stripe_secret_key ? "••••••••" : "",
+        stripe_webhook_secret: s.stripe_webhook_secret ? "••••••••" : "",
+      });
+    }
+  }, [siteSettingsQuery.data]);
 
   // Redirect if admin not unlocked (after data resolves)
   useEffect(() => {
@@ -619,7 +669,7 @@ function AdminContent() {
                                   <DialogFooter>
                                     <Button
                                       disabled={
-                                        resetPasswordValue.length < 12 ||
+                                        resetPasswordValue.length < 8 ||
                                         resetPasswordMutation.isPending
                                       }
                                       onClick={() => {
@@ -855,41 +905,299 @@ function AdminContent() {
 
         {/* Settings Tab */}
         <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Settings</CardTitle>
-              <CardDescription>
-                Configure API keys and system parameters
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="p-4 rounded-lg border bg-muted/30">
-                  <h3 className="font-medium mb-2">API Configuration</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    API keys are managed securely through environment variables.
-                    Contact your system administrator to update API keys.
-                  </p>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-2 rounded bg-background">
-                      <span className="text-sm">OpenAI API</span>
-                      <Badge
-                        variant="secondary"
-                        className="bg-green-100 text-green-700"
-                      >
-                        Configured
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-2 rounded bg-background">
-                      <span className="text-sm">Stripe API</span>
-                      <Badge variant="outline">Not Configured</Badge>
-                    </div>
+          <div className="space-y-6">
+            {/* AI / LLM Configuration */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Server className="h-5 w-5" />
+                  AI Configuration (Forge API)
+                </CardTitle>
+                <CardDescription>
+                  Configure the AI backend used for the chat assistant and
+                  weather recommendations. Keys saved here override environment
+                  variables and take effect immediately.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="forge-url">Forge API URL</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="forge-url"
+                      placeholder="https://your-forge-api.com"
+                      value={aiConfigForm.forge_api_url}
+                      onChange={(e) =>
+                        setAiConfigForm((p) => ({
+                          ...p,
+                          forge_api_url: e.target.value,
+                        }))
+                      }
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        setSiteSettingMutation.mutate({
+                          key: "forge_api_url",
+                          value: aiConfigForm.forge_api_url,
+                        })
+                      }
+                      disabled={setSiteSettingMutation.isPending}
+                    >
+                      <Save className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="forge-key">Forge API Key</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="forge-key"
+                      type="password"
+                      placeholder="Enter new key to update"
+                      value={aiConfigForm.forge_api_key}
+                      onChange={(e) =>
+                        setAiConfigForm((p) => ({
+                          ...p,
+                          forge_api_key: e.target.value,
+                        }))
+                      }
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        setSiteSettingMutation.mutate({
+                          key: "forge_api_key",
+                          value: aiConfigForm.forge_api_key,
+                        })
+                      }
+                      disabled={
+                        setSiteSettingMutation.isPending ||
+                        !aiConfigForm.forge_api_key ||
+                        aiConfigForm.forge_api_key === "••••••••"
+                      }
+                    >
+                      <Save className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Leave blank / unchanged to keep the existing key.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
 
-                {settings && settings.length > 0 && (
+            {/* SMTP / Email Configuration */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Email (SMTP) Configuration
+                </CardTitle>
+                <CardDescription>
+                  Configure the email service for password resets and
+                  notifications. Changes take effect on the next email send.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <h3 className="font-medium">Custom Settings</h3>
+                    <Label htmlFor="smtp-host">SMTP Host</Label>
+                    <Input
+                      id="smtp-host"
+                      placeholder="smtp.gmail.com"
+                      value={smtpForm.smtp_host}
+                      onChange={(e) =>
+                        setSmtpForm((p) => ({
+                          ...p,
+                          smtp_host: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="smtp-port">SMTP Port</Label>
+                    <Input
+                      id="smtp-port"
+                      placeholder="587"
+                      value={smtpForm.smtp_port}
+                      onChange={(e) =>
+                        setSmtpForm((p) => ({
+                          ...p,
+                          smtp_port: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="smtp-user">SMTP Username</Label>
+                  <Input
+                    id="smtp-user"
+                    placeholder="you@gmail.com"
+                    value={smtpForm.smtp_user}
+                    onChange={(e) =>
+                      setSmtpForm((p) => ({
+                        ...p,
+                        smtp_user: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="smtp-pass">SMTP Password / App Password</Label>
+                  <Input
+                    id="smtp-pass"
+                    type="password"
+                    placeholder="Enter new password to update"
+                    value={smtpForm.smtp_pass}
+                    onChange={(e) =>
+                      setSmtpForm((p) => ({
+                        ...p,
+                        smtp_pass: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="smtp-from">From Address</Label>
+                  <Input
+                    id="smtp-from"
+                    placeholder='"EquiProfile" <noreply@equiprofile.online>'
+                    value={smtpForm.smtp_from}
+                    onChange={(e) =>
+                      setSmtpForm((p) => ({
+                        ...p,
+                        smtp_from: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <Button
+                  onClick={async () => {
+                    const fields: Array<{ key: string; value: string }> = [
+                      { key: "smtp_host", value: smtpForm.smtp_host },
+                      { key: "smtp_port", value: smtpForm.smtp_port },
+                      { key: "smtp_user", value: smtpForm.smtp_user },
+                      { key: "smtp_from", value: smtpForm.smtp_from },
+                    ];
+                    if (
+                      smtpForm.smtp_pass &&
+                      smtpForm.smtp_pass !== "••••••••"
+                    ) {
+                      fields.push({
+                        key: "smtp_pass",
+                        value: smtpForm.smtp_pass,
+                      });
+                    }
+                    try {
+                      await Promise.all(
+                        fields
+                          .filter((f) => f.value)
+                          .map((f) => setSiteSettingMutation.mutateAsync(f)),
+                      );
+                      toast.success("SMTP settings saved");
+                    } catch {
+                      toast.error("Failed to save one or more SMTP settings");
+                    }
+                  }}
+                  disabled={setSiteSettingMutation.isPending}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save SMTP Settings
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Stripe Configuration */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Key className="h-5 w-5" />
+                  Stripe Configuration
+                </CardTitle>
+                <CardDescription>
+                  Store Stripe keys for reference. A server restart is required
+                  for Stripe changes to take effect.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="stripe-key">Stripe Secret Key</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="stripe-key"
+                      type="password"
+                      placeholder="sk_live_..."
+                      value={stripeForm.stripe_secret_key}
+                      onChange={(e) =>
+                        setStripeForm((p) => ({
+                          ...p,
+                          stripe_secret_key: e.target.value,
+                        }))
+                      }
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        setSiteSettingMutation.mutate({
+                          key: "stripe_secret_key",
+                          value: stripeForm.stripe_secret_key,
+                        })
+                      }
+                      disabled={
+                        setSiteSettingMutation.isPending ||
+                        !stripeForm.stripe_secret_key ||
+                        stripeForm.stripe_secret_key === "••••••••"
+                      }
+                    >
+                      <Save className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="stripe-webhook">Stripe Webhook Secret</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="stripe-webhook"
+                      type="password"
+                      placeholder="whsec_..."
+                      value={stripeForm.stripe_webhook_secret}
+                      onChange={(e) =>
+                        setStripeForm((p) => ({
+                          ...p,
+                          stripe_webhook_secret: e.target.value,
+                        }))
+                      }
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        setSiteSettingMutation.mutate({
+                          key: "stripe_webhook_secret",
+                          value: stripeForm.stripe_webhook_secret,
+                        })
+                      }
+                      disabled={
+                        setSiteSettingMutation.isPending ||
+                        !stripeForm.stripe_webhook_secret ||
+                        stripeForm.stripe_webhook_secret === "••••••••"
+                      }
+                    >
+                      <Save className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {settings && settings.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Custom Settings</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
                     {settings.map((setting) => (
                       <div
                         key={setting.id}
@@ -907,10 +1215,10 @@ function AdminContent() {
                       </div>
                     ))}
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </TabsContent>
 
         {/* System Secrets Tab */}

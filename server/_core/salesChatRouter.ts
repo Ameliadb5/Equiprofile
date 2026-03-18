@@ -220,11 +220,11 @@ router.post("/sales-chat", chatLimiter, async (req, res) => {
 
     // Try rule-based fallback first (instant, no AI key needed)
     const ruleAnswer = ruleFallback(safeMessage);
-    if (ruleAnswer && !isAIConfigured()) {
+    if (ruleAnswer && !await isAIConfigured()) {
       return res.json({ reply: ruleAnswer });
     }
 
-    if (!isAIConfigured()) {
+    if (!await isAIConfigured()) {
       // Generic fallback with no AI key
       return res.json({
         reply:
