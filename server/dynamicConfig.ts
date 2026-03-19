@@ -52,7 +52,10 @@ export async function getRuntimeConfig(
     });
     return value;
   } catch (err) {
-    console.error(`[DynamicConfig] Failed to read setting "${settingKey}":`, err);
+    console.error(
+      `[DynamicConfig] Failed to read setting "${settingKey}":`,
+      err,
+    );
     return "";
   }
 }

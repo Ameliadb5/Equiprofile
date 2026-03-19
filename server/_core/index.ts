@@ -129,7 +129,10 @@ async function startServer() {
   const limiter = rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 minutes
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "500"),
-    message: { error: "Too many requests", message: "Too many requests from this IP, please try again later." },
+    message: {
+      error: "Too many requests",
+      message: "Too many requests from this IP, please try again later.",
+    },
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res, next, options) => {
@@ -142,7 +145,10 @@ async function startServer() {
   const healthLimiter = rateLimit({
     windowMs: 60000, // 1 minute
     max: 60, // 60 requests per minute (1 per second average)
-    message: { error: "Too many requests", message: "Too many health check requests" },
+    message: {
+      error: "Too many requests",
+      message: "Too many health check requests",
+    },
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res, next, options) => {
@@ -447,12 +453,9 @@ async function startServer() {
       !!(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET);
     const uploadsReady =
       ENV.enableUploads &&
-      !!(
-        process.env.BUILT_IN_FORGE_API_URL && process.env.BUILT_IN_FORGE_API_KEY
-      );
+      !!(process.env.STORAGE_PROXY_URL && process.env.STORAGE_PROXY_KEY);
     const aiOpenAI = !!process.env.OPENAI_API_KEY;
     const aiHuggingFace = !!process.env.HUGGINGFACE_API_KEY;
-    const aiForge = !!ENV.forgeApiKey;
 
     res.json({
       db: true, // If we got here the server started successfully
@@ -462,8 +465,7 @@ async function startServer() {
       ai: {
         openai: aiOpenAI,
         huggingface: aiHuggingFace,
-        forge: aiForge,
-        anyConfigured: aiOpenAI || aiHuggingFace || aiForge,
+        anyConfigured: aiOpenAI || aiHuggingFace,
       },
       weather: true, // Open-Meteo needs no key
       adminPasswordSet: !!process.env.ADMIN_UNLOCK_PASSWORD,
@@ -647,7 +649,10 @@ async function startServer() {
   const contactLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 5, // 5 submissions per 15 minutes per IP
-    message: { error: "Too many requests", message: "Too many contact form submissions, please try again later." },
+    message: {
+      error: "Too many requests",
+      message: "Too many contact form submissions, please try again later.",
+    },
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res, next, options) => {
@@ -729,7 +734,10 @@ async function startServer() {
   const adminEmailLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
     max: 5, // 5 test emails per hour
-    message: { error: "Too many requests", message: "Too many test email requests, please try again later." },
+    message: {
+      error: "Too many requests",
+      message: "Too many test email requests, please try again later.",
+    },
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res, next, options) => {
@@ -916,7 +924,7 @@ async function startServer() {
   app.use("/api/v1", apiRouter);
 
   // ── Local file serving ────────────────────────────────────────────────────
-  // Serves files uploaded to local disk storage (when Forge is not configured).
+  // Serves files uploaded to local disk storage (when proxy storage is not configured).
   // Authentication is NOT required here because the file URLs are unguessable
   // (nanoid-prefixed keys).  Path traversal is prevented by resolve() check.
   app.get(/^\/api\/files\/(.+)$/, async (req, res) => {

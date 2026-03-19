@@ -204,7 +204,9 @@ export function AIChatBox({
         </div>
         <div className="flex-1">
           <h3 className="text-sm font-semibold tracking-tight">AI Assistant</h3>
-          <p className="text-xs text-muted-foreground leading-none mt-0.5">Horse care expert · powered by AI</p>
+          <p className="text-xs text-muted-foreground leading-none mt-0.5">
+            Horse care expert · powered by AI
+          </p>
         </div>
       </div>
 

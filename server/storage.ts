@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Amarktai Network. All rights reserved.
 // Preconfigured storage helpers for EquiProfile
-// Uses the Biz-provided storage proxy (Authorization: Bearer <token>)
-// Falls back to local disk when Forge credentials are not configured.
+// Uses the storage proxy (Authorization: Bearer <token>) when configured.
+// Falls back to local disk when proxy credentials are not configured.
 
 import fs from "fs";
 import path from "path";
@@ -18,12 +18,15 @@ function getStorageConfig(): StorageConfig {
     );
   }
 
-  const baseUrl = ENV.forgeApiUrl;
-  const apiKey = ENV.forgeApiKey;
+  // Support both new STORAGE_PROXY_* names and legacy BUILT_IN_FORGE_* names
+  const baseUrl =
+    process.env.STORAGE_PROXY_URL ?? process.env.BUILT_IN_FORGE_API_URL ?? "";
+  const apiKey =
+    process.env.STORAGE_PROXY_KEY ?? process.env.BUILT_IN_FORGE_API_KEY ?? "";
 
   if (!baseUrl || !apiKey) {
     throw new Error(
-      "Storage proxy credentials missing: set BUILT_IN_FORGE_API_URL and BUILT_IN_FORGE_API_KEY",
+      "Storage proxy credentials missing: set STORAGE_PROXY_URL and STORAGE_PROXY_KEY",
     );
   }
 
@@ -84,8 +87,12 @@ export async function storagePut(
   data: Buffer | Uint8Array | string,
   contentType = "application/octet-stream",
 ): Promise<{ key: string; url: string }> {
-  // Use Forge if ENABLE_UPLOADS=true and credentials are present
-  if (ENV.enableUploads && ENV.forgeApiUrl && ENV.forgeApiKey) {
+  // Use storage proxy if ENABLE_UPLOADS=true and credentials are present
+  const storageProxyUrl =
+    process.env.STORAGE_PROXY_URL ?? process.env.BUILT_IN_FORGE_API_URL;
+  const storageProxyKey =
+    process.env.STORAGE_PROXY_KEY ?? process.env.BUILT_IN_FORGE_API_KEY;
+  if (ENV.enableUploads && storageProxyUrl && storageProxyKey) {
     const { baseUrl, apiKey } = getStorageConfig();
     const key = normalizeKey(relKey);
     const uploadUrl = buildUploadUrl(baseUrl, key);

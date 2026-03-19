@@ -89,7 +89,6 @@ const menuItems = [
     path: "/training-templates",
   },
   { icon: Calendar, label: "Calendar", path: "/calendar" },
-  { icon: MessageSquare, label: "Messages", path: "/messages" },
   { icon: FileText, label: "Documents", path: "/documents" },
   { icon: Users, label: "Contacts", path: "/contacts" },
   { icon: BarChart3, label: "Analytics", path: "/analytics" },
@@ -106,6 +105,7 @@ const menuItems = [
 const stableMenuItems = [
   { icon: Building2, label: "Stable Dashboard", path: "/stable-dashboard" },
   { icon: Home, label: "Stable", path: "/stable" },
+  { icon: MessageSquare, label: "Messages", path: "/messages" },
   { icon: UserCog, label: "Staff", path: "/contacts" },
   { icon: Briefcase, label: "Owners", path: "/contacts" },
 ];
@@ -120,7 +120,7 @@ const bottomNavItems = [
   { icon: Home, label: "Home", path: "/dashboard" },
   { icon: CircleDot, label: "Horses", path: "/horses" },
   { icon: Calendar, label: "Calendar", path: "/calendar" },
-  { icon: MessageSquare, label: "Messages", path: "/messages" },
+  { icon: Brain, label: "AI Chat", path: "/ai-chat" },
 ];
 
 // All modules grouped for the "More" sheet
@@ -583,44 +583,46 @@ function DashboardLayoutContent({
                     {moreModuleGroups.map((group) => {
                       // Filter stable-only items for non-stable users
                       const items = group.items.filter((item) => {
-                        if (!isStablePlan && (
-                          item.label === "Breeding" ||
-                          item.label === "Stable Management"
-                        )) return false;
+                        if (
+                          !isStablePlan &&
+                          (item.label === "Breeding" ||
+                            item.label === "Stable Management")
+                        )
+                          return false;
                         return true;
                       });
                       if (items.length === 0) return null;
                       return (
-                      <div key={group.label}>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                          {group.label}
-                        </p>
-                        <div className="grid grid-cols-3 gap-2">
-                          {items.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = location === item.path;
-                            return (
-                              <button
-                                key={item.path}
-                                onClick={() => {
-                                  setLocation(item.path);
-                                  setMoreSheetOpen(false);
-                                }}
-                                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all text-center min-h-[64px] ${
-                                  isActive
-                                    ? "border-primary bg-primary/10 text-primary"
-                                    : "border-border bg-card hover:bg-accent"
-                                }`}
-                              >
-                                <Icon className="h-5 w-5 shrink-0" />
-                                <span className="text-[11px] leading-tight font-medium">
-                                  {item.label}
-                                </span>
-                              </button>
-                            );
-                          })}
+                        <div key={group.label}>
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                            {group.label}
+                          </p>
+                          <div className="grid grid-cols-3 gap-2">
+                            {items.map((item) => {
+                              const Icon = item.icon;
+                              const isActive = location === item.path;
+                              return (
+                                <button
+                                  key={item.path}
+                                  onClick={() => {
+                                    setLocation(item.path);
+                                    setMoreSheetOpen(false);
+                                  }}
+                                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all text-center min-h-[64px] ${
+                                    isActive
+                                      ? "border-primary bg-primary/10 text-primary"
+                                      : "border-border bg-card hover:bg-accent"
+                                  }`}
+                                >
+                                  <Icon className="h-5 w-5 shrink-0" />
+                                  <span className="text-[11px] leading-tight font-medium">
+                                    {item.label}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
                       );
                     })}
                   </div>

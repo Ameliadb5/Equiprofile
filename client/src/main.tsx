@@ -52,7 +52,12 @@ const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         if (error instanceof TRPCClientError) {
           const code = (error as any)?.data?.code;
-          if (code === "TOO_MANY_REQUESTS" || code === "UNAUTHORIZED" || code === "FORBIDDEN") return false;
+          if (
+            code === "TOO_MANY_REQUESTS" ||
+            code === "UNAUTHORIZED" ||
+            code === "FORBIDDEN"
+          )
+            return false;
         }
         return failureCount < 1;
       },

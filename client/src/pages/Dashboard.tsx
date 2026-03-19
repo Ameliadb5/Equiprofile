@@ -230,9 +230,7 @@ const moduleCategories = [
     color: "from-gray-500 to-slate-600",
     accent: "border-gray-500/30",
     href: "/settings",
-    modules: [
-      { name: "Settings", href: "/settings", icon: Settings },
-    ],
+    modules: [{ name: "Settings", href: "/settings", icon: Settings }],
   },
 ];
 

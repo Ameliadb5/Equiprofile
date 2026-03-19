@@ -317,11 +317,11 @@ export const appRouter = router({
         }
 
         // Normal AI chat processing
-        if (!await isAIConfigured()) {
+        if (!(await isAIConfigured())) {
           return {
             role: "assistant" as const,
             content:
-              "⚠️ AI assistant is not yet configured. Please set OPENAI_API_KEY or BUILT_IN_FORGE_API_KEY in the server environment to enable AI features.",
+              "⚠️ AI assistant is not yet configured. Please set OPENAI_API_KEY in the server environment to enable AI features.",
           };
         }
 
@@ -1893,7 +1893,8 @@ export const appRouter = router({
             if (err instanceof TRPCError) throw err;
             throw new TRPCError({
               code: "INTERNAL_SERVER_ERROR",
-              message: "Failed to convert HEIC image. Please try a JPEG or PNG.",
+              message:
+                "Failed to convert HEIC image. Please try a JPEG or PNG.",
             });
           }
         }
@@ -2046,7 +2047,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           return "good";
         })();
 
-        if (!await isAIConfigured()) {
+        if (!(await isAIConfigured())) {
           return {
             recommendation: basicRec,
             aiAnalysis:
@@ -2628,20 +2629,24 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           requiredWhen: "ENABLE_STRIPE=true",
         },
 
-        // Upload/Storage vars (critical only if ENABLE_UPLOADS=true)
+        // Upload/Storage vars (optional - falls back to local disk when not configured)
         {
-          name: "BUILT_IN_FORGE_API_URL",
-          status: !!process.env.BUILT_IN_FORGE_API_URL,
-          critical: ENV.enableUploads,
+          name: "STORAGE_PROXY_URL",
+          status: !!(
+            process.env.STORAGE_PROXY_URL || process.env.BUILT_IN_FORGE_API_URL
+          ),
+          critical: false,
           conditional: true,
-          requiredWhen: "ENABLE_UPLOADS=true",
+          requiredWhen: "ENABLE_UPLOADS=true with proxy storage",
         },
         {
-          name: "BUILT_IN_FORGE_API_KEY",
-          status: !!process.env.BUILT_IN_FORGE_API_KEY,
-          critical: ENV.enableUploads,
+          name: "STORAGE_PROXY_KEY",
+          status: !!(
+            process.env.STORAGE_PROXY_KEY || process.env.BUILT_IN_FORGE_API_KEY
+          ),
+          critical: false,
           conditional: true,
-          requiredWhen: "ENABLE_UPLOADS=true",
+          requiredWhen: "ENABLE_UPLOADS=true with proxy storage",
         },
 
         // Legacy AWS vars (optional - kept for backward compatibility)
