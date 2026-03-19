@@ -2269,7 +2269,12 @@ export async function createNote(data: InsertNote) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(notes).values(data);
+  // Strip undefined fields to avoid DEFAULT keyword issues in MySQL
+  const cleanData = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined),
+  ) as InsertNote;
+
+  const result = await db.insert(notes).values(cleanData);
   return (result[0] as ResultSetHeader).insertId as number;
 }
 
@@ -2311,9 +2316,16 @@ export async function updateNote(
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  // Strip undefined fields
+  const cleanData = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined),
+  ) as Partial<InsertNote>;
+
+  if (Object.keys(cleanData).length === 0) return;
+
   await db
     .update(notes)
-    .set(data)
+    .set(cleanData)
     .where(and(eq(notes.id, id), eq(notes.userId, userId)));
 }
 

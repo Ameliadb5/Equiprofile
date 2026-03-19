@@ -2217,17 +2217,29 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        const noteId = await db.createNote({
-          userId: ctx.user.id,
-          ...input,
-        });
+        try {
+          const noteId = await db.createNote({
+            userId: ctx.user.id,
+            content: input.content,
+            transcribed: input.transcribed,
+            ...(input.title !== undefined && { title: input.title }),
+            ...(input.horseId !== undefined && { horseId: input.horseId }),
+            ...(input.tags !== undefined && { tags: input.tags }),
+          });
 
-        // Publish real-time event
-        const { publishModuleEvent } = await import("./_core/realtime");
-        const note = await db.getNoteById(noteId);
-        publishModuleEvent("notes", "created", note, ctx.user.id);
+          // Publish real-time event
+          const { publishModuleEvent } = await import("./_core/realtime");
+          const note = await db.getNoteById(noteId);
+          publishModuleEvent("notes", "created", note, ctx.user.id);
 
-        return { id: noteId };
+          return { id: noteId };
+        } catch (err) {
+          console.error("[notes.create] DB error:", err);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to save note. Please try again.",
+          });
+        }
       }),
 
     update: protectedProcedure
