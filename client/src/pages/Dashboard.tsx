@@ -478,7 +478,7 @@ function DashboardContent() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 p-6 text-white shadow-lg shadow-indigo-500/20"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 p-6 text-white shadow-xl shadow-black/30 border border-white/10"
       >
         {/* decorative circles */}
         <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-white/10" />
@@ -516,7 +516,7 @@ function DashboardContent() {
         className="grid grid-cols-1 sm:grid-cols-3 gap-3"
       >
         <Link href="/horses">
-          <div className="flex items-center gap-3 p-4 rounded-xl border bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30 border-rose-200/50 dark:border-rose-800/30 hover:shadow-md transition-all cursor-pointer">
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-rose-500/20 bg-gradient-to-br from-rose-950/40 to-pink-950/30 hover:from-rose-950/60 hover:shadow-lg hover:shadow-rose-900/20 transition-all cursor-pointer">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shrink-0">
               <Heart className="w-5 h-5 text-white" />
             </div>
@@ -527,7 +527,7 @@ function DashboardContent() {
           </div>
         </Link>
         <Link href="/calendar">
-          <div className="flex items-center gap-3 p-4 rounded-xl border bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 border-purple-200/50 dark:border-purple-800/30 hover:shadow-md transition-all cursor-pointer">
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-purple-500/20 bg-gradient-to-br from-purple-950/40 to-violet-950/30 hover:from-purple-950/60 hover:shadow-lg hover:shadow-purple-900/20 transition-all cursor-pointer">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shrink-0">
               <Calendar className="w-5 h-5 text-white" />
             </div>
@@ -556,7 +556,7 @@ function DashboardContent() {
           </div>
         </Link>
         <Link href="/tasks">
-          <div className="flex items-center gap-3 p-4 rounded-xl border bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200/50 dark:border-amber-800/30 hover:shadow-md transition-all cursor-pointer">
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-950/40 to-orange-950/30 hover:from-amber-950/60 hover:shadow-lg hover:shadow-amber-900/20 transition-all cursor-pointer">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
               <Activity className="w-5 h-5 text-white" />
             </div>
@@ -619,7 +619,7 @@ function DashboardContent() {
       >
         {/* LEFT — Recent Activity (60%) */}
         <div className="lg:col-span-3 space-y-4">
-          <Card className="border-muted/50 bg-card/60 backdrop-blur-sm">
+          <Card className="border-white/5 bg-card/80 backdrop-blur-sm">
             <CardHeader className="pb-3">
               <CardTitle className="font-serif text-base flex items-center gap-2">
                 <Activity className="w-4 h-4 text-primary" />
@@ -698,7 +698,7 @@ function DashboardContent() {
         {/* RIGHT — Upcoming Events + Health Alerts (40%) */}
         <div className="lg:col-span-2 space-y-4">
           {/* Upcoming Events */}
-          <Card className="border-muted/50 bg-card/60 backdrop-blur-sm">
+          <Card className="border-white/5 bg-card/80 backdrop-blur-sm">
             <CardHeader className="pb-3">
               <CardTitle className="font-serif text-base flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-purple-500" />
@@ -805,7 +805,7 @@ function DashboardContent() {
         className="grid grid-cols-1 lg:grid-cols-3 gap-4"
       >
         {/* Today's Schedule */}
-        <Card className="border-muted/50 bg-card/60 backdrop-blur-sm">
+        <Card className="border-white/5 bg-card/80 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="font-serif text-base flex items-center gap-2">
               <CalendarDays className="w-4 h-4 text-primary" />
@@ -867,7 +867,7 @@ function DashboardContent() {
         </Card>
 
         {/* Horse Overview */}
-        <Card className="border-muted/50 bg-card/60 backdrop-blur-sm">
+        <Card className="border-white/5 bg-card/80 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="font-serif text-base flex items-center gap-2">
               <Heart className="w-4 h-4 text-rose-500" />
@@ -946,7 +946,7 @@ function DashboardContent() {
         {/* Notifications & Tasks */}
         <div className="space-y-4">
           {/* Notifications */}
-          <Card className="border-muted/50 bg-card/60 backdrop-blur-sm">
+          <Card className="border-white/5 bg-card/80 backdrop-blur-sm">
             <CardHeader className="pb-3">
               <CardTitle className="font-serif text-base flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-amber-500" />
@@ -976,7 +976,7 @@ function DashboardContent() {
           </Card>
 
           {/* Tasks */}
-          <Card className="border-muted/50 bg-card/60 backdrop-blur-sm">
+          <Card className="border-white/5 bg-card/80 backdrop-blur-sm">
             <CardHeader className="pb-3">
               <CardTitle className="font-serif text-base flex items-center gap-2">
                 <Clock className="w-4 h-4 text-blue-500" />

@@ -337,7 +337,7 @@ function DashboardLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"
-          className="border-r-0"
+          className="border-r border-white/5 bg-sidebar"
           disableTransition={isResizing}
         >
           <SidebarHeader className="h-16 justify-center">
@@ -351,7 +351,7 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-serif font-semibold tracking-tight truncate text-primary">
+                  <span className="font-serif font-bold tracking-tight truncate bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                     EquiProfile
                   </span>
                 </div>
@@ -369,7 +369,7 @@ function DashboardLayoutContent({
                       isActive={isActive}
                       onClick={() => setLocation(item.path)}
                       tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
+                      className={`h-10 transition-all font-medium ${isActive ? "bg-primary/10 text-primary font-semibold" : ""}`}
                     >
                       <item.icon
                         className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
@@ -393,7 +393,7 @@ function DashboardLayoutContent({
                           isActive={isActive}
                           onClick={() => setLocation(item.path)}
                           tooltip={item.label}
-                          className="h-10 transition-all font-normal"
+                          className={`h-10 transition-all font-medium ${isActive ? "bg-primary/10 text-primary font-semibold" : ""}`}
                         >
                           <item.icon
                             className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
@@ -424,7 +424,7 @@ function DashboardLayoutContent({
                           isActive={isActive}
                           onClick={() => setLocation(item.path)}
                           tooltip={item.label}
-                          className="h-10 transition-all font-normal"
+                          className={`h-10 transition-all font-medium ${isActive ? "bg-primary/10 text-primary font-semibold" : ""}`}
                         >
                           <item.icon
                             className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
@@ -499,7 +499,7 @@ function DashboardLayoutContent({
 
       <SidebarInset>
         {isMobile && (
-          <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
+          <div className="flex border-b border-white/5 h-14 items-center justify-between bg-background/90 px-2 backdrop-blur-md sticky top-0 z-40">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
               <div className="flex items-center gap-3">
@@ -516,7 +516,7 @@ function DashboardLayoutContent({
             </div>
           </div>
         )}
-        <main className={`flex-1 p-4 ${isMobile ? "pb-20" : ""}`}>
+        <main className={`flex-1 p-4 sm:p-5 md:p-6 ${isMobile ? "pb-20" : ""}`}>
           {children}
         </main>
 
