@@ -317,7 +317,7 @@ export const appRouter = router({
         }
 
         // Normal AI chat processing
-        if (!await isAIConfigured()) {
+        if (!(await isAIConfigured())) {
           return {
             role: "assistant" as const,
             content:
@@ -1893,7 +1893,8 @@ export const appRouter = router({
             if (err instanceof TRPCError) throw err;
             throw new TRPCError({
               code: "INTERNAL_SERVER_ERROR",
-              message: "Failed to convert HEIC image. Please try a JPEG or PNG.",
+              message:
+                "Failed to convert HEIC image. Please try a JPEG or PNG.",
             });
           }
         }
@@ -2046,7 +2047,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           return "good";
         })();
 
-        if (!await isAIConfigured()) {
+        if (!(await isAIConfigured())) {
           return {
             recommendation: basicRec,
             aiAnalysis:
@@ -2630,15 +2631,19 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
         // Upload/Storage vars (optional - falls back to local disk when not configured)
         {
-          name: "BUILT_IN_FORGE_API_URL",
-          status: !!process.env.BUILT_IN_FORGE_API_URL,
+          name: "STORAGE_PROXY_URL",
+          status: !!(
+            process.env.STORAGE_PROXY_URL || process.env.BUILT_IN_FORGE_API_URL
+          ),
           critical: false,
           conditional: true,
           requiredWhen: "ENABLE_UPLOADS=true with proxy storage",
         },
         {
-          name: "BUILT_IN_FORGE_API_KEY",
-          status: !!process.env.BUILT_IN_FORGE_API_KEY,
+          name: "STORAGE_PROXY_KEY",
+          status: !!(
+            process.env.STORAGE_PROXY_KEY || process.env.BUILT_IN_FORGE_API_KEY
+          ),
           critical: false,
           conditional: true,
           requiredWhen: "ENABLE_UPLOADS=true with proxy storage",

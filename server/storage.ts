@@ -18,12 +18,15 @@ function getStorageConfig(): StorageConfig {
     );
   }
 
-  const baseUrl = process.env.BUILT_IN_FORGE_API_URL ?? "";
-  const apiKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
+  // Support both new STORAGE_PROXY_* names and legacy BUILT_IN_FORGE_* names
+  const baseUrl =
+    process.env.STORAGE_PROXY_URL ?? process.env.BUILT_IN_FORGE_API_URL ?? "";
+  const apiKey =
+    process.env.STORAGE_PROXY_KEY ?? process.env.BUILT_IN_FORGE_API_KEY ?? "";
 
   if (!baseUrl || !apiKey) {
     throw new Error(
-      "Storage proxy credentials missing: set BUILT_IN_FORGE_API_URL and BUILT_IN_FORGE_API_KEY",
+      "Storage proxy credentials missing: set STORAGE_PROXY_URL and STORAGE_PROXY_KEY",
     );
   }
 
@@ -85,7 +88,11 @@ export async function storagePut(
   contentType = "application/octet-stream",
 ): Promise<{ key: string; url: string }> {
   // Use storage proxy if ENABLE_UPLOADS=true and credentials are present
-  if (ENV.enableUploads && process.env.BUILT_IN_FORGE_API_URL && process.env.BUILT_IN_FORGE_API_KEY) {
+  const storageProxyUrl =
+    process.env.STORAGE_PROXY_URL ?? process.env.BUILT_IN_FORGE_API_URL;
+  const storageProxyKey =
+    process.env.STORAGE_PROXY_KEY ?? process.env.BUILT_IN_FORGE_API_KEY;
+  if (ENV.enableUploads && storageProxyUrl && storageProxyKey) {
     const { baseUrl, apiKey } = getStorageConfig();
     const key = normalizeKey(relKey);
     const uploadUrl = buildUploadUrl(baseUrl, key);

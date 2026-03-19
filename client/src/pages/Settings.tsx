@@ -17,7 +17,16 @@ import { PageTransition } from "@/components/PageTransition";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { Bell, Lock, User, Moon, MapPin, Loader2, Info, Shield } from "lucide-react";
+import {
+  Bell,
+  Lock,
+  User,
+  Moon,
+  MapPin,
+  Loader2,
+  Info,
+  Shield,
+} from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
 import { AdminUnlockDialog } from "@/components/AdminUnlockDialog";

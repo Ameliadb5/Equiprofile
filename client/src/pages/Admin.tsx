@@ -295,8 +295,8 @@ function AdminContent() {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Admin Access Required</AlertTitle>
           <AlertDescription>
-            Your admin session has expired or you don't have admin access.
-            Go to AI Chat and type <strong>show admin</strong> to unlock.
+            Your admin session has expired or you don't have admin access. Go to
+            AI Chat and type <strong>show admin</strong> to unlock.
           </AlertDescription>
         </Alert>
         <Button onClick={() => navigate("/ai-chat")} className="mt-4">
@@ -441,7 +441,7 @@ function AdminContent() {
 
       {/* Main Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             Users
@@ -721,7 +721,9 @@ function AdminContent() {
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogCancel>
+                                      Cancel
+                                    </AlertDialogCancel>
                                     <AlertDialogAction
                                       className={
                                         user.role === "admin"
@@ -1015,7 +1017,9 @@ function AdminContent() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="smtp-pass">SMTP Password / App Password</Label>
+                  <Label htmlFor="smtp-pass">
+                    SMTP Password / App Password
+                  </Label>
                   <Input
                     id="smtp-pass"
                     type="password"

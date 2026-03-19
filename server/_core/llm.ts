@@ -221,9 +221,10 @@ const resolveApiUrl = async (): Promise<string | null> => {
   const customUrl =
     process.env.OPENAI_BASE_URL ||
     (await getRuntimeConfig("openai_base_url", "OPENAI_BASE_URL"));
-  const base = customUrl && customUrl.trim().length > 0
-    ? customUrl.trim().replace(/\/$/, "")
-    : "https://api.openai.com/v1";
+  const base =
+    customUrl && customUrl.trim().length > 0
+      ? customUrl.trim().replace(/\/$/, "")
+      : "https://api.openai.com/v1";
   return `${base}/chat/completions`;
 };
 
@@ -243,10 +244,7 @@ const assertApiKey = async (): Promise<string> => {
  * Use this before calling invokeLLM to provide a graceful fallback.
  */
 export async function isAIConfigured(): Promise<boolean> {
-  if (
-    ENV.openaiApiKey ||
-    process.env.HUGGINGFACE_API_KEY
-  ) {
+  if (ENV.openaiApiKey || process.env.HUGGINGFACE_API_KEY) {
     return true;
   }
   const dbKey = await getRuntimeConfig("openai_api_key", "OPENAI_API_KEY");

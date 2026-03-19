@@ -29,7 +29,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { Plus, Edit, Copy, Trash2, Play, Globe, Lock, Sparkles } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Copy,
+  Trash2,
+  Play,
+  Globe,
+  Lock,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 
 // Predesigned training templates with week 1 program data
@@ -39,7 +48,8 @@ const PREDESIGNED_TEMPLATES = [
   {
     id: "flatwork",
     name: "Flatwork Session",
-    description: "Foundation flatwork training focusing on rhythm, suppleness, and connection",
+    description:
+      "Foundation flatwork training focusing on rhythm, suppleness, and connection",
     duration: 4,
     discipline: "general",
     level: "beginner",
@@ -51,13 +61,55 @@ const PREDESIGNED_TEMPLATES = [
           week: 1,
           focus: "Establishing rhythm and relaxation",
           sessions: [
-            { day: "Monday", type: "flatwork", duration: 30, description: "Walk and trot work focusing on rhythm", intensity: "low" },
-            { day: "Tuesday", type: "rest", duration: 0, description: "Rest day - turnout", intensity: "none" },
-            { day: "Wednesday", type: "flatwork", duration: 35, description: "Circles and transitions", intensity: "low" },
-            { day: "Thursday", type: "rest", duration: 0, description: "Light hack or turnout", intensity: "none" },
-            { day: "Friday", type: "flatwork", duration: 40, description: "Serpentines and changes of direction", intensity: "low-moderate" },
-            { day: "Saturday", type: "flatwork", duration: 45, description: "Review week's work", intensity: "low-moderate" },
-            { day: "Sunday", type: "rest", duration: 0, description: "Rest day", intensity: "none" },
+            {
+              day: "Monday",
+              type: "flatwork",
+              duration: 30,
+              description: "Walk and trot work focusing on rhythm",
+              intensity: "low",
+            },
+            {
+              day: "Tuesday",
+              type: "rest",
+              duration: 0,
+              description: "Rest day - turnout",
+              intensity: "none",
+            },
+            {
+              day: "Wednesday",
+              type: "flatwork",
+              duration: 35,
+              description: "Circles and transitions",
+              intensity: "low",
+            },
+            {
+              day: "Thursday",
+              type: "rest",
+              duration: 0,
+              description: "Light hack or turnout",
+              intensity: "none",
+            },
+            {
+              day: "Friday",
+              type: "flatwork",
+              duration: 40,
+              description: "Serpentines and changes of direction",
+              intensity: "low-moderate",
+            },
+            {
+              day: "Saturday",
+              type: "flatwork",
+              duration: 45,
+              description: "Review week's work",
+              intensity: "low-moderate",
+            },
+            {
+              day: "Sunday",
+              type: "rest",
+              duration: 0,
+              description: "Rest day",
+              intensity: "none",
+            },
           ],
         },
       ],
@@ -66,7 +118,8 @@ const PREDESIGNED_TEMPLATES = [
   {
     id: "jumping",
     name: "Jumping Session",
-    description: "Progressive jumping training from ground poles to small fences",
+    description:
+      "Progressive jumping training from ground poles to small fences",
     duration: 6,
     discipline: "jumping",
     level: "intermediate",
@@ -78,13 +131,55 @@ const PREDESIGNED_TEMPLATES = [
           week: 1,
           focus: "Ground poles and rhythm",
           sessions: [
-            { day: "Monday", type: "flatwork", duration: 30, description: "Flatwork warm-up", intensity: "low" },
-            { day: "Tuesday", type: "jumping", duration: 40, description: "Ground poles in trot", intensity: "moderate" },
-            { day: "Wednesday", type: "rest", duration: 0, description: "Rest or light hack", intensity: "none" },
-            { day: "Thursday", type: "flatwork", duration: 35, description: "Canter work", intensity: "moderate" },
-            { day: "Friday", type: "jumping", duration: 45, description: "Small cross-poles", intensity: "moderate" },
-            { day: "Saturday", type: "rest", duration: 0, description: "Turnout", intensity: "none" },
-            { day: "Sunday", type: "jumping", duration: 40, description: "Grid work", intensity: "moderate" },
+            {
+              day: "Monday",
+              type: "flatwork",
+              duration: 30,
+              description: "Flatwork warm-up",
+              intensity: "low",
+            },
+            {
+              day: "Tuesday",
+              type: "jumping",
+              duration: 40,
+              description: "Ground poles in trot",
+              intensity: "moderate",
+            },
+            {
+              day: "Wednesday",
+              type: "rest",
+              duration: 0,
+              description: "Rest or light hack",
+              intensity: "none",
+            },
+            {
+              day: "Thursday",
+              type: "flatwork",
+              duration: 35,
+              description: "Canter work",
+              intensity: "moderate",
+            },
+            {
+              day: "Friday",
+              type: "jumping",
+              duration: 45,
+              description: "Small cross-poles",
+              intensity: "moderate",
+            },
+            {
+              day: "Saturday",
+              type: "rest",
+              duration: 0,
+              description: "Turnout",
+              intensity: "none",
+            },
+            {
+              day: "Sunday",
+              type: "jumping",
+              duration: 40,
+              description: "Grid work",
+              intensity: "moderate",
+            },
           ],
         },
       ],
@@ -93,7 +188,8 @@ const PREDESIGNED_TEMPLATES = [
   {
     id: "dressage",
     name: "Dressage Session",
-    description: "Classical dressage training emphasizing precision and collection",
+    description:
+      "Classical dressage training emphasizing precision and collection",
     duration: 8,
     discipline: "dressage",
     level: "intermediate",
@@ -105,13 +201,55 @@ const PREDESIGNED_TEMPLATES = [
           week: 1,
           focus: "Establishing the basics",
           sessions: [
-            { day: "Monday", type: "flatwork", duration: 45, description: "Walk, trot, canter transitions", intensity: "moderate" },
-            { day: "Tuesday", type: "rest", duration: 0, description: "Rest day", intensity: "none" },
-            { day: "Wednesday", type: "flatwork", duration: 50, description: "Lateral work introduction", intensity: "moderate" },
-            { day: "Thursday", type: "hack", duration: 30, description: "Light hack", intensity: "low" },
-            { day: "Friday", type: "flatwork", duration: 45, description: "Test practice", intensity: "moderate" },
-            { day: "Saturday", type: "rest", duration: 0, description: "Turnout", intensity: "none" },
-            { day: "Sunday", type: "flatwork", duration: 40, description: "Review and polish", intensity: "moderate" },
+            {
+              day: "Monday",
+              type: "flatwork",
+              duration: 45,
+              description: "Walk, trot, canter transitions",
+              intensity: "moderate",
+            },
+            {
+              day: "Tuesday",
+              type: "rest",
+              duration: 0,
+              description: "Rest day",
+              intensity: "none",
+            },
+            {
+              day: "Wednesday",
+              type: "flatwork",
+              duration: 50,
+              description: "Lateral work introduction",
+              intensity: "moderate",
+            },
+            {
+              day: "Thursday",
+              type: "hack",
+              duration: 30,
+              description: "Light hack",
+              intensity: "low",
+            },
+            {
+              day: "Friday",
+              type: "flatwork",
+              duration: 45,
+              description: "Test practice",
+              intensity: "moderate",
+            },
+            {
+              day: "Saturday",
+              type: "rest",
+              duration: 0,
+              description: "Turnout",
+              intensity: "none",
+            },
+            {
+              day: "Sunday",
+              type: "flatwork",
+              duration: 40,
+              description: "Review and polish",
+              intensity: "moderate",
+            },
           ],
         },
       ],
@@ -120,11 +258,13 @@ const PREDESIGNED_TEMPLATES = [
   {
     id: "conditioning",
     name: "Conditioning Session",
-    description: "Fitness and stamina building for all-around horse development",
+    description:
+      "Fitness and stamina building for all-around horse development",
     duration: 6,
     discipline: "general",
     level: "beginner",
-    goals: "Build cardiovascular fitness, muscle tone, and overall conditioning",
+    goals:
+      "Build cardiovascular fitness, muscle tone, and overall conditioning",
     isPredesigned: true,
     programData: JSON.stringify({
       weeks: [
@@ -132,13 +272,55 @@ const PREDESIGNED_TEMPLATES = [
           week: 1,
           focus: "Building base fitness",
           sessions: [
-            { day: "Monday", type: "walk", duration: 30, description: "Walk work only", intensity: "low" },
-            { day: "Tuesday", type: "hack", duration: 40, description: "Walk and trot hack", intensity: "low-moderate" },
-            { day: "Wednesday", type: "rest", duration: 0, description: "Rest day", intensity: "none" },
-            { day: "Thursday", type: "flatwork", duration: 35, description: "Trot work", intensity: "moderate" },
-            { day: "Friday", type: "rest", duration: 0, description: "Light turnout", intensity: "none" },
-            { day: "Saturday", type: "hack", duration: 45, description: "Longer hack with hills", intensity: "moderate" },
-            { day: "Sunday", type: "rest", duration: 0, description: "Rest day", intensity: "none" },
+            {
+              day: "Monday",
+              type: "walk",
+              duration: 30,
+              description: "Walk work only",
+              intensity: "low",
+            },
+            {
+              day: "Tuesday",
+              type: "hack",
+              duration: 40,
+              description: "Walk and trot hack",
+              intensity: "low-moderate",
+            },
+            {
+              day: "Wednesday",
+              type: "rest",
+              duration: 0,
+              description: "Rest day",
+              intensity: "none",
+            },
+            {
+              day: "Thursday",
+              type: "flatwork",
+              duration: 35,
+              description: "Trot work",
+              intensity: "moderate",
+            },
+            {
+              day: "Friday",
+              type: "rest",
+              duration: 0,
+              description: "Light turnout",
+              intensity: "none",
+            },
+            {
+              day: "Saturday",
+              type: "hack",
+              duration: 45,
+              description: "Longer hack with hills",
+              intensity: "moderate",
+            },
+            {
+              day: "Sunday",
+              type: "rest",
+              duration: 0,
+              description: "Rest day",
+              intensity: "none",
+            },
           ],
         },
       ],
@@ -159,13 +341,56 @@ const PREDESIGNED_TEMPLATES = [
           week: 1,
           focus: "Standard warmup protocol",
           sessions: [
-            { day: "Monday", type: "walk", duration: 15, description: "Walk on long rein - 10 min, then working walk - 5 min", intensity: "low" },
-            { day: "Tuesday", type: "flatwork", duration: 20, description: "Progressive trot work", intensity: "low-moderate" },
-            { day: "Wednesday", type: "flatwork", duration: 20, description: "Canter warmup", intensity: "moderate" },
-            { day: "Thursday", type: "walk", duration: 15, description: "Pre-jumping warmup", intensity: "low" },
-            { day: "Friday", type: "flatwork", duration: 20, description: "Competition day warmup", intensity: "moderate" },
-            { day: "Saturday", type: "walk", duration: 15, description: "Gentle warmup", intensity: "low" },
-            { day: "Sunday", type: "rest", duration: 0, description: "Rest", intensity: "none" },
+            {
+              day: "Monday",
+              type: "walk",
+              duration: 15,
+              description:
+                "Walk on long rein - 10 min, then working walk - 5 min",
+              intensity: "low",
+            },
+            {
+              day: "Tuesday",
+              type: "flatwork",
+              duration: 20,
+              description: "Progressive trot work",
+              intensity: "low-moderate",
+            },
+            {
+              day: "Wednesday",
+              type: "flatwork",
+              duration: 20,
+              description: "Canter warmup",
+              intensity: "moderate",
+            },
+            {
+              day: "Thursday",
+              type: "walk",
+              duration: 15,
+              description: "Pre-jumping warmup",
+              intensity: "low",
+            },
+            {
+              day: "Friday",
+              type: "flatwork",
+              duration: 20,
+              description: "Competition day warmup",
+              intensity: "moderate",
+            },
+            {
+              day: "Saturday",
+              type: "walk",
+              duration: 15,
+              description: "Gentle warmup",
+              intensity: "low",
+            },
+            {
+              day: "Sunday",
+              type: "rest",
+              duration: 0,
+              description: "Rest",
+              intensity: "none",
+            },
           ],
         },
       ],
@@ -174,7 +399,8 @@ const PREDESIGNED_TEMPLATES = [
   {
     id: "rehab",
     name: "Rehab Session",
-    description: "Gentle rehabilitation program for horses returning from injury",
+    description:
+      "Gentle rehabilitation program for horses returning from injury",
     duration: 8,
     discipline: "general",
     level: "beginner",
@@ -186,13 +412,55 @@ const PREDESIGNED_TEMPLATES = [
           week: 1,
           focus: "Gentle reintroduction to work",
           sessions: [
-            { day: "Monday", type: "walk", duration: 15, description: "Walk in hand or under saddle", intensity: "low" },
-            { day: "Tuesday", type: "rest", duration: 0, description: "Rest day", intensity: "none" },
-            { day: "Wednesday", type: "walk", duration: 20, description: "Walk work only", intensity: "low" },
-            { day: "Thursday", type: "rest", duration: 0, description: "Turnout only", intensity: "none" },
-            { day: "Friday", type: "walk", duration: 20, description: "Walk with gentle stretching", intensity: "low" },
-            { day: "Saturday", type: "rest", duration: 0, description: "Rest day", intensity: "none" },
-            { day: "Sunday", type: "walk", duration: 25, description: "Longer walk", intensity: "low" },
+            {
+              day: "Monday",
+              type: "walk",
+              duration: 15,
+              description: "Walk in hand or under saddle",
+              intensity: "low",
+            },
+            {
+              day: "Tuesday",
+              type: "rest",
+              duration: 0,
+              description: "Rest day",
+              intensity: "none",
+            },
+            {
+              day: "Wednesday",
+              type: "walk",
+              duration: 20,
+              description: "Walk work only",
+              intensity: "low",
+            },
+            {
+              day: "Thursday",
+              type: "rest",
+              duration: 0,
+              description: "Turnout only",
+              intensity: "none",
+            },
+            {
+              day: "Friday",
+              type: "walk",
+              duration: 20,
+              description: "Walk with gentle stretching",
+              intensity: "low",
+            },
+            {
+              day: "Saturday",
+              type: "rest",
+              duration: 0,
+              description: "Rest day",
+              intensity: "none",
+            },
+            {
+              day: "Sunday",
+              type: "walk",
+              duration: 25,
+              description: "Longer walk",
+              intensity: "low",
+            },
           ],
         },
       ],
@@ -201,7 +469,8 @@ const PREDESIGNED_TEMPLATES = [
   {
     id: "young-horse",
     name: "Young Horse Session",
-    description: "Progressive training program for young horses in early development",
+    description:
+      "Progressive training program for young horses in early development",
     duration: 12,
     discipline: "general",
     level: "beginner",
@@ -213,13 +482,55 @@ const PREDESIGNED_TEMPLATES = [
           week: 1,
           focus: "Building confidence and trust",
           sessions: [
-            { day: "Monday", type: "groundwork", duration: 20, description: "Groundwork and handling", intensity: "low" },
-            { day: "Tuesday", type: "rest", duration: 0, description: "Turnout", intensity: "none" },
-            { day: "Wednesday", type: "walk", duration: 15, description: "Walk work - lead or ridden", intensity: "low" },
-            { day: "Thursday", type: "groundwork", duration: 20, description: "Lunging basics", intensity: "low" },
-            { day: "Friday", type: "rest", duration: 0, description: "Rest day", intensity: "none" },
-            { day: "Saturday", type: "walk", duration: 20, description: "Walk with new objects", intensity: "low" },
-            { day: "Sunday", type: "rest", duration: 0, description: "Free time", intensity: "none" },
+            {
+              day: "Monday",
+              type: "groundwork",
+              duration: 20,
+              description: "Groundwork and handling",
+              intensity: "low",
+            },
+            {
+              day: "Tuesday",
+              type: "rest",
+              duration: 0,
+              description: "Turnout",
+              intensity: "none",
+            },
+            {
+              day: "Wednesday",
+              type: "walk",
+              duration: 15,
+              description: "Walk work - lead or ridden",
+              intensity: "low",
+            },
+            {
+              day: "Thursday",
+              type: "groundwork",
+              duration: 20,
+              description: "Lunging basics",
+              intensity: "low",
+            },
+            {
+              day: "Friday",
+              type: "rest",
+              duration: 0,
+              description: "Rest day",
+              intensity: "none",
+            },
+            {
+              day: "Saturday",
+              type: "walk",
+              duration: 20,
+              description: "Walk with new objects",
+              intensity: "low",
+            },
+            {
+              day: "Sunday",
+              type: "rest",
+              duration: 0,
+              description: "Free time",
+              intensity: "none",
+            },
           ],
         },
       ],
@@ -312,15 +623,16 @@ function TrainingTemplatesContent() {
     },
   });
 
-  const usePredesignedMutation = trpc.trainingPrograms.createTemplate.useMutation({
-    onSuccess: () => {
-      toast.success("Predesigned template added to your templates");
-      utils.trainingPrograms.listTemplates.invalidate();
-    },
-    onError: (error) => {
-      toast.error(`Error: ${error.message}`);
-    },
-  });
+  const usePredesignedMutation =
+    trpc.trainingPrograms.createTemplate.useMutation({
+      onSuccess: () => {
+        toast.success("Predesigned template added to your templates");
+        utils.trainingPrograms.listTemplates.invalidate();
+      },
+      onError: (error) => {
+        toast.error(`Error: ${error.message}`);
+      },
+    });
 
   const resetForm = () => {
     setFormData({
@@ -413,7 +725,9 @@ function TrainingTemplatesContent() {
     });
   };
 
-  const handleAddPredesignedTemplate = (predesigned: typeof PREDESIGNED_TEMPLATES[0]) => {
+  const handleAddPredesignedTemplate = (
+    predesigned: (typeof PREDESIGNED_TEMPLATES)[0],
+  ) => {
     usePredesignedMutation.mutate({
       name: predesigned.name,
       description: predesigned.description,
@@ -595,8 +909,12 @@ function TrainingTemplatesContent() {
             <Sparkles className="w-4 h-4 text-indigo-500" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold font-serif">Predesigned Templates</h2>
-            <p className="text-xs text-muted-foreground">Professional training programs ready to use</p>
+            <h2 className="text-lg font-semibold font-serif">
+              Predesigned Templates
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Professional training programs ready to use
+            </p>
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -622,10 +940,14 @@ function TrainingTemplatesContent() {
                 <div className="space-y-3">
                   <div className="flex flex-wrap gap-1.5">
                     {predesigned.discipline && (
-                      <Badge variant="outline" className="text-xs">{predesigned.discipline}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {predesigned.discipline}
+                      </Badge>
                     )}
                     {predesigned.level && (
-                      <Badge variant="outline" className="text-xs">{predesigned.level}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {predesigned.level}
+                      </Badge>
                     )}
                     {predesigned.duration && (
                       <Badge variant="outline" className="text-xs">
@@ -668,118 +990,121 @@ function TrainingTemplatesContent() {
           )}
         </div>
 
-      {/* Templates Grid */}
-      {!templates || templates.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center mb-4">
-              <Play className="w-8 h-8 text-green-500" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2">
-              No custom templates yet
-            </h3>
-            <p className="text-muted-foreground text-center mb-6 max-w-sm text-sm">
-              Create your first custom training template or use one of the predesigned templates above.
-            </p>
-            <Button
-              onClick={() => setIsCreateOpen(true)}
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Template
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {templates.map((template) => (
-              <Card
-                key={template.id}
-                className="hover:shadow-lg transition-shadow"
+        {/* Templates Grid */}
+        {!templates || templates.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center mb-4">
+                <Play className="w-8 h-8 text-green-500" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">
+                No custom templates yet
+              </h3>
+              <p className="text-muted-foreground text-center mb-6 max-w-sm text-sm">
+                Create your first custom training template or use one of the
+                predesigned templates above.
+              </p>
+              <Button
+                onClick={() => setIsCreateOpen(true)}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0"
               >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                      <CardDescription className="mt-1">
-                        {template.description || "No description"}
-                      </CardDescription>
-                    </div>
-                    {template.isPublic ? (
-                      <Badge variant="secondary" className="ml-2">
-                        <Globe className="w-3 h-3 mr-1" />
-                        Public
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="ml-2">
-                        <Lock className="w-3 h-3 mr-1" />
-                        Private
-                      </Badge>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap gap-2">
-                      {template.discipline && (
-                        <Badge variant="outline">{template.discipline}</Badge>
-                      )}
-                      {template.level && (
-                        <Badge variant="outline">{template.level}</Badge>
-                      )}
-                      {template.duration && (
-                        <Badge variant="outline">
-                          {template.duration} weeks
+                <Plus className="w-4 h-4 mr-2" />
+                Create Template
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {templates.map((template) => (
+                <Card
+                  key={template.id}
+                  className="hover:shadow-lg transition-shadow"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">
+                          {template.name}
+                        </CardTitle>
+                        <CardDescription className="mt-1">
+                          {template.description || "No description"}
+                        </CardDescription>
+                      </div>
+                      {template.isPublic ? (
+                        <Badge variant="secondary" className="ml-2">
+                          <Globe className="w-3 h-3 mr-1" />
+                          Public
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="ml-2">
+                          <Lock className="w-3 h-3 mr-1" />
+                          Private
                         </Badge>
                       )}
                     </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        {template.discipline && (
+                          <Badge variant="outline">{template.discipline}</Badge>
+                        )}
+                        {template.level && (
+                          <Badge variant="outline">{template.level}</Badge>
+                        )}
+                        {template.duration && (
+                          <Badge variant="outline">
+                            {template.duration} weeks
+                          </Badge>
+                        )}
+                      </div>
 
-                    {template.goals && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {template.goals}
-                      </p>
-                    )}
+                      {template.goals && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {template.goals}
+                        </p>
+                      )}
 
-                    <div className="flex gap-2 pt-2">
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={() => openApplyDialog(template)}
-                        className="flex-1"
-                      >
-                        <Play className="w-3 h-3 mr-1" />
-                        Apply
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openEditDialog(template)}
-                      >
-                        <Edit className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDuplicate(template.id)}
-                      >
-                        <Copy className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDelete(template.id)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+                      <div className="flex gap-2 pt-2">
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => openApplyDialog(template)}
+                          className="flex-1"
+                        >
+                          <Play className="w-3 h-3 mr-1" />
+                          Apply
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openEditDialog(template)}
+                        >
+                          <Edit className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDuplicate(template.id)}
+                        >
+                          <Copy className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDelete(template.id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </>
-      )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Edit Dialog */}

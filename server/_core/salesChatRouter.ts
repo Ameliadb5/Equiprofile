@@ -33,7 +33,10 @@ const router: Router = Router();
 const chatLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 20, // 20 messages per minute per IP
-  message: { error: "Too many requests", message: "Too many messages, please slow down." },
+  message: {
+    error: "Too many requests",
+    message: "Too many messages, please slow down.",
+  },
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res, _next, options) => {
@@ -44,7 +47,10 @@ const chatLimiter = rateLimit({
 const leadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 lead submissions per 15 min per IP
-  message: { error: "Too many requests", message: "Too many requests, please try again later." },
+  message: {
+    error: "Too many requests",
+    message: "Too many requests, please try again later.",
+  },
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res, _next, options) => {
@@ -226,11 +232,11 @@ router.post("/sales-chat", chatLimiter, async (req, res) => {
 
     // Try rule-based fallback first (instant, no AI key needed)
     const ruleAnswer = ruleFallback(safeMessage);
-    if (ruleAnswer && !await isAIConfigured()) {
+    if (ruleAnswer && !(await isAIConfigured())) {
       return res.json({ reply: ruleAnswer });
     }
 
-    if (!await isAIConfigured()) {
+    if (!(await isAIConfigured())) {
       // Generic fallback with no AI key
       return res.json({
         reply:

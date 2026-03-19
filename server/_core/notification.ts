@@ -66,8 +66,10 @@ export async function notifyOwner(
 ): Promise<boolean> {
   const { title, content } = validatePayload(payload);
 
-  const proxyUrl = process.env.BUILT_IN_FORGE_API_URL ?? "";
-  const proxyKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
+  const proxyUrl =
+    process.env.STORAGE_PROXY_URL ?? process.env.BUILT_IN_FORGE_API_URL ?? "";
+  const proxyKey =
+    process.env.STORAGE_PROXY_KEY ?? process.env.BUILT_IN_FORGE_API_KEY ?? "";
 
   if (!proxyUrl) {
     throw new TRPCError({

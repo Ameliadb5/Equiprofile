@@ -91,7 +91,8 @@ export default function Pricing() {
       const isBillingDisabled = error?.data?.code === "PRECONDITION_FAILED";
       if (isBillingDisabled) {
         toast.error("Billing unavailable", {
-          description: "Online billing is not currently available. Please contact support to upgrade your plan.",
+          description:
+            "Online billing is not currently available. Please contact support to upgrade your plan.",
         });
       } else {
         toast.error("Error", {

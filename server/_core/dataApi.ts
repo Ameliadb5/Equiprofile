@@ -17,8 +17,10 @@ export async function callDataApi(
   apiId: string,
   options: DataApiCallOptions = {},
 ): Promise<unknown> {
-  const proxyUrl = process.env.BUILT_IN_FORGE_API_URL ?? "";
-  const proxyKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
+  const proxyUrl =
+    process.env.STORAGE_PROXY_URL ?? process.env.BUILT_IN_FORGE_API_URL ?? "";
+  const proxyKey =
+    process.env.STORAGE_PROXY_KEY ?? process.env.BUILT_IN_FORGE_API_KEY ?? "";
 
   if (!proxyUrl) {
     throw new Error("Data API service is not configured");
@@ -28,9 +30,7 @@ export async function callDataApi(
   }
 
   // Build the full URL by appending the service path to the base URL
-  const baseUrl = proxyUrl.endsWith("/")
-    ? proxyUrl
-    : `${proxyUrl}/`;
+  const baseUrl = proxyUrl.endsWith("/") ? proxyUrl : `${proxyUrl}/`;
   const fullUrl = new URL(
     "webdevtoken.v1.WebDevService/CallApi",
     baseUrl,

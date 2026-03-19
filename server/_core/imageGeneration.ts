@@ -33,8 +33,10 @@ export type GenerateImageResponse = {
 export async function generateImage(
   options: GenerateImageOptions,
 ): Promise<GenerateImageResponse> {
-  const proxyUrl = process.env.BUILT_IN_FORGE_API_URL ?? "";
-  const proxyKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
+  const proxyUrl =
+    process.env.STORAGE_PROXY_URL ?? process.env.BUILT_IN_FORGE_API_URL ?? "";
+  const proxyKey =
+    process.env.STORAGE_PROXY_KEY ?? process.env.BUILT_IN_FORGE_API_KEY ?? "";
 
   if (!proxyUrl) {
     throw new Error("Image generation service is not configured");
@@ -44,9 +46,7 @@ export async function generateImage(
   }
 
   // Build the full URL by appending the service path to the base URL
-  const baseUrl = proxyUrl.endsWith("/")
-    ? proxyUrl
-    : `${proxyUrl}/`;
+  const baseUrl = proxyUrl.endsWith("/") ? proxyUrl : `${proxyUrl}/`;
   const fullUrl = new URL(
     "images.v1.ImageService/GenerateImage",
     baseUrl,

@@ -73,7 +73,9 @@ export function AdminUnlockDialog({
     {
       onClick: (e: React.MouseEvent) => {
         // Preserve any existing onClick on the trigger
-        const originalOnClick = (trigger.props as { onClick?: (e: React.MouseEvent) => void }).onClick;
+        const originalOnClick = (
+          trigger.props as { onClick?: (e: React.MouseEvent) => void }
+        ).onClick;
         originalOnClick?.(e);
         setOpen(true);
       },

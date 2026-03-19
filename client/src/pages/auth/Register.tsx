@@ -50,7 +50,9 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
-  const [selectedPlanType, setSelectedPlanType] = useState<"normal" | "stable" | null>(null);
+  const [selectedPlanType, setSelectedPlanType] = useState<
+    "normal" | "stable" | null
+  >(null);
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
@@ -255,12 +257,14 @@ export default function Register() {
               <CardHeader className="space-y-3 pb-2">
                 {/* Step progress indicator */}
                 <div className="flex items-center justify-center gap-1 mb-2">
-                  {(hasSubscribeIntent ? [1, 2, 3, 4] : [1, 2, 3, 4, 5]).map((s) => (
-                    <div
-                      key={s}
-                      className={`h-1.5 w-8 rounded-full transition-colors duration-300 ${step >= s ? "bg-gradient-to-r from-indigo-500 to-cyan-500" : "bg-white/10"}`}
-                    />
-                  ))}
+                  {(hasSubscribeIntent ? [1, 2, 3, 4] : [1, 2, 3, 4, 5]).map(
+                    (s) => (
+                      <div
+                        key={s}
+                        className={`h-1.5 w-8 rounded-full transition-colors duration-300 ${step >= s ? "bg-gradient-to-r from-indigo-500 to-cyan-500" : "bg-white/10"}`}
+                      />
+                    ),
+                  )}
                 </div>
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <span className="text-xs text-gray-500">
@@ -549,7 +553,7 @@ export default function Register() {
                       <p className="text-sm text-gray-400 text-center">
                         Select the plan type that best fits your needs
                       </p>
-                      
+
                       <div className="grid grid-cols-1 gap-4">
                         {/* Normal Plan */}
                         <button
@@ -567,7 +571,8 @@ export default function Register() {
                                 Normal Plan
                               </h3>
                               <p className="text-sm text-gray-400">
-                                Perfect for individual horse owners. Manage your horses, training, health records, and more.
+                                Perfect for individual horse owners. Manage your
+                                horses, training, health records, and more.
                               </p>
                             </div>
                           </div>
@@ -589,7 +594,9 @@ export default function Register() {
                                 Stable Plan
                               </h3>
                               <p className="text-sm text-gray-400">
-                                For stables and professional yards. Includes staff management, client portal, and multi-horse management.
+                                For stables and professional yards. Includes
+                                staff management, client portal, and multi-horse
+                                management.
                               </p>
                             </div>
                           </div>

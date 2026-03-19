@@ -255,47 +255,47 @@ export default function AIChat() {
 
           <TabsContent value="chat">
             <div className="rounded-xl overflow-hidden border shadow-sm">
-                <AIChatBox
-                  messages={messages}
-                  onSendMessage={handleSend}
-                  isLoading={chatMutation.isPending}
-                  placeholder="Ask about horse care, training, or management..."
-                  height="calc(100vh - 320px)"
-                  suggestedPrompts={[
-                    "What can you help me with?",
-                    "Show me horse care tips",
-                    "How do I track vaccinations?",
-                  ]}
-                />
+              <AIChatBox
+                messages={messages}
+                onSendMessage={handleSend}
+                isLoading={chatMutation.isPending}
+                placeholder="Ask about horse care, training, or management..."
+                height="calc(100vh - 320px)"
+                suggestedPrompts={[
+                  "What can you help me with?",
+                  "Show me horse care tips",
+                  "How do I track vaccinations?",
+                ]}
+              />
 
-                {showPasswordInput && (
-                  <div className="mt-4 p-4 border rounded-lg bg-muted">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Lock className="h-4 w-4" />
-                      <span className="font-semibold">
-                        Admin Password Required
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Input
-                        type="password"
-                        placeholder="Enter admin password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        onKeyDown={(e) =>
-                          e.key === "Enter" && handlePasswordSubmit()
-                        }
-                        disabled={unlockMutation.isPending}
-                      />
-                      <Button
-                        onClick={handlePasswordSubmit}
-                        disabled={unlockMutation.isPending || !password.trim()}
-                      >
-                        Unlock
-                      </Button>
-                    </div>
+              {showPasswordInput && (
+                <div className="mt-4 p-4 border rounded-lg bg-muted">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Lock className="h-4 w-4" />
+                    <span className="font-semibold">
+                      Admin Password Required
+                    </span>
                   </div>
-                )}
+                  <div className="flex gap-2">
+                    <Input
+                      type="password"
+                      placeholder="Enter admin password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handlePasswordSubmit()
+                      }
+                      disabled={unlockMutation.isPending}
+                    />
+                    <Button
+                      onClick={handlePasswordSubmit}
+                      disabled={unlockMutation.isPending || !password.trim()}
+                    >
+                      Unlock
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
 
