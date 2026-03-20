@@ -99,9 +99,10 @@ const menuItems = [
 const stableMenuItems = [
   { icon: Building2, label: "Stable Dashboard", path: "/stable-dashboard" },
   { icon: Home, label: "Stable", path: "/stable" },
-  { icon: MessageSquare, label: "Messages", path: "/messages" },
-  { icon: UserCog, label: "Staff", path: "/contacts" },
+  { icon: UserCog, label: "Staff", path: "/staff" },
   { icon: Briefcase, label: "Owners", path: "/contacts" },
+  { icon: MessageSquare, label: "Messages", path: "/messages" },
+  { icon: Settings, label: "Stable Setup", path: "/stable-setup" },
 ];
 
 const adminMenuItems = [

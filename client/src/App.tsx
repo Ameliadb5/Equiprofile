@@ -77,6 +77,8 @@ const Tags = lazy(() => import("./pages/Tags"));
 const FeedCostTracking = lazy(() => import("./pages/FeedCostTracking"));
 const RideTracking = lazy(() => import("./pages/RideTracking"));
 const EquinePassport = lazy(() => import("./pages/EquinePassport"));
+const StableStaff = lazy(() => import("./pages/StableStaff"));
+const StableSetup = lazy(() => import("./pages/StableSetup"));
 
 // Minimal spinner shown while lazy chunks load (doesn't block FCP)
 function PageSpinner() {
@@ -295,6 +297,20 @@ function Router() {
             <Route path="/stable-dashboard">
               <StableRoute>
                 <StableDashboard />
+              </StableRoute>
+            </Route>
+
+            {/* Stable Staff Management */}
+            <Route path="/staff">
+              <StableRoute>
+                <StableStaff />
+              </StableRoute>
+            </Route>
+
+            {/* Stable Setup */}
+            <Route path="/stable-setup">
+              <StableRoute>
+                <StableSetup />
               </StableRoute>
             </Route>
 

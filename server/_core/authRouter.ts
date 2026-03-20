@@ -89,7 +89,7 @@ router.post("/signup", async (req, res) => {
     if (userEmail === "amarktainetwork@gmail.com" && user.role !== "admin") {
       userUpdates.role = "admin";
     }
-    if (planType === "stable" || planType === "normal") {
+    if (planType === "stable" || planType === "normal" || planType === "standard") {
       let prefs: Record<string, unknown> = {};
       if (user.preferences) {
         try {
@@ -98,8 +98,8 @@ router.post("/signup", async (req, res) => {
           prefs = {};
         }
       }
-      // "normal" is the UI label for the non-stable plan; internally it is
-      // stored as "pro" to match the billing plan tier name used elsewhere.
+      // "standard" (formerly "normal") is the UI label for the non-stable plan;
+      // internally it is stored as "pro" to match the billing plan tier name used elsewhere.
       prefs.planTier = planType === "stable" ? "stable" : "pro";
       userUpdates.preferences = JSON.stringify(prefs);
     }

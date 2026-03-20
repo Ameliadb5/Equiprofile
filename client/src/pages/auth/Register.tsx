@@ -51,7 +51,7 @@ export default function Register() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
   const [selectedPlanType, setSelectedPlanType] = useState<
-    "normal" | "stable" | null
+    "standard" | "stable" | null
   >(null);
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
@@ -172,7 +172,7 @@ export default function Register() {
     await performRegistration();
   };
 
-  const performRegistration = async (planType?: "normal" | "stable") => {
+  const performRegistration = async (planType?: "standard" | "stable") => {
     setIsLoading(true);
 
     try {
@@ -224,7 +224,7 @@ export default function Register() {
     }
   };
 
-  const handlePlanTypeSelection = async (planType: "normal" | "stable") => {
+  const handlePlanTypeSelection = async (planType: "standard" | "stable") => {
     setSelectedPlanType(planType);
     // Store preference in sessionStorage so it persists to billing page after registration
     sessionStorage.setItem("preferredPlanType", planType);
@@ -555,12 +555,12 @@ export default function Register() {
                       </p>
 
                       <div className="grid grid-cols-1 gap-4">
-                        {/* Normal Plan */}
+                        {/* Standard Plan */}
                         <button
                           type="button"
-                          onClick={() => handlePlanTypeSelection("normal")}
+                          onClick={() => handlePlanTypeSelection("standard")}
                           disabled={isLoading}
-                          className={`group relative p-6 rounded-xl border-2 transition-all duration-200 text-left disabled:opacity-50 ${selectedPlanType === "normal" ? "border-indigo-500 bg-indigo-500/10" : "border-white/10 bg-white/5 hover:bg-white/10 hover:border-indigo-500/50"}`}
+                          className={`group relative p-6 rounded-xl border-2 transition-all duration-200 text-left disabled:opacity-50 ${selectedPlanType === "standard" ? "border-indigo-500 bg-indigo-500/10" : "border-white/10 bg-white/5 hover:bg-white/10 hover:border-indigo-500/50"}`}
                         >
                           <div className="flex items-start gap-4">
                             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shrink-0">
@@ -568,7 +568,7 @@ export default function Register() {
                             </div>
                             <div className="flex-1">
                               <h3 className="text-lg font-semibold text-white mb-1">
-                                Normal Plan
+                                Standard Plan
                               </h3>
                               <p className="text-sm text-gray-400">
                                 Perfect for individual horse owners. Manage your

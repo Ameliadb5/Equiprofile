@@ -19,13 +19,18 @@ import {
   Calendar,
   Dumbbell,
   Stethoscope,
-  Trophy,
   ChevronRight,
   Plus,
   Shield,
   Building2,
   UserCog,
-  Briefcase,
+  FolderOpen,
+  Settings,
+  ClipboardList,
+  DollarSign,
+  Loader2,
+  AlertCircle,
+  Wrench,
 } from "lucide-react";
 
 type HorseEntry = {
@@ -36,14 +41,121 @@ type HorseEntry = {
   photoUrl?: string | null;
 };
 
+// Stable-specific operational modules — all with real routes
+const stableOperations = [
+  {
+    title: "Horse Roster",
+    description: "All horses in the stable",
+    icon: Heart,
+    href: "/horses",
+    color: "from-rose-500 to-pink-600",
+    accent: "border-rose-500/30",
+  },
+  {
+    title: "Staff Management",
+    description: "Trainers, grooms, and yard team",
+    icon: UserCog,
+    href: "/staff",
+    color: "from-blue-500 to-cyan-600",
+    accent: "border-blue-500/30",
+  },
+  {
+    title: "Owners & Clients",
+    description: "Horse owners and client contacts",
+    icon: Users,
+    href: "/contacts",
+    color: "from-purple-500 to-violet-600",
+    accent: "border-purple-500/30",
+  },
+  {
+    title: "Stable Calendar",
+    description: "Scheduling for the whole yard",
+    icon: Calendar,
+    href: "/calendar",
+    color: "from-indigo-500 to-blue-600",
+    accent: "border-indigo-500/30",
+  },
+  {
+    title: "Training Operations",
+    description: "Sessions and training programmes",
+    icon: Dumbbell,
+    href: "/training",
+    color: "from-green-500 to-emerald-600",
+    accent: "border-green-500/30",
+  },
+  {
+    title: "Health Operations",
+    description: "Vet records and medical history",
+    icon: Stethoscope,
+    href: "/health",
+    color: "from-teal-500 to-cyan-600",
+    accent: "border-teal-500/30",
+  },
+  {
+    title: "Tasks & Workflows",
+    description: "Yard tasks and daily operations",
+    icon: ClipboardList,
+    href: "/tasks",
+    color: "from-amber-500 to-orange-600",
+    accent: "border-amber-500/30",
+  },
+  {
+    title: "Documents",
+    description: "Stable records and documents",
+    icon: FolderOpen,
+    href: "/documents",
+    color: "from-yellow-500 to-amber-600",
+    accent: "border-yellow-500/30",
+  },
+  {
+    title: "Billing & Admin",
+    description: "Subscription and billing",
+    icon: DollarSign,
+    href: "/billing",
+    color: "from-emerald-500 to-green-600",
+    accent: "border-emerald-500/30",
+  },
+  {
+    title: "Stable Setup",
+    description: "Configure your stable profile",
+    icon: Wrench,
+    href: "/stable-setup",
+    color: "from-slate-500 to-gray-600",
+    accent: "border-slate-500/30",
+  },
+  {
+    title: "Stable Profile",
+    description: "Business details and yard info",
+    icon: Building2,
+    href: "/stable",
+    color: "from-orange-500 to-amber-600",
+    accent: "border-orange-500/30",
+  },
+  {
+    title: "Settings",
+    description: "Account and stable preferences",
+    icon: Settings,
+    href: "/settings",
+    color: "from-gray-500 to-slate-600",
+    accent: "border-gray-500/30",
+  },
+];
+
 function StableDashboardContent() {
   const { user } = useAuth();
-  const { data: horses = [] } = trpc.horses.list.useQuery(undefined, {
-    retry: false,
-  });
-  const { data: subscriptionStatus } =
+  const { data: horses = [], isLoading: horsesLoading } =
+    trpc.horses.list.useQuery(undefined, { retry: false });
+  const { data: subscriptionStatus, isLoading: subLoading } =
     trpc.user.getSubscriptionStatus.useQuery();
   const isStablePlan = subscriptionStatus?.planTier === "stable";
+
+  if (subLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (!isStablePlan) {
     return (
@@ -54,15 +166,15 @@ function StableDashboardContent() {
         <h2 className="font-serif text-2xl font-bold mb-2">
           Stable Plan Required
         </h2>
-        <p className="text-muted-foreground mb-6 max-w-md">
+        <p className="text-muted-foreground mb-6 max-w-md text-sm">
           The Stable Dashboard is available exclusively for Stable plan
-          subscribers. Upgrade to access horse roster management, staff tools,
-          owner portal, and more.
+          subscribers. Upgrade to access full stable management, staff tools,
+          client portal, and more.
         </p>
         <Link href="/billing">
           <Button
             size="lg"
-            className="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white border-0"
+            className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white border-0"
           >
             Upgrade to Stable Plan
             <ChevronRight className="w-5 h-5 ml-2" />
@@ -72,76 +184,9 @@ function StableDashboardContent() {
     );
   }
 
-  const stableModules = [
-    {
-      title: "Horse Roster",
-      description: `${horses.length} horse${horses.length !== 1 ? "s" : ""} registered`,
-      icon: Heart,
-      href: "/horses",
-      color: "from-rose-500 to-pink-600",
-      accent: "border-rose-500/30",
-    },
-    {
-      title: "Staff Management",
-      description: "Manage yard staff and roles",
-      icon: Users,
-      href: "/contacts",
-      color: "from-blue-500 to-cyan-600",
-      accent: "border-blue-500/30",
-    },
-    {
-      title: "Owner Portal",
-      description: "Client and owner access",
-      icon: Shield,
-      href: "/contacts",
-      color: "from-purple-500 to-violet-600",
-      accent: "border-purple-500/30",
-    },
-    {
-      title: "Training Logs",
-      description: "All sessions and programs",
-      icon: Dumbbell,
-      href: "/training",
-      color: "from-green-500 to-emerald-600",
-      accent: "border-green-500/30",
-    },
-    {
-      title: "Vet Records",
-      description: "Health and medical history",
-      icon: Stethoscope,
-      href: "/health",
-      color: "from-teal-500 to-cyan-600",
-      accent: "border-teal-500/30",
-    },
-    {
-      title: "Competitions",
-      description: "Competition tracking and results",
-      icon: Trophy,
-      href: "/competitions",
-      color: "from-amber-500 to-orange-600",
-      accent: "border-amber-500/30",
-    },
-    {
-      title: "Stable Calendar",
-      description: "Schedule for all horses",
-      icon: Calendar,
-      href: "/calendar",
-      color: "from-indigo-500 to-blue-600",
-      accent: "border-indigo-500/30",
-    },
-    {
-      title: "Stable Settings",
-      description: "Manage your stable",
-      icon: Home,
-      href: "/stable",
-      color: "from-slate-500 to-gray-600",
-      accent: "border-slate-500/30",
-    },
-  ];
-
   return (
     <div className="space-y-6 pb-6">
-      {/* Hero Banner */}
+      {/* Stable Operations Hero */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -150,24 +195,55 @@ function StableDashboardContent() {
       >
         <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute -bottom-8 right-16 h-32 w-32 rounded-full bg-white/5" />
-        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-amber-100 mb-1 flex items-center gap-2">
-              <Home className="w-4 h-4" /> Stable Management
+        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-amber-100 flex items-center gap-2">
+              <Building2 className="w-4 h-4" /> Stable Operations Platform
             </p>
             <h1 className="font-serif text-2xl sm:text-3xl font-bold leading-tight">
               {user?.name?.split(" ")[0] || "Manager"}&apos;s Stable
             </h1>
-            <p className="text-amber-200 text-sm mt-1">
-              Professional stable management dashboard
+            <p className="text-amber-200 text-sm">
+              Manage your entire stable from one place
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-start gap-2 shrink-0">
             <Badge className="bg-white/20 text-white border-white/30 gap-1">
               <Shield className="w-3 h-3" />
               Stable Plan
             </Badge>
+            <Badge className="bg-amber-500/30 text-amber-200 border-amber-500/40 gap-1">
+              <Heart className="w-3 h-3" />
+              {horsesLoading ? "..." : horses.length} Horses
+            </Badge>
           </div>
+        </div>
+        {/* Quick actions */}
+        <div className="relative mt-4 flex flex-wrap gap-2">
+          <Link href="/horses/new">
+            <Button
+              size="sm"
+              className="h-8 text-xs bg-white/15 hover:bg-white/25 text-white border border-white/20 gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add Horse
+            </Button>
+          </Link>
+          <Link href="/staff">
+            <Button
+              size="sm"
+              className="h-8 text-xs bg-white/15 hover:bg-white/25 text-white border border-white/20 gap-1"
+            >
+              <UserCog className="w-3.5 h-3.5" /> Add Staff
+            </Button>
+          </Link>
+          <Link href="/stable-setup">
+            <Button
+              size="sm"
+              className="h-8 text-xs bg-white/15 hover:bg-white/25 text-white border border-white/20 gap-1"
+            >
+              <Wrench className="w-3.5 h-3.5" /> Stable Setup
+            </Button>
+          </Link>
         </div>
       </motion.div>
 
@@ -182,7 +258,7 @@ function StableDashboardContent() {
             <div className="flex items-center justify-between">
               <CardTitle className="font-serif text-base flex items-center gap-2">
                 <Heart className="w-4 h-4 text-rose-500" />
-                Horse Roster
+                Stable Horses
               </CardTitle>
               <Link href="/horses/new">
                 <Button
@@ -195,12 +271,17 @@ function StableDashboardContent() {
               </Link>
             </div>
             <CardDescription className="text-xs">
-              {horses.length} horse{horses.length !== 1 ? "s" : ""} registered
-              in your stable
+              {horsesLoading
+                ? "Loading..."
+                : `${horses.length} horse${horses.length !== 1 ? "s" : ""} in your stable`}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {horses.length === 0 ? (
+            {horsesLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : horses.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Heart className="w-10 h-10 mx-auto mb-2 opacity-30" />
                 <p className="text-sm">No horses registered yet</p>
@@ -212,7 +293,7 @@ function StableDashboardContent() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {horses.slice(0, 6).map((horse: HorseEntry) => (
+                {(horses as HorseEntry[]).slice(0, 6).map((horse) => (
                   <Link key={horse.id} href={`/horses/${horse.id}`}>
                     <div className="flex items-center gap-3 p-3 rounded-lg border border-muted/40 bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer">
                       {horse.photoUrl ? (
@@ -247,7 +328,7 @@ function StableDashboardContent() {
                 ))}
               </div>
             )}
-            {horses.length > 6 && (
+            {(horses as HorseEntry[]).length > 6 && (
               <Link href="/horses">
                 <Button
                   variant="ghost"
@@ -263,16 +344,16 @@ function StableDashboardContent() {
         </Card>
       </motion.div>
 
-      {/* Stable Modules Grid */}
+      {/* Stable Operations Grid */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
         className="space-y-3"
       >
-        <h2 className="font-serif text-lg font-bold">Stable Modules</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {stableModules.map((module, index) => {
+        <h2 className="font-serif text-lg font-bold">Stable Operations</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          {stableOperations.map((module, index) => {
             const Icon = module.icon;
             return (
               <motion.div
@@ -306,6 +387,34 @@ function StableDashboardContent() {
               </motion.div>
             );
           })}
+        </div>
+      </motion.div>
+
+      {/* Setup reminder */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+      >
+        <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+          <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-amber-300">
+              Complete your stable setup
+            </p>
+            <p className="text-xs text-amber-400/70 mt-0.5">
+              Add your stable details, staff members, and owners to get the most
+              out of your Stable plan.
+            </p>
+          </div>
+          <Link href="/stable-setup">
+            <Button
+              size="sm"
+              className="h-8 text-xs shrink-0 bg-amber-600 hover:bg-amber-700 text-white border-0 gap-1"
+            >
+              Setup <ChevronRight className="w-3 h-3" />
+            </Button>
+          </Link>
         </div>
       </motion.div>
     </div>
