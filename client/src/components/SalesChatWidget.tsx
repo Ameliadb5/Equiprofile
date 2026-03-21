@@ -137,6 +137,13 @@ function injectStyles(): void {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+/* Hide the floating chat button on mobile — it overlaps the footer and blocks form CTAs.
+   Mobile users can reach support via the Contact page in the nav menu. */
+@media (max-width: 767px) {
+  [data-equip-chat] {
+    display: none;
+  }
+}
 @media (max-width: 480px) {
   [data-equip-chat-panel] {
     top: 0;
