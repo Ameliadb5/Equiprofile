@@ -130,6 +130,17 @@ const subscribedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   return next({ ctx });
 });
 
+/** Safely parse user preferences JSON. Returns empty object on parse failure. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseUserPrefs(raw: string | null | undefined): Record<string, any> {
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
 // Day-of-week offset map used by applyTemplate to schedule calendar events
 const TRAINING_DAY_OFFSET: Record<string, number> = {
   Sunday: 0,
@@ -601,7 +612,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         // Persist notification prefs in the user's JSON preferences field
         const user = await db.getUserById(ctx.user.id);
-        const existing = user?.preferences ? JSON.parse(user.preferences) : {};
+        const existing = parseUserPrefs(user?.preferences);
         const updated = {
           ...existing,
           notifications: { ...existing.notifications, ...input },
@@ -614,7 +625,7 @@ export const appRouter = router({
 
     getNotificationPreferences: protectedProcedure.query(async ({ ctx }) => {
       const user = await db.getUserById(ctx.user.id);
-      const existing = user?.preferences ? JSON.parse(user.preferences) : {};
+      const existing = parseUserPrefs(user?.preferences);
       const defaults = {
         emailNotifications: true,
         healthReminders: true,
@@ -632,7 +643,7 @@ export const appRouter = router({
       if (!user) return null;
 
       // Determine plan tier from preferences (set at checkout)
-      const prefs = user.preferences ? JSON.parse(user.preferences) : {};
+      const prefs = parseUserPrefs(user.preferences);
       const planTier: "pro" | "stable" = prefs.planTier || "pro";
 
       return {
@@ -667,7 +678,7 @@ export const appRouter = router({
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
       }
-      const prefs = user.preferences ? JSON.parse(user.preferences) : {};
+      const prefs = parseUserPrefs(user.preferences);
       return {
         completed: prefs.onboardingCompleted === true,
         step: typeof prefs.onboardingStep === "number" ? prefs.onboardingStep : 1,
@@ -686,7 +697,7 @@ export const appRouter = router({
       .input(z.object({ step: z.number().min(1).max(5) }))
       .mutation(async ({ ctx, input }) => {
         const user = await db.getUserById(ctx.user.id);
-        const prefs = user?.preferences ? JSON.parse(user.preferences) : {};
+        const prefs = parseUserPrefs(user?.preferences);
         prefs.onboardingStep = input.step;
         await db.updateUser(ctx.user.id, { preferences: JSON.stringify(prefs) });
         return { success: true };
@@ -694,7 +705,7 @@ export const appRouter = router({
 
     completeOnboarding: protectedProcedure.mutation(async ({ ctx }) => {
       const user = await db.getUserById(ctx.user.id);
-      const prefs = user?.preferences ? JSON.parse(user.preferences) : {};
+      const prefs = parseUserPrefs(user?.preferences);
       prefs.onboardingCompleted = true;
       prefs.onboardingStep = 5;
       await db.updateUser(ctx.user.id, { preferences: JSON.stringify(prefs) });
@@ -705,7 +716,7 @@ export const appRouter = router({
       .input(z.object({ experience: z.enum(["standard", "stable"]) }))
       .mutation(async ({ ctx, input }) => {
         const user = await db.getUserById(ctx.user.id);
-        const prefs = user?.preferences ? JSON.parse(user.preferences) : {};
+        const prefs = parseUserPrefs(user?.preferences);
         prefs.selectedExperience = input.experience;
         prefs.planTier = input.experience === "stable" ? "stable" : "pro";
         if (!prefs.activationChecklist) {
@@ -731,7 +742,7 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         const user = await db.getUserById(ctx.user.id);
-        const prefs = user?.preferences ? JSON.parse(user.preferences) : {};
+        const prefs = parseUserPrefs(user?.preferences);
         if (!prefs.activationChecklist) {
           prefs.activationChecklist = {};
         }
@@ -744,7 +755,7 @@ export const appRouter = router({
       .input(z.object({ tourId: z.string().min(1).max(100) }))
       .mutation(async ({ ctx, input }) => {
         const user = await db.getUserById(ctx.user.id);
-        const prefs = user?.preferences ? JSON.parse(user.preferences) : {};
+        const prefs = parseUserPrefs(user?.preferences);
         if (!prefs.dismissedTours) {
           prefs.dismissedTours = [];
         }
@@ -759,7 +770,7 @@ export const appRouter = router({
       .input(z.object({ tipId: z.string().min(1).max(100) }))
       .mutation(async ({ ctx, input }) => {
         const user = await db.getUserById(ctx.user.id);
-        const prefs = user?.preferences ? JSON.parse(user.preferences) : {};
+        const prefs = parseUserPrefs(user?.preferences);
         if (!prefs.dismissedTips) {
           prefs.dismissedTips = [];
         }
