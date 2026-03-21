@@ -291,7 +291,7 @@ export function Navbar(_props: NavbarProps = {}) {
               exit: { opacity: 0, height: 0 },
               transition: { duration: 0.2 },
             } as any)}
-            className="md:hidden border-t bg-background/95 backdrop-blur-md overflow-hidden"
+            className="md:hidden border-t border-gray-200 bg-white overflow-hidden shadow-lg"
           >
             <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
               {navLinks.map((link) => (

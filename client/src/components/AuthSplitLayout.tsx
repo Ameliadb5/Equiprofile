@@ -26,7 +26,7 @@ export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
     <div className="w-full relative flex flex-col min-h-screen md:flex-row md:h-screen md:overflow-hidden md:bg-[#0a1628]">
       {/* Image slider panel — absolute full-bg on mobile, left 50% on desktop.
           No top padding so it extends behind the fixed navbar. */}
-      <div className="absolute inset-0 md:relative md:inset-auto md:w-1/2 md:flex-shrink-0 overflow-hidden">
+      <div className="absolute inset-0 z-0 md:relative md:inset-auto md:z-auto md:w-1/2 md:flex-shrink-0 overflow-hidden">
         <ImageSlider
           slides={authSlides}
           interval={6000}
