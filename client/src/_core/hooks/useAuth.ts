@@ -89,16 +89,18 @@ export function useAuth(options?: UseAuthOptions) {
   ]);
 
   // Persist user info to localStorage for offline/quick reads (side effect).
-  // Cleared explicitly on logout via clearLocalAuthState().
+  // Cleared explicitly on logout via clearLocalAuthState(); also cleared here
+  // when the server returns null/undefined (session expired or revoked).
   useEffect(() => {
     if (meQuery.data) {
       localStorage.setItem(
         "equiprofile-user-info",
         JSON.stringify(meQuery.data),
       );
+    } else if (meQuery.data === null) {
+      // Server explicitly returned null — session is gone; clear cached identity
+      clearLocalAuthState();
     }
-    // When data is null/undefined we do NOT overwrite — clearLocalAuthState()
-    // handles removal on logout so we never store a stale null after a reload.
   }, [meQuery.data]);
 
   useEffect(() => {

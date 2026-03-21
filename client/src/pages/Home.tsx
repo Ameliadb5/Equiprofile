@@ -33,6 +33,7 @@ import {
   TrendingUp,
   Folder,
   Brain,
+  Smartphone,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { marketingAssets } from "@/config/marketingAssets";
@@ -584,6 +585,11 @@ export default function Home() {
                     <Check className="w-4 h-4" />
                     <span>Cancel anytime</span>
                   </div>
+                </div>
+                {/* PWA install hint */}
+                <div className="mt-6 inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 text-white/70 text-xs backdrop-blur-sm">
+                  <Smartphone className="w-3.5 h-3.5 shrink-0" />
+                  <span>Install as an app on iPhone or Android — works offline</span>
                 </div>
               </motion.div>
             </div>

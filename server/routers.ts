@@ -130,6 +130,17 @@ const subscribedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   return next({ ctx });
 });
 
+// Day-of-week offset map used by applyTemplate to schedule calendar events
+const TRAINING_DAY_OFFSET: Record<string, number> = {
+  Sunday: 0,
+  Monday: 1,
+  Tuesday: 2,
+  Wednesday: 3,
+  Thursday: 4,
+  Friday: 5,
+  Saturday: 6,
+};
+
 export const appRouter = router({
   system: systemRouter,
 
@@ -3634,11 +3645,11 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const drizzleDb = await getDb();
+        if (!drizzleDb) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
         // Get template
-        const template = await db
+        const template = await drizzleDb
           .select()
           .from(trainingProgramTemplates)
           .where(eq(trainingProgramTemplates.id, input.templateId))
@@ -3649,7 +3660,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         }
 
         // Create program instance
-        const result = await db.insert(trainingPrograms).values({
+        const result = await drizzleDb.insert(trainingPrograms).values({
           horseId: input.horseId,
           userId: ctx.user!.id,
           templateId: input.templateId,
@@ -3680,16 +3691,6 @@ Format your response as JSON with keys: recommendation, explanation, precautions
               }>;
             };
 
-            const DAY_OFFSET: Record<string, number> = {
-              Sunday: 0,
-              Monday: 1,
-              Tuesday: 2,
-              Wednesday: 3,
-              Thursday: 4,
-              Friday: 5,
-              Saturday: 6,
-            };
-
             const baseDate = new Date(input.startDate);
             const baseDayOfWeek = baseDate.getDay();
 
@@ -3699,7 +3700,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
               const weekOffset = (week.week - 1) * 7;
               for (const session of week.sessions ?? []) {
                 if (session.type === "rest") continue;
-                const dayOffset = DAY_OFFSET[session.day] ?? 0;
+                const dayOffset = TRAINING_DAY_OFFSET[session.day] ?? 0;
                 const diff = (dayOffset - baseDayOfWeek + 7) % 7;
                 const eventDate = new Date(baseDate);
                 eventDate.setDate(
@@ -3720,7 +3721,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
             }
 
             if (calendarInserts.length > 0) {
-              await db.insert(events).values(calendarInserts);
+              await drizzleDb.insert(events).values(calendarInserts);
             }
           }
         } catch (err) {
