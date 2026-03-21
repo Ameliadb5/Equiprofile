@@ -60,6 +60,18 @@ export const marketingAssets = {
   dashboard: {
     preview: "/assets/marketing/dashboard/dashboard-preview.svg",
   },
+
+  // ========================================
+  // Feature Icons
+  // ========================================
+  features: {
+    iconAnalytics: "/assets/marketing/features/icon-analytics.svg",
+    iconAutomation: "/assets/marketing/features/icon-automation.svg",
+    iconIntegrations: "/assets/marketing/features/icon-integrations.svg",
+    iconSecurity: "/assets/marketing/features/icon-security.svg",
+    iconSpeed: "/assets/marketing/features/icon-speed.svg",
+    iconSupport: "/assets/marketing/features/icon-support.svg",
+  },
 } as const;
 
 /** Slides for the landing page hero image slider (image1–image5 only) */
