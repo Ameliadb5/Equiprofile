@@ -81,7 +81,7 @@ export default function About() {
         <PageBanner
           title="About EquiProfile"
           subtitle="We're on a mission to revolutionize horse management with technology that empowers horse owners, trainers, and equestrian professionals."
-          imageSrc="/images/aboutus.jpg"
+          imageSrc="/images/hero/image6.jpg"
           imagePosition="center"
         />
 
@@ -93,7 +93,7 @@ export default function About() {
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden backdrop-blur-md bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-[0_0_40px_rgba(6,182,212,0.3)]">
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-indigo-500/20" />
                   <img
-                    src="/images/gallery/19.jpg"
+                    src="/images/hero/image3.jpg"
                     alt="Our Story"
                     className="relative z-10 w-full h-full object-cover object-[center_30%]"
                   />
@@ -159,7 +159,7 @@ export default function About() {
                     <div className="relative aspect-square rounded-2xl overflow-hidden backdrop-blur-md bg-white/5 border border-white/10 p-4 hover:border-white/20 transition-all duration-300">
                       <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-cyan-500/20" />
                       <img
-                        src="/images/gallery/17.jpg"
+                        src="/images/hero/image4.jpg"
                         alt="Our Mission"
                         className="relative z-10 w-full h-full object-cover rounded-xl object-[center_40%]"
                       />
@@ -235,7 +235,7 @@ export default function About() {
                 </p>
                 <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300">
                   <img
-                    src="/images/gallery/21.jpg"
+                    src="/images/hero/image5.jpg"
                     alt="Our Team"
                     className="w-full h-full object-cover object-[center_30%]"
                   />

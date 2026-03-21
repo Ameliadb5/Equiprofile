@@ -9,7 +9,7 @@ export default function PrivacyPage() {
         <PageBanner
           title="Privacy Policy"
           subtitle="How we collect, use, and protect your personal information"
-          imageSrc="/images/gallery/23.jpg"
+          imageSrc="/images/hero/image3.jpg"
           imagePosition="center"
         />
         <div className="container mx-auto px-4 py-16">

@@ -80,7 +80,7 @@ export default function Contact() {
         <PageBanner
           title="Get in Touch"
           subtitle="Have a question or need help? We're here for you. Send us a message and we'll respond as soon as possible."
-          imageSrc="/images/contactus.jpg"
+          imageSrc="/images/hero/image2.jpg"
         />
 
         <div className="container mx-auto px-4 py-16">

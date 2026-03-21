@@ -32,9 +32,9 @@ export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
           interval={6000}
           showArrows={false}
           showDots={true}
-          showText={true}
+          showText={false}
           className="w-full h-full"
-          overlayClass="bg-black/30"
+          overlayClass="bg-black/10"
         />
       </div>
 

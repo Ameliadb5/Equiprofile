@@ -166,7 +166,7 @@ function HorsesContent() {
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = "/assets/marketing/hero/hero-horse.jpg";
+                      target.src = "/images/hero/image6.jpg";
                     }}
                   />
                 ) : (

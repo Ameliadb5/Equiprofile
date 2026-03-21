@@ -10,7 +10,7 @@
  *   import Navbar from "@/components/Navbar";
  *   <Navbar />
  */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -63,24 +63,16 @@ const stableNavLinks = [
   { label: "Owners", path: "/contacts" },
 ];
 
+// Props are kept for backward compatibility but no longer affect rendering.
+// The navbar always uses a permanent background.
 interface NavbarProps {
-  /**
-   * Force dark style (transparent bg + white text) regardless of scroll.
-   * Useful on auth pages where the page background is already dark.
-   */
   alwaysDark?: boolean;
-  /**
-   * Force light style (white bg + black text) regardless of scroll.
-   */
   alwaysLight?: boolean;
 }
 
-export function Navbar({
-  alwaysDark = false,
-  alwaysLight = false,
-}: NavbarProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function Navbar(_props: NavbarProps = {}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [location] = useLocation();
   const { isAuthenticated, user, logout } = useAuth();
 
@@ -91,15 +83,8 @@ export function Navbar({
   );
   const isStablePlan = subscriptionStatus?.planTier === "stable";
 
-  // showLight: white bg + black text (scrolled or forced)
-  // dark: transparent + white text (top of page or forced)
-  const showLight = !alwaysDark && (alwaysLight || isScrolled);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // Navbar always shows the light (white) background — no scroll-activation.
+  const showLight = true;
 
   const navLinks = isAuthenticated ? appNavLinks : publicNavLinks;
 

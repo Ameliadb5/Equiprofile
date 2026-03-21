@@ -9,7 +9,7 @@ export default function TermsPage() {
         <PageBanner
           title="Terms of Service"
           subtitle="Legal terms and conditions for using EquiProfile"
-          imageSrc="/images/gallery/20.jpg"
+          imageSrc="/images/hero/image2.jpg"
           imagePosition="center"
         />
         <div className="container mx-auto px-4 py-16">

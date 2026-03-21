@@ -984,7 +984,7 @@ function DashboardContent() {
                           className="w-8 h-8 rounded-full object-cover shrink-0 border border-border"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src =
-                              "/assets/marketing/hero/hero-horse.jpg";
+                              "/images/hero/image6.jpg";
                           }}
                         />
                       ) : (
