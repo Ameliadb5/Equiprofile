@@ -21,6 +21,7 @@ import { PageTransition } from "@/components/PageTransition";
 import { Navbar } from "@/components/Navbar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthSplitLayout } from "@/components/AuthSplitLayout";
+import { Footer } from "@/components/Footer";
 import { motion } from "framer-motion";
 
 export default function ForgotPassword() {
@@ -188,6 +189,7 @@ export default function ForgotPassword() {
           </motion.div>
         </AuthSplitLayout>
       </PageTransition>
+      <Footer />
     </>
   );
 }
