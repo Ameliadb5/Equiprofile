@@ -48,6 +48,15 @@ type HorseEntry = {
 
 // ─── Stable operational quick-stats ────────────────────────────────────────
 
+const PRIORITY_COLOR: Record<string, string> = {
+  high: "bg-red-500",
+  medium: "bg-amber-500",
+  low: "bg-green-500",
+};
+function taskPriorityColor(priority: string): string {
+  return PRIORITY_COLOR[priority] ?? "bg-green-500";
+}
+
 const stableOps = [
   {
     id: "roster",
@@ -578,13 +587,7 @@ function StableDashboardContent() {
                       className="flex items-center gap-2 p-2 rounded-lg border border-muted/25 bg-muted/15 text-xs"
                     >
                       <div
-                        className={`w-2 h-2 rounded-full shrink-0 ${
-                          task.priority === "high"
-                            ? "bg-red-500"
-                            : task.priority === "medium"
-                              ? "bg-amber-500"
-                              : "bg-green-500"
-                        }`}
+                        className={`w-2 h-2 rounded-full shrink-0 ${taskPriorityColor(task.priority)}`}
                       />
                       <p className="font-medium truncate">{task.title}</p>
                     </div>

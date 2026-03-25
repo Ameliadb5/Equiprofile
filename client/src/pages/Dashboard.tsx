@@ -198,6 +198,16 @@ const moduleCategories = [
   },
 ];
 
+// Helper: map task priority to a dot color class
+const PRIORITY_COLOR: Record<string, string> = {
+  high: "bg-red-500",
+  medium: "bg-amber-500",
+  low: "bg-green-500",
+};
+function taskPriorityColor(priority: string): string {
+  return PRIORITY_COLOR[priority] ?? "bg-green-500";
+}
+
 // Quick actions for the pill row
 const quickActions = [
   {
@@ -828,13 +838,7 @@ function DashboardContent() {
                     className="flex items-center gap-2.5 p-2.5 rounded-lg border border-muted/30 bg-muted/20"
                   >
                     <div
-                      className={`w-2 h-2 rounded-full shrink-0 ${
-                        task.priority === "high"
-                          ? "bg-red-500"
-                          : task.priority === "medium"
-                            ? "bg-amber-500"
-                            : "bg-green-500"
-                      }`}
+                      className={`w-2 h-2 rounded-full shrink-0 ${taskPriorityColor(task.priority)}`}
                     />
                     <p className="text-xs font-medium truncate flex-1">
                       {task.title}
