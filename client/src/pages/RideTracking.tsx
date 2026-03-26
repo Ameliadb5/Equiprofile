@@ -381,7 +381,7 @@ function RideTrackingContent() {
   }, []);
 
   const saveRide = useCallback(() => {
-    const avgSpd =
+    const avgSpeed =
       elapsedTime > 0 ? currentDistance / 1000 / (elapsedTime / 3600) : 0;
 
     createRideMutation.mutate({
@@ -391,7 +391,7 @@ function RideTrackingContent() {
       endTime: new Date().toISOString(),
       duration: elapsedTime,
       distance: currentDistance,
-      avgSpeed: avgSpd,
+      avgSpeed,
       maxSpeed,
       routeData: JSON.stringify(currentPoints),
       notes: rideNotes || undefined,
