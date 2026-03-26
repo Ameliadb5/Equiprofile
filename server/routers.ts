@@ -1577,8 +1577,8 @@ export const appRouter = router({
           ]),
           company: z.string().optional(),
           email: z.string().email().optional(),
-          phone: z.string().max(50).optional(),
-          mobile: z.string().optional(),
+          phone: z.string().max(20).optional(),
+          mobile: z.string().max(20).optional(),
           address: z.string().optional(),
           city: z.string().optional(),
           postcode: z.string().optional(),
@@ -1592,6 +1592,7 @@ export const appRouter = router({
         const id = await db.createContact({
           ...input,
           userId: ctx.user!.id,
+          isActive: true,
         });
         await db.logActivity({
           userId: ctx.user!.id,
@@ -1628,8 +1629,8 @@ export const appRouter = router({
             .optional(),
           company: z.string().optional(),
           email: z.string().email().optional(),
-          phone: z.string().max(50).optional(),
-          mobile: z.string().optional(),
+          phone: z.string().max(20).optional(),
+          mobile: z.string().max(20).optional(),
           address: z.string().optional(),
           city: z.string().optional(),
           postcode: z.string().optional(),

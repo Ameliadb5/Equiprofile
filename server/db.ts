@@ -1395,12 +1395,29 @@ export async function createContact(data: {
   website?: string;
   notes?: string;
   isPrimary?: boolean;
+  isActive?: boolean;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   const { contacts } = await import("../drizzle/schema");
-  const result = await db.insert(contacts).values(data as any);
+  const result = await db.insert(contacts).values({
+    userId: data.userId,
+    name: data.name,
+    contactType: data.contactType as any,
+    company: data.company ?? null,
+    email: data.email ?? null,
+    phone: data.phone ?? null,
+    mobile: data.mobile ?? null,
+    address: data.address ?? null,
+    city: data.city ?? null,
+    postcode: data.postcode ?? null,
+    country: data.country ?? "United Kingdom",
+    website: data.website ?? null,
+    notes: data.notes ?? null,
+    isPrimary: data.isPrimary ?? false,
+    isActive: data.isActive ?? true,
+  });
   return (result[0] as ResultSetHeader).insertId as number;
 }
 
