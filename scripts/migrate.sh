@@ -152,6 +152,17 @@ async function main() {
     );
     const latitudeExists = Number(latRows[0].cnt) > 0;
 
+    // Sentinel: if key tables from migration 0008 are missing, it must run.
+    // We check for eventReminders as a representative table because it is
+    // exclusively created by migration 0008 and has no overlap with earlier
+    // migrations.  The server-side ensureTables() function in db.ts provides
+    // a secondary safety-net for all tables.
+    const [m8Rows] = await conn.execute(
+      "SELECT COUNT(*) AS cnt FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'eventReminders'",
+      [dbName]
+    );
+    const migration0008TablesExist = Number(m8Rows[0].cnt) > 0;
+
     for (const entry of entries) {
       const hash = entry.tag;
 
@@ -159,6 +170,13 @@ async function main() {
       // columns already exist; otherwise let drizzle run it so gaps are filled.
       if (hash === '0002_add_missing_user_columns' && !latitudeExists) {
         console.log(`   ⚠️  Skipping baseline for ${hash} – missing columns detected, will run migration.`);
+        continue;
+      }
+
+      // For migration 0008 (creates all missing tables): only baseline if the
+      // tables already exist; otherwise let drizzle run it to create them.
+      if (hash === '0008_create_missing_tables' && !migration0008TablesExist) {
+        console.log(`   ⚠️  Skipping baseline for ${hash} – missing tables detected, will run migration.`);
         continue;
       }
 
