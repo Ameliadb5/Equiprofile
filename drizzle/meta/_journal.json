@@ -57,6 +57,13 @@
       "when": 1742558400000,
       "tag": "0007_rides_table",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1742644800000,
+      "tag": "0008_create_missing_tables",
+      "breakpoints": true
     }
   ]
 }
