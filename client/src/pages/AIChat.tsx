@@ -22,6 +22,7 @@ import {
   MessageSquare,
   FileText,
   ExternalLink,
+  CalendarPlus,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -73,6 +74,28 @@ export default function AIChat() {
       toast.error(error.message || "Failed to delete note");
     },
   });
+
+  const saveToCalendar = trpc.calendar.createEvent.useMutation({
+    onSuccess: () => {
+      toast.success("Note saved to calendar!");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to save to calendar");
+    },
+  });
+
+  const handleSaveToCalendar = (note: { title?: string | null; content: string; createdAt: string | Date }) => {
+    const title = note.title || "Voice Note";
+    // Schedule for the next whole hour (e.g., if it's 2:35 PM, schedule for 3:00 PM)
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 1, 0, 0, 0);
+    saveToCalendar.mutate({
+      title,
+      description: note.content,
+      eventType: "other",
+      startDate: startDate.toISOString(),
+    });
+  };
 
   // Initialize Web Speech API
   useEffect(() => {
@@ -413,14 +436,26 @@ export default function AIChat() {
                               {new Date(note.createdAt).toLocaleString()}
                             </div>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => deleteNote.mutate({ id: note.id })}
-                            disabled={deleteNote.isPending}
-                          >
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleSaveToCalendar(note)}
+                              disabled={saveToCalendar.isPending}
+                              title="Save to Calendar"
+                            >
+                              <CalendarPlus className="w-4 h-4 text-primary" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => deleteNote.mutate({ id: note.id })}
+                              disabled={deleteNote.isPending}
+                              title="Delete note"
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
                         </div>
                       </Card>
                     ))}

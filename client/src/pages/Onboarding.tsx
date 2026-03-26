@@ -49,7 +49,7 @@ export default function Onboarding() {
       // Invalidate auth cache so planTier is fresh
       await utils.auth.me.invalidate();
       if (selected === "stable") {
-        window.location.href = "/stable-dashboard";
+        window.location.href = "/stable-setup";
       } else {
         window.location.href = "/dashboard";
       }

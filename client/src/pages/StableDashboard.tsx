@@ -413,6 +413,53 @@ function StableDashboardContent() {
         </Link>
       </motion.div>
 
+      {/* ── Getting Started (shown when no horses yet) ─────────── */}
+      {(horses as HorseEntry[]).length === 0 && !horsesLoading && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.08 }}
+        >
+          <Card className="border-amber-500/20 bg-gradient-to-br from-amber-950/20 to-slate-950/40">
+            <CardHeader className="pb-2">
+              <CardTitle className="font-serif text-sm flex items-center gap-2">
+                <Wrench className="w-4 h-4 text-amber-400" />
+                Getting Started
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Link href="/stable-setup">
+                <div className="flex items-center justify-between p-2.5 rounded-lg border border-amber-500/15 bg-amber-500/5 hover:bg-amber-500/10 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-amber-400 shrink-0" />
+                    <p className="text-xs font-medium">Complete stable setup</p>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50" />
+                </div>
+              </Link>
+              <Link href="/horses/new">
+                <div className="flex items-center justify-between p-2.5 rounded-lg border border-amber-500/15 bg-amber-500/5 hover:bg-amber-500/10 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-rose-400 shrink-0" />
+                    <p className="text-xs font-medium">Add your first horse</p>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50" />
+                </div>
+              </Link>
+              <Link href="/staff">
+                <div className="flex items-center justify-between p-2.5 rounded-lg border border-amber-500/15 bg-amber-500/5 hover:bg-amber-500/10 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-2">
+                    <UserCog className="w-4 h-4 text-blue-400 shrink-0" />
+                    <p className="text-xs font-medium">Add staff members</p>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50" />
+                </div>
+              </Link>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
       {/* ── Horse Roster + Upcoming (two-column) ────────────────*/}
       <motion.div
         initial={{ opacity: 0, y: 12 }}

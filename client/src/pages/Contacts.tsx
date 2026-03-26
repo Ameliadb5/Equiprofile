@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { useRealtimeModule } from "@/hooks/useRealtime";
 
 function ContactsContent() {
+  const utils = trpc.useUtils();
   const { data: contacts, isLoading } = trpc.contacts.list.useQuery();
   const [localContacts, setLocalContacts] = useState(contacts || []);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -79,9 +80,10 @@ function ContactsContent() {
   }, [contacts]);
 
   const createMutation = trpc.contacts.create.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       setIsCreateOpen(false);
       resetForm();
+      await utils.contacts.list.invalidate();
     },
     onError: (error) => {
       toast.error(error.message || "Failed to create contact");
@@ -89,6 +91,9 @@ function ContactsContent() {
   });
 
   const deleteMutation = trpc.contacts.delete.useMutation({
+    onSuccess: async () => {
+      await utils.contacts.list.invalidate();
+    },
     onError: (error) => {
       toast.error(error.message || "Failed to delete contact");
     },

@@ -551,6 +551,56 @@ function DashboardContent() {
         </motion.div>
       )}
 
+      {/* ── Getting Started (shown when user has no horses yet) ───── */}
+      {(horses as any[]).length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <Card className="border-indigo-500/20 bg-gradient-to-br from-indigo-950/30 to-slate-950/40">
+            <CardHeader className="pb-2">
+              <CardTitle className="font-serif text-sm flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-indigo-400" />
+                Getting Started
+              </CardTitle>
+              <CardDescription className="text-[11px]">
+                Welcome! Complete these steps to set up your account.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Link href="/horses/new">
+                <div className="flex items-center justify-between p-2.5 rounded-lg border border-indigo-500/15 bg-indigo-500/5 hover:bg-indigo-500/10 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-rose-400 shrink-0" />
+                    <p className="text-xs font-medium">Add your first horse</p>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50" />
+                </div>
+              </Link>
+              <Link href="/settings">
+                <div className="flex items-center justify-between p-2.5 rounded-lg border border-indigo-500/15 bg-indigo-500/5 hover:bg-indigo-500/10 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-2">
+                    <Settings className="w-4 h-4 text-slate-400 shrink-0" />
+                    <p className="text-xs font-medium">Set your location for weather</p>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50" />
+                </div>
+              </Link>
+              <Link href="/contacts">
+                <div className="flex items-center justify-between p-2.5 rounded-lg border border-indigo-500/15 bg-indigo-500/5 hover:bg-indigo-500/10 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-blue-400 shrink-0" />
+                    <p className="text-xs font-medium">Add your vet or farrier</p>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50" />
+                </div>
+              </Link>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
       {/* ── Two-column live view ──────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
