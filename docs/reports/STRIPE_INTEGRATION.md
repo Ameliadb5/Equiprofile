@@ -2,7 +2,7 @@
 
 ## Overview
 
-EquiProfile.online uses Stripe for subscription management with a 7-day free trial, monthly (£7.99/month) and yearly (£79.90/year) plans.
+EquiProfile.online uses Stripe for subscription management with a 7-day free trial. Plans: Pro (£10/month, £100/year) and Stable (£30/month, £300/year).
 
 ## Setup Instructions
 
@@ -15,19 +15,21 @@ EquiProfile.online uses Stripe for subscription management with a 7-day free tri
 
 ### 2. Create Products and Prices
 
-#### Monthly Subscription
+#### Pro Plan
 
 1. Go to **Products** → **Add Product**
-2. Name: "EquiProfile Monthly"
-3. Description: "Monthly subscription to EquiProfile"
-4. Pricing: £7.99 GBP, Recurring, Monthly
+2. Name: "EquiProfile Pro Monthly"
+3. Description: "Pro monthly subscription to EquiProfile"
+4. Pricing: £10 GBP, Recurring, Monthly
 5. Copy the **Price ID** (starts with `price_`)
+6. Create a yearly variant: "EquiProfile Pro Yearly" — £100 GBP, Recurring, Yearly
 
-#### Yearly Subscription
+#### Stable Plan
 
-1. Create another product: "EquiProfile Yearly"
-2. Pricing: £79.90 GBP, Recurring, Yearly
+1. Create another product: "EquiProfile Stable Monthly"
+2. Pricing: £30 GBP, Recurring, Monthly
 3. Copy the **Price ID**
+4. Create a yearly variant: "EquiProfile Stable Yearly" — £300 GBP, Recurring, Yearly
 
 ### 3. Configure Environment Variables
 

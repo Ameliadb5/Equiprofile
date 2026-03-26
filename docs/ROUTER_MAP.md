@@ -94,7 +94,7 @@ EquiProfile uses tRPC for type-safe API communication between client and server.
 
 | Procedure      | Type               | Purpose                         | Used By                 |
 | -------------- | ------------------ | ------------------------------- | ----------------------- |
-| getPricing     | publicProcedure    | Get pricing info (£7.99/£79.90) | Pricing page, Home page |
+| getPricing     | publicProcedure    | Get pricing info (Pro £10/£100, Stable £30/£300) | Pricing page, Home page |
 | createCheckout | protectedProcedure | Create Stripe checkout session  | Pricing page, Dashboard |
 | createPortal   | protectedProcedure | Create Stripe customer portal   | Dashboard, Settings     |
 | getStatus      | protectedProcedure | Get subscription status         | Dashboard, Settings     |

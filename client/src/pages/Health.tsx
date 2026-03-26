@@ -28,6 +28,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
 import {
@@ -39,6 +50,8 @@ import {
   FileText,
   AlertCircle,
   Calendar,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -54,6 +67,19 @@ const recordTypes = [
 
 function HealthContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<any>(null);
+  const [editFormData, setEditFormData] = useState({
+    horseId: "",
+    recordType: "vaccination" as const,
+    title: "",
+    recordDate: new Date().toISOString().split("T")[0],
+    nextDueDate: "",
+    vetName: "",
+    vetPhone: "",
+    description: "",
+    notes: "",
+  });
   const [formData, setFormData] = useState({
     horseId: "",
     recordType: "vaccination" as const,
@@ -95,6 +121,72 @@ function HealthContent() {
     },
     onError: (error) => toast.error(error.message),
   });
+
+  const utils = trpc.useUtils();
+
+  const deleteMutation = trpc.healthRecords.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Health record deleted!");
+      utils.healthRecords.listAll.invalidate();
+      utils.healthRecords.getReminders.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const updateMutation = trpc.healthRecords.update.useMutation({
+    onSuccess: () => {
+      toast.success("Health record updated!");
+      setIsEditDialogOpen(false);
+      setEditingRecord(null);
+      utils.healthRecords.listAll.invalidate();
+      utils.healthRecords.getReminders.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const handleDelete = (id: number) => {
+    deleteMutation.mutate({ id });
+  };
+
+  const handleEdit = (record: any) => {
+    setEditingRecord(record);
+    setEditFormData({
+      horseId: record.horseId.toString(),
+      recordType: record.recordType,
+      title: record.title || "",
+      recordDate: record.recordDate
+        ? new Date(record.recordDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      nextDueDate: record.nextDueDate
+        ? new Date(record.nextDueDate).toISOString().split("T")[0]
+        : "",
+      vetName: record.vetName || "",
+      vetPhone: record.vetPhone || "",
+      description: record.description || "",
+      notes: record.notes || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingRecord) return;
+    if (!editFormData.title) {
+      toast.error("Please fill in required fields");
+      return;
+    }
+    updateMutation.mutate({
+      id: editingRecord.id,
+      recordType: editFormData.recordType,
+      title: editFormData.title,
+      recordDate: editFormData.recordDate,
+      nextDueDate: editFormData.nextDueDate || undefined,
+      vetName: editFormData.vetName || undefined,
+      vetPhone: editFormData.vetPhone || undefined,
+      description: editFormData.description || undefined,
+      notes: editFormData.notes || undefined,
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -402,6 +494,47 @@ function HealthContent() {
                         {new Date(record.nextDueDate).toLocaleDateString()}
                       </div>
                     )}
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(record)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Delete this record?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently delete the health record
+                              &ldquo;{record.title}&rdquo;. This action cannot
+                              be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(record.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
                 );
               })}
@@ -409,6 +542,173 @@ function HealthContent() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Record Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <form onSubmit={handleEditSubmit}>
+            <DialogHeader>
+              <DialogTitle>Edit Health Record</DialogTitle>
+              <DialogDescription>
+                Update the details of this health record
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Horse</Label>
+                  <Select value={editFormData.horseId} disabled>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select horse" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {horses?.map((horse) => (
+                        <SelectItem
+                          key={horse.id}
+                          value={horse.id.toString()}
+                        >
+                          {horse.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Record Type *</Label>
+                  <Select
+                    value={editFormData.recordType}
+                    onValueChange={(value: any) =>
+                      setEditFormData({ ...editFormData, recordType: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {recordTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Title *</Label>
+                <Input
+                  value={editFormData.title}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, title: e.target.value })
+                  }
+                  placeholder="e.g., Annual flu vaccination"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Date *</Label>
+                  <Input
+                    type="date"
+                    value={editFormData.recordDate}
+                    onChange={(e) =>
+                      setEditFormData({
+                        ...editFormData,
+                        recordDate: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Next Due Date</Label>
+                  <Input
+                    type="date"
+                    value={editFormData.nextDueDate}
+                    onChange={(e) =>
+                      setEditFormData({
+                        ...editFormData,
+                        nextDueDate: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Vet Name</Label>
+                  <Input
+                    value={editFormData.vetName}
+                    onChange={(e) =>
+                      setEditFormData({
+                        ...editFormData,
+                        vetName: e.target.value,
+                      })
+                    }
+                    placeholder="Veterinarian name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Vet Contact</Label>
+                  <Input
+                    value={editFormData.vetPhone}
+                    onChange={(e) =>
+                      setEditFormData({
+                        ...editFormData,
+                        vetPhone: e.target.value,
+                      })
+                    }
+                    placeholder="Phone or email"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={editFormData.description}
+                  onChange={(e) =>
+                    setEditFormData({
+                      ...editFormData,
+                      description: e.target.value,
+                    })
+                  }
+                  placeholder="Details about the treatment or visit..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Notes</Label>
+                <Textarea
+                  value={editFormData.notes}
+                  onChange={(e) =>
+                    setEditFormData({
+                      ...editFormData,
+                      notes: e.target.value,
+                    })
+                  }
+                  placeholder="Additional notes..."
+                  rows={2}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateMutation.isPending}>
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

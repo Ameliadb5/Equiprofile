@@ -53,18 +53,23 @@ Visit http://localhost:3000 🎉
 
 ## Admin Access
 
-### Enable Admin Section
+### Unlock Admin Mode
 
-1. Open browser console (F12)
-2. Type: `showAdmin()`
-3. Enter password: `equi2024!admin` (change in production!)
-4. Navigate to `/admin`
+1. Navigate to **AI Chat** (`/ai-chat`)
+2. Type: `show admin`
+3. Enter the `ADMIN_UNLOCK_PASSWORD` (set in your `.env` file)
+4. Admin session lasts **30 minutes** (up to **8 hours** for primary admin)
+5. Access the admin panel at `/admin`
 
-### Disable Admin Section
+### Feature Flags
 
-```javascript
-hideAdmin();
-```
+Set these in `.env` to toggle optional features:
+
+| Variable          | Description                      |
+| ----------------- | -------------------------------- |
+| `ENABLE_STRIPE`   | Set `true` to activate billing   |
+| `ENABLE_UPLOADS`  | Set `true` to activate uploads   |
+| `ENABLE_PWA`      | Set `true` to enable PWA support |
 
 ## Available Scripts
 
