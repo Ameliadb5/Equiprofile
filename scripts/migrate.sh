@@ -153,8 +153,10 @@ async function main() {
     const latitudeExists = Number(latRows[0].cnt) > 0;
 
     // Sentinel: if key tables from migration 0008 are missing, it must run.
-    // Check for a representative table (eventReminders) that only exists
-    // after migration 0008 has been executed.
+    // We check for eventReminders as a representative table because it is
+    // exclusively created by migration 0008 and has no overlap with earlier
+    // migrations.  The server-side ensureTables() function in db.ts provides
+    // a secondary safety-net for all tables.
     const [m8Rows] = await conn.execute(
       "SELECT COUNT(*) AS cnt FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'eventReminders'",
       [dbName]

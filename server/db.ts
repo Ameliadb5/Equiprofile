@@ -106,6 +106,7 @@ import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let _tablesEnsured = false;
+let _ensureTablesPromise: Promise<void> | null = null;
 
 // Helper to fix localhost to IPv4 address
 function fixDatabaseUrl(url: string): string {
@@ -779,7 +780,15 @@ async function ensureTables(db: ReturnType<typeof drizzle>): Promise<void> {
 
   try {
     for (const stmt of statements) {
-      await db.execute(sql.raw(stmt));
+      // Extract table name for error reporting
+      const tableMatch = stmt.match(/CREATE TABLE IF NOT EXISTS `(\w+)`/);
+      const tableName = tableMatch ? tableMatch[1] : "unknown";
+      try {
+        await db.execute(sql.raw(stmt));
+      } catch (tableError) {
+        console.error(`[Database] Failed to create table '${tableName}':`, tableError);
+        throw tableError;
+      }
     }
     console.log("[Database] All required tables verified/created");
     _tablesEnsured = true;
@@ -801,8 +810,12 @@ export async function getDb() {
       _db = drizzle(fixedUrl);
       console.log("[Database] Connection established");
 
-      // Ensure all required tables exist on first connection
-      await ensureTables(_db);
+      // Ensure all required tables exist on first connection.
+      // Use a shared promise so concurrent callers don't run ensureTables twice.
+      if (!_ensureTablesPromise) {
+        _ensureTablesPromise = ensureTables(_db);
+      }
+      await _ensureTablesPromise;
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
