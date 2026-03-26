@@ -509,7 +509,7 @@ function DashboardLayoutContent({
             </div>
           </div>
         )}
-        <main className={`flex-1 p-3 sm:p-5 md:p-6 ${isMobile ? "pb-24" : ""}`} style={isMobile ? { paddingBottom: 'calc(5rem + var(--safe-area-bottom, 0px))' } : undefined}>
+        <main className={`flex-1 p-3 sm:p-5 md:p-6`} style={isMobile ? { paddingBottom: 'calc(5rem + var(--safe-area-bottom, 0px))' } : undefined}>
           {children}
         </main>
 
