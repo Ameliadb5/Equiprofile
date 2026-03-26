@@ -499,9 +499,10 @@ Users may see stale content after deployment. Solutions:
 
 ### Admin Section Not Appearing
 
-1. Open browser console
-2. Run: `showAdmin()`
+1. Navigate to AI Chat (`/ai-chat`)
+2. Type: `show admin`
 3. Enter the `ADMIN_UNLOCK_PASSWORD` from your `.env`
+4. Admin session lasts 30 minutes (up to 8 hours for primary admin)
 
 ---
 

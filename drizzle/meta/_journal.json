@@ -50,6 +50,13 @@
       "when": 1742472000000,
       "tag": "0006_document_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1742558400000,
+      "tag": "0007_rides_table",
+      "breakpoints": true
     }
   ]
 }
