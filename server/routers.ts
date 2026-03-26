@@ -102,29 +102,37 @@ const subscribedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
     });
   }
 
+  // Check trial expiry BEFORE status check — a "trial" status with a past
+  // trialEndsAt must be rejected, not silently allowed.
+  if (
+    user.subscriptionStatus === "trial" &&
+    user.trialEndsAt &&
+    new Date(user.trialEndsAt) < new Date()
+  ) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Your free trial has expired. Please subscribe to continue.",
+    });
+  }
+
   // Check subscription status
   const validStatuses = ["trial", "active"];
   if (!validStatuses.includes(user.subscriptionStatus)) {
-    // Check if trial has expired
-    if (
-      user.subscriptionStatus === "trial" &&
-      user.trialEndsAt &&
-      new Date(user.trialEndsAt) < new Date()
-    ) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Your free trial has expired. Please subscribe to continue.",
-      });
-    }
     if (
       user.subscriptionStatus === "overdue" ||
-      user.subscriptionStatus === "expired"
+      user.subscriptionStatus === "expired" ||
+      user.subscriptionStatus === "cancelled"
     ) {
       throw new TRPCError({
         code: "FORBIDDEN",
         message: "Your subscription has expired. Please renew to continue.",
       });
     }
+    // Any other unrecognised status — deny access
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Your subscription is not active. Please subscribe to continue.",
+    });
   }
 
   return next({ ctx });

@@ -245,34 +245,34 @@ export default function Settings() {
             <TabsList
               className={
                 adminStatus.data?.isUnlocked
-                  ? "grid grid-cols-5 w-full max-w-2xl"
-                  : "grid grid-cols-4 w-full max-w-xl"
+                  ? "grid grid-cols-3 sm:grid-cols-6 w-full max-w-2xl"
+                  : "grid grid-cols-3 sm:grid-cols-5 w-full max-w-xl"
               }
             >
               <TabsTrigger value="profile">
-                <User className="w-4 h-4 mr-2" />
-                Profile
+                <User className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Profile</span>
               </TabsTrigger>
               <TabsTrigger value="security">
-                <Lock className="w-4 h-4 mr-2" />
-                Security
+                <Lock className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Security</span>
               </TabsTrigger>
               <TabsTrigger value="notifications">
-                <Bell className="w-4 h-4 mr-2" />
-                Notifications
+                <Bell className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Notifications</span>
               </TabsTrigger>
               <TabsTrigger value="install">
-                <Smartphone className="w-4 h-4 mr-2" />
-                App
+                <Smartphone className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">App</span>
               </TabsTrigger>
               <TabsTrigger value="help">
-                <HelpCircle className="w-4 h-4 mr-2" />
-                Help
+                <HelpCircle className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Help</span>
               </TabsTrigger>
               {adminStatus.data?.isUnlocked && (
                 <TabsTrigger value="system">
-                  <Info className="w-4 h-4 mr-2" />
-                  System
+                  <Info className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">System</span>
                 </TabsTrigger>
               )}
             </TabsList>
