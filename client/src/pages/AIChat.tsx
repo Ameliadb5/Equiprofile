@@ -3,13 +3,27 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { AIChatBox, Message } from "@/components/AIChatBox";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ShieldCheck,
   Lock,
@@ -18,11 +32,12 @@ import {
   MicOff,
   Save,
   Trash2,
-  Plus,
   MessageSquare,
   FileText,
   ExternalLink,
   CalendarPlus,
+  ListChecks,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,8 +45,7 @@ export default function AIChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "system",
-      content:
-        "You are the EquiProfile bot, an expert in horse care, training, and management.",
+      content: `You are the EquiProfile assistant, an expert in horse care, training, and management. Today's date is ${new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}. You help horse owners manage their horses' health, training, nutrition, and scheduling. You give practical, specific advice. When users ask you to create tasks, reminders, or calendar events, clearly describe what you recommend and they can use the quick-action buttons below the chat to save these items directly to their EquiProfile.`,
     },
   ]);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
@@ -40,6 +54,124 @@ export default function AIChat() {
     isUnlocked: boolean;
     expiresAt?: Date;
   }>({ isUnlocked: false });
+
+  // Quick action dialog state
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [eventDialogOpen, setEventDialogOpen] = useState(false);
+  const [quickTaskForm, setQuickTaskForm] = useState({
+    title: "",
+    description: "",
+    taskType: "general_care" as string,
+    priority: "medium" as string,
+    dueDate: "",
+  });
+  const [quickEventForm, setQuickEventForm] = useState({
+    title: "",
+    description: "",
+    eventType: "other" as string,
+    startDate: "",
+    startTime: "",
+  });
+
+  const utils = trpc.useUtils();
+
+  // Quick task creation from AI context
+  const createTaskMutation = trpc.tasks.create.useMutation({
+    onSuccess: () => {
+      toast.success("Task created successfully!");
+      setTaskDialogOpen(false);
+      setQuickTaskForm({ title: "", description: "", taskType: "general_care", priority: "medium", dueDate: "" });
+      utils.tasks.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create task");
+    },
+  });
+
+  // Quick calendar event creation from AI context
+  const createEventMutation = trpc.calendar.createEvent.useMutation({
+    onSuccess: () => {
+      toast.success("Calendar event added successfully!");
+      setEventDialogOpen(false);
+      setQuickEventForm({ title: "", description: "", eventType: "other", startDate: "", startTime: "" });
+      utils.calendar.getEvents.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to add calendar event");
+    },
+  });
+
+  const handleCreateTask = () => {
+    if (!quickTaskForm.title.trim()) {
+      toast.error("Task title is required");
+      return;
+    }
+    createTaskMutation.mutate({
+      title: quickTaskForm.title.trim(),
+      description: quickTaskForm.description.trim() || undefined,
+      taskType: quickTaskForm.taskType as any,
+      priority: quickTaskForm.priority as any,
+      status: "pending",
+      dueDate: quickTaskForm.dueDate || undefined,
+      isRecurring: false,
+    });
+  };
+
+  const handleCreateEvent = () => {
+    if (!quickEventForm.title.trim()) {
+      toast.error("Event title is required");
+      return;
+    }
+    if (!quickEventForm.startDate) {
+      toast.error("Start date is required");
+      return;
+    }
+    const startDate = quickEventForm.startTime
+      ? new Date(`${quickEventForm.startDate}T${quickEventForm.startTime}`)
+      : new Date(`${quickEventForm.startDate}T09:00`);
+    createEventMutation.mutate({
+      title: quickEventForm.title.trim(),
+      description: quickEventForm.description.trim() || undefined,
+      eventType: quickEventForm.eventType as any,
+      startDate: startDate.toISOString(),
+      isAllDay: !quickEventForm.startTime,
+    });
+  };
+
+  // Pre-fill quick action forms from last AI message context
+  const MAX_AI_CONTEXT_LENGTH = 200;
+  const lastAIMessage = messages.filter((m) => m.role === "assistant").at(-1);
+  const hasAIConversation = messages.some((m) => m.role === "assistant");
+
+  /** Extract a short title from an AI message (first meaningful sentence/line) */
+  const extractTitleFromMessage = (content: string): string => {
+    const firstLine = content.split(/[\n.!?]/)[0].replace(/[#*_`]/g, "").trim();
+    return firstLine.length > 5 && firstLine.length <= 80 ? firstLine : "";
+  };
+
+  const openTaskDialog = () => {
+    if (lastAIMessage) {
+      const title = extractTitleFromMessage(lastAIMessage.content);
+      setQuickTaskForm((f) => ({ ...f, title, description: lastAIMessage.content.slice(0, MAX_AI_CONTEXT_LENGTH) }));
+    }
+    setTaskDialogOpen(true);
+  };
+
+  const openEventDialog = () => {
+    if (lastAIMessage) {
+      const title = extractTitleFromMessage(lastAIMessage.content);
+      // Default to tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      setQuickEventForm((f) => ({
+        ...f,
+        title,
+        description: lastAIMessage.content.slice(0, MAX_AI_CONTEXT_LENGTH),
+        startDate: tomorrow.toISOString().split("T")[0],
+      }));
+    }
+    setEventDialogOpen(true);
+  };
 
   // Notes functionality
   const [isListening, setIsListening] = useState(false);
@@ -326,6 +458,33 @@ export default function AIChat() {
                   </div>
                 </div>
               )}
+
+              {/* Quick Actions — save AI advice directly to Tasks or Calendar */}
+              {hasAIConversation && !chatMutation.isPending && (
+                <div className="mt-3 px-4 py-3 border-t bg-muted/30 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-muted-foreground font-medium">
+                    Save from this chat:
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs gap-1.5"
+                    onClick={openTaskDialog}
+                  >
+                    <ListChecks className="h-3.5 w-3.5" />
+                    Create Task
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs gap-1.5"
+                    onClick={openEventDialog}
+                  >
+                    <CalendarPlus className="h-3.5 w-3.5" />
+                    Add to Calendar
+                  </Button>
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -471,6 +630,186 @@ export default function AIChat() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Quick Task Creation Dialog */}
+      <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ListChecks className="h-5 w-5 text-primary" />
+              Create Task
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="qt-title">Title</Label>
+              <Input
+                id="qt-title"
+                value={quickTaskForm.title}
+                onChange={(e) => setQuickTaskForm((f) => ({ ...f, title: e.target.value }))}
+                placeholder="Task title..."
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="qt-desc">Description (optional)</Label>
+              <Textarea
+                id="qt-desc"
+                value={quickTaskForm.description}
+                onChange={(e) => setQuickTaskForm((f) => ({ ...f, description: e.target.value }))}
+                placeholder="Details from AI conversation..."
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>Type</Label>
+                <Select
+                  value={quickTaskForm.taskType}
+                  onValueChange={(v) => setQuickTaskForm((f) => ({ ...f, taskType: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general_care">General Care</SelectItem>
+                    <SelectItem value="health_appointment">Health</SelectItem>
+                    <SelectItem value="training">Training</SelectItem>
+                    <SelectItem value="feeding">Feeding</SelectItem>
+                    <SelectItem value="vaccination">Vaccination</SelectItem>
+                    <SelectItem value="deworming">Deworming</SelectItem>
+                    <SelectItem value="hoofcare">Hoof Care</SelectItem>
+                    <SelectItem value="dental">Dental</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Priority</Label>
+                <Select
+                  value={quickTaskForm.priority}
+                  onValueChange={(v) => setQuickTaskForm((f) => ({ ...f, priority: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="qt-due">Due Date (optional)</Label>
+              <Input
+                id="qt-due"
+                type="date"
+                value={quickTaskForm.dueDate}
+                onChange={(e) => setQuickTaskForm((f) => ({ ...f, dueDate: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTaskDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateTask}
+              disabled={createTaskMutation.isPending || !quickTaskForm.title.trim()}
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              {createTaskMutation.isPending ? "Creating..." : "Create Task"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Quick Calendar Event Dialog */}
+      <Dialog open={eventDialogOpen} onOpenChange={setEventDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CalendarPlus className="h-5 w-5 text-primary" />
+              Add to Calendar
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="qe-title">Title</Label>
+              <Input
+                id="qe-title"
+                value={quickEventForm.title}
+                onChange={(e) => setQuickEventForm((f) => ({ ...f, title: e.target.value }))}
+                placeholder="Event title..."
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="qe-desc">Description (optional)</Label>
+              <Textarea
+                id="qe-desc"
+                value={quickEventForm.description}
+                onChange={(e) => setQuickEventForm((f) => ({ ...f, description: e.target.value }))}
+                placeholder="Details..."
+                rows={2}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Event Type</Label>
+              <Select
+                value={quickEventForm.eventType}
+                onValueChange={(v) => setQuickEventForm((f) => ({ ...f, eventType: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="training">Training</SelectItem>
+                  <SelectItem value="veterinary">Vet</SelectItem>
+                  <SelectItem value="farrier">Farrier</SelectItem>
+                  <SelectItem value="competition">Competition</SelectItem>
+                  <SelectItem value="lesson">Lesson</SelectItem>
+                  <SelectItem value="meeting">Meeting</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="qe-date">Date</Label>
+                <Input
+                  id="qe-date"
+                  type="date"
+                  value={quickEventForm.startDate}
+                  onChange={(e) => setQuickEventForm((f) => ({ ...f, startDate: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="qe-time">Time (optional)</Label>
+                <Input
+                  id="qe-time"
+                  type="time"
+                  value={quickEventForm.startTime}
+                  onChange={(e) => setQuickEventForm((f) => ({ ...f, startTime: e.target.value }))}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEventDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateEvent}
+              disabled={createEventMutation.isPending || !quickEventForm.title.trim() || !quickEventForm.startDate}
+            >
+              <CalendarPlus className="mr-2 h-4 w-4" />
+              {createEventMutation.isPending ? "Adding..." : "Add to Calendar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

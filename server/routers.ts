@@ -3407,18 +3407,242 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const drizzleDb = await getDb();
+        if (!drizzleDb) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
-        // Generate report data based on type
-        let reportData = {};
+        const userId = ctx.user!.id;
+        const startDate = input.startDate ? new Date(input.startDate) : undefined;
+        const endDate = input.endDate ? new Date(input.endDate) : undefined;
 
-        const result = await db.insert(reports).values({
+        // Generate report data based on type using real data from the database
+        let reportData: Record<string, unknown> = {};
+        let reportTitle = `${input.reportType.replace(/_/g, " ")} Report`;
+
+        if (input.reportType === "monthly_summary") {
+          const now = new Date();
+          const monthStart = startDate ?? new Date(now.getFullYear(), now.getMonth(), 1);
+          const monthEnd = endDate ?? new Date(now.getFullYear(), now.getMonth() + 1, 0);
+          reportTitle = `Monthly Summary — ${monthStart.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}`;
+
+          const [horsesData, sessions, tasksData, appointments, vaccData] = await Promise.all([
+            db.getHorsesByUserId(userId),
+            db.getTrainingSessionsByUserId(userId),
+            db.getTasksByUserId(userId),
+            db.getAppointmentsByUserId(userId),
+            db.getVaccinationsByUserId(userId),
+          ]);
+
+          const monthSessions = sessions.filter((s) => {
+            const d = new Date(s.sessionDate);
+            return d >= monthStart && d <= monthEnd;
+          });
+          const monthTasks = tasksData.filter((t) => t.createdAt && new Date(t.createdAt) >= monthStart && new Date(t.createdAt) <= monthEnd);
+          const monthAppointments = appointments.filter((a) => {
+            const d = new Date(a.appointmentDate);
+            return d >= monthStart && d <= monthEnd;
+          });
+
+          reportData = {
+            period: { start: monthStart.toISOString(), end: monthEnd.toISOString() },
+            horses: { total: horsesData.length, names: horsesData.map((h) => h.name) },
+            trainingSessions: {
+              total: monthSessions.length,
+              completed: monthSessions.filter((s) => s.isCompleted).length,
+              disciplines: Array.from(new Set(monthSessions.map((s) => s.discipline).filter(Boolean))),
+            },
+            tasks: {
+              total: monthTasks.length,
+              completed: monthTasks.filter((t) => t.status === "completed").length,
+              pending: monthTasks.filter((t) => t.status === "pending").length,
+            },
+            appointments: {
+              total: monthAppointments.length,
+              types: Array.from(new Set(monthAppointments.map((a) => a.appointmentType))),
+            },
+            vaccinations: {
+              dueSoon: vaccData.filter((v) => {
+                if (!v.nextDueDate) return false;
+                const due = new Date(v.nextDueDate);
+                const in30 = new Date();
+                in30.setDate(in30.getDate() + 30);
+                return due <= in30 && due >= new Date();
+              }).length,
+            },
+          };
+
+        } else if (input.reportType === "health_report") {
+          reportTitle = "Health Report";
+          const [vaccData, dewormings, treatments, dentalData] = await Promise.all([
+            db.getVaccinationsByUserId(userId),
+            db.getDewormingsByUserId(userId),
+            db.getTreatmentsByUserId(userId),
+            db.getDentalCareByUserId(userId),
+          ]);
+
+          const now = new Date();
+          const in60Days = new Date();
+          in60Days.setDate(in60Days.getDate() + 60);
+
+          reportData = {
+            generatedAt: now.toISOString(),
+            vaccinations: {
+              total: vaccData.length,
+              upcomingDue: vaccData
+                .filter((v) => v.nextDueDate && new Date(v.nextDueDate) >= now && new Date(v.nextDueDate) <= in60Days)
+                .map((v) => ({ horse: v.horseId, vaccine: v.vaccineName, due: v.nextDueDate })),
+              overdue: vaccData
+                .filter((v) => v.nextDueDate && new Date(v.nextDueDate) < now)
+                .map((v) => ({ horse: v.horseId, vaccine: v.vaccineName, due: v.nextDueDate })),
+            },
+            dewormings: {
+              total: dewormings.length,
+              upcomingDue: dewormings
+                .filter((d) => d.nextDueDate && new Date(d.nextDueDate) >= now && new Date(d.nextDueDate) <= in60Days)
+                .map((d) => ({ horse: d.horseId, product: d.productName, due: d.nextDueDate })),
+            },
+            treatments: {
+              total: treatments.length,
+              recent: treatments.slice(0, 5).map((t) => ({ horse: t.horseId, type: t.treatmentType, date: t.startDate })),
+            },
+            dental: {
+              total: dentalData.length,
+              upcomingDue: dentalData
+                .filter((d) => d.nextDueDate && new Date(d.nextDueDate) >= now && new Date(d.nextDueDate) <= in60Days)
+                .map((d) => ({ horse: d.horseId, due: d.nextDueDate })),
+            },
+          };
+
+        } else if (input.reportType === "training_progress") {
+          reportTitle = "Training Progress Report";
+          const sessions = await db.getTrainingSessionsByUserId(userId);
+          const filtered = sessions.filter((s) => {
+            if (!startDate && !endDate) return true;
+            const d = new Date(s.sessionDate);
+            if (startDate && d < startDate) return false;
+            if (endDate && d > endDate) return false;
+            return true;
+          });
+
+          const disciplineCounts: Record<string, number> = {};
+          for (const s of filtered) {
+            if (s.discipline) disciplineCounts[s.discipline] = (disciplineCounts[s.discipline] ?? 0) + 1;
+          }
+
+          reportData = {
+            period: {
+              start: (startDate ?? new Date(new Date().getFullYear(), 0, 1)).toISOString(),
+              end: (endDate ?? new Date()).toISOString(),
+            },
+            totalSessions: filtered.length,
+            completedSessions: filtered.filter((s) => s.isCompleted).length,
+            completionRate: filtered.length > 0
+              ? Math.round((filtered.filter((s) => s.isCompleted).length / filtered.length) * 100)
+              : 0,
+            disciplineBreakdown: disciplineCounts,
+            recentSessions: filtered
+              .sort((a, b) => new Date(b.sessionDate).getTime() - new Date(a.sessionDate).getTime())
+              .slice(0, 10)
+              .map((s) => ({
+                date: s.sessionDate,
+                type: s.sessionType,
+                discipline: s.discipline,
+                completed: s.isCompleted,
+                performance: s.performance,
+              })),
+          };
+
+        } else if (input.reportType === "cost_analysis") {
+          reportTitle = "Cost Analysis Report";
+          const [feedData, appointmentData, vaccData, competitionData] = await Promise.all([
+            drizzleDb.select().from(feedCosts).where(eq(feedCosts.userId, userId)),
+            db.getAppointmentsByUserId(userId),
+            db.getVaccinationsByUserId(userId),
+            db.getCompetitionsByUserId(userId),
+          ]);
+
+          const feedTotal = feedData
+            .reduce((sum, f) => sum + (f.costPerUnit ?? 0), 0);
+          const apptCostTotal = appointmentData
+            .filter((a) => {
+              if (!startDate && !endDate) return true;
+              const d = new Date(a.appointmentDate);
+              if (startDate && d < startDate) return false;
+              if (endDate && d > endDate) return false;
+              return true;
+            })
+            .reduce((sum, a) => sum + (a.cost ?? 0), 0);
+          const vaccCostTotal = vaccData.reduce((sum, v) => sum + (v.cost ?? 0), 0);
+          const compCostTotal = competitionData.reduce((sum, c) => sum + (c.cost ?? 0), 0);
+          const compWinnings = competitionData.reduce((sum, c) => sum + (c.winnings ?? 0), 0);
+
+          reportData = {
+            currency: "GBP",
+            period: {
+              start: (startDate ?? new Date(new Date().getFullYear(), 0, 1)).toISOString(),
+              end: (endDate ?? new Date()).toISOString(),
+            },
+            summary: {
+              totalCostPence: feedTotal + apptCostTotal + vaccCostTotal + compCostTotal,
+              netCostPence: feedTotal + apptCostTotal + vaccCostTotal + compCostTotal - compWinnings,
+            },
+            breakdown: {
+              feeding: { totalPence: feedTotal, entryCount: feedData.length },
+              appointments: { totalPence: apptCostTotal, entryCount: appointmentData.length },
+              vaccinations: { totalPence: vaccCostTotal, entryCount: vaccData.length },
+              competitions: { totalPence: compCostTotal, winningsPence: compWinnings, entryCount: competitionData.length },
+            },
+          };
+
+        } else if (input.reportType === "competition_summary") {
+          reportTitle = "Competition Summary Report";
+          const competitionData = await db.getCompetitionsByUserId(userId);
+          const filtered = competitionData.filter((c) => {
+            if (input.horseId && c.horseId !== input.horseId) return false;
+            if (!startDate && !endDate) return true;
+            const d = new Date(c.date);
+            if (startDate && d < startDate) return false;
+            if (endDate && d > endDate) return false;
+            return true;
+          });
+
+          const disciplineCounts: Record<string, number> = {};
+          const placementCounts: Record<string, number> = {};
+          for (const c of filtered) {
+            if (c.discipline) disciplineCounts[c.discipline] = (disciplineCounts[c.discipline] ?? 0) + 1;
+            if (c.placement) placementCounts[c.placement] = (placementCounts[c.placement] ?? 0) + 1;
+          }
+
+          reportData = {
+            period: {
+              start: (startDate ?? new Date(new Date().getFullYear(), 0, 1)).toISOString(),
+              end: (endDate ?? new Date()).toISOString(),
+            },
+            totalCompetitions: filtered.length,
+            disciplineBreakdown: disciplineCounts,
+            placementBreakdown: placementCounts,
+            totalEntryCostPence: filtered.reduce((sum, c) => sum + (c.cost ?? 0), 0),
+            totalWinningsPence: filtered.reduce((sum, c) => sum + (c.winnings ?? 0), 0),
+            recentResults: filtered
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+              .slice(0, 15)
+              .map((c) => ({
+                name: c.competitionName,
+                date: c.date,
+                venue: c.venue,
+                discipline: c.discipline,
+                level: c.level,
+                placement: c.placement,
+                score: c.score,
+              })),
+          };
+        }
+
+        const result = await drizzleDb.insert(reports).values({
           userId: ctx.user!.id,
           stableId: input.stableId,
           horseId: input.horseId,
           reportType: input.reportType,
-          title: `${input.reportType.replace("_", " ")} Report`,
+          title: reportTitle,
           reportData: JSON.stringify(reportData),
         });
 

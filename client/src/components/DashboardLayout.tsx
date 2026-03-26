@@ -1,5 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -454,6 +454,7 @@ function DashboardLayoutContent({
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <Avatar className="h-9 w-9 border shrink-0">
+                    <AvatarImage src={user?.profileImageUrl ?? undefined} alt={user?.name ?? ""} />
                     <AvatarFallback className="text-xs font-medium">
                       {user?.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -506,6 +507,12 @@ function DashboardLayoutContent({
             <div className="flex items-center gap-1">
               <NotificationCenter />
               <ThemeToggle />
+              <Avatar className="h-7 w-7 border ml-1 cursor-pointer" onClick={toggleSidebar}>
+                <AvatarImage src={user?.profileImageUrl ?? undefined} alt={user?.name ?? ""} />
+                <AvatarFallback className="text-[10px] font-medium">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
             </div>
           </div>
         )}
@@ -565,7 +572,7 @@ function DashboardLayoutContent({
                 >
                   <SheetHeader className="pb-2">
                     <SheetTitle className="font-serif text-left">
-                      Modules
+                      All Features
                     </SheetTitle>
                   </SheetHeader>
                   <div className="space-y-4" style={{ paddingBottom: 'calc(1.5rem + var(--safe-area-bottom, 0px))' }}>
