@@ -355,17 +355,26 @@ export const appRouter = router({
           };
         }
 
-        const response = await invokeLLM({
-          messages: input.messages.map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-        });
+        try {
+          const response = await invokeLLM({
+            messages: input.messages.map((m) => ({
+              role: m.role,
+              content: m.content,
+            })),
+          });
 
-        return {
-          role: "assistant" as const,
-          content: response.choices[0]?.message?.content || "No response",
-        };
+          return {
+            role: "assistant" as const,
+            content: response.choices[0]?.message?.content || "No response",
+          };
+        } catch (err: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message:
+              err?.message ||
+              "The AI service encountered an error. Please try again.",
+          });
+        }
       }),
   }),
 
@@ -2889,7 +2898,8 @@ Format your response as JSON with keys: recommendation, explanation, precautions
       }),
 
     // Environment Health Check
-    getEnvHealth: adminUnlockedProcedure.query(() => {
+    getEnvHealth: adminUnlockedProcedure.query(async () => {
+      const aiConfigured = await isAIConfigured();
       const checks = [
         // Core required vars (always critical)
         {
@@ -2970,7 +2980,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         // Optional features
         {
           name: "OPENAI_API_KEY",
-          status: !!process.env.OPENAI_API_KEY,
+          status: aiConfigured,
           critical: false,
           conditional: false,
         },

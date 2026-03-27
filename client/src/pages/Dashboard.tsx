@@ -977,36 +977,6 @@ function DashboardContent() {
         </div>
       </motion.div>
 
-      {/* ── Upgrade nudge (non-stable users only) ─────────────── */}
-      {subscription?.planTier !== "stable" && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.32 }}
-        >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
-            <div className="flex items-start gap-3">
-              <Star className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-amber-200">
-                  Unlock Stable Plan
-                </p>
-                <p className="text-[11px] text-amber-400/70 mt-0.5">
-                  Staff management, client portal, lesson scheduling & more
-                </p>
-              </div>
-            </div>
-            <Link href="/billing">
-              <Button
-                size="sm"
-                className="shrink-0 bg-amber-600 hover:bg-amber-700 text-white border-0 text-xs h-8"
-              >
-                Upgrade <ChevronRight className="w-3 h-3 ml-1" />
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
-      )}
     </div>
   );
 }

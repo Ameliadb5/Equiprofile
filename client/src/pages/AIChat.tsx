@@ -41,11 +41,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-export default function AIChat() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "system",
-      content: `You are the EquiProfile in-app AI assistant. Today's date is ${new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}. You speak in British English.
+const CHAT_SESSION_KEY = "equiprofile_ai_chat_session";
+
+/** Build the system prompt with today's date. */
+function buildSystemMessage(): Message {
+  return {
+    role: "system",
+    content: `You are the EquiProfile in-app AI assistant. Today's date is ${new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}. You speak in British English.
 
 EquiProfile is a comprehensive horse management platform. You help users navigate the app, manage their horses, and get the most out of every feature.
 
@@ -79,8 +81,38 @@ RULES:
 - Never invent features that do not exist in EquiProfile.
 - Be practical, specific, and concise. If you are unsure whether a feature exists, say so honestly.
 - When answering horse care, health, training, or nutrition questions, give expert advice and explain how to record or track it within EquiProfile.`,
-    },
-  ]);
+  };
+}
+
+/** Load persisted user/assistant messages from sessionStorage. */
+function loadPersistedMessages(): Message[] {
+  try {
+    const raw = sessionStorage.getItem(CHAT_SESSION_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed as Message[];
+    }
+  } catch {
+    // Ignore parse errors — start fresh
+  }
+  return [];
+}
+
+/** Save non-system messages to sessionStorage. */
+function persistMessages(messages: Message[]) {
+  try {
+    const toSave = messages.filter((m) => m.role !== "system");
+    sessionStorage.setItem(CHAT_SESSION_KEY, JSON.stringify(toSave));
+  } catch (err) {
+    console.warn("[AIChat] Failed to persist chat session:", err);
+  }
+}
+
+export default function AIChat() {
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const persisted = loadPersistedMessages();
+    return [buildSystemMessage(), ...persisted];
+  });
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [password, setPassword] = useState("");
   const [adminStatus, setAdminStatus] = useState<{
@@ -340,7 +372,11 @@ RULES:
 
   const chatMutation = trpc.ai.chat.useMutation({
     onSuccess: (response: any) => {
-      setMessages((prev) => [...prev, response]);
+      setMessages((prev) => {
+        const next = [...prev, response];
+        persistMessages(next);
+        return next;
+      });
 
       // Check if this is an admin challenge
       if (response.metadata?.adminChallenge) {
@@ -348,7 +384,15 @@ RULES:
       }
     },
     onError: (error) => {
-      toast.error(error.message);
+      // tRPC INTERNAL_SERVER_ERROR from the LLM wrapper, or a client-side
+      // response-transform failure — both surface as non-actionable to the user.
+      const isTransformOrInternal =
+        (error as any)?.data?.code === "INTERNAL_SERVER_ERROR" ||
+        error.message?.toLowerCase().includes("transform");
+      const msg = isTransformOrInternal
+        ? "Could not reach the AI service. Please try again in a moment."
+        : (error.message || "Something went wrong — please try again.");
+      toast.error(msg);
     },
   });
 
@@ -357,23 +401,31 @@ RULES:
       setShowPasswordInput(false);
       setPassword("");
       setAdminStatus({ isUnlocked: true, expiresAt: data.expiresAt });
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: `✅ **Admin mode unlocked!**\n\nYou now have full admin access until ${new Date(data.expiresAt).toLocaleString()}.\n\n👉 The **[Open Admin Panel]** button has appeared in the top right — click it to access user management, system settings, API keys, and more.`,
-        },
-      ]);
+      setMessages((prev) => {
+        const next = [
+          ...prev,
+          {
+            role: "assistant" as const,
+            content: `✅ **Admin mode unlocked!**\n\nYou now have full admin access until ${new Date(data.expiresAt).toLocaleString()}.\n\n👉 The **[Open Admin Panel]** button has appeared in the top right — click it to access user management, system settings, API keys, and more.`,
+          },
+        ];
+        persistMessages(next);
+        return next;
+      });
       toast.success("Admin mode unlocked successfully!");
     },
     onError: (error: any) => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: `❌ ${error.message}`,
-        },
-      ]);
+      setMessages((prev) => {
+        const next = [
+          ...prev,
+          {
+            role: "assistant" as const,
+            content: `❌ ${error.message}`,
+          },
+        ];
+        persistMessages(next);
+        return next;
+      });
       setPassword("");
       toast.error(error.message);
     },
@@ -401,7 +453,11 @@ RULES:
       return;
     }
     const newMessage: Message = { role: "user", content };
-    setMessages((prev) => [...prev, newMessage]);
+    setMessages((prev) => {
+      const next = [...prev, newMessage];
+      persistMessages(next);
+      return next;
+    });
     chatMutation.mutate({ messages: [...messages, newMessage] });
   };
 
