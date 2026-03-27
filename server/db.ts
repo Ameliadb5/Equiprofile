@@ -935,7 +935,30 @@ export async function getUserByEmail(email: string) {
 export async function getAllUsers() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(users).orderBy(desc(users.createdAt));
+  return db
+    .select()
+    .from(users)
+    .where(eq(users.isActive, true))
+    .orderBy(desc(users.createdAt));
+}
+
+export async function getDeletedUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(users)
+    .where(eq(users.isActive, false))
+    .orderBy(desc(users.updatedAt));
+}
+
+export async function restoreUser(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(users)
+    .set({ isActive: true, updatedAt: new Date() })
+    .where(eq(users.id, id));
 }
 
 export async function getUserByResetToken(token: string) {

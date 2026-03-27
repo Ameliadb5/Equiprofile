@@ -69,6 +69,7 @@ import {
   XCircle,
   Loader2,
   Gift,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -129,6 +130,10 @@ function AdminContent() {
     isLoading: usersLoading,
     refetch: refetchUsers,
   } = trpc.admin.getUsers.useQuery(undefined, { enabled: isUnlocked });
+  const {
+    data: deletedUsers,
+    refetch: refetchDeletedUsers,
+  } = trpc.admin.getDeletedUsers.useQuery(undefined, { enabled: isUnlocked });
   const { data: overdueUsers } = trpc.admin.getOverdueUsers.useQuery(
     undefined,
     { enabled: isUnlocked },
@@ -193,6 +198,16 @@ function AdminContent() {
     onSuccess: () => {
       toast.success("User deleted successfully");
       refetchUsers();
+      refetchDeletedUsers();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const restoreUserMutation = trpc.admin.restoreUser.useMutation({
+    onSuccess: () => {
+      toast.success("User restored successfully");
+      refetchUsers();
+      refetchDeletedUsers();
     },
     onError: (error) => toast.error(error.message),
   });
@@ -482,6 +497,13 @@ function AdminContent() {
           >
             <MessageSquare className="w-4 h-4" />
             WhatsApp
+          </TabsTrigger>
+          <TabsTrigger
+            value="deleted"
+            className="flex items-center gap-2 shrink-0"
+          >
+            <Trash2 className="w-4 h-4" />
+            Deleted
           </TabsTrigger>
         </TabsList>
 
@@ -1594,6 +1616,85 @@ function AdminContent() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Deleted Users Tab */}
+        <TabsContent value="deleted">
+          <Card>
+            <CardHeader>
+              <CardTitle>Deleted Users</CardTitle>
+              <CardDescription>
+                Users who have been soft-deleted. They can be restored to active status.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!deletedUsers || deletedUsers.length === 0 ? (
+                <div className="text-center py-8">
+                  <Trash2 className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                  <p className="text-muted-foreground">No deleted users</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Plan</TableHead>
+                        <TableHead>Deleted</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {deletedUsers.map((user) => (
+                        <TableRow key={user.id} className="opacity-60">
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{user.name || "No name"}</p>
+                              <p className="text-sm text-muted-foreground">{user.email}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">{user.subscriptionStatus || "free"}</Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {user.updatedAt
+                              ? formatDistanceToNow(new Date(user.updatedAt), { addSuffix: true })
+                              : "Unknown"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="gap-1">
+                                  <RotateCcw className="w-3 h-3" />
+                                  Restore
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Restore User</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Restore {user.name || user.email} to active status? They will regain access to their account.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => restoreUserMutation.mutate({ userId: user.id })}
+                                  >
+                                    Restore
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

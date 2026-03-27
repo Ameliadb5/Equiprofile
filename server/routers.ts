@@ -1166,6 +1166,7 @@ export const appRouter = router({
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        const drizzleDb = await getDb();
         const id = await db.createTrainingSession({
           ...input,
           userId: ctx.user!.id,
@@ -1177,6 +1178,31 @@ export const appRouter = router({
           entityType: "training_session",
           entityId: id,
         });
+
+        // Auto-create a calendar event so the training session appears in Calendar
+        if (drizzleDb) {
+          const sessionTypeLabel =
+            input.sessionType.charAt(0).toUpperCase() +
+            input.sessionType.slice(1);
+          const title = input.location
+            ? `${sessionTypeLabel} – ${input.location}`
+            : sessionTypeLabel;
+          // Normalise sessionDate to YYYY-MM-DD then combine with startTime
+          const datePart = input.sessionDate.slice(0, 10);
+          const timePart = input.startTime || "09:00";
+          const startDate = new Date(`${datePart}T${timePart}:00`);
+          if (!isNaN(startDate.getTime())) {
+            await drizzleDb.insert(events).values({
+              userId: ctx.user!.id,
+              horseId: input.horseId,
+              title,
+              description: input.goals || input.notes || undefined,
+              eventType: "training",
+              startDate,
+              isAllDay: false,
+            });
+          }
+        }
 
         // Publish real-time event
         const { publishModuleEvent } = await import("./_core/realtime");
@@ -2594,6 +2620,23 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         await db.logActivity({
           userId: ctx.user!.id,
           action: "user_deleted",
+          entityType: "user",
+          entityId: input.userId,
+        });
+        return { success: true };
+      }),
+
+    getDeletedUsers: adminUnlockedProcedure.query(async () => {
+      return db.getDeletedUsers();
+    }),
+
+    restoreUser: adminUnlockedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.restoreUser(input.userId);
+        await db.logActivity({
+          userId: ctx.user!.id,
+          action: "user_restored",
           entityType: "user",
           entityId: input.userId,
         });

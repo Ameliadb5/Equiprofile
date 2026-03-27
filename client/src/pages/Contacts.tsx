@@ -40,6 +40,7 @@ function ContactsContent() {
   const { data: contacts, isLoading } = trpc.contacts.list.useQuery();
   const [localContacts, setLocalContacts] = useState(contacts || []);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<(typeof localContacts)[0] | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     contactType: "vet",
@@ -55,6 +56,7 @@ function ContactsContent() {
     notes: "",
     isPrimary: false,
   });
+  const [editFormData, setEditFormData] = useState({ ...formData });
 
   // Real-time updates
   useRealtimeModule("contacts", (action, data) => {
@@ -90,6 +92,16 @@ function ContactsContent() {
     },
   });
 
+  const updateMutation = trpc.contacts.update.useMutation({
+    onSuccess: async () => {
+      setEditingContact(null);
+      await utils.contacts.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update contact");
+    },
+  });
+
   const deleteMutation = trpc.contacts.delete.useMutation({
     onSuccess: async () => {
       await utils.contacts.list.invalidate();
@@ -114,6 +126,49 @@ function ContactsContent() {
       website: "",
       notes: "",
       isPrimary: false,
+    });
+  };
+
+  const openEditDialog = (contact: (typeof localContacts)[0]) => {
+    setEditFormData({
+      name: contact.name || "",
+      contactType: contact.contactType || "vet",
+      company: contact.company || "",
+      email: contact.email || "",
+      phone: contact.phone || "",
+      mobile: contact.mobile || "",
+      address: contact.address || "",
+      city: contact.city || "",
+      postcode: contact.postcode || "",
+      country: contact.country || "United Kingdom",
+      website: contact.website || "",
+      notes: contact.notes || "",
+      isPrimary: !!contact.isPrimary,
+    });
+    setEditingContact(contact);
+  };
+
+  const handleUpdate = () => {
+    if (!editingContact) return;
+    if (!editFormData.name) {
+      toast.error("Please enter a contact name");
+      return;
+    }
+    updateMutation.mutate({
+      id: editingContact.id,
+      name: editFormData.name,
+      contactType: editFormData.contactType as any,
+      company: editFormData.company || undefined,
+      email: editFormData.email || undefined,
+      phone: editFormData.phone || undefined,
+      mobile: editFormData.mobile || undefined,
+      address: editFormData.address || undefined,
+      city: editFormData.city || undefined,
+      postcode: editFormData.postcode || undefined,
+      country: editFormData.country || undefined,
+      website: editFormData.website || undefined,
+      notes: editFormData.notes || undefined,
+      isPrimary: editFormData.isPrimary,
     });
   };
 
@@ -423,9 +478,19 @@ function ContactsContent() {
                             <Button
                               size="sm"
                               variant="ghost"
+                              onClick={() => openEditDialog(contact)}
+                              title="Edit contact"
+                            >
+                              <Edit className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive"
                               onClick={() =>
                                 deleteMutation.mutate({ id: contact.id })
                               }
+                              title="Delete contact"
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>
@@ -474,6 +539,146 @@ function ContactsContent() {
           ))}
         </div>
       )}
+
+      {/* Edit Contact Dialog */}
+      <Dialog open={!!editingContact} onOpenChange={(open) => { if (!open) setEditingContact(null); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Contact</DialogTitle>
+            <DialogDescription>Update contact details</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-name">Name *</Label>
+                <Input
+                  id="edit-name"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-contactType">Type</Label>
+                <Select
+                  value={editFormData.contactType}
+                  onValueChange={(value) => setEditFormData({ ...editFormData, contactType: value })}
+                >
+                  <SelectTrigger id="edit-contactType">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="vet">Vet</SelectItem>
+                    <SelectItem value="farrier">Farrier</SelectItem>
+                    <SelectItem value="trainer">Trainer</SelectItem>
+                    <SelectItem value="instructor">Instructor</SelectItem>
+                    <SelectItem value="stable">Stable</SelectItem>
+                    <SelectItem value="breeder">Breeder</SelectItem>
+                    <SelectItem value="supplier">Supplier</SelectItem>
+                    <SelectItem value="emergency">Emergency</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="edit-company">Company/Practice</Label>
+              <Input
+                id="edit-company"
+                value={editFormData.company}
+                onChange={(e) => setEditFormData({ ...editFormData, company: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-phone">Phone</Label>
+                <Input
+                  id="edit-phone"
+                  value={editFormData.phone}
+                  onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-mobile">Mobile</Label>
+                <Input
+                  id="edit-mobile"
+                  value={editFormData.mobile}
+                  onChange={(e) => setEditFormData({ ...editFormData, mobile: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-website">Website</Label>
+                <Input
+                  id="edit-website"
+                  value={editFormData.website}
+                  onChange={(e) => setEditFormData({ ...editFormData, website: e.target.value })}
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="edit-address">Address</Label>
+              <Input
+                id="edit-address"
+                value={editFormData.address}
+                onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="edit-city">City</Label>
+                <Input
+                  id="edit-city"
+                  value={editFormData.city}
+                  onChange={(e) => setEditFormData({ ...editFormData, city: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-postcode">Postcode</Label>
+                <Input
+                  id="edit-postcode"
+                  value={editFormData.postcode}
+                  onChange={(e) => setEditFormData({ ...editFormData, postcode: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-country">Country</Label>
+                <Input
+                  id="edit-country"
+                  value={editFormData.country}
+                  onChange={(e) => setEditFormData({ ...editFormData, country: e.target.value })}
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="edit-notes">Notes</Label>
+              <Textarea
+                id="edit-notes"
+                value={editFormData.notes}
+                onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingContact(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
+              {updateMutation.isPending ? "Saving…" : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -130,15 +130,13 @@ export default function CalendarPage() {
   const [newEvent, setNewEvent] = useState<EventForm>({ ...EMPTY_FORM });
   const [editForm, setEditForm] = useState<EventForm>({ ...EMPTY_FORM });
 
-  const monthStart = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    1,
+  const monthStart = useMemo(
+    () => new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+    [currentDate],
   );
-  const monthEnd = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
-    0,
+  const monthEnd = useMemo(
+    () => new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0),
+    [currentDate],
   );
 
   const { data: events = [], refetch } = trpc.calendar.getEvents.useQuery({
@@ -149,12 +147,17 @@ export default function CalendarPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: horses = [] } = trpc.horses.list.useQuery();
+  const { data: horses = [] } = trpc.horses.list.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
 
   const { data: tasks = [] } = trpc.tasks.list.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
   });
   const { data: appointments = [] } = trpc.appointments.list.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
+  const { data: trainingSessions = [] } = trpc.training.listAll.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
   });
 
@@ -250,8 +253,45 @@ export default function CalendarPage() {
       }
     });
 
+    // Training sessions that haven't been mirrored as calendar events (source: "training")
+    const calendarEventIds = new Set(
+      events
+        .filter((e: any) => e.eventType === "training")
+        .map((e: any) => e.title.toLowerCase().trim()),
+    );
+    trainingSessions.forEach((s: any) => {
+      if (s.isCompleted) return;
+      const sessionDateStr = s.sessionDate
+        ? typeof s.sessionDate === "string"
+          ? s.sessionDate.slice(0, 10)
+          : new Date(s.sessionDate).toISOString().slice(0, 10)
+        : null;
+      if (!sessionDateStr) return;
+      const d = new Date(sessionDateStr + "T00:00:00");
+      if (d.getMonth() !== currentDate.getMonth() || d.getFullYear() !== currentDate.getFullYear()) return;
+      const sessionTypeLabel =
+        (s.sessionType ?? "training").charAt(0).toUpperCase() +
+        (s.sessionType ?? "training").slice(1);
+      const title = s.location
+        ? `${sessionTypeLabel} – ${s.location}`
+        : sessionTypeLabel;
+      // Avoid duplicates with calendar events created from the same training session
+      if (!calendarEventIds.has(title.toLowerCase().trim())) {
+        items.push({
+          id: `training-${s.id}`,
+          source: "event" as const,
+          title,
+          date: d,
+          type: "training",
+          colorClass: "bg-blue-700",
+          isEditable: false,
+          originalData: s,
+        });
+      }
+    });
+
     return items;
-  }, [events, tasks, appointments, currentDate]);
+  }, [events, tasks, appointments, trainingSessions, currentDate]);
 
   const monthNames = [
     "January",

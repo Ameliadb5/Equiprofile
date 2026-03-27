@@ -682,7 +682,14 @@ function RideTrackingContent() {
       </Card>
 
       {/* ── Save Dialog ──────────────────────────────────────────────────── */}
-      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+      <Dialog
+        open={showSaveDialog}
+        onOpenChange={(open) => {
+          // Prevent accidental dismissal via backdrop/Escape when there is unsaved ride data
+          if (!open && currentPoints.length > 0 && !isTracking) return;
+          setShowSaveDialog(open);
+        }}
+      >
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Save Ride</DialogTitle>

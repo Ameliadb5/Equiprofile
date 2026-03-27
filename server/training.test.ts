@@ -4,6 +4,7 @@ import type { TrpcContext } from "./_core/context";
 
 // Mock the database module
 vi.mock("./db", () => ({
+  getDb: vi.fn().mockResolvedValue(null),
   getTrainingSessionById: vi.fn().mockResolvedValue({
     id: 1,
     horseId: 1,
