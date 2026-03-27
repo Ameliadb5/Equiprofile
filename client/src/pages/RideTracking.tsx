@@ -463,7 +463,9 @@ function RideTrackingContent() {
       };
       try {
         localStorage.setItem(RIDE_DRAFT_KEY, JSON.stringify(draft));
-      } catch { /* quota exceeded - ignore */ }
+      } catch (err) {
+        console.warn("[RideTracking] Auto-save failed (storage quota?):", err);
+      }
     }, AUTO_SAVE_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [isTracking, currentPoints, currentDistance, elapsedTime, maxSpeed]);
@@ -524,7 +526,9 @@ function RideTrackingContent() {
         };
         try {
           localStorage.setItem(RIDE_DRAFT_KEY, JSON.stringify(draft));
-        } catch { /* quota exceeded - ignore */ }
+        } catch (err) {
+          console.warn("[RideTracking] Unmount save failed (storage quota?):", err);
+        }
       }
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current);
