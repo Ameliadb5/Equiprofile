@@ -492,6 +492,8 @@ function RideTrackingContent() {
       const raw = localStorage.getItem(RIDE_DRAFT_KEY);
       if (!raw) return;
       const draft: RideDraft = JSON.parse(raw);
+      // Remove from storage immediately so it cannot re-appear on the next mount
+      localStorage.removeItem(RIDE_DRAFT_KEY);
       setCurrentPoints(draft.currentPoints);
       setCurrentDistance(draft.currentDistance);
       setElapsedTime(draft.elapsedTime);
@@ -511,7 +513,16 @@ function RideTrackingContent() {
     setHasDraft(false);
   }, []);
 
-  // Cleanup on unmount
+  /** Reset all in-progress tracking state (used by Discard in save dialog). */
+  const resetTrackingState = useCallback(() => {
+    setShowSaveDialog(false);
+    setCurrentPoints([]);
+    setCurrentDistance(0);
+    setElapsedTime(0);
+    setCurrentSpeed(0);
+    setMaxSpeed(0);
+  }, []);
+
   useEffect(() => {
     return () => {
       // Save draft on unmount if actively tracking
@@ -747,7 +758,7 @@ function RideTrackingContent() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => setShowSaveDialog(false)}
+                onClick={resetTrackingState}
               >
                 Discard
               </Button>

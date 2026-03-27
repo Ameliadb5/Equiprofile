@@ -623,9 +623,9 @@ function DashboardLayoutContent({
                       if (items.length === 0) return null;
                       return (
                         <div key={group.label}>
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                            {group.label}
-                          </p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
+                          {group.label}
+                        </p>
                           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
                             {items.map((item) => {
                               const Icon = item.icon;

@@ -13,6 +13,8 @@ type UseAuthOptions = {
 function clearLocalAuthState() {
   localStorage.removeItem("equiprofile-user-info");
   sessionStorage.removeItem("equiprofile-user-info");
+  // Clear AI chat session so a subsequent login doesn't see the previous user's conversation
+  sessionStorage.removeItem("equiprofile_ai_chat_session");
 }
 
 export function useAuth(options?: UseAuthOptions) {
