@@ -31,6 +31,7 @@ import {
   Trash2,
   Edit,
   Building2,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRealtimeModule } from "@/hooks/useRealtime";
@@ -39,6 +40,7 @@ function ContactsContent() {
   const utils = trpc.useUtils();
   const { data: contacts, isLoading } = trpc.contacts.list.useQuery();
   const [localContacts, setLocalContacts] = useState(contacts || []);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<(typeof localContacts)[0] | null>(null);
   const [formData, setFormData] = useState({
@@ -210,7 +212,22 @@ function ContactsContent() {
     return <Badge className={colors[type] || "bg-gray-500"}>{type}</Badge>;
   };
 
-  const groupedContacts = localContacts.reduce(
+  const filteredContacts = searchQuery.trim()
+    ? localContacts.filter((c) => {
+        const q = searchQuery.toLowerCase();
+        return (
+          c.name?.toLowerCase().includes(q) ||
+          c.company?.toLowerCase().includes(q) ||
+          c.email?.toLowerCase().includes(q) ||
+          c.phone?.toLowerCase().includes(q) ||
+          c.mobile?.toLowerCase().includes(q) ||
+          c.contactType?.toLowerCase().includes(q) ||
+          c.city?.toLowerCase().includes(q)
+        );
+      })
+    : localContacts;
+
+  const groupedContacts = filteredContacts.reduce(
     (acc, contact) => {
       if (!acc[contact.contactType]) acc[contact.contactType] = [];
       acc[contact.contactType].push(contact);
@@ -234,13 +251,23 @@ function ContactsContent() {
             Manage vets, farriers, trainers, and service providers
           </p>
         </div>
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Contact
-            </Button>
-          </DialogTrigger>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search contacts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 w-full sm:w-64"
+            />
+          </div>
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                New Contact
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Contact</DialogTitle>
@@ -428,6 +455,7 @@ function ContactsContent() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {localContacts.length === 0 ? (
@@ -444,6 +472,13 @@ function ContactsContent() {
               <Plus className="w-4 h-4 mr-2" />
               Add Your First Contact
             </Button>
+          </CardContent>
+        </Card>
+      ) : filteredContacts.length === 0 ? (
+        <Card className="text-center py-12">
+          <CardContent>
+            <Search className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground">No contacts match &ldquo;{searchQuery}&rdquo;</p>
           </CardContent>
         </Card>
       ) : (

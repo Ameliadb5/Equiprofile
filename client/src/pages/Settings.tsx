@@ -120,10 +120,13 @@ export default function Settings() {
     trainingCalendarIntegration: false,
   });
 
+  const [whatsappPhone, setWhatsappPhone] = useState<string>("");
+
   // Sync notification prefs from server when loaded
   useEffect(() => {
     if (savedNotificationPrefs) {
       setNotifications((prev) => ({ ...prev, ...savedNotificationPrefs }));
+      setWhatsappPhone((savedNotificationPrefs as any).whatsappPhone ?? "");
     }
   }, [savedNotificationPrefs]);
 
@@ -175,7 +178,10 @@ export default function Settings() {
   };
 
   const handleNotificationSave = () => {
-    updateNotificationPreferences.mutate(notifications);
+    updateNotificationPreferences.mutate({
+      ...notifications,
+      whatsappPhone: whatsappPhone.trim() || null,
+    });
   };
 
   const captureLocation = () => {
@@ -554,6 +560,28 @@ export default function Settings() {
                         />
                       </div>
                     ))}
+                  </div>
+
+                  {/* WhatsApp notification number */}
+                  <div className="border-t pt-4 space-y-3">
+                    <div>
+                      <Label htmlFor="whatsapp-phone" className="flex items-center gap-1.5 text-sm font-medium">
+                        <Smartphone className="w-4 h-4 text-green-600" />
+                        WhatsApp Notifications
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-1 mb-2">
+                        Enter your mobile number in international format (e.g. +447700900000) to receive WhatsApp reminders when the admin has WhatsApp configured.
+                      </p>
+                      <Input
+                        id="whatsapp-phone"
+                        type="tel"
+                        placeholder="+447700900000"
+                        value={whatsappPhone}
+                        onChange={(e) => setWhatsappPhone(e.target.value)}
+                        className="max-w-sm"
+                        maxLength={20}
+                      />
+                    </div>
                   </div>
 
                   <Button

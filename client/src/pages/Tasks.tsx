@@ -36,6 +36,7 @@ import {
   AlertCircle,
   Trash2,
   Edit,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRealtimeModule } from "@/hooks/useRealtime";
@@ -45,6 +46,7 @@ function TasksContent() {
   const { data: tasks, isLoading } = trpc.tasks.list.useQuery();
   const { data: horses } = trpc.horses.list.useQuery();
   const [localTasks, setLocalTasks] = useState(tasks || []);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<(typeof localTasks)[0] | null>(
@@ -260,8 +262,20 @@ function TasksContent() {
     return horse?.name || "Unknown Horse";
   };
 
-  const pendingTasks = localTasks.filter((t) => t.status === "pending");
-  const completedTasks = localTasks.filter((t) => t.status === "completed");
+  const filteredTasks = searchQuery.trim()
+    ? localTasks.filter((t) => {
+        const q = searchQuery.toLowerCase();
+        return (
+          t.title?.toLowerCase().includes(q) ||
+          t.description?.toLowerCase().includes(q) ||
+          t.taskType?.toLowerCase().includes(q) ||
+          t.assignedTo?.toLowerCase().includes(q)
+        );
+      })
+    : localTasks;
+
+  const pendingTasks = filteredTasks.filter((t) => t.status === "pending");
+  const completedTasks = filteredTasks.filter((t) => t.status === "completed");
 
   if (isLoading) {
     return <div>Loading tasks...</div>;
@@ -278,13 +292,23 @@ function TasksContent() {
             Manage your horse care tasks and reminders
           </p>
         </div>
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Task
-            </Button>
-          </DialogTrigger>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search tasks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 w-full sm:w-56"
+            />
+          </div>
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                New Task
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Task</DialogTitle>
@@ -429,6 +453,7 @@ function TasksContent() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Edit Task Dialog */}
