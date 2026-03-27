@@ -2723,6 +2723,17 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        // Prevent admin from resetting their own password via this admin route.
+        // Admins should use the profile change-password endpoint (which requires
+        // current password verification) to change their own password.
+        if (input.userId === ctx.user!.id) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "Use the profile settings to change your own password. This admin action is for resetting other users' passwords only.",
+          });
+        }
+
         const targetUser = await db.getUserById(input.userId);
         if (!targetUser) {
           throw new TRPCError({

@@ -9,25 +9,38 @@ import * as email from "./email";
 import { ENV } from "./env";
 import { COOKIE_NAME } from "@shared/const";
 
-/** Extract planTier from a JSON preferences string. Returns null if not set. */
-function extractPlanTier(preferences: string | null | undefined): string | null {
-  if (!preferences) return null;
+/** Extract plan-related flags from a JSON preferences string. */
+function extractPlanInfo(preferences: string | null | undefined): {
+  planTier: string | null;
+  freeAccess: boolean;
+  bothDashboardsUnlocked: boolean;
+} {
+  const emptyPlanInfo = { planTier: null, freeAccess: false, bothDashboardsUnlocked: false } as const;
+  if (!preferences) return emptyPlanInfo;
   try {
-    return JSON.parse(preferences)?.planTier ?? null;
+    const prefs = JSON.parse(preferences);
+    return {
+      planTier: prefs?.planTier ?? null,
+      freeAccess: !!prefs?.freeAccess,
+      bothDashboardsUnlocked: !!prefs?.bothDashboardsUnlocked,
+    };
   } catch {
-    return null;
+    return emptyPlanInfo;
   }
 }
 
 const router: Router = express.Router();
 
-// Rate limiter for login attempts (10 attempts per 15 minutes)
+// Rate limiter for login attempts — limits failed login attempts per IP.
+// skipSuccessfulRequests: true means only failed attempts count toward the limit.
+// Window of 15 min with max 30 failed attempts is permissive enough for shared
+// networks (offices, mobile carriers with NAT) while still blocking brute-force.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 30,
   message: {
     error: "Too many requests",
-    message: "Too many login attempts from this IP, please try again later.",
+    message: "Too many login attempts from this IP, please try again in 15 minutes.",
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -141,11 +154,13 @@ router.post("/signup", async (req, res) => {
 
     // Re-fetch user to get latest preferences (including planTier from planType)
     const freshUser = await db.getUserById(user.id);
-    const planTier = extractPlanTier(freshUser?.preferences ?? null);
+    const { planTier, freeAccess, bothDashboardsUnlocked } = extractPlanInfo(freshUser?.preferences ?? null);
 
     res.json({
       success: true,
       planTier,
+      freeAccess,
+      bothDashboardsUnlocked,
       user: {
         id: user.id,
         name: user.name,
@@ -218,11 +233,13 @@ router.post("/login", loginLimiter, async (req, res) => {
       domain: ENV.cookieDomain,
     });
 
-    const planTier = extractPlanTier(user.preferences);
+    const { planTier, freeAccess, bothDashboardsUnlocked } = extractPlanInfo(user.preferences);
 
     res.json({
       success: true,
       planTier,
+      freeAccess,
+      bothDashboardsUnlocked,
       user: {
         id: user.id,
         name: user.name,

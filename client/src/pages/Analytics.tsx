@@ -57,7 +57,7 @@ export default function AnalyticsPage() {
   const { data: competitions } = trpc.competitions.list.useQuery({});
   const { data: horses } = trpc.horses.list.useQuery();
 
-  // Training data aggregation
+  // Training data aggregation — duration is stored in minutes; convert to hours for display
   const trainingByMonth =
     trainingSessions?.reduce((acc: any, session: any) => {
       const month = new Date(session.date || session.createdAt).toLocaleString(
@@ -66,7 +66,7 @@ export default function AnalyticsPage() {
       );
       if (!acc[month]) acc[month] = { month, sessions: 0, hours: 0 };
       acc[month].sessions += 1;
-      acc[month].hours += session.duration || 0;
+      acc[month].hours += (session.duration || 0) / 60;
       return acc;
     }, {}) || {};
 
@@ -139,11 +139,12 @@ export default function AnalyticsPage() {
   const healthCostData = Object.values(healthByMonth).slice(-6);
 
   const totalSessions = trainingSessions?.length || 0;
+  // duration is stored in minutes — divide by 60 to get hours
   const totalHours =
-    trainingSessions?.reduce(
+    (trainingSessions?.reduce(
       (sum: number, s: any) => sum + (s.duration || 0),
       0,
-    ) || 0;
+    ) ?? 0) / 60;
   const completedSessions =
     trainingSessions?.filter((s: any) => s.isCompleted).length || 0;
   const completionRate =

@@ -191,6 +191,36 @@ export default function Reports() {
     return REPORT_TYPES.find((t) => t.value === type)?.label || type;
   };
 
+  /**
+   * Download a generated report as a JSON file.
+   * Reports are stored as JSON data in the database — this exports that data
+   * as a downloadable .json file. PDF generation is not available.
+   */
+  const handleDownloadReport = (report: {
+    id: number;
+    title: string;
+    reportType: string;
+    reportData: string;
+    generatedAt: Date | string;
+  }) => {
+    try {
+      const data = JSON.parse(report.reportData);
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${report.reportType}_${new Date(report.generatedAt).toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Unable to export this report");
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="container mx-auto p-4 space-y-6">
@@ -412,9 +442,13 @@ export default function Reports() {
                           Horse: {getHorseName(report.horseId)}
                         </div>
                       )}
-                      <Button size="sm" className="w-full">
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleDownloadReport(report)}
+                      >
                         <Download className="mr-2 h-3 w-3" />
-                        Download PDF
+                        Export Data
                       </Button>
                     </CardContent>
                   </Card>

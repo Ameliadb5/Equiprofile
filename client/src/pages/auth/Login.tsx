@@ -43,11 +43,14 @@ export default function Login() {
 
   // Redirect if already authenticated — go to the correct dashboard
   if (isAuthenticated) {
-    let planTier: string | null = null;
+    let goToStable = false;
     try {
-      if (user?.preferences) planTier = JSON.parse(user.preferences)?.planTier ?? null;
+      if (user?.preferences) {
+        const prefs = JSON.parse(user.preferences);
+        goToStable = prefs?.planTier === "stable" || !!prefs?.bothDashboardsUnlocked;
+      }
     } catch { /* ignore */ }
-    setLocation(planTier === "stable" ? "/stable-dashboard" : "/dashboard");
+    setLocation(goToStable ? "/stable-dashboard" : "/dashboard");
     return null;
   }
 
@@ -90,8 +93,12 @@ export default function Login() {
         return;
       }
 
-      // Redirect to the correct dashboard based on plan tier
-      window.location.href = data.planTier === "stable" ? "/stable-dashboard" : "/dashboard";
+      // Redirect to the correct dashboard based on entitlement
+      // Free-access users with both dashboards unlocked go to stable dashboard
+      // Stable plan users go to stable dashboard
+      // All others go to standard dashboard
+      const goToStable = data.planTier === "stable" || data.bothDashboardsUnlocked === true;
+      window.location.href = goToStable ? "/stable-dashboard" : "/dashboard";
     } catch (err) {
       setError("An error occurred. Please try again.");
       setIsLoading(false);

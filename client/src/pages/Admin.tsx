@@ -277,13 +277,14 @@ function AdminContent() {
     }
   }, [siteSettingsQuery.data]);
 
-  // Redirect if admin not unlocked (after data resolves)
+  // When admin session expires, the inline "Admin Access Required" view below
+  // handles the locked state correctly — no need to navigate away and lose context.
+  // The toast informs the admin without redirecting them to a different page.
   useEffect(() => {
-    if (statusQuery.data && !statusQuery.data.isUnlocked) {
+    if (statusQuery.data && !statusQuery.data.isUnlocked && !statusQuery.isLoading) {
       toast.error("Admin session expired. Please unlock admin mode.");
-      navigate("/ai-chat");
     }
-  }, [statusQuery.data, navigate]);
+  }, [statusQuery.data, statusQuery.isLoading]);
 
   // Show loading state while checking admin session
   if (statusQuery.isLoading) {

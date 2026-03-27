@@ -23,7 +23,21 @@ export function useAuth(options?: UseAuthOptions) {
   const utils = trpc.useUtils();
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: 3,
+    // Retry up to 3 times on transient network errors, but never on auth or
+    // rate-limit errors — retrying those would flood the server and worsen the
+    // "too many requests" lock-out that users sometimes encounter after logout.
+    retry: (failureCount, error) => {
+      if (error instanceof TRPCClientError) {
+        const code = (error as any)?.data?.code;
+        if (
+          code === "TOO_MANY_REQUESTS" ||
+          code === "UNAUTHORIZED" ||
+          code === "FORBIDDEN"
+        )
+          return false;
+      }
+      return failureCount < 3;
+    },
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
     // Keep staleTime moderate so frequent re-fetches don't cause unnecessary
     // flicker or race conditions. 60s is enough to detect logout quickly
