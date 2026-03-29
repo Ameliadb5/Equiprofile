@@ -139,10 +139,10 @@ function mapRealtimeEventToNotification(
 
 export function NotificationCenter() {
   const { user } = useAuth();
-  const userId = user?.id ?? 0;
+  const userId = user?.id ?? null;
 
   const [notifications, setNotifications] = useState<AppNotification[]>(() =>
-    userId ? getStoredNotifications(userId) : [],
+    userId != null ? getStoredNotifications(userId) : [],
   );
   const [isOpen, setIsOpen] = useState(false);
   const { subscribe, isConnected } = useRealtime();
@@ -150,7 +150,7 @@ export function NotificationCenter() {
   // When user changes (e.g. login/logout), load the correct notifications and
   // clear the legacy browser-wide key to avoid cross-user leakage.
   useEffect(() => {
-    if (userId) {
+    if (userId != null) {
       setNotifications(getStoredNotifications(userId));
       // Remove the old unscoped key if it still exists
       localStorage.removeItem(LEGACY_NOTIFICATIONS_KEY);
@@ -163,7 +163,7 @@ export function NotificationCenter() {
 
   // Subscribe to real-time events and create notifications
   useEffect(() => {
-    if (!userId) return;
+    if (userId == null) return;
 
     const eventTypes = [
       "horses:created",
@@ -196,7 +196,7 @@ export function NotificationCenter() {
   const markAsRead = useCallback((id: string) => {
     setNotifications((prev) => {
       const updated = prev.map((n) => (n.id === id ? { ...n, read: true } : n));
-      if (userId) storeNotifications(userId, updated);
+      if (userId != null) storeNotifications(userId, updated);
       return updated;
     });
   }, [userId]);
@@ -204,20 +204,20 @@ export function NotificationCenter() {
   const markAllAsRead = useCallback(() => {
     setNotifications((prev) => {
       const updated = prev.map((n) => ({ ...n, read: true }));
-      if (userId) storeNotifications(userId, updated);
+      if (userId != null) storeNotifications(userId, updated);
       return updated;
     });
   }, [userId]);
 
   const clearAll = useCallback(() => {
     setNotifications([]);
-    if (userId) storeNotifications(userId, []);
+    if (userId != null) storeNotifications(userId, []);
   }, [userId]);
 
   const deleteNotification = useCallback((id: string) => {
     setNotifications((prev) => {
       const updated = prev.filter((n) => n.id !== id);
-      if (userId) storeNotifications(userId, updated);
+      if (userId != null) storeNotifications(userId, updated);
       return updated;
     });
   }, [userId]);

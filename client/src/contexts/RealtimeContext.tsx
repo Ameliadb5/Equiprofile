@@ -106,9 +106,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const eventSourceRef = useRef<EventSource | null>(null);
   const handlersRef = useRef<Map<string, Set<EventHandler>>>(new Map());
   const reconnectAttemptsRef = useRef(0);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
+  const reconnectTimeoutRef = useRef<number | undefined>(undefined);
   // Prevent double-connect in StrictMode
   const connectingRef = useRef(false);
 
@@ -168,7 +166,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         console.log(
           `[SSE] Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})`,
         );
-        reconnectTimeoutRef.current = setTimeout(async () => {
+        reconnectTimeoutRef.current = window.setTimeout(async () => {
           try {
             const res = await fetch("/api/trpc/auth.me", {
               credentials: "include",
@@ -210,8 +208,8 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     connect();
 
     return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
+      if (reconnectTimeoutRef.current !== undefined) {
+        window.clearTimeout(reconnectTimeoutRef.current);
       }
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
