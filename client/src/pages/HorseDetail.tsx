@@ -190,22 +190,23 @@ function HorseDetailContent() {
 
       {/* Tabs for Health, Training, Feeding, Medical Passport */}
       <Tabs defaultValue="health" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="health" className="flex items-center gap-2">
-            <Heart className="w-4 h-4" />
+        <TabsList className="flex overflow-x-auto gap-0 rounded-md h-auto p-1">
+          <TabsTrigger value="health" className="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5">
+            <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
             Health
           </TabsTrigger>
-          <TabsTrigger value="training" className="flex items-center gap-2">
-            <Activity className="w-4 h-4" />
+          <TabsTrigger value="training" className="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5">
+            <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
             Training
           </TabsTrigger>
-          <TabsTrigger value="feeding" className="flex items-center gap-2">
-            <Utensils className="w-4 h-4" />
+          <TabsTrigger value="feeding" className="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5">
+            <Utensils className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
             Feeding
           </TabsTrigger>
-          <TabsTrigger value="passport" className="flex items-center gap-2">
-            <FileHeart className="w-4 h-4" />
-            Medical Passport
+          <TabsTrigger value="passport" className="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5">
+            <FileHeart className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+            <span className="hidden sm:inline">Medical Passport</span>
+            <span className="sm:hidden">Passport</span>
           </TabsTrigger>
         </TabsList>
 

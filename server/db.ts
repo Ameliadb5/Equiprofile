@@ -1043,6 +1043,14 @@ export async function deleteUser(id: number) {
     .where(eq(users.id, id));
 }
 
+export async function hardDeleteUser(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  // Permanently remove all user data then the user record itself
+  await db.delete(horses).where(eq(horses.userId, id));
+  await db.delete(users).where(eq(users.id, id));
+}
+
 export async function getOverdueSubscriptions() {
   const db = await getDb();
   if (!db) return [];

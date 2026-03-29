@@ -624,15 +624,20 @@ export const appRouter = router({
           weatherAlerts: z.boolean().optional(),
           weeklyDigest: z.boolean().optional(),
           trainingCalendarIntegration: z.boolean().optional(),
+          // WhatsApp notification number (user's own mobile number in E.164 format)
+          whatsappPhone: z.string().max(20).optional().nullable(),
         }),
       )
       .mutation(async ({ ctx, input }) => {
         // Persist notification prefs in the user's JSON preferences field
         const user = await db.getUserById(ctx.user.id);
         const existing = parseUserPrefs(user?.preferences);
+        const { whatsappPhone, ...toggles } = input;
         const updated = {
           ...existing,
-          notifications: { ...existing.notifications, ...input },
+          notifications: { ...existing.notifications, ...toggles },
+          // Store WhatsApp phone at top level of prefs (not nested in notifications)
+          ...(whatsappPhone !== undefined ? { whatsappPhone: whatsappPhone || null } : {}),
         };
         await db.updateUser(ctx.user.id, {
           preferences: JSON.stringify(updated),
@@ -651,8 +656,13 @@ export const appRouter = router({
         weatherAlerts: true,
         weeklyDigest: true,
         trainingCalendarIntegration: false,
+        whatsappPhone: null as string | null,
       };
-      return { ...defaults, ...existing.notifications };
+      return {
+        ...defaults,
+        ...existing.notifications,
+        whatsappPhone: (existing as any).whatsappPhone ?? null,
+      };
     }),
 
     getSubscriptionStatus: protectedProcedure.query(async ({ ctx }) => {
@@ -2643,6 +2653,29 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
+    // Permanently purge a soft-deleted user and all associated data
+    hardDeleteUser: adminUnlockedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        // Safety check: only allow hard-delete on already-soft-deleted users
+        const targetUser = await db.getUserById(input.userId);
+        if (targetUser) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "User must be soft-deleted first before permanently purging. Use the Delete action to soft-delete, then purge from the Deleted Users list.",
+          });
+        }
+        await db.hardDeleteUser(input.userId);
+        await db.logActivity({
+          userId: ctx.user!.id,
+          action: "user_hard_deleted",
+          entityType: "user",
+          entityId: input.userId,
+        });
+        return { success: true };
+      }),
+
     updateUserRole: adminUnlockedProcedure
       .input(
         z.object({
@@ -2662,18 +2695,31 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
-    // Grant free access with both dashboards unlocked
+    // Grant free access — admin must explicitly choose Standard-only or Stable-only
     grantFreeAccess: adminUnlockedProcedure
-      .input(z.object({ userId: z.number() }))
+      .input(
+        z.object({
+          userId: z.number(),
+          // "standard" = Standard dashboard only (pro tier, no stable)
+          // "stable"   = Stable dashboard only (stable tier, no standard)
+          tier: z.enum(["standard", "stable"]),
+        }),
+      )
       .mutation(async ({ ctx, input }) => {
         const targetUser = await db.getUserById(input.userId);
         if (!targetUser) {
           throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
         }
         const prefs = parseUserPrefs(targetUser.preferences);
-        prefs.planTier = "stable";
         prefs.freeAccess = true;
-        prefs.bothDashboardsUnlocked = true;
+        // Only the explicitly chosen dashboard is unlocked — never both by default
+        if (input.tier === "stable") {
+          prefs.planTier = "stable";
+          prefs.bothDashboardsUnlocked = false;
+        } else {
+          prefs.planTier = "pro";
+          prefs.bothDashboardsUnlocked = false;
+        }
         await db.updateUser(input.userId, {
           subscriptionStatus: "active",
           preferences: JSON.stringify(prefs),
@@ -2683,7 +2729,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           action: "free_access_granted",
           entityType: "user",
           entityId: input.userId,
-          details: JSON.stringify({ targetEmail: targetUser.email }),
+          details: JSON.stringify({ targetEmail: targetUser.email, tier: input.tier }),
         });
         return { success: true };
       }),
@@ -2962,18 +3008,21 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           status: !!process.env.DATABASE_URL,
           critical: true,
           conditional: false,
+          description: "MySQL/MariaDB connection string — required for all data storage",
         },
         {
           name: "JWT_SECRET",
           status: !!process.env.JWT_SECRET,
           critical: true,
           conditional: false,
+          description: "Secret used to sign authentication tokens — must be long and random",
         },
         {
           name: "ADMIN_UNLOCK_PASSWORD",
           status: !!process.env.ADMIN_UNLOCK_PASSWORD,
           critical: true,
           conditional: false,
+          description: "Password to unlock the admin panel — bcrypt hash recommended",
         },
 
         // Stripe vars (critical only if ENABLE_STRIPE=true)
@@ -2983,6 +3032,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           critical: ENV.enableStripe,
           conditional: true,
           requiredWhen: "ENABLE_STRIPE=true",
+          description: "Stripe secret API key — required when billing is enabled",
         },
         {
           name: "STRIPE_WEBHOOK_SECRET",
@@ -2990,6 +3040,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           critical: ENV.enableStripe,
           conditional: true,
           requiredWhen: "ENABLE_STRIPE=true",
+          description: "Stripe webhook signing secret — required to verify payment events",
         },
 
         // Upload/Storage vars (optional - falls back to local disk when not configured)
@@ -3001,6 +3052,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           critical: false,
           conditional: true,
           requiredWhen: "ENABLE_UPLOADS=true with proxy storage",
+          description: "URL of the file storage proxy — falls back to local disk if unset",
         },
         {
           name: "STORAGE_PROXY_KEY",
@@ -3010,6 +3062,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           critical: false,
           conditional: true,
           requiredWhen: "ENABLE_UPLOADS=true with proxy storage",
+          description: "API key for the storage proxy — required alongside STORAGE_PROXY_URL",
         },
 
         // Legacy AWS vars (optional - kept for backward compatibility)
@@ -3018,18 +3071,21 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           status: !!process.env.AWS_ACCESS_KEY_ID,
           critical: false,
           conditional: false,
+          description: "AWS credentials for S3 uploads (legacy — prefer storage proxy)",
         },
         {
           name: "AWS_SECRET_ACCESS_KEY",
           status: !!process.env.AWS_SECRET_ACCESS_KEY,
           critical: false,
           conditional: false,
+          description: "AWS secret key for S3 — required alongside AWS_ACCESS_KEY_ID",
         },
         {
           name: "AWS_S3_BUCKET",
           status: !!process.env.AWS_S3_BUCKET,
           critical: false,
           conditional: false,
+          description: "S3 bucket name for file storage (legacy)",
         },
 
         // Optional features
@@ -3038,12 +3094,14 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           status: aiConfigured,
           critical: false,
           conditional: false,
+          description: "OpenAI API key — enables AI chat assistant and weather analysis",
         },
         {
           name: "SMTP_HOST",
           status: !!process.env.SMTP_HOST,
           critical: false,
           conditional: false,
+          description: "SMTP server hostname — enables email notifications and password resets",
         },
       ];
 

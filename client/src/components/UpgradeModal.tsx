@@ -111,7 +111,7 @@ export function UpgradeModal({
               <Badge variant="secondary" className="bg-blue-100">
                 💎 Pro
               </Badge>
-              <span className="font-medium">Starting at just £7.99/month</span>
+              <span className="font-medium">Starting from £10/month</span>
             </div>
           </div>
         </div>

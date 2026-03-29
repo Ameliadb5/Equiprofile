@@ -41,6 +41,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -93,6 +100,7 @@ function AdminContent() {
     null,
   );
   const [resetPasswordValue, setResetPasswordValue] = useState("");
+  const [freeAccessTier, setFreeAccessTier] = useState<"standard" | "stable">("standard");
   const [whatsappForm, setWhatsappForm] = useState({
     enabled: false,
     phoneNumberId: "",
@@ -242,6 +250,14 @@ function AdminContent() {
     onSuccess: () => {
       toast.success("Free access revoked successfully");
       refetchUsers();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const hardDeleteUserMutation = trpc.admin.hardDeleteUser.useMutation({
+    onSuccess: () => {
+      toast.success("User permanently purged");
+      refetchDeletedUsers();
     },
     onError: (error) => toast.error(error.message),
   });
@@ -789,61 +805,89 @@ function AdminContent() {
                               </AlertDialog>
 
                               {/* Grant / Revoke Free Access */}
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    title={
-                                      hasUserFreeAccess(user)
-                                        ? "Revoke free access"
-                                        : "Grant free access"
-                                    }
-                                    className={
-                                      hasUserFreeAccess(user)
-                                        ? "text-emerald-600 hover:text-emerald-700"
-                                        : "text-muted-foreground"
-                                    }
-                                  >
-                                    <Gift className="w-4 h-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      {hasUserFreeAccess(user)
-                                        ? "Revoke Free Access"
-                                        : "Grant Free Access"}
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      {hasUserFreeAccess(user)
-                                        ? `Remove free access from ${user.name || user.email}? Their subscription will revert to trial status.`
-                                        : `Grant free access to ${user.name || user.email}? They will get an active subscription with both Standard and Stable dashboards unlocked.`}
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>
-                                      Cancel
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                      className={
-                                        hasUserFreeAccess(user)
-                                          ? "bg-amber-600 text-white hover:bg-amber-700"
-                                          : "bg-emerald-600 text-white hover:bg-emerald-700"
-                                      }
-                                      onClick={() =>
-                                        hasUserFreeAccess(user)
-                                          ? revokeFreeAccessMutation.mutate({ userId: user.id })
-                                          : grantFreeAccessMutation.mutate({ userId: user.id })
-                                      }
+                              {hasUserFreeAccess(user) ? (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      title="Revoke free access"
+                                      className="text-emerald-600 hover:text-emerald-700"
                                     >
-                                      {hasUserFreeAccess(user)
-                                        ? "Revoke Free Access"
-                                        : "Grant Free Access"}
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                                      <Gift className="w-4 h-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Revoke Free Access</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Remove free access from {user.name || user.email}? Their subscription will revert to trial status.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        className="bg-amber-600 text-white hover:bg-amber-700"
+                                        onClick={() => revokeFreeAccessMutation.mutate({ userId: user.id })}
+                                      >
+                                        Revoke Free Access
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              ) : (
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      title="Grant free access"
+                                      className="text-muted-foreground"
+                                    >
+                                      <Gift className="w-4 h-4" />
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Grant Free Access</DialogTitle>
+                                      <DialogDescription>
+                                        Choose which dashboard to grant free access to for {user.name || user.email}. Only one dashboard type will be unlocked.
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-3 py-2">
+                                      <Label>Dashboard Access</Label>
+                                      <Select
+                                        value={freeAccessTier}
+                                        onValueChange={(v) => setFreeAccessTier(v as "standard" | "stable")}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="standard">Standard (individual horse management)</SelectItem>
+                                          <SelectItem value="stable">Stable (yard/stable management)</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <p className="text-xs text-muted-foreground">
+                                        Standard and Stable access are separate entitlements. Only grant both if explicitly required.
+                                      </p>
+                                    </div>
+                                    <DialogFooter>
+                                      <Button
+                                        className="bg-emerald-600 text-white hover:bg-emerald-700"
+                                        onClick={() => grantFreeAccessMutation.mutate({ userId: user.id, tier: freeAccessTier })}
+                                        disabled={grantFreeAccessMutation.isPending}
+                                      >
+                                        {grantFreeAccessMutation.isPending ? (
+                                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Granting...</>
+                                        ) : (
+                                          "Grant Free Access"
+                                        )}
+                                      </Button>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              )}
 
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -1360,6 +1404,7 @@ function AdminContent() {
                         <TableHead>Variable</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Priority</TableHead>
+                        <TableHead className="hidden md:table-cell">Description</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1383,6 +1428,9 @@ function AdminContent() {
                             >
                               {check.critical ? "Critical" : "Optional"}
                             </Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                            {(check as any).description ?? ""}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -1664,30 +1712,59 @@ function AdminContent() {
                               : "Unknown"}
                           </TableCell>
                           <TableCell className="text-right">
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="sm" className="gap-1">
-                                  <RotateCcw className="w-3 h-3" />
-                                  Restore
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Restore User</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Restore {user.name || user.email} to active status? They will regain access to their account.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => restoreUserMutation.mutate({ userId: user.id })}
-                                  >
+                            <div className="flex items-center justify-end gap-2">
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="outline" size="sm" className="gap-1">
+                                    <RotateCcw className="w-3 h-3" />
                                     Restore
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Restore User</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Restore {user.name || user.email} to active status? They will regain access to their account.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => restoreUserMutation.mutate({ userId: user.id })}
+                                    >
+                                      Restore
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+
+                              {/* Hard delete — permanent, cannot be undone */}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="text-destructive gap-1">
+                                    <Trash2 className="w-3 h-3" />
+                                    Purge
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Permanently Delete User</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This will <strong>permanently</strong> delete {user.name || user.email} and all associated data from the database. This cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      onClick={() => hardDeleteUserMutation.mutate({ userId: user.id })}
+                                    >
+                                      Permanently Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
