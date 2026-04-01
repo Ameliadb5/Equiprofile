@@ -204,9 +204,30 @@ export default function Reports() {
   };
 
   /**
+   * Load the brand logo as a base64-encoded data URL for PDF embedding.
+   */
+  const loadLogoBase64 = (): Promise<string | null> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(null); return; }
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = () => resolve(null);
+      img.src = "/logo.png";
+    });
+  };
+
+  /**
    * Download a generated report as a PDF with EquiProfile letterhead.
    */
-  const handleDownloadReport = (report: {
+  const handleDownloadReport = async (report: {
     id: number;
     title: string;
     reportType: string;
@@ -219,16 +240,27 @@ export default function Reports() {
       const pageWidth = doc.internal.pageSize.getWidth();
       let y = 20;
 
+      // Load logo for letterhead
+      const logoBase64 = await loadLogoBase64();
+
       // Letterhead
       doc.setFillColor(30, 58, 138);
       doc.rect(0, 0, pageWidth, 28, "F");
+
+      // Add logo to letterhead if available
+      if (logoBase64) {
+        try {
+          doc.addImage(logoBase64, "PNG", 10, 3, 16, 22);
+        } catch { /* logo embed failed, continue without */ }
+      }
+
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(18);
       doc.setFont("helvetica", "bold");
-      doc.text("EquiProfile", 14, 12);
+      doc.text("EquiProfile", logoBase64 ? 30 : 14, 12);
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
-      doc.text("Horse Management Platform  |  equiprofile.online", 14, 20);
+      doc.text("Horse Management Platform  |  equiprofile.online", logoBase64 ? 30 : 14, 20);
       doc.text(
         `Generated: ${new Date(report.generatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`,
         pageWidth - 14,

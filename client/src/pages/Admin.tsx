@@ -76,6 +76,7 @@ import {
   Loader2,
   Gift,
   RotateCcw,
+  Smartphone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -100,6 +101,11 @@ function AdminContent() {
   );
   const [resetPasswordValue, setResetPasswordValue] = useState("");
   const [freeAccessTier, setFreeAccessTier] = useState<"standard" | "stable">("standard");
+  const [whatsappForm, setWhatsappForm] = useState({
+    enabled: false,
+    phoneNumberId: "",
+    accessToken: "",
+  });
 
   // API key configuration form state
   const [aiConfigForm, setAiConfigForm] = useState({
@@ -158,12 +164,22 @@ function AdminContent() {
   const leadsQuery = trpc.admin.getLeads.useQuery(undefined, {
     enabled: isUnlocked,
   });
+  const whatsappConfigQuery = trpc.admin.getWhatsAppConfig.useQuery(undefined, {
+    enabled: isUnlocked,
+  });
 
   // All mutations (lazy — no enabled needed)
   const setSiteSettingMutation = trpc.admin.setSiteSetting.useMutation({
     onSuccess: (_data, variables) => {
       toast.success(`${variables.key} saved`);
       siteSettingsQuery.refetch();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const updateWhatsAppMutation = trpc.admin.updateWhatsAppConfig.useMutation({
+    onSuccess: () => {
+      toast.success("WhatsApp configuration saved");
+      whatsappConfigQuery.refetch();
     },
     onError: (error) => toast.error(error.message),
   });
@@ -264,6 +280,16 @@ function AdminContent() {
       });
     }
   }, [siteSettingsQuery.data]);
+
+  // Sync WhatsApp form when data loads
+  useEffect(() => {
+    if (whatsappConfigQuery.data) {
+      setWhatsappForm((prev) => ({
+        ...prev,
+        enabled: whatsappConfigQuery.data!.enabled,
+      }));
+    }
+  }, [whatsappConfigQuery.data]);
 
   // When admin session expires, the inline "Admin Access Required" view below
   // handles the locked state correctly — no need to navigate away and lose context.
@@ -479,6 +505,13 @@ function AdminContent() {
           >
             <MessageSquare className="w-4 h-4" />
             <span className="hidden sm:inline">Leads</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="whatsapp"
+            className="flex items-center gap-1.5 shrink-0"
+          >
+            <Smartphone className="w-4 h-4" />
+            <span className="hidden sm:inline">WhatsApp</span>
           </TabsTrigger>
           <TabsTrigger
             value="deleted"
@@ -1424,6 +1457,175 @@ function AdminContent() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* WhatsApp Configuration Tab */}
+        <TabsContent value="whatsapp">
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Smartphone className="w-5 h-5" />
+                  WhatsApp Business Configuration
+                </CardTitle>
+                <CardDescription>
+                  Configure WhatsApp Business API for event reminders and
+                  notifications.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Status */}
+                <div className="flex items-center gap-3 p-3 rounded-lg border">
+                  {whatsappConfigQuery.data?.enabled ? (
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-muted-foreground" />
+                  )}
+                  <div>
+                    <p className="font-medium text-sm">
+                      Status:{" "}
+                      {whatsappConfigQuery.data?.enabled
+                        ? "Enabled"
+                        : "Disabled"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Phone ID:{" "}
+                      {whatsappConfigQuery.data?.phoneNumberId ||
+                        "Not configured"}{" "}
+                      · Token:{" "}
+                      {whatsappConfigQuery.data?.hasAccessToken
+                        ? "Configured"
+                        : "Not set"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Toggle */}
+                <div className="space-y-2">
+                  <Label>Enable WhatsApp</Label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="wa-enabled"
+                      checked={whatsappForm.enabled}
+                      onChange={(e) =>
+                        setWhatsappForm({
+                          ...whatsappForm,
+                          enabled: e.target.checked,
+                        })
+                      }
+                      className="w-4 h-4"
+                    />
+                    <label
+                      htmlFor="wa-enabled"
+                      className="text-sm text-muted-foreground"
+                    >
+                      Enable WhatsApp Business notifications
+                    </label>
+                  </div>
+                </div>
+
+                {/* Phone Number ID */}
+                <div className="space-y-2">
+                  <Label>Phone Number ID</Label>
+                  <Input
+                    placeholder="Meta Phone Number ID"
+                    value={whatsappForm.phoneNumberId}
+                    onChange={(e) =>
+                      setWhatsappForm({
+                        ...whatsappForm,
+                        phoneNumberId: e.target.value,
+                      })
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Found in Meta Business Manager → WhatsApp → Phone Numbers
+                  </p>
+                </div>
+
+                {/* Access Token */}
+                <div className="space-y-2">
+                  <Label>Access Token</Label>
+                  <Input
+                    type="password"
+                    placeholder={
+                      whatsappConfigQuery.data?.hasAccessToken
+                        ? "••••••••• (already configured)"
+                        : "Meta permanent access token"
+                    }
+                    value={whatsappForm.accessToken}
+                    onChange={(e) =>
+                      setWhatsappForm({
+                        ...whatsappForm,
+                        accessToken: e.target.value,
+                      })
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Permanent token from Meta Business Manager. Leave blank to
+                    keep existing.
+                  </p>
+                </div>
+
+                <Button
+                  onClick={() =>
+                    updateWhatsAppMutation.mutate({
+                      enabled: whatsappForm.enabled,
+                      phoneNumberId: whatsappForm.phoneNumberId || undefined,
+                      accessToken: whatsappForm.accessToken || undefined,
+                    })
+                  }
+                  disabled={updateWhatsAppMutation.isPending}
+                >
+                  {updateWhatsAppMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Save Configuration
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">
+                  Required Message Templates
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Pre-approve these templates in your Meta Business account:
+                </p>
+                <ul className="space-y-1.5">
+                  {[
+                    "event_reminder — 24h and 1h before events",
+                    "reminder_notification — health and care reminders",
+                    "vaccination_due — upcoming vaccination alerts",
+                    "trial_ending — trial expiry notifications",
+                  ].map((t) => (
+                    <li key={t} className="flex items-start gap-2 text-sm">
+                      <span className="text-primary">•</span>
+                      <code className="text-xs">{t}</code>
+                    </li>
+                  ))}
+                </ul>
+                <Alert className="mt-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    See{" "}
+                    <code className="text-primary">docs/WHATSAPP_SETUP.md</code>{" "}
+                    for full setup instructions.
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Deleted Users Tab */}

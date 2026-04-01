@@ -43,6 +43,21 @@ function PassportContent({ horseId }: { horseId: number }) {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      {/* Branded Header */}
+      <div className="bg-gradient-to-r from-indigo-900 to-blue-800 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="EquiProfile"
+            className="h-12 w-auto object-contain"
+          />
+          <div className="text-white">
+            <h2 className="text-lg font-bold font-serif">EquiProfile</h2>
+            <p className="text-xs text-blue-200">Professional Equine Management</p>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex items-center gap-3">
         <Shield className="h-8 w-8 text-blue-500" />

@@ -379,6 +379,11 @@ function DashboardLayoutContent({
               >
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
+              <img
+                src="/logo.png"
+                alt="EquiProfile"
+                className="h-7 w-auto object-contain shrink-0"
+              />
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-serif font-bold tracking-tight truncate bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
