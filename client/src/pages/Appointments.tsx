@@ -236,33 +236,33 @@ function AppointmentsContent() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-3 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Calendar className="h-8 w-8" />
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+            <Calendar className="h-6 w-6 sm:h-8 sm:w-8" />
             Appointments
           </h1>
           <p className="text-gray-600 mt-1">Schedule and manage appointments</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-none">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search appointments..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 w-48 sm:w-56"
+              className="pl-8 w-full sm:w-56"
             />
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button onClick={resetForm}>
+            <Button onClick={resetForm} className="shrink-0">
               <Plus className="h-4 w-4 mr-2" />
               New Appointment
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingAppointment ? "Edit Appointment" : "New Appointment"}
@@ -448,23 +448,23 @@ function AppointmentsContent() {
             upcomingAppointments.map((appointment: any) => (
               <div
                 key={appointment.id}
-                className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-card border rounded-lg p-4 hover:shadow-md transition-shadow"
               >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg">
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-base truncate">
                         {appointment.title ||
                           appointment.providerName ||
                           appointment.provider}
                       </h3>
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeBadge(appointment.appointmentType || appointment.type)}`}
+                        className={`px-2 py-1 rounded-full text-xs font-medium shrink-0 ${getTypeBadge(appointment.appointmentType || appointment.type)}`}
                       >
                         {appointment.appointmentType || appointment.type}
                       </span>
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(appointment.status)}`}
+                        className={`px-2 py-1 rounded-full text-xs font-medium shrink-0 ${getStatusBadge(appointment.status)}`}
                       >
                         {appointment.status}
                       </span>
@@ -475,13 +475,13 @@ function AppointmentsContent() {
                         ?.name || "Unknown"}
                     </p>
                     <p className="text-sm flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
+                      <Calendar className="h-4 w-4 shrink-0" />
                       {new Date(
                         appointment.appointmentDate,
                       ).toLocaleDateString()}
                       {appointment.appointmentTime && (
                         <>
-                          <Clock className="h-4 w-4 ml-2" />
+                          <Clock className="h-4 w-4 ml-2 shrink-0" />
                           {appointment.appointmentTime}
                         </>
                       )}
@@ -503,7 +503,7 @@ function AppointmentsContent() {
                       </p>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     <Button
                       size="sm"
                       variant="outline"

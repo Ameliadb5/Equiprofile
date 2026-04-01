@@ -80,6 +80,7 @@ const EquinePassport = lazy(() => import("./pages/EquinePassport"));
 const PassportView = lazy(() => import("./pages/PassportView"));
 const StableStaff = lazy(() => import("./pages/StableStaff"));
 const StableSetup = lazy(() => import("./pages/StableSetup"));
+const StableReports = lazy(() => import("./pages/StableReports"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 // Minimal spinner shown while lazy chunks load (doesn't block FCP)
@@ -320,6 +321,13 @@ function Router() {
             <Route path="/stable-setup">
               <StableRoute>
                 <StableSetup />
+              </StableRoute>
+            </Route>
+
+            {/* Stable Reports */}
+            <Route path="/stable-reports">
+              <StableRoute>
+                <StableReports />
               </StableRoute>
             </Route>
 

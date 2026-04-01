@@ -181,7 +181,7 @@ function LiveMap({
   return (
     <div
       className="rounded-xl overflow-hidden border"
-      style={{ height: "300px" }}
+      style={{ height: "300px", isolation: "isolate" }}
     >
       <MapContainer
         center={center}
@@ -246,7 +246,7 @@ function RideRouteMap({ routeData }: { routeData: string }) {
   return (
     <div
       className="rounded-xl overflow-hidden border"
-      style={{ height: "250px" }}
+      style={{ height: "250px", isolation: "isolate" }}
     >
       <MapContainer
         center={center}

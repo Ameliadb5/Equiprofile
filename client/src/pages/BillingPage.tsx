@@ -285,9 +285,9 @@ export default function BillingPage() {
           {/* Billing Period Toggle */}
           {!isSubscriptionActive && (
             <>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Choose Your Plan</h2>
-                <div className="inline-flex items-center gap-2 bg-muted rounded-full p-1">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold">Choose Your Plan</h2>
+                <div className="inline-flex items-center gap-2 bg-muted rounded-full p-1 self-start sm:self-auto">
                   <button
                     onClick={() => setBillingPeriod("monthly")}
                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${

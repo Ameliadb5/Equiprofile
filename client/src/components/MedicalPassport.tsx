@@ -109,7 +109,7 @@ export function MedicalPassport({
         )}
       </div>
 
-      <Card ref={passportRef} className="medical-passport">
+      <Card ref={passportRef} className="medical-passport w-full overflow-hidden">
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
@@ -134,7 +134,7 @@ export function MedicalPassport({
               <Shield className="w-4 h-4 text-blue-500" />
               Passport Identification
             </h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
               {horse.passportNumber && (
                 <div>
                   <span className="text-muted-foreground">Passport No:</span>
@@ -183,7 +183,7 @@ export function MedicalPassport({
             <h3 className="font-semibold text-lg mb-3">
               Horse Identification (Signalement)
             </h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
               <div>
                 <span className="text-muted-foreground">Name:</span>
                 <span className="ml-2 font-medium">{horse.name}</span>
