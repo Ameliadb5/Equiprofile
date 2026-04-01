@@ -77,6 +77,7 @@ import { Button } from "./ui/button";
 import { trpc } from "@/lib/trpc";
 import { ThemeToggle } from "./ThemeToggle";
 import { NotificationCenter } from "./NotificationCenter";
+import { TrialBanner } from "./TrialBanner";
 
 // Standard plan primary nav
 const menuItems = [
@@ -568,6 +569,7 @@ function DashboardLayoutContent({
           </div>
         )}
         <main className="flex-1 p-3 sm:p-5 md:p-6 overflow-x-hidden" style={isMobile ? { paddingBottom: 'calc(5rem + var(--safe-area-bottom, 0px))' } : undefined}>
+          <TrialBanner />
           {children}
         </main>
 
