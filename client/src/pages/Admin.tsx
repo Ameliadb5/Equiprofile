@@ -70,13 +70,13 @@ import {
   Key,
   Server,
   MessageSquare,
-  Smartphone,
   Save,
   CheckCircle2,
   XCircle,
   Loader2,
   Gift,
   RotateCcw,
+  Smartphone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -110,7 +110,6 @@ function AdminContent() {
   // API key configuration form state
   const [aiConfigForm, setAiConfigForm] = useState({
     openai_api_key: "",
-    huggingface_api_key: "",
   });
   const [smtpForm, setSmtpForm] = useState({
     smtp_host: "",
@@ -177,7 +176,6 @@ function AdminContent() {
     },
     onError: (error) => toast.error(error.message),
   });
-
   const updateWhatsAppMutation = trpc.admin.updateWhatsAppConfig.useMutation({
     onSuccess: () => {
       toast.success("WhatsApp configuration saved");
@@ -262,23 +260,12 @@ function AdminContent() {
     onError: (error) => toast.error(error.message),
   });
 
-  // Sync WhatsApp form when data loads
-  useEffect(() => {
-    if (whatsappConfigQuery.data) {
-      setWhatsappForm((prev) => ({
-        ...prev,
-        enabled: whatsappConfigQuery.data!.enabled,
-      }));
-    }
-  }, [whatsappConfigQuery.data]);
-
   // Populate API key forms from stored siteSettings
   useEffect(() => {
     if (siteSettingsQuery.data) {
       const s = siteSettingsQuery.data as Record<string, string>;
       setAiConfigForm({
         openai_api_key: s.openai_api_key ? "••••••••" : "",
-        huggingface_api_key: s.huggingface_api_key ? "••••••••" : "",
       });
       setSmtpForm({
         smtp_host: s.smtp_host ?? "",
@@ -293,6 +280,16 @@ function AdminContent() {
       });
     }
   }, [siteSettingsQuery.data]);
+
+  // Sync WhatsApp form when data loads
+  useEffect(() => {
+    if (whatsappConfigQuery.data) {
+      setWhatsappForm((prev) => ({
+        ...prev,
+        enabled: whatsappConfigQuery.data!.enabled,
+      }));
+    }
+  }, [whatsappConfigQuery.data]);
 
   // When admin session expires, the inline "Admin Access Required" view below
   // handles the locked state correctly — no need to navigate away and lose context.
@@ -513,7 +510,7 @@ function AdminContent() {
             value="whatsapp"
             className="flex items-center gap-1.5 shrink-0"
           >
-            <MessageSquare className="w-4 h-4" />
+            <Smartphone className="w-4 h-4" />
             <span className="hidden sm:inline">WhatsApp</span>
           </TabsTrigger>
           <TabsTrigger
@@ -1097,43 +1094,6 @@ function AdminContent() {
                     Leave blank / unchanged to keep the existing key.
                   </p>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="huggingface-key">Hugging Face API Key</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="huggingface-key"
-                      type="password"
-                      placeholder="Enter new key to update"
-                      value={aiConfigForm.huggingface_api_key}
-                      onChange={(e) =>
-                        setAiConfigForm((p) => ({
-                          ...p,
-                          huggingface_api_key: e.target.value,
-                        }))
-                      }
-                    />
-                    <Button
-                      size="sm"
-                      onClick={() =>
-                        setSiteSettingMutation.mutate({
-                          key: "huggingface_api_key",
-                          value: aiConfigForm.huggingface_api_key,
-                        })
-                      }
-                      disabled={
-                        setSiteSettingMutation.isPending ||
-                        !aiConfigForm.huggingface_api_key ||
-                        aiConfigForm.huggingface_api_key === "••••••••"
-                      }
-                    >
-                      <Save className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Leave blank / unchanged to keep the existing key.
-                  </p>
-                </div>
               </CardContent>
             </Card>
 
@@ -1499,7 +1459,7 @@ function AdminContent() {
           </Card>
         </TabsContent>
 
-        {/* WhatsApp Config Tab */}
+        {/* WhatsApp Configuration Tab */}
         <TabsContent value="whatsapp">
           <div className="space-y-4">
             <Card>

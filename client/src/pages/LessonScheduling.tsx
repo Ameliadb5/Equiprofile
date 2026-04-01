@@ -96,8 +96,17 @@ function LessonSchedulingContent() {
     trpc.trainerAvailability.list.useQuery();
   const { data: horses = [] } = trpc.horses.list.useQuery();
   const { data: currentUser } = trpc.user.getProfile.useQuery();
-  // For trainer list, we'll use a placeholder or fetch from a trainers endpoint when available
-  const trainers = [];
+  // Fetch stable members as potential trainers (role = trainer or admin)
+  const { data: stables = [] } = trpc.stables.list.useQuery();
+  const selectedStableId = stables[0]?.id;
+  const { data: stableMembers = [] } = trpc.stables.getMembers.useQuery(
+    { stableId: selectedStableId! },
+    { enabled: !!selectedStableId },
+  );
+  type StableMember = (typeof stableMembers)[number];
+  const trainers = stableMembers.filter(
+    (m: StableMember) => m.role === "trainer" || m.role === "admin" || m.role === "owner",
+  );
 
   // Mutations
   const createBooking = trpc.lessonBookings.create.useMutation({
@@ -313,19 +322,32 @@ function LessonSchedulingContent() {
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="trainer">Trainer ID *</Label>
-                    <Input
-                      id="trainer"
-                      type="number"
+                    <Label htmlFor="trainer">Trainer *</Label>
+                    <Select
                       value={bookingForm.trainerId}
-                      onChange={(e) =>
-                        setBookingForm({
-                          ...bookingForm,
-                          trainerId: e.target.value,
-                        })
+                      onValueChange={(value) =>
+                        setBookingForm({ ...bookingForm, trainerId: value })
                       }
-                      placeholder="Enter trainer ID"
-                    />
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a trainer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {trainers.map((trainer: StableMember) => (
+                          <SelectItem
+                            key={trainer.userId}
+                            value={trainer.userId.toString()}
+                          >
+                            {`Trainer #${trainer.userId}`}
+                          </SelectItem>
+                        ))}
+                        {trainers.length === 0 && (
+                          <SelectItem value="_none" disabled>
+                            No trainers found — add staff in Stable settings
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label htmlFor="horse">Horse (Optional)</Label>

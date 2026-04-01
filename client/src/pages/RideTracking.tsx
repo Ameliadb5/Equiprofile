@@ -194,7 +194,6 @@ function LiveMap({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={19}
-          // @ts-expect-error — Leaflet TileLayer accepts referrerPolicy but react-leaflet types don't expose it
           referrerPolicy="no-referrer"
         />
         {positions.length > 1 && (
@@ -260,7 +259,6 @@ function RideRouteMap({ routeData }: { routeData: string }) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={19}
-          // @ts-expect-error — Leaflet TileLayer accepts referrerPolicy but react-leaflet types don't expose it
           referrerPolicy="no-referrer"
         />
         {positions.length > 1 && (

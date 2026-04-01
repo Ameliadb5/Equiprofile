@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { DashboardLayout } from "../components/DashboardLayout";
 import { Button } from "../components/ui/button";
@@ -84,9 +84,9 @@ function XraysContent() {
   });
 
   // Update local state when data loads
-  useState(() => {
+  useEffect(() => {
     if (xrays) setLocalXrays(xrays);
-  });
+  }, [xrays]);
 
   const createMutation = trpc.xrays.create.useMutation({
     onSuccess: () => {
@@ -336,7 +336,7 @@ function XraysContent() {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="date">Date *</Label>
                     <Input
@@ -363,7 +363,7 @@ function XraysContent() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="vetName">Vet Name</Label>
                     <Input
@@ -472,7 +472,7 @@ function XraysContent() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="cost">Cost (£)</Label>
                     <Input

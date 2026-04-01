@@ -384,8 +384,12 @@ function Router() {
               </ProtectedRoute>
             </Route>
 
-            {/* Client Portal */}
-            <Route path="/client/:clientId" component={ClientPortal} />
+            {/* Client Portal — authenticated read-only overview of your horses */}
+            <Route path="/client-portal">
+              <ProtectedRoute>
+                <ClientPortal />
+              </ProtectedRoute>
+            </Route>
 
             {/* Admin panel - accessible to any user with admin session unlocked */}
             <Route path="/admin">

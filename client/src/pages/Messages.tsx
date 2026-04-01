@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Send, Paperclip, MessageSquare, Plus, Users } from "lucide-react";
+import { Send, MessageSquare, Plus, Users } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -29,7 +29,7 @@ interface ThreadMessage {
   id: number;
   threadId: number;
   senderId: number;
-  senderName?: string;
+  senderName?: string | null;
   content: string;
   attachments?: string | null;
   isRead: boolean;
@@ -285,18 +285,6 @@ export default function MessagesPage() {
                     </ScrollArea>
 
                     <div className="flex gap-2 p-3 border-t">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() =>
-                          toast.warning(
-                            "File attachments require storage configuration. Please contact your administrator.",
-                          )
-                        }
-                        title="Attach file"
-                      >
-                        <Paperclip className="h-4 w-4" />
-                      </Button>
                       <Input
                         placeholder={t("messages.typeMessage")}
                         value={message}

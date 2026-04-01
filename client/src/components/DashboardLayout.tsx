@@ -77,6 +77,7 @@ import { Button } from "./ui/button";
 import { trpc } from "@/lib/trpc";
 import { ThemeToggle } from "./ThemeToggle";
 import { NotificationCenter } from "./NotificationCenter";
+import { TrialBanner } from "./TrialBanner";
 
 // Standard plan primary nav
 const menuItems = [
@@ -378,6 +379,11 @@ function DashboardLayoutContent({
               >
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
+              <img
+                src="/logo.png"
+                alt="EquiProfile"
+                className="h-7 w-auto object-contain shrink-0"
+              />
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-serif font-bold tracking-tight truncate bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -568,6 +574,7 @@ function DashboardLayoutContent({
           </div>
         )}
         <main className="flex-1 p-3 sm:p-5 md:p-6 overflow-x-hidden" style={isMobile ? { paddingBottom: 'calc(5rem + var(--safe-area-bottom, 0px))' } : undefined}>
+          <TrialBanner />
           {children}
         </main>
 

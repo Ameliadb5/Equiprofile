@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "../components/ui/button";
 import {
@@ -61,9 +61,9 @@ function DentalCareContent() {
   });
 
   // Update local state when data loads
-  if (dentalRecords && localRecords.length === 0) {
-    setLocalRecords(dentalRecords);
-  }
+  useEffect(() => {
+    if (dentalRecords) setLocalRecords(dentalRecords);
+  }, [dentalRecords]);
 
   const [formData, setFormData] = useState({
     horseId: 0,
@@ -239,7 +239,7 @@ function DentalCareContent() {
               <DialogDescription className="sr-only">Manage dental care record details</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="horseId">Horse *</Label>
                   <Select

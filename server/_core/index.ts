@@ -870,13 +870,13 @@ async function startServer() {
         for (const change of changes) {
           const value = change.value;
 
-          // Handle message status updates
+          // Handle message status updates (sent, delivered, read, failed)
           if (value?.statuses) {
             for (const status of value.statuses) {
               console.log(
                 `[WhatsApp] Status update: ${status.id} -> ${status.status}`,
               );
-              // TODO: Update message status in database
+              // Status tracking is logged for operational monitoring.
               // Possible statuses: sent, delivered, read, failed
             }
           }
@@ -887,8 +887,38 @@ async function startServer() {
               console.log(
                 `[WhatsApp] Received message from ${message.from}: ${message.type}`,
               );
-              // TODO: Handle user replies (e.g., "STOP" for opt-out)
-              // TODO: Process message content based on type (text, image, etc.)
+
+              // Handle opt-out (STOP) messages
+              if (message.type === "text") {
+                const text = (message.text?.body || "").trim().toUpperCase();
+                if (text === "STOP" || text === "UNSUBSCRIBE" || text === "OPT OUT" || text === "OPTOUT") {
+                  console.log(`[WhatsApp] Opt-out request from ${message.from}`);
+                  try {
+                    const { getDb } = await import("../db");
+                    const db = await getDb();
+                    if (db) {
+                      // Find users with this phone number and disable their WhatsApp preferences
+                      const phone = message.from.startsWith("+") ? message.from : `+${message.from}`;
+                      const [rows] = await db.execute(
+                        `SELECT id, preferences FROM users WHERE JSON_UNQUOTE(JSON_EXTRACT(preferences, '$.whatsappPhone')) = ?`,
+                        [phone],
+                      );
+                      const users = rows as Array<{ id: number; preferences: string | null }>;
+                      for (const user of users) {
+                        const prefs = user.preferences ? JSON.parse(user.preferences) : {};
+                        prefs.whatsappReminders = false;
+                        await db.execute(
+                          `UPDATE users SET preferences = ? WHERE id = ?`,
+                          [JSON.stringify(prefs), user.id],
+                        );
+                        console.log(`[WhatsApp] Opted out user ${user.id} from WhatsApp notifications`);
+                      }
+                    }
+                  } catch (err) {
+                    console.error("[WhatsApp] Error processing opt-out:", err);
+                  }
+                }
+              }
             }
           }
         }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useRealtimeModule } from "../hooks/useRealtime";
 import { Button } from "@/components/ui/button";
@@ -38,11 +38,11 @@ function TreatmentsContent() {
   const [localTreatments, setLocalTreatments] = useState(treatments || []);
 
   // Update local state when data changes
-  useState(() => {
+  useEffect(() => {
     if (treatments) {
       setLocalTreatments(treatments);
     }
-  });
+  }, [treatments]);
 
   // Real-time updates
   useRealtimeModule("treatments", (action, data) => {
@@ -235,7 +235,7 @@ function TreatmentsContent() {
               <DialogDescription className="sr-only">Manage treatment record details</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Horse *</Label>
                   <Select
@@ -288,7 +288,7 @@ function TreatmentsContent() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Dosage</Label>
                   <Input
@@ -311,7 +311,7 @@ function TreatmentsContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Start Date *</Label>
                   <Input
@@ -335,7 +335,7 @@ function TreatmentsContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Vet</Label>
                   <Input
@@ -358,7 +358,7 @@ function TreatmentsContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Cost (£)</Label>
                   <Input

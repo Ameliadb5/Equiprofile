@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "../components/DashboardLayout";
 import { trpc } from "../lib/trpc";
 import { Button } from "../components/ui/button";
@@ -56,9 +56,9 @@ export default function Dewormings() {
   const [localDewormings, setLocalDewormings] = useState(dewormings);
 
   // Update local state when query data changes
-  useState(() => {
+  useEffect(() => {
     setLocalDewormings(dewormings);
-  });
+  }, [dewormings]);
 
   // Real-time subscription
   useRealtimeModule("dewormings", (action, data) => {
@@ -215,7 +215,7 @@ export default function Dewormings() {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="product">Product *</Label>
                     <Input
@@ -245,7 +245,7 @@ export default function Dewormings() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="dosage">Dosage *</Label>
                     <Input
@@ -272,7 +272,7 @@ export default function Dewormings() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="dateAdministered">
                       Date Administered *
@@ -306,7 +306,7 @@ export default function Dewormings() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="vet">Vet</Label>
                     <Input

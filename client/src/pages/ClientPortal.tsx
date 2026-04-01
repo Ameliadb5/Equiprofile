@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
-import { useRoute } from "wouter";
+import { useState } from "react";
 import {
   Eye,
   Heart,
   Activity,
   FileText,
-  Calendar,
   TrendingUp,
-  Lock,
 } from "lucide-react";
 import {
   Card,
@@ -27,11 +24,8 @@ import { trpc } from "../lib/trpc";
 import { format } from "date-fns";
 
 export default function ClientPortal() {
-  const [, params] = useRoute("/client/:clientId");
-  const clientId = params?.clientId ? parseInt(params.clientId) : null;
-
-  // For demo purposes, we'll show the current user's horses
-  // In production, this would check share tokens or client access permissions
+  // Client portal shows the authenticated user's own horses in read-only view.
+  // Useful for sharing a screen with your vet/client or reviewing your data.
   const { data: horses = [] } = trpc.horses.list.useQuery();
   const { data: healthRecords = [] } = trpc.healthRecords.listAll.useQuery();
   const { data: trainingSessions = [] } = trpc.training.listAll.useQuery();
@@ -39,20 +33,6 @@ export default function ClientPortal() {
     horseId: undefined,
   });
   const { data: documents = [] } = trpc.documents.list.useQuery();
-
-  if (!clientId) {
-    return (
-      <div className="container mx-auto p-4">
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <Lock className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Client Portal</h2>
-            <p className="text-muted-foreground">Invalid client portal link</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto p-4 space-y-6">
