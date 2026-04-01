@@ -103,8 +103,9 @@ function LessonSchedulingContent() {
     { stableId: selectedStableId! },
     { enabled: !!selectedStableId },
   );
+  type StableMember = (typeof stableMembers)[number];
   const trainers = stableMembers.filter(
-    (m: any) => m.role === "trainer" || m.role === "admin" || m.role === "owner",
+    (m: StableMember) => m.role === "trainer" || m.role === "admin" || m.role === "owner",
   );
 
   // Mutations
@@ -332,12 +333,12 @@ function LessonSchedulingContent() {
                         <SelectValue placeholder="Select a trainer" />
                       </SelectTrigger>
                       <SelectContent>
-                        {trainers.map((trainer: any) => (
+                        {trainers.map((trainer: StableMember) => (
                           <SelectItem
                             key={trainer.userId}
                             value={trainer.userId.toString()}
                           >
-                            {trainer.userName || `Member #${trainer.userId}`}
+                            {`Trainer #${trainer.userId}`}
                           </SelectItem>
                         ))}
                         {trainers.length === 0 && (
