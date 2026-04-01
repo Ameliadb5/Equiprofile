@@ -29,7 +29,7 @@ interface ThreadMessage {
   id: number;
   threadId: number;
   senderId: number;
-  senderName?: string;
+  senderName?: string | null;
   content: string;
   attachments?: string | null;
   isRead: boolean;
