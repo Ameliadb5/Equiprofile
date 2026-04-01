@@ -110,9 +110,9 @@ const stableNavItems = [
   { icon: ListChecks, label: "Tasks", path: "/tasks" },
   { icon: MessageSquare, label: "Messages", path: "/messages" },
   { icon: FileText, label: "Documents", path: "/documents" },
+  { icon: BarChart3, label: "Reports", path: "/stable-reports" },
   { icon: Brain, label: "AI Chat", path: "/ai-chat" },
   { icon: Cloud, label: "Weather", path: "/weather" },
-  { icon: BarChart3, label: "Analytics", path: "/analytics" },
   { icon: Home, label: "Stable Profile", path: "/stable" },
   { icon: Wrench, label: "Stable Setup", path: "/stable-setup" },
   { icon: DollarSign, label: "Billing", path: "/billing" },
@@ -308,12 +308,6 @@ function DashboardLayoutContent({
   const isStablePlan = subscriptionStatus?.planTier === "stable";
   const bothDashboardsUnlocked = !!subscriptionStatus?.bothDashboardsUnlocked;
 
-  // Build fingerprint — shown in sidebar footer for admins only
-  const { data: buildInfo } = trpc.system.getBuildInfo.useQuery(undefined, {
-    enabled: !!adminStatus?.isUnlocked,
-    staleTime: Infinity,
-  });
-
   // Determine which dashboard view is active for users with both dashboards
   const isOnStablePages = location.startsWith("/stable");
 
@@ -379,11 +373,6 @@ function DashboardLayoutContent({
               >
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
-              <img
-                src="/logo.png"
-                alt="EquiProfile"
-                className="h-7 w-auto object-contain shrink-0"
-              />
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-serif font-bold tracking-tight truncate bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -477,19 +466,7 @@ function DashboardLayoutContent({
               <ThemeToggle />
               <NotificationCenter />
             </div>
-            {/* Admin-only build fingerprint */}
-            {adminStatus?.isUnlocked && buildInfo && !isCollapsed && (
-              <div className="px-1 mb-2 group-data-[collapsible=icon]:hidden">
-                <p className="text-[10px] text-muted-foreground font-mono leading-relaxed">
-                  <span className="text-primary font-semibold">
-                    Dashboard v2
-                  </span>
-                  {" · "}
-                  {buildInfo.sha !== "unknown" ? `sha:${buildInfo.sha}` : "dev"}
-                  {" · "}v{buildInfo.version}
-                </p>
-              </div>
-            )}
+            {/* Admin-only build fingerprint removed — version info stays internal */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -684,6 +661,19 @@ function DashboardLayoutContent({
                         </div>
                       );
                     })}
+                    {/* Sign Out — always visible at the bottom of the More sheet */}
+                    <div className="pt-2 border-t">
+                      <button
+                        onClick={() => {
+                          logout();
+                          setMoreSheetOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl border border-destructive/30 bg-destructive/5 text-destructive hover:bg-destructive/10 transition-colors"
+                      >
+                        <LogOut className="h-5 w-5 shrink-0" />
+                        <span className="text-sm font-medium">Sign Out</span>
+                      </button>
+                    </div>
                   </div>
                 </SheetContent>
               </Sheet>

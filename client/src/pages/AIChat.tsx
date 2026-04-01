@@ -470,21 +470,21 @@ export default function AIChat() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-6 max-w-6xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">AI Assistant & Notes</h1>
+      <div className="container mx-auto p-3 sm:p-6 max-w-6xl">
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+          <h1 className="text-2xl sm:text-3xl font-bold">AI Assistant & Notes</h1>
           {adminStatus.isUnlocked && (
-            <div className="flex items-center gap-3">
-              <Alert className="w-auto border-green-500/50 bg-green-500/10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+              <Alert className="w-full sm:w-auto border-green-500/50 bg-green-500/10 py-2">
                 <ShieldCheck className="h-4 w-4 text-green-500" />
-                <AlertDescription className="text-green-700 dark:text-green-400">
+                <AlertDescription className="text-green-700 dark:text-green-400 text-xs">
                   Admin unlocked until{" "}
                   {adminStatus.expiresAt &&
                     new Date(adminStatus.expiresAt).toLocaleTimeString()}
                 </AlertDescription>
               </Alert>
-              <a href="/admin">
-                <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white border-0">
+              <a href="/admin" className="shrink-0">
+                <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white border-0 w-full sm:w-auto">
                   <ExternalLink className="mr-2 h-4 w-4" />
                   Open Admin Panel
                 </Button>
@@ -512,7 +512,7 @@ export default function AIChat() {
                 onSendMessage={handleSend}
                 isLoading={chatMutation.isPending}
                 placeholder="Ask about horse care, training, or management..."
-                height="calc(100vh - 320px)"
+                height="calc(100dvh - 280px)"
                 suggestedPrompts={[
                   "What can you help me with?",
                   "Show me horse care tips",
