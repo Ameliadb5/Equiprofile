@@ -72,7 +72,7 @@ export default function BillingPage() {
       });
       window.history.replaceState({}, "", "/billing");
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [refetchStatus]);
 
   const trialDaysLeft = user?.trialEndsAt
     ? Math.ceil(
