@@ -442,3 +442,313 @@ function generateInvoicePDF(pdf: jsPDF, data: any) {
 export async function generateBlobFromPDF(pdf: jsPDF): Promise<Blob> {
   return pdf.output("blob");
 }
+
+/**
+ * Loads the brand logo as a base64-encoded PNG data URL for embedding in PDFs.
+ * Returns null if the logo cannot be loaded (PDF generation continues without it).
+ */
+export function loadLogoBase64(): Promise<string | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(null); return; }
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = () => resolve(null);
+    img.src = "/logo.png";
+  });
+}
+
+export interface PassportPDFData {
+  horse: {
+    id: number;
+    name: string;
+    breed?: string;
+    age?: number;
+    microchipNumber?: string;
+    registrationNumber?: string;
+    passportNumber?: string;
+    feiId?: string;
+    ueln?: string;
+    color?: string;
+    gender?: string;
+    dateOfBirth?: string;
+    height?: string | number;
+  };
+  vaccinations?: Array<{
+    vaccineName: string;
+    dateAdministered: string;
+    nextDueDate?: string;
+  }>;
+  dewormings?: Array<{
+    productName: string;
+    dateAdministered: string;
+    nextDueDate?: string;
+  }>;
+  healthRecords?: Array<{
+    title: string;
+    recordDate: string;
+    recordType: string;
+  }>;
+  qrCode?: string;
+}
+
+/**
+ * Generates a professional Medical Passport PDF using jsPDF directly.
+ *
+ * This function intentionally avoids html2canvas so that it never encounters
+ * CSS oklch() values — the root cause of the "unsupported color function"
+ * error in the html2canvas-based approach.  All content is drawn programmatically
+ * with brand-consistent colours using the same pattern as Reports.tsx.
+ */
+export async function generatePassportPDF(
+  data: PassportPDFData,
+  filename = "passport.pdf",
+): Promise<void> {
+  const logoBase64 = await loadLogoBase64();
+
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 16;
+  let pageNum = 1;
+
+  // ── Letterhead helpers ──────────────────────────────────────────────────
+  const addHeader = () => {
+    doc.setFillColor(...BRAND_BLUE_RGB);
+    doc.rect(0, 0, pageWidth, 36, "F");
+    doc.setFillColor(...BRAND_ACCENT_RGB);
+    doc.rect(0, 36, pageWidth, 1.5, "F");
+
+    if (logoBase64) {
+      try { doc.addImage(logoBase64, "PNG", 12, 7, 24, 13.5); } catch (e) { console.warn("PDF logo embed failed:", e); }
+    }
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.text("EquiProfile", logoBase64 ? 39 : margin, 16);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("Professional Equine Management", logoBase64 ? 39 : margin, 24);
+    doc.setFontSize(8);
+    doc.text("www.equiprofile.online", logoBase64 ? 39 : margin, 30);
+    doc.text(
+      new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+      pageWidth - margin, 30, { align: "right" },
+    );
+  };
+
+  const addFooter = (page: number) => {
+    doc.setDrawColor(...BRAND_BLUE_RGB);
+    doc.setLineWidth(0.4);
+    doc.line(margin, pageH - 18, pageWidth - margin, pageH - 18);
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 100, 100);
+    doc.text("EquiProfile — Confidential Equine Passport", margin, pageH - 12);
+    doc.text(`Page ${page}`, pageWidth / 2, pageH - 12, { align: "center" });
+    doc.text(`Generated: ${new Date().toLocaleDateString("en-GB")}`, pageWidth - margin, pageH - 12, { align: "right" });
+  };
+
+  addHeader();
+
+  // Document title + divider
+  doc.setTextColor(...BRAND_BLUE_RGB);
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text("Equine Medical Passport", pageWidth / 2, 50, { align: "center" });
+  doc.setDrawColor(...BRAND_ACCENT_RGB);
+  doc.setLineWidth(0.5);
+  doc.line(margin, 55, pageWidth - margin, 55);
+
+  let y = 65;
+
+  // ── Pagination guard ────────────────────────────────────────────────────
+  const checkPage = (needed = 14) => {
+    if (y + needed > pageH - 22) {
+      addFooter(pageNum);
+      doc.addPage();
+      pageNum++;
+      addHeader();
+      y = 46;
+    }
+  };
+
+  // ── Section heading ─────────────────────────────────────────────────────
+  const sectionHeading = (title: string) => {
+    checkPage(16);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...BRAND_BLUE_RGB);
+    doc.text(title, margin, y);
+    y += 2;
+    doc.setDrawColor(...BRAND_ACCENT_RGB);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 7;
+    doc.setTextColor(40, 40, 40);
+  };
+
+  // ── Key/value field row ─────────────────────────────────────────────────
+  const field = (label: string, value: string) => {
+    checkPage(7);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...BRAND_BLUE_RGB);
+    doc.text(`${label}:`, margin + 2, y);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(40, 40, 40);
+    const lines = doc.splitTextToSize(value, pageWidth - margin * 2 - 62);
+    doc.text(lines, 75, y);
+    y += lines.length > 1 ? lines.length * 5 + 2 : 7;
+  };
+
+  const { horse, vaccinations = [], dewormings = [], healthRecords = [], qrCode } = data;
+
+  // ── Section I — Passport Identification ────────────────────────────────
+  if (horse.passportNumber || horse.feiId || horse.ueln || horse.microchipNumber || horse.registrationNumber) {
+    sectionHeading("Passport Identification");
+    if (horse.passportNumber) field("Passport No", horse.passportNumber);
+    if (horse.feiId) field("FEI ID", horse.feiId);
+    if (horse.ueln) field("UELN", horse.ueln);
+    if (horse.microchipNumber) field("Microchip", horse.microchipNumber);
+    if (horse.registrationNumber) field("Registration", horse.registrationNumber);
+    y += 3;
+  }
+
+  // ── Section II — Horse Identification (Signalement) ────────────────────
+  sectionHeading("Horse Identification (Signalement)");
+  field("Name", horse.name);
+  if (horse.breed) field("Breed", horse.breed);
+  if (horse.color) field("Colour", horse.color);
+  if (horse.gender) field("Sex", horse.gender);
+  if (horse.dateOfBirth) {
+    field("Date of Birth", new Date(horse.dateOfBirth).toLocaleDateString("en-GB"));
+  }
+  if (horse.age) field("Age", `${horse.age} years`);
+  if (horse.height) {
+    field("Height", typeof horse.height === "number" ? `${horse.height} cm` : String(horse.height));
+  }
+  y += 3;
+
+  // QR code — top-right of first page alongside identification sections
+  if (qrCode) {
+    try { doc.addImage(qrCode, "PNG", pageWidth - margin - 36, 57, 36, 36); } catch (e) { console.warn("PDF QR code embed failed:", e); }
+  }
+
+  // ── Section III — Vaccinations (FEI Section V) ─────────────────────────
+  sectionHeading("Vaccinations (FEI Section V)");
+  if (vaccinations.length > 0) {
+    vaccinations.forEach((vacc) => {
+      checkPage(14);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(40, 40, 40);
+      doc.text(vacc.vaccineName, margin + 2, y);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(80, 80, 80);
+      doc.text(
+        `Administered: ${new Date(vacc.dateAdministered).toLocaleDateString("en-GB")}`,
+        margin + 2, y + 5,
+      );
+      if (vacc.nextDueDate) {
+        doc.text(
+          `Next due: ${new Date(vacc.nextDueDate).toLocaleDateString("en-GB")}`,
+          margin + 85, y + 5,
+        );
+      }
+      y += 14;
+    });
+  } else {
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(120, 120, 120);
+    doc.text("No vaccination records", margin + 2, y);
+    y += 8;
+  }
+  y += 3;
+
+  // ── Section IV — Deworming History ─────────────────────────────────────
+  sectionHeading("Deworming History");
+  if (dewormings.length > 0) {
+    dewormings.forEach((deworm) => {
+      checkPage(14);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(40, 40, 40);
+      doc.text(deworm.productName, margin + 2, y);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(80, 80, 80);
+      doc.text(
+        `Administered: ${new Date(deworm.dateAdministered).toLocaleDateString("en-GB")}`,
+        margin + 2, y + 5,
+      );
+      if (deworm.nextDueDate) {
+        doc.text(
+          `Next due: ${new Date(deworm.nextDueDate).toLocaleDateString("en-GB")}`,
+          margin + 85, y + 5,
+        );
+      }
+      y += 14;
+    });
+  } else {
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(120, 120, 120);
+    doc.text("No deworming records", margin + 2, y);
+    y += 8;
+  }
+  y += 3;
+
+  // ── Section V — Recent Health Records ──────────────────────────────────
+  if (healthRecords.length > 0) {
+    sectionHeading("Recent Health Records");
+    healthRecords.slice(0, 10).forEach((record) => {
+      checkPage(14);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(40, 40, 40);
+      const titleLines = doc.splitTextToSize(record.title, pageWidth - margin * 2 - 30);
+      doc.text(titleLines, margin + 2, y);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(80, 80, 80);
+      doc.text(record.recordType, margin + 2, y + 5);
+      doc.text(
+        new Date(record.recordDate).toLocaleDateString("en-GB"),
+        pageWidth - margin, y + 5, { align: "right" },
+      );
+      y += 14;
+    });
+    y += 3;
+  }
+
+  // ── Compliance disclaimer ───────────────────────────────────────────────
+  checkPage(16);
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.3);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 5;
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "italic");
+  doc.setTextColor(100, 100, 100);
+  const disclaimer =
+    "This digital passport is designed to complement, not replace, the official FEI/BEF equine passport. " +
+    "Always carry the original passport when travelling or competing. " +
+    `Document ID: EP-${horse.id}-${Date.now()}`;
+  const disclaimerLines = doc.splitTextToSize(disclaimer, pageWidth - margin * 2);
+  doc.text(disclaimerLines, margin, y);
+
+  // ── Footer on final page ────────────────────────────────────────────────
+  addFooter(pageNum);
+
+  doc.save(filename);
+}
