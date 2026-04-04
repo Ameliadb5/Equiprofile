@@ -5,8 +5,6 @@
 import type { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 
-const DAY_MS = 86_400_000;
-
 // In-memory live visitor tracking (no DB needed)
 const liveVisitors = new Map<string, number>(); // visitorId → last-seen timestamp
 const LIVE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
@@ -61,14 +59,14 @@ function parseDeviceType(
  */
 export function analyticsMiddleware() {
   return async (req: Request, _res: Response, next: NextFunction) => {
-    // Only track GET requests for HTML pages (not API, assets)
+    // Only track GET requests for HTML pages (not API, assets, static files)
     if (
       req.method !== "GET" ||
       req.path.startsWith("/api/") ||
       req.path.startsWith("/trpc/") ||
       req.path.startsWith("/assets/") ||
       req.path.startsWith("/favicon") ||
-      req.path.includes(".")
+      /\.\w{2,5}$/.test(req.path) // skip file extensions like .js, .css, .png
     ) {
       return next();
     }
@@ -80,7 +78,7 @@ export function analyticsMiddleware() {
         req.socket?.remoteAddress ||
         "";
       const visitorId = hashFingerprint(ip, ua);
-      const referrer = (req.headers.referer || req.headers.referrer || "") as string;
+      const referrer = (req.headers.referer || "") as string;
 
       // Update live visitors
       liveVisitors.set(visitorId, Date.now());

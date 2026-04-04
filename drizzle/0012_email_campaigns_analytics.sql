@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `emailCampaignRecipients` (
 
 CREATE INDEX IF NOT EXISTS `ecr_campaign_idx` ON `emailCampaignRecipients` (`campaignId`);
 CREATE INDEX IF NOT EXISTS `ecr_email_idx` ON `emailCampaignRecipients` (`email`);
+CREATE UNIQUE INDEX IF NOT EXISTS `ecr_campaign_email_idx` ON `emailCampaignRecipients` (`campaignId`, `email`);
 
 CREATE TABLE IF NOT EXISTS `siteAnalytics` (
   `id` int AUTO_INCREMENT PRIMARY KEY,
