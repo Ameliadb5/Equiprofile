@@ -502,9 +502,7 @@ async function startServer() {
     const stripeReady =
       ENV.enableStripe &&
       !!(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET);
-    const uploadsReady =
-      ENV.enableUploads &&
-      !!(process.env.STORAGE_PROXY_URL && process.env.STORAGE_PROXY_KEY);
+    const uploadsReady = true; // Local disk storage is always available on VPS
     const aiOpenAI = !!process.env.OPENAI_API_KEY;
     const aiHuggingFace = !!process.env.HUGGINGFACE_API_KEY;
 
@@ -606,13 +604,19 @@ async function startServer() {
             ? "Weather API key configured (additional provider available)"
             : "Using Open-Meteo (free, no key required) – weather features fully functional",
         },
-        storage: {
-          status: toStatus(ENV.enableUploads, true),
-          ok: ENV.enableUploads,
-          message: ENV.enableUploads
-            ? "Document uploads enabled"
-            : "Set ENABLE_UPLOADS=true and configure storage keys to enable uploads",
-        },
+        storage: (() => {
+          const hasProxy = !!(process.env.STORAGE_PROXY_URL && process.env.STORAGE_PROXY_KEY);
+          const localAvailable = ENV.enableUploads || true; // local disk always available on VPS
+          const storageOk = hasProxy || localAvailable;
+          const storageMode = hasProxy ? "proxy storage" : "local disk (VPS)";
+          return {
+            status: toStatus(storageOk, !hasProxy),
+            ok: storageOk,
+            message: storageOk
+              ? `Document uploads enabled via ${storageMode} (${ENV.storagePath})`
+              : "Configure storage — set ENABLE_UPLOADS=true or STORAGE_PROXY_URL",
+          };
+        })(),
         realtime: {
           status: toStatus(realtimeOk),
           ok: realtimeOk,

@@ -12,6 +12,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 type EventHandler = (data: any) => void;
 
@@ -109,6 +110,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const reconnectTimeoutRef = useRef<number | undefined>(undefined);
   // Prevent double-connect in StrictMode
   const connectingRef = useRef(false);
+  const { isAuthenticated } = useAuth();
 
   const subscribe = useCallback(
     (eventType: string, handler: EventHandler): (() => void) => {
@@ -131,6 +133,22 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    // Only connect when the user is authenticated
+    if (!isAuthenticated) {
+      // Clean up any existing connection when user logs out
+      if (reconnectTimeoutRef.current !== undefined) {
+        window.clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = undefined;
+      }
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+      setIsConnected(false);
+      connectingRef.current = false;
+      return;
+    }
+
     if (connectingRef.current || eventSourceRef.current) return;
     connectingRef.current = true;
 
@@ -142,7 +160,6 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       });
 
       es.onopen = () => {
-        console.log("[SSE] Connected");
         setIsConnected(true);
         reconnectAttemptsRef.current = 0;
       };
@@ -153,7 +170,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         eventSourceRef.current = null;
 
         if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
-          console.error("[SSE] Max reconnect attempts reached");
+          connectingRef.current = false;
           return;
         }
 
@@ -163,16 +180,14 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
           RECONNECT_BASE_DELAY * Math.pow(2, attempt),
           120000,
         );
-        console.log(
-          `[SSE] Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})`,
-        );
         reconnectTimeoutRef.current = window.setTimeout(async () => {
           try {
             const res = await fetch("/api/trpc/auth.me", {
               credentials: "include",
             });
             if (res.status === 401) {
-              console.log("[SSE] Not authenticated, stopping reconnection");
+              // Not authenticated — stop reconnecting silently
+              connectingRef.current = false;
               return;
             }
           } catch {
@@ -218,7 +233,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       setIsConnected(false);
       connectingRef.current = false;
     };
-  }, []);
+  }, [isAuthenticated]);
 
   return (
     <RealtimeContext.Provider value={{ isConnected, subscribe }}>

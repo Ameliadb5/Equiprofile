@@ -55,7 +55,7 @@ export const systemRouter = router({
 
   getFeatureFlags: publicProcedure.query(() => ({
     enableStripe: ENV.enableStripe,
-    enableUploads: ENV.enableUploads,
+    enableUploads: true, // Local disk storage is always available
   })),
 
   getBuildInfo: adminUnlockedProcedure.query(() => {

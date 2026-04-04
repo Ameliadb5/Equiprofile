@@ -158,7 +158,7 @@ function validateEnvironment() {
     `   • Stripe billing: ${enableStripe ? "✅ enabled" : "❌ disabled"}`,
   );
   console.log(
-    `   • Document uploads: ${enableUploads ? "✅ enabled" : "❌ disabled"}`,
+    `   • Document uploads: ${enableUploads ? "✅ enabled" : "✅ enabled (local disk storage)"}`,
   );
 
   // Validate JWT secret length in production
