@@ -13,9 +13,9 @@ const LIVE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 function cleanLiveVisitors(): void {
   const cutoff = Date.now() - LIVE_TIMEOUT_MS;
-  for (const [id, ts] of liveVisitors) {
+  liveVisitors.forEach((ts, id) => {
     if (ts < cutoff) liveVisitors.delete(id);
-  }
+  });
 }
 
 setInterval(cleanLiveVisitors, 60_000);
@@ -92,7 +92,7 @@ export function analyticsMiddleware() {
           deviceType: parseDeviceType(ua),
           duration: 0,
           isCtaClick: false,
-          userId: (req as Record<string, unknown>).userId as number | undefined ?? null,
+          userId: ((req as unknown as Record<string, unknown>).userId as number | undefined) ?? null,
         });
       }
     } catch {
