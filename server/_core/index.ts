@@ -20,7 +20,8 @@ import { nanoid } from "nanoid";
 import Stripe from "stripe";
 import * as db from "../db";
 import { getDb } from "../db";
-import { contactSubmissions } from "../../drizzle/schema";
+import { contactSubmissions, users } from "../../drizzle/schema";
+import { sql, eq } from "drizzle-orm";
 import { getStripe, validatePricingConfig, PRICING_PLANS } from "../stripe";
 import * as email from "./email";
 import { ENV } from "./env";
@@ -788,6 +789,13 @@ async function startServer() {
   // Sales Chat & Lead Capture (public, rate-limited)
   app.use("/api", salesChatRouter);
 
+  // Internal site analytics — page view tracking middleware
+  const { analyticsMiddleware, trackCtaClick } = await import(
+    "./analyticsTracker"
+  );
+  app.use(analyticsMiddleware());
+  app.post("/api/analytics/cta", express.json(), trackCtaClick);
+
   // Test email endpoint (admin only) - tightly rate-limited to prevent email abuse
   const adminEmailLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
@@ -957,18 +965,19 @@ async function startServer() {
                     if (db) {
                       // Find users with this phone number and disable their WhatsApp preferences
                       const phone = message.from.startsWith("+") ? message.from : `+${message.from}`;
-                      const [rows] = await db.execute(
-                        `SELECT id, preferences FROM users WHERE JSON_UNQUOTE(JSON_EXTRACT(preferences, '$.whatsappPhone')) = ?`,
-                        [phone],
-                      );
-                      const users = rows as Array<{ id: number; preferences: string | null }>;
-                      for (const user of users) {
+                      const matchedUsers = await db
+                        .select({ id: users.id, preferences: users.preferences })
+                        .from(users)
+                        .where(
+                          sql`JSON_UNQUOTE(JSON_EXTRACT(${users.preferences}, '$.whatsappPhone')) = ${phone}`,
+                        );
+                      for (const user of matchedUsers) {
                         const prefs = user.preferences ? JSON.parse(user.preferences) : {};
                         prefs.whatsappReminders = false;
-                        await db.execute(
-                          `UPDATE users SET preferences = ? WHERE id = ?`,
-                          [JSON.stringify(prefs), user.id],
-                        );
+                        await db
+                          .update(users)
+                          .set({ preferences: JSON.stringify(prefs) })
+                          .where(eq(users.id, user.id));
                         console.log(`[WhatsApp] Opted out user ${user.id} from WhatsApp notifications`);
                       }
                     }

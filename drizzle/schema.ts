@@ -1248,3 +1248,65 @@ export const siteSettings = mysqlTable("siteSettings", {
 
 export type SiteSetting = typeof siteSettings.$inferSelect;
 export type InsertSiteSetting = typeof siteSettings.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Email campaigns – admin-sent marketing/outreach emails
+// ─────────────────────────────────────────────────────────────────────────────
+export const emailCampaigns = mysqlTable("emailCampaigns", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  htmlBody: text("htmlBody").notNull(),
+  templateId: varchar("templateId", { length: 50 }),
+  segment: varchar("segment", { length: 50 }).notNull(), // 'leads','trial','paid','all'
+  customFilter: text("customFilter"), // JSON filter criteria for custom segments
+  recipientCount: int("recipientCount").default(0).notNull(),
+  sentCount: int("sentCount").default(0).notNull(),
+  failedCount: int("failedCount").default(0).notNull(),
+  status: varchar("status", { length: 30 }).default("draft").notNull(), // draft, sending, sent, failed
+  sentAt: timestamp("sentAt"),
+  sentByUserId: int("sentByUserId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EmailCampaign = typeof emailCampaigns.$inferSelect;
+export type InsertEmailCampaign = typeof emailCampaigns.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Email campaign recipients – tracks individual sends to prevent duplicates
+// ─────────────────────────────────────────────────────────────────────────────
+export const emailCampaignRecipients = mysqlTable("emailCampaignRecipients", {
+  id: int("id").autoincrement().primaryKey(),
+  campaignId: int("campaignId").notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  name: varchar("name", { length: 200 }),
+  status: varchar("status", { length: 30 }).default("pending").notNull(), // pending, sent, failed
+  sentAt: timestamp("sentAt"),
+  error: text("error"),
+});
+
+export type EmailCampaignRecipient = typeof emailCampaignRecipients.$inferSelect;
+export type InsertEmailCampaignRecipient = typeof emailCampaignRecipients.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Site analytics – lightweight page view / session tracking
+// ─────────────────────────────────────────────────────────────────────────────
+export const siteAnalytics = mysqlTable("siteAnalytics", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 64 }).notNull(),
+  visitorId: varchar("visitorId", { length: 64 }).notNull(), // hashed fingerprint
+  path: varchar("path", { length: 500 }).notNull(),
+  referrer: varchar("referrer", { length: 500 }),
+  userAgent: varchar("userAgent", { length: 500 }),
+  deviceType: varchar("deviceType", { length: 20 }), // desktop, mobile, tablet
+  country: varchar("country", { length: 10 }),
+  duration: int("duration").default(0), // seconds spent on page
+  isCtaClick: boolean("isCtaClick").default(false),
+  ctaType: varchar("ctaType", { length: 50 }), // signup, trial, upgrade, etc.
+  userId: int("userId"), // if authenticated
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SiteAnalytic = typeof siteAnalytics.$inferSelect;
+export type InsertSiteAnalytic = typeof siteAnalytics.$inferInsert;
