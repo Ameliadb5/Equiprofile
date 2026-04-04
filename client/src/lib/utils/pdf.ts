@@ -118,8 +118,8 @@ export async function generatePDFFromHTML(
   // runs) guarantees that the cloned document inherits safe, non-oklch values
   // for every CSS custom property — even from compiled stylesheet bundles that
   // are copied after the onclone callback fires.
-  let liveOverrideStyle: HTMLStyleElement | null = null;
-  if (!document.getElementById(PDF_SAFE_STYLE_ID)) {
+  let liveOverrideStyle: HTMLStyleElement | null = document.getElementById(PDF_SAFE_STYLE_ID) as HTMLStyleElement | null;
+  if (!liveOverrideStyle) {
     liveOverrideStyle = document.createElement("style");
     liveOverrideStyle.id = PDF_SAFE_STYLE_ID;
     liveOverrideStyle.textContent = PDF_SAFE_CSS;
@@ -190,10 +190,10 @@ export async function generatePDFFromHTML(
     console.error("Error generating PDF:", error);
     throw new Error("Failed to generate PDF");
   } finally {
-    // Always remove the live-document override so it does not affect normal page rendering
-    if (liveOverrideStyle) {
-      liveOverrideStyle.remove();
-    }
+    // Always remove the live-document override (whether we created it or found
+    // a pre-existing one) so it does not affect normal page rendering.
+    const el = document.getElementById(PDF_SAFE_STYLE_ID);
+    if (el) el.remove();
   }
 }
 
