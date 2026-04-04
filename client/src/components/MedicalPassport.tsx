@@ -4,7 +4,7 @@ import { QrCode, Download, Share2, Printer, Shield, Loader2 } from "lucide-react
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { generateQRCode } from "../lib/utils/qrcode";
-import { generatePDFFromHTML } from "../lib/utils/pdf";
+import { generatePassportPDF } from "../lib/utils/pdf";
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
 import {
@@ -74,20 +74,24 @@ export function MedicalPassport({
   };
 
   const handleExportPDF = async () => {
-    if (passportRef.current) {
-      setIsExporting(true);
-      try {
-        await generatePDFFromHTML(passportRef.current, {
-          filename: `${horse.name.toLowerCase().replace(/\s+/g, "-")}-passport.pdf`,
-          orientation: "portrait",
-        });
-        toast.success("PDF exported successfully");
-      } catch (err) {
-        console.error("PDF export error:", err);
-        toast.error("Failed to export PDF. Please try again.");
-      } finally {
-        setIsExporting(false);
-      }
+    setIsExporting(true);
+    try {
+      await generatePassportPDF(
+        {
+          horse,
+          vaccinations,
+          dewormings,
+          healthRecords,
+          qrCode: qrCodeUrl || undefined,
+        },
+        `${horse.name.toLowerCase().replace(/\s+/g, "-")}-passport.pdf`,
+      );
+      toast.success("PDF exported successfully");
+    } catch (err) {
+      console.error("PDF export error:", err);
+      toast.error("Failed to export PDF. Please try again.");
+    } finally {
+      setIsExporting(false);
     }
   };
 
