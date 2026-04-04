@@ -13,15 +13,22 @@ export interface PDFOptions {
 }
 
 /**
- * Replaces oklch() CSS custom property values with safe hex/rgb fallbacks so
- * that html2canvas can render the snapshot correctly.  The oklch() color space
+ * Replaces oklch() CSS values throughout the cloned document so that
+ * html2canvas can render the snapshot correctly.  The oklch() color space
  * is not supported by the canvas 2D drawing model used internally by
- * html2canvas, which causes the PDF to render with blank/black areas.
+ * html2canvas, which causes "unsupported color function" errors and
+ * blank/black areas in the generated PDF.
+ *
+ * This function:
+ *  1. Overrides all CSS custom properties with safe hex/rgb values
+ *  2. Sanitises every <style> element, replacing oklch() with hex fallbacks
+ *  3. Strips oklch() from inline styles on all elements
  */
 function injectPdfSafeStyles(doc: Document): void {
+  // 1 ─ Override CSS custom properties with safe values
   const style = doc.createElement("style");
   style.textContent = `
-    :root, * {
+    :root, *, .dark {
       --background: #f7f8fc !important;
       --foreground: #1a1a1a !important;
       --card: #ffffff !important;
@@ -61,6 +68,26 @@ function injectPdfSafeStyles(doc: Document): void {
     }
   `;
   doc.head.appendChild(style);
+
+  // 2 ─ Walk every <style> element in the clone and replace oklch() values
+  //     with a generic safe fallback. This catches direct oklch() usage in
+  //     gradients, box-shadows, and animations that CSS variable overrides
+  //     cannot reach.
+  const oklchPattern = /oklch\([^)]*\)/gi;
+  const fallbackColor = "#2563eb"; // safe blue fallback
+  doc.querySelectorAll("style").forEach((el) => {
+    if (el.textContent && oklchPattern.test(el.textContent)) {
+      el.textContent = el.textContent.replace(oklchPattern, fallbackColor);
+    }
+  });
+
+  // 3 ─ Strip oklch() from inline styles on all elements
+  doc.querySelectorAll("[style]").forEach((el) => {
+    const s = el.getAttribute("style");
+    if (s && oklchPattern.test(s)) {
+      el.setAttribute("style", s.replace(oklchPattern, fallbackColor));
+    }
+  });
 }
 
 export async function generatePDFFromHTML(

@@ -530,7 +530,7 @@ function DocumentsContent() {
                     className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${cfg.gradient} text-white`}
                   >
                     {getCategoryIcon(
-                      doc.category || "other",
+                      doc.category === "other" && doc.fileType?.startsWith("image/") ? "gallery" : (doc.category || "other"),
                       doc.fileType || undefined,
                     )}
                   </div>

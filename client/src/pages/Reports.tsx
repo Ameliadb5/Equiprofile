@@ -255,22 +255,22 @@ export default function Reports() {
       doc.setFillColor(...BRAND_ACCENT_RGB);
       doc.rect(0, 36, pageWidth, 1.5, "F");
 
-      // Add logo to letterhead if available
+      // Add logo to letterhead if available — preserve 1.79:1 landscape aspect ratio
       if (logoBase64) {
         try {
-          doc.addImage(logoBase64, "PNG", 12, 5, 18, 22);
+          doc.addImage(logoBase64, "PNG", 12, 7, 24, 13.5);
         } catch { /* logo embed failed, continue without */ }
       }
 
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
-      doc.text("EquiProfile", logoBase64 ? 34 : 16, 16);
+      doc.text("EquiProfile", logoBase64 ? 39 : 16, 16);
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
-      doc.text("Professional Equine Management", logoBase64 ? 34 : 16, 24);
+      doc.text("Professional Equine Management", logoBase64 ? 39 : 16, 24);
       doc.setFontSize(8);
-      doc.text("www.equiprofile.online", logoBase64 ? 34 : 16, 30);
+      doc.text("www.equiprofile.online", logoBase64 ? 39 : 16, 30);
       doc.text(
         `Generated: ${new Date(report.generatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`,
         pageWidth - 16,

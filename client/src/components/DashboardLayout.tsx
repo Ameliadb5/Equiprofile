@@ -378,9 +378,9 @@ function DashboardLayoutContent({
                   <img
                     src="/logo.png"
                     alt="EquiProfile"
-                    className="h-9 w-auto object-contain shrink-0"
+                    className="h-10 w-auto object-contain shrink-0"
                   />
-                  <span className="text-base font-bold tracking-tight text-sidebar-foreground truncate">
+                  <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent truncate">
                     EquiProfile
                   </span>
                 </div>
