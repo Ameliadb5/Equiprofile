@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
@@ -77,9 +77,14 @@ import {
   Gift,
   RotateCcw,
   Smartphone,
+  Mail,
+  BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+
+const AdminCampaigns = lazy(() => import("./AdminCampaigns"));
+const AdminAnalytics = lazy(() => import("./AdminAnalytics"));
 
 function hasUserFreeAccess(user: { preferences?: string | null }): boolean {
   if (!user.preferences) return false;
@@ -519,6 +524,20 @@ function AdminContent() {
           >
             <Trash2 className="w-4 h-4" />
             <span className="hidden sm:inline">Deleted</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="campaigns"
+            className="flex items-center gap-1.5 shrink-0"
+          >
+            <Mail className="w-4 h-4" />
+            <span className="hidden sm:inline">Campaigns</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="analytics"
+            className="flex items-center gap-1.5 shrink-0"
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span className="hidden sm:inline">Analytics</span>
           </TabsTrigger>
         </TabsList>
 
@@ -1734,6 +1753,32 @@ function AdminContent() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Campaigns Tab */}
+        <TabsContent value="campaigns">
+          <Suspense
+            fallback={
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            }
+          >
+            <AdminCampaigns />
+          </Suspense>
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics">
+          <Suspense
+            fallback={
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            }
+          >
+            <AdminAnalytics />
+          </Suspense>
         </TabsContent>
       </Tabs>
     </div>
