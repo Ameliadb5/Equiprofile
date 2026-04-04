@@ -57,7 +57,17 @@ import {
   siteSettings,
   chatLeads,
   users,
+  emailCampaigns,
+  emailCampaignRecipients,
+  siteAnalytics,
 } from "../drizzle/schema";
+import {
+  CAMPAIGN_TEMPLATES,
+  getTemplateById,
+  applyMergeFields,
+} from "./_core/emailTemplates";
+import { sendEmail } from "./_core/email";
+import { getLiveVisitorCount } from "./_core/analyticsTracker";
 
 // Allowed MIME types for document and avatar uploads
 const ALLOWED_UPLOAD_MIME_TYPES = [
@@ -3247,6 +3257,513 @@ Format your response as JSON with keys: recommendation, explanation, precautions
       if (!dbConn) return [];
       return dbConn.select().from(chatLeads).orderBy(desc(chatLeads.createdAt));
     }),
+
+    // ──────────────────────────────────────────────────────────
+    // Email Campaign Management
+    // ──────────────────────────────────────────────────────────
+
+    getTemplates: adminUnlockedProcedure.query(() => {
+      return CAMPAIGN_TEMPLATES.map((t) => ({
+        id: t.id,
+        name: t.name,
+        description: t.description,
+        previewColor: t.previewColor,
+      }));
+    }),
+
+    previewTemplate: adminUnlockedProcedure
+      .input(
+        z.object({
+          templateId: z.string(),
+          mergeFields: z
+            .object({
+              firstName: z.string().optional(),
+              subject: z.string().optional(),
+              content: z.string().optional(),
+            })
+            .optional(),
+        }),
+      )
+      .query(({ input }) => {
+        const tpl = getTemplateById(input.templateId);
+        if (!tpl) throw new TRPCError({ code: "NOT_FOUND", message: "Template not found" });
+        const html = applyMergeFields(tpl.getHtml(), {
+          firstName: input.mergeFields?.firstName || "Preview User",
+          email: "preview@example.com",
+          currentDate: new Date().toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+          subject: input.mergeFields?.subject || "Campaign Subject",
+          content: input.mergeFields?.content || "Your campaign content goes here.",
+        });
+        return { html };
+      }),
+
+    getSegmentCounts: adminUnlockedProcedure.query(async () => {
+      const dbConn = await getDb();
+      if (!dbConn) return { leads: 0, trial: 0, paid: 0, all: 0 };
+
+      const [leadsResult] = await dbConn
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(chatLeads);
+      const [trialResult] = await dbConn
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(users)
+        .where(
+          and(
+            eq(users.subscriptionStatus, "trial"),
+            eq(users.isActive, true),
+          ),
+        );
+      const [paidResult] = await dbConn
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(users)
+        .where(
+          and(eq(users.subscriptionStatus, "active"), eq(users.isActive, true)),
+        );
+      const [allResult] = await dbConn
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(users)
+        .where(eq(users.isActive, true));
+
+      return {
+        leads: leadsResult?.count || 0,
+        trial: trialResult?.count || 0,
+        paid: paidResult?.count || 0,
+        all: allResult?.count || 0,
+      };
+    }),
+
+    getCampaigns: adminUnlockedProcedure.query(async () => {
+      const dbConn = await getDb();
+      if (!dbConn) return [];
+      return dbConn
+        .select()
+        .from(emailCampaigns)
+        .orderBy(desc(emailCampaigns.createdAt));
+    }),
+
+    getCampaignDetails: adminUnlockedProcedure
+      .input(z.object({ campaignId: z.number() }))
+      .query(async ({ input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        const [campaign] = await dbConn
+          .select()
+          .from(emailCampaigns)
+          .where(eq(emailCampaigns.id, input.campaignId));
+        if (!campaign) throw new TRPCError({ code: "NOT_FOUND" });
+
+        const recipients = await dbConn
+          .select()
+          .from(emailCampaignRecipients)
+          .where(eq(emailCampaignRecipients.campaignId, input.campaignId));
+
+        return { campaign, recipients };
+      }),
+
+    createCampaign: adminUnlockedProcedure
+      .input(
+        z.object({
+          name: z.string().min(1).max(200),
+          subject: z.string().min(1).max(500),
+          templateId: z.string(),
+          segment: z.enum(["leads", "trial", "paid", "all"]),
+          mergeFields: z
+            .object({
+              subject: z.string().optional(),
+              content: z.string().optional(),
+            })
+            .optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        const tpl = getTemplateById(input.templateId);
+        if (!tpl) throw new TRPCError({ code: "NOT_FOUND", message: "Template not found" });
+
+        const htmlBody = tpl.getHtml();
+
+        const result = await dbConn.insert(emailCampaigns).values({
+          name: input.name,
+          subject: input.subject,
+          htmlBody,
+          templateId: input.templateId,
+          segment: input.segment,
+          status: "draft",
+          sentByUserId: ctx.user.id,
+        });
+
+        return { id: result[0].insertId };
+      }),
+
+    sendTestEmail: adminUnlockedProcedure
+      .input(
+        z.object({
+          templateId: z.string(),
+          subject: z.string(),
+          mergeFields: z
+            .object({
+              firstName: z.string().optional(),
+              subject: z.string().optional(),
+              content: z.string().optional(),
+            })
+            .optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const tpl = getTemplateById(input.templateId);
+        if (!tpl) throw new TRPCError({ code: "NOT_FOUND", message: "Template not found" });
+
+        const html = applyMergeFields(tpl.getHtml(), {
+          firstName: input.mergeFields?.firstName || ctx.user.name?.split(" ")[0] || "Admin",
+          email: ctx.user.email || "",
+          currentDate: new Date().toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+          subject: input.mergeFields?.subject || input.subject,
+          content: input.mergeFields?.content || "",
+        });
+
+        if (!ctx.user.email) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Admin email not found" });
+        }
+
+        await sendEmail(ctx.user.email, `[TEST] ${input.subject}`, html);
+        return { success: true };
+      }),
+
+    sendCampaign: adminUnlockedProcedure
+      .input(z.object({ campaignId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        // Get campaign
+        const [campaign] = await dbConn
+          .select()
+          .from(emailCampaigns)
+          .where(eq(emailCampaigns.id, input.campaignId));
+
+        if (!campaign)
+          throw new TRPCError({ code: "NOT_FOUND", message: "Campaign not found" });
+        if (campaign.status === "sent")
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Campaign already sent" });
+        if (campaign.status === "sending")
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Campaign is currently sending" });
+
+        // Mark as sending
+        await dbConn
+          .update(emailCampaigns)
+          .set({ status: "sending" })
+          .where(eq(emailCampaigns.id, input.campaignId));
+
+        // Build recipient list based on segment
+        type Recipient = { email: string; name: string | null; trialEndsAt?: Date | null };
+        let recipients: Recipient[] = [];
+
+        if (campaign.segment === "leads") {
+          const leads = await dbConn.select().from(chatLeads);
+          recipients = leads.map((l) => ({ email: l.email, name: l.name }));
+        } else {
+          let condition;
+          if (campaign.segment === "trial") {
+            condition = and(
+              eq(users.subscriptionStatus, "trial"),
+              eq(users.isActive, true),
+            );
+          } else if (campaign.segment === "paid") {
+            condition = and(
+              eq(users.subscriptionStatus, "active"),
+              eq(users.isActive, true),
+            );
+          } else {
+            condition = eq(users.isActive, true);
+          }
+
+          const userList = await dbConn
+            .select({
+              email: users.email,
+              name: users.name,
+              trialEndsAt: users.trialEndsAt,
+            })
+            .from(users)
+            .where(condition);
+          recipients = userList.filter((u) => u.email) as Recipient[];
+        }
+
+        // Deduplicate by email
+        const seen = new Set<string>();
+        const uniqueRecipients = recipients.filter((r) => {
+          if (!r.email || seen.has(r.email.toLowerCase())) return false;
+          seen.add(r.email.toLowerCase());
+          return true;
+        });
+
+        // Update recipient count
+        await dbConn
+          .update(emailCampaigns)
+          .set({ recipientCount: uniqueRecipients.length })
+          .where(eq(emailCampaigns.id, input.campaignId));
+
+        // Insert recipient records and send emails
+        let sentCount = 0;
+        let failedCount = 0;
+        const currentDate = new Date().toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+
+        for (const recipient of uniqueRecipients) {
+          try {
+            const firstName =
+              recipient.name?.split(" ")[0] || "there";
+            const html = applyMergeFields(campaign.htmlBody, {
+              firstName,
+              email: recipient.email,
+              currentDate,
+              trialEndDate: recipient.trialEndsAt
+                ? new Date(recipient.trialEndsAt).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "",
+            });
+
+            await sendEmail(recipient.email, campaign.subject, html);
+
+            await dbConn.insert(emailCampaignRecipients).values({
+              campaignId: input.campaignId,
+              email: recipient.email,
+              name: recipient.name || null,
+              status: "sent",
+              sentAt: new Date(),
+            });
+            sentCount++;
+          } catch (err) {
+            await dbConn.insert(emailCampaignRecipients).values({
+              campaignId: input.campaignId,
+              email: recipient.email,
+              name: recipient.name || null,
+              status: "failed",
+              error: err instanceof Error ? err.message : "Unknown error",
+            });
+            failedCount++;
+          }
+        }
+
+        // Mark campaign as sent
+        await dbConn
+          .update(emailCampaigns)
+          .set({
+            status: "sent",
+            sentCount,
+            failedCount,
+            sentAt: new Date(),
+          })
+          .where(eq(emailCampaigns.id, input.campaignId));
+
+        // Log activity
+        await db.logActivity({
+          userId: ctx.user.id,
+          action: "campaign_sent",
+          entityType: "campaign",
+          entityId: input.campaignId,
+          details: JSON.stringify({
+            name: campaign.name,
+            segment: campaign.segment,
+            sentCount,
+            failedCount,
+          }),
+        });
+
+        return { sentCount, failedCount, total: uniqueRecipients.length };
+      }),
+
+    deleteCampaign: adminUnlockedProcedure
+      .input(z.object({ campaignId: z.number() }))
+      .mutation(async ({ input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        await dbConn
+          .delete(emailCampaignRecipients)
+          .where(eq(emailCampaignRecipients.campaignId, input.campaignId));
+        await dbConn
+          .delete(emailCampaigns)
+          .where(eq(emailCampaigns.id, input.campaignId));
+
+        return { success: true };
+      }),
+
+    // ──────────────────────────────────────────────────────────
+    // Internal Site Analytics
+    // ──────────────────────────────────────────────────────────
+
+    getAnalytics: adminUnlockedProcedure
+      .input(
+        z.object({
+          period: z.enum(["day", "week", "month"]).default("week"),
+        }),
+      )
+      .query(async ({ input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) {
+          return {
+            totalVisits: 0,
+            uniqueVisitors: 0,
+            pageViews: 0,
+            avgSessionDuration: 0,
+            liveVisitors: 0,
+            topPages: [],
+            ctaClicks: 0,
+            leadCaptures: 0,
+            signupConversions: 0,
+            trialToPaid: 0,
+            trafficSources: [],
+            deviceBreakdown: [],
+            dailyTrend: [],
+          };
+        }
+
+        const now = new Date();
+        let startDate: Date;
+        if (input.period === "day") {
+          startDate = new Date(now.getTime() - 86_400_000);
+        } else if (input.period === "week") {
+          startDate = new Date(now.getTime() - 7 * 86_400_000);
+        } else {
+          startDate = new Date(now.getTime() - 30 * 86_400_000);
+        }
+
+        // Total visits (all page views in period)
+        const [visitsResult] = await dbConn
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(siteAnalytics)
+          .where(gte(siteAnalytics.createdAt, startDate));
+
+        // Unique visitors
+        const [uniqueResult] = await dbConn
+          .select({
+            count: sql<number>`COUNT(DISTINCT ${siteAnalytics.visitorId})`,
+          })
+          .from(siteAnalytics)
+          .where(gte(siteAnalytics.createdAt, startDate));
+
+        // Avg session duration
+        const [durationResult] = await dbConn
+          .select({
+            avg: sql<number>`COALESCE(AVG(${siteAnalytics.duration}), 0)`,
+          })
+          .from(siteAnalytics)
+          .where(gte(siteAnalytics.createdAt, startDate));
+
+        // Top pages
+        const topPages = await dbConn
+          .select({
+            path: siteAnalytics.path,
+            views: sql<number>`COUNT(*)`,
+          })
+          .from(siteAnalytics)
+          .where(gte(siteAnalytics.createdAt, startDate))
+          .groupBy(siteAnalytics.path)
+          .orderBy(sql`COUNT(*) DESC`)
+          .limit(10);
+
+        // CTA clicks
+        const [ctaResult] = await dbConn
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(siteAnalytics)
+          .where(
+            and(
+              gte(siteAnalytics.createdAt, startDate),
+              eq(siteAnalytics.isCtaClick, true),
+            ),
+          );
+
+        // Lead captures (chatLeads in period)
+        const [leadsResult] = await dbConn
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(chatLeads)
+          .where(gte(chatLeads.createdAt, startDate));
+
+        // Signup conversions (new users in period)
+        const [signupsResult] = await dbConn
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(users)
+          .where(gte(users.createdAt, startDate));
+
+        // Trial-to-paid conversions
+        const [t2pResult] = await dbConn
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(users)
+          .where(
+            and(
+              eq(users.subscriptionStatus, "active"),
+              gte(users.lastPaymentAt, startDate),
+            ),
+          );
+
+        // Traffic sources (referrers)
+        const trafficSources = await dbConn
+          .select({
+            source: sql<string>`COALESCE(NULLIF(${siteAnalytics.referrer}, ''), 'Direct')`,
+            count: sql<number>`COUNT(*)`,
+          })
+          .from(siteAnalytics)
+          .where(gte(siteAnalytics.createdAt, startDate))
+          .groupBy(sql`COALESCE(NULLIF(${siteAnalytics.referrer}, ''), 'Direct')`)
+          .orderBy(sql`COUNT(*) DESC`)
+          .limit(10);
+
+        // Device breakdown
+        const deviceBreakdown = await dbConn
+          .select({
+            device: sql<string>`COALESCE(${siteAnalytics.deviceType}, 'unknown')`,
+            count: sql<number>`COUNT(*)`,
+          })
+          .from(siteAnalytics)
+          .where(gte(siteAnalytics.createdAt, startDate))
+          .groupBy(sql`COALESCE(${siteAnalytics.deviceType}, 'unknown')`)
+          .orderBy(sql`COUNT(*) DESC`);
+
+        // Daily trend
+        const dailyTrend = await dbConn
+          .select({
+            date: sql<string>`DATE(${siteAnalytics.createdAt})`,
+            views: sql<number>`COUNT(*)`,
+            visitors: sql<number>`COUNT(DISTINCT ${siteAnalytics.visitorId})`,
+          })
+          .from(siteAnalytics)
+          .where(gte(siteAnalytics.createdAt, startDate))
+          .groupBy(sql`DATE(${siteAnalytics.createdAt})`)
+          .orderBy(sql`DATE(${siteAnalytics.createdAt})`);
+
+        return {
+          totalVisits: visitsResult?.count || 0,
+          uniqueVisitors: uniqueResult?.count || 0,
+          pageViews: visitsResult?.count || 0,
+          avgSessionDuration: Math.round(Number(durationResult?.avg) || 0),
+          liveVisitors: getLiveVisitorCount(),
+          topPages,
+          ctaClicks: ctaResult?.count || 0,
+          leadCaptures: leadsResult?.count || 0,
+          signupConversions: signupsResult?.count || 0,
+          trialToPaid: t2pResult?.count || 0,
+          trafficSources,
+          deviceBreakdown,
+          dailyTrend,
+        };
+      }),
   }),
 
   // Stable management

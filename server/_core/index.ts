@@ -788,6 +788,13 @@ async function startServer() {
   // Sales Chat & Lead Capture (public, rate-limited)
   app.use("/api", salesChatRouter);
 
+  // Internal site analytics — page view tracking middleware
+  const { analyticsMiddleware, trackCtaClick } = await import(
+    "./analyticsTracker"
+  );
+  app.use(analyticsMiddleware());
+  app.post("/api/analytics/cta", express.json(), trackCtaClick);
+
   // Test email endpoint (admin only) - tightly rate-limited to prevent email abuse
   const adminEmailLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
