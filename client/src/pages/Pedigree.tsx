@@ -183,7 +183,7 @@ export default function Pedigree() {
                     )}
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-4xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>
                       {pedigreeData ? "Edit Pedigree" : "Add Pedigree"}
