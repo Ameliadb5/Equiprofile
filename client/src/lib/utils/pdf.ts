@@ -69,44 +69,60 @@ export async function generatePDFFromHTML(
   } = options;
 
   try {
-    // Convert HTML to canvas, sanitising oklch colours that html2canvas cannot render
-    const canvas = await html2canvas(element, {
-      scale: 2, // Higher quality
-      logging: false,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      onclone: (documentClone: Document) => {
-        injectPdfSafeStyles(documentClone);
-      },
-    });
+    // Clone element for rendering to avoid modifying the DOM
+    const clone = element.cloneNode(true) as HTMLElement;
+    clone.style.position = "absolute";
+    clone.style.left = "-9999px";
+    clone.style.top = "0";
+    clone.style.width = `${element.scrollWidth}px`;
+    document.body.appendChild(clone);
 
-    const imgData = canvas.toDataURL("image/png");
-    const imgWidth = format === "a4" ? 210 : 216; // A4 or Letter width in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    try {
+      // Convert HTML to canvas, sanitising oklch colours that html2canvas cannot render
+      const canvas = await html2canvas(clone, {
+        scale: 2, // Higher quality
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        width: element.scrollWidth,
+        height: element.scrollHeight,
+        onclone: (documentClone: Document) => {
+          injectPdfSafeStyles(documentClone);
+        },
+      });
 
-    // Create PDF
-    const pdf = new jsPDF({
-      orientation,
-      unit: "mm",
-      format,
-    });
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const imgWidth = format === "a4" ? 210 : 216; // A4 or Letter width in mm
+      const pageHeight = format === "a4" ? 297 : 279; // A4 or Letter height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    let heightLeft = imgHeight;
-    let position = 0;
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation,
+        unit: "mm",
+        format,
+      });
 
-    // Add image to PDF (handle multiple pages if needed)
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pdf.internal.pageSize.getHeight();
+      let heightLeft = imgHeight;
+      let position = 0;
 
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pdf.internal.pageSize.getHeight();
+      // Add image to PDF (handle multiple pages if needed)
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = -(imgHeight - heightLeft);
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      // Save PDF
+      pdf.save(filename);
+    } finally {
+      document.body.removeChild(clone);
     }
-
-    // Save PDF
-    pdf.save(filename);
   } catch (error) {
     console.error("Error generating PDF:", error);
     throw new Error("Failed to generate PDF");

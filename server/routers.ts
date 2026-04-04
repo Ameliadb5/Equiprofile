@@ -2194,7 +2194,8 @@ export const appRouter = router({
           fileSize: buffer.length,
           fileUrl: url,
           fileKey,
-          category: input.category,
+          // Auto-classify images as "gallery" when no category is specified
+          category: input.category || (finalFileType.startsWith("image/") ? "gallery" : "other"),
           description: input.description,
         });
 

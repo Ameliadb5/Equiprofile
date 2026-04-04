@@ -375,9 +375,11 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-serif font-bold tracking-tight truncate bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                    EquiProfile
-                  </span>
+                  <img
+                    src="/logo.png"
+                    alt="EquiProfile"
+                    className="h-8 w-auto object-contain"
+                  />
                 </div>
               ) : null}
             </div>
