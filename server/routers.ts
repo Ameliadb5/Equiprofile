@@ -3182,7 +3182,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         checks,
         featureFlags: {
           enableStripe: ENV.enableStripe,
-          enableUploads: ENV.enableUploads,
+          enableUploads: true, // Local disk storage always available
         },
         environment: process.env.NODE_ENV || "development",
         timestamp: new Date().toISOString(),

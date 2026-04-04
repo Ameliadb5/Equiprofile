@@ -102,13 +102,18 @@ export function Navbar(_props: NavbarProps = {}) {
           {/* Logo */}
           <Link
             href={isAuthenticated ? "/dashboard" : "/"}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <img
               src="/logo.png"
               alt="EquiProfile"
-              className="h-10 w-auto object-contain"
+              className="h-12 w-auto object-contain"
             />
+            <span className={`text-xl font-bold tracking-tight ${
+              showLight ? "text-gray-900" : "text-white"
+            }`}>
+              EquiProfile
+            </span>
           </Link>
 
           {/* Desktop Navigation */}

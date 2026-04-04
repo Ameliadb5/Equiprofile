@@ -48,8 +48,9 @@ import { trpc } from "../lib/trpc";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
 
-/** Brand color for PDF letterhead */
-const BRAND_BLUE_RGB = [15, 46, 107] as const;
+/** Brand color for PDF letterhead — premium dark navy */
+const BRAND_BLUE_RGB = [12, 35, 82] as const;
+const BRAND_ACCENT_RGB = [37, 99, 235] as const;
 
 const REPORT_TYPES = [
   { value: "monthly_summary", label: "Monthly Summary" },
@@ -248,44 +249,45 @@ export default function Reports() {
 
       // Letterhead — darker premium blue
       doc.setFillColor(...BRAND_BLUE_RGB);
-      doc.rect(0, 0, pageWidth, 32, "F");
+      doc.rect(0, 0, pageWidth, 36, "F");
+
+      // Accent line below header
+      doc.setFillColor(...BRAND_ACCENT_RGB);
+      doc.rect(0, 36, pageWidth, 1.5, "F");
 
       // Add logo to letterhead if available
       if (logoBase64) {
         try {
-          doc.addImage(logoBase64, "PNG", 10, 4, 20, 24);
+          doc.addImage(logoBase64, "PNG", 12, 5, 18, 22);
         } catch { /* logo embed failed, continue without */ }
       }
 
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(20);
+      doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
-      doc.text("EquiProfile", logoBase64 ? 34 : 14, 15);
+      doc.text("EquiProfile", logoBase64 ? 34 : 16, 16);
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
-      doc.text("Professional Equine Management  |  equiprofile.online", logoBase64 ? 34 : 14, 23);
+      doc.text("Professional Equine Management", logoBase64 ? 34 : 16, 24);
+      doc.setFontSize(8);
+      doc.text("www.equiprofile.online", logoBase64 ? 34 : 16, 30);
       doc.text(
         `Generated: ${new Date(report.generatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`,
-        pageWidth - 14,
-        23,
+        pageWidth - 16,
+        30,
         { align: "right" },
       );
 
-      // Accent line below header
-      doc.setDrawColor(...BRAND_BLUE_RGB);
-      doc.setLineWidth(0.8);
-      doc.line(0, 32, pageWidth, 32);
-
-      y = 44;
+      y = 50;
       // Report title
       doc.setTextColor(...BRAND_BLUE_RGB);
       doc.setFontSize(18);
       doc.setFont("helvetica", "bold");
-      doc.text(report.title, 14, y);
+      doc.text(report.title, 16, y);
       y += 10;
-      doc.setDrawColor(...BRAND_BLUE_RGB);
+      doc.setDrawColor(...BRAND_ACCENT_RGB);
       doc.setLineWidth(0.5);
-      doc.line(14, y, pageWidth - 14, y);
+      doc.line(16, y, pageWidth - 16, y);
       y += 8;
 
       // Helper to add a section heading
@@ -446,19 +448,19 @@ export default function Reports() {
         const pageH = doc.internal.pageSize.getHeight();
         // Footer line
         doc.setDrawColor(...BRAND_BLUE_RGB);
-        doc.setLineWidth(0.3);
-        doc.line(14, pageH - 14, pageWidth - 14, pageH - 14);
-        doc.setFontSize(8);
+        doc.setLineWidth(0.4);
+        doc.line(16, pageH - 18, pageWidth - 16, pageH - 18);
+        doc.setFontSize(7.5);
         doc.setTextColor(100, 100, 100);
         doc.text(
           "EquiProfile — Confidential Equine Management Report",
-          14,
-          pageH - 9,
+          16,
+          pageH - 12,
         );
         doc.text(
           `Page ${i} of ${pageCount}`,
-          pageWidth - 14,
-          pageH - 9,
+          pageWidth - 16,
+          pageH - 12,
           { align: "right" },
         );
       }

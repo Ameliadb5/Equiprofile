@@ -133,30 +133,31 @@ export function MedicalPassport({
       </div>
 
       <Card ref={passportRef} className="medical-passport w-full overflow-hidden">
-        <CardHeader>
+        <CardHeader className="pb-4">
           {/* Branded Letterhead — visible in print and PDF export */}
-          <div className="flex items-center justify-between mb-4 pb-4 border-b-2 border-[#0f2e6b]">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-[#0c2352]">
+            <div className="flex items-center gap-4">
               <img
                 src="/logo.png"
                 alt="EquiProfile"
-                className="h-14 w-auto object-contain"
+                className="h-12 w-auto object-contain"
                 crossOrigin="anonymous"
               />
               <div>
-                <p className="text-sm font-semibold text-[#0f2e6b]">Equine Health & Management</p>
+                <p className="text-lg font-bold text-[#0c2352]">EquiProfile</p>
+                <p className="text-sm text-[#0c2352]/70">Professional Equine Management</p>
                 <p className="text-xs text-muted-foreground">www.equiprofile.online</p>
               </div>
             </div>
-            <div className="text-right">
-              {qrCodeUrl && (
-                <img src={qrCodeUrl} alt="QR Code" className="w-20 h-20 sm:w-24 sm:h-24 ml-auto" />
-              )}
-            </div>
+            {qrCodeUrl && (
+              <div className="shrink-0 ml-4">
+                <img src={qrCodeUrl} alt="QR Code" className="w-20 h-20 sm:w-24 sm:h-24" />
+              </div>
+            )}
           </div>
           <div className="flex justify-between items-start">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <CardTitle className="text-2xl">Equine Passport</CardTitle>
                 <Badge variant="outline" className="text-xs">
                   <Shield className="w-3 h-3 mr-1" />
@@ -171,7 +172,7 @@ export function MedicalPassport({
           {/* Passport Identification (FEI/BEF Section I) */}
           <section>
             <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[#0f2e6b]" />
+              <Shield className="w-4 h-4 text-[#0c2352]" />
               Passport Identification
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
@@ -366,9 +367,9 @@ export function MedicalPassport({
           )}
 
           {/* Footer — Compliance Note */}
-          <div className="text-xs text-muted-foreground pt-4 border-t-2 border-[#0f2e6b] space-y-1">
+          <div className="text-xs text-muted-foreground pt-4 border-t-2 border-[#0c2352] space-y-1">
             <div className="flex justify-between items-center">
-              <p className="font-medium text-[#0f2e6b]">EquiProfile — Professional Equine Management</p>
+              <p className="font-medium text-[#0c2352]">EquiProfile — Professional Equine Management</p>
               <p>Generated: {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
             </div>
             <p>

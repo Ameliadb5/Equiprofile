@@ -11,13 +11,6 @@ import { TRPCError } from "@trpc/server";
 type StorageConfig = { baseUrl: string; apiKey: string };
 
 function getStorageConfig(): StorageConfig {
-  // Check if uploads are enabled
-  if (!ENV.enableUploads) {
-    throw new Error(
-      "Uploads are disabled. Set ENABLE_UPLOADS=true to enable storage features.",
-    );
-  }
-
   // Support both new STORAGE_PROXY_* names and legacy BUILT_IN_FORGE_* names
   const baseUrl =
     process.env.STORAGE_PROXY_URL ?? process.env.BUILT_IN_FORGE_API_URL ?? "";
@@ -87,16 +80,25 @@ export async function storagePut(
   data: Buffer | Uint8Array | string,
   contentType = "application/octet-stream",
 ): Promise<{ key: string; url: string }> {
-  // Use storage proxy if ENABLE_UPLOADS=true and credentials are present
+  // Convert to Buffer early for both paths
+  const buf =
+    data instanceof Buffer
+      ? data
+      : data instanceof Uint8Array
+        ? Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+        : Buffer.from(data as string);
+
+  // Use storage proxy if credentials are present
   const storageProxyUrl =
     process.env.STORAGE_PROXY_URL ?? process.env.BUILT_IN_FORGE_API_URL;
   const storageProxyKey =
     process.env.STORAGE_PROXY_KEY ?? process.env.BUILT_IN_FORGE_API_KEY;
-  if (ENV.enableUploads && storageProxyUrl && storageProxyKey) {
-    const { baseUrl, apiKey } = getStorageConfig();
+  if (storageProxyUrl && storageProxyKey) {
+    const baseUrl = storageProxyUrl.replace(/\/+$/, "");
+    const apiKey = storageProxyKey;
     const key = normalizeKey(relKey);
     const uploadUrl = buildUploadUrl(baseUrl, key);
-    const formData = toFormData(data, contentType, key.split("/").pop() ?? key);
+    const formData = toFormData(buf, contentType, key.split("/").pop() ?? key);
     const response = await fetch(uploadUrl, {
       method: "POST",
       headers: buildAuthHeaders(apiKey),
@@ -113,13 +115,7 @@ export async function storagePut(
     return { key, url };
   }
 
-  // Fall back to local disk storage
-  const buf =
-    data instanceof Buffer
-      ? data
-      : data instanceof Uint8Array
-        ? Buffer.from(data.buffer, data.byteOffset, data.byteLength)
-        : Buffer.from(data as string);
+  // Fall back to local disk storage (VPS local storage)
   return storagePutLocal(relKey, buf, contentType);
 }
 
