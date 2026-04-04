@@ -301,7 +301,7 @@ function DocumentsContent() {
         cat = "gallery";
       }
       if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(doc);
+      acc[cat]!.push(doc);
       return acc;
     },
     {} as Record<string, typeof documents>,
