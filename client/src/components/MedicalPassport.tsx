@@ -144,7 +144,7 @@ export function MedicalPassport({
                 crossOrigin="anonymous"
               />
               <div>
-                <p className="text-lg font-bold text-[#0c2352]">EquiProfile</p>
+                <p className="text-lg font-bold bg-gradient-to-r from-blue-800 via-indigo-700 to-purple-700 bg-clip-text text-transparent">EquiProfile</p>
                 <p className="text-sm text-[#0c2352]/70">Professional Equine Management</p>
                 <p className="text-xs text-muted-foreground">www.equiprofile.online</p>
               </div>

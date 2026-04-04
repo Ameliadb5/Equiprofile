@@ -41,8 +41,10 @@ export function startReminderScheduler() {
           // Get the associated event
           const event = await db.getEventById(reminder.eventId);
           if (!event) {
+            // Mark orphaned reminder as sent so it doesn't reappear every hour
+            await db.markEventReminderSent(reminder.id);
             console.log(
-              `[Reminders] Event not found for reminder ${reminder.id}`,
+              `[Reminders] Skipped orphaned reminder ${reminder.id} (event deleted) — marked as sent`,
             );
             continue;
           }

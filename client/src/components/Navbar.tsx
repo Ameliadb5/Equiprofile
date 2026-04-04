@@ -107,11 +107,9 @@ export function Navbar(_props: NavbarProps = {}) {
             <img
               src="/logo.png"
               alt="EquiProfile"
-              className="h-12 w-auto object-contain"
+              className="h-14 w-auto object-contain"
             />
-            <span className={`text-xl font-bold tracking-tight ${
-              showLight ? "text-gray-900" : "text-white"
-            }`}>
+            <span className={`text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 bg-clip-text text-transparent`}>
               EquiProfile
             </span>
           </Link>
