@@ -50,10 +50,14 @@ import {
   Navigation,
   ShoppingCart,
   Home,
+  UserCog,
+  Building2,
+  GraduationCap,
 } from "lucide-react";
 
 // ─── Module grid data ───────────────────────────────────────────────────────
 
+// Base module categories — shown to all users
 const moduleCategories = [
   {
     id: "horses",
@@ -89,8 +93,8 @@ const moduleCategories = [
   },
   {
     id: "training",
-    name: "Training",
-    description: "Sessions & templates",
+    name: "Training & Activity",
+    description: "Sessions, lessons & breeding",
     icon: Dumbbell,
     color: "from-green-500 to-emerald-600",
     accent: "border-green-500/30",
@@ -99,6 +103,8 @@ const moduleCategories = [
       { name: "Training Log", href: "/training", icon: Dumbbell },
       { name: "Templates", href: "/training-templates", icon: BookOpen },
       { name: "GPS Tracking", href: "/ride-tracking", icon: Navigation },
+      { name: "Lessons", href: "/lessons", icon: GraduationCap },
+      { name: "Breeding", href: "/breeding", icon: Baby },
     ],
   },
   {
@@ -198,6 +204,22 @@ const moduleCategories = [
   },
 ];
 
+// Stable-plan module category — only shown to users with the stable plan
+const stableModuleCategory = {
+  id: "stable",
+  name: "Stable",
+  description: "Yard management & staff",
+  icon: Building2,
+  color: "from-amber-500 to-yellow-600",
+  accent: "border-amber-500/30",
+  href: "/stable",
+  modules: [
+    { name: "Stable Profile", href: "/stable", icon: Home },
+    { name: "Stable Setup", href: "/stable-setup", icon: Settings },
+    { name: "Staff", href: "/staff", icon: UserCog },
+  ],
+};
+
 // Helper: map task priority to a dot color class
 const PRIORITY_COLOR: Record<string, string> = {
   high: "bg-red-500",
@@ -246,7 +268,7 @@ function ModuleCard({
   category,
   index,
 }: {
-  category: (typeof moduleCategories)[0];
+  category: (typeof moduleCategories)[0] | typeof stableModuleCategory;
   index: number;
 }) {
   const Icon = category.icon;
@@ -303,7 +325,7 @@ function DashboardContent() {
 
   const { data: stats } = trpc.user.getDashboardStats.useQuery(undefined, {
     retry: false,
-    staleTime: 0,
+    staleTime: 2 * 60 * 1000,
   });
   const { data: subscription } = trpc.user.getSubscriptionStatus.useQuery();
   const { data: trainingStats } = trpc.analytics.getTrainingStats.useQuery(
@@ -312,7 +334,7 @@ function DashboardContent() {
   );
   const { data: horses = [] } = trpc.horses.list.useQuery(undefined, {
     retry: false,
-    staleTime: 0,
+    staleTime: 2 * 60 * 1000,
   });
   const { data: upcomingAppointments = [] } = trpc.appointments.list.useQuery(
     undefined,
@@ -342,22 +364,22 @@ function DashboardContent() {
     today.getDate() + 1,
   );
 
-  const { data: upcomingCalendarEvents = [] } =
-    trpc.calendar.getEvents.useQuery(
-      {
-        startDate: new Date().toISOString(),
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      },
-      { retry: false, staleTime: 5 * 60 * 1000 },
-    );
-
-  const { data: calendarEvents = [] } = trpc.calendar.getEvents.useQuery(
+  // Single calendar query for the next 30 days — filtered client-side for "today"
+  // to avoid two separate HTTP requests on every Dashboard mount.
+  const { data: allCalendarEvents = [] } = trpc.calendar.getEvents.useQuery(
     {
       startDate: todayStart.toISOString(),
-      endDate: todayEnd.toISOString(),
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     },
     { retry: false, staleTime: 5 * 60 * 1000 },
   );
+
+  // Split into today's events and all upcoming events from the single response
+  const calendarEvents = allCalendarEvents.filter((e: any) => {
+    const d = new Date(e.startDate);
+    return d >= todayStart && d < todayEnd;
+  });
+  const upcomingCalendarEvents = allCalendarEvents;
 
   const greeting = (() => {
     const h = today.getHours();
@@ -972,7 +994,12 @@ function DashboardContent() {
           All Modules
         </h2>
         <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {moduleCategories.map((cat, i) => (
+          {[
+            ...moduleCategories,
+            ...(subscription?.bothDashboardsUnlocked || subscription?.planTier === "stable"
+              ? [stableModuleCategory]
+              : []),
+          ].map((cat, i) => (
             <ModuleCard key={cat.id} category={cat} index={i} />
           ))}
         </div>

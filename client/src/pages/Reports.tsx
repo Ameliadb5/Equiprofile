@@ -474,14 +474,12 @@ export default function Reports() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-4 space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Reports</h1>
-            <p className="text-muted-foreground">
-              Generate comprehensive reports and set up automated schedules
-            </p>
-          </div>
+      <div className="container mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold">Reports</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Generate comprehensive reports and set up automated schedules
+          </p>
         </div>
 
         <Tabs
@@ -489,11 +487,13 @@ export default function Reports() {
           onValueChange={(v) => setActiveTab(v as any)}
           className="space-y-4"
         >
-          <TabsList>
-            <TabsTrigger value="generate">Generate Report</TabsTrigger>
-            <TabsTrigger value="history">Report History</TabsTrigger>
-            <TabsTrigger value="schedules">Scheduled Reports</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <TabsList className="w-full sm:w-auto inline-flex min-w-max">
+              <TabsTrigger value="generate" className="text-xs sm:text-sm">Generate</TabsTrigger>
+              <TabsTrigger value="history" className="text-xs sm:text-sm">History</TabsTrigger>
+              <TabsTrigger value="schedules" className="text-xs sm:text-sm">Scheduled</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="generate" className="space-y-4">
             <Card>
@@ -504,7 +504,7 @@ export default function Reports() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="reportType">Report Type *</Label>
                     <Select
@@ -620,7 +620,7 @@ export default function Reports() {
                   </ul>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                   <Button
                     onClick={handleGenerateReport}
                     disabled={generateReport.isPending}
@@ -643,9 +643,7 @@ export default function Reports() {
           </TabsContent>
 
           <TabsContent value="history" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Generated Reports</h2>
-            </div>
+            <h2 className="text-xl sm:text-2xl font-semibold">Generated Reports</h2>
 
             {generatedReports.length === 0 ? (
               <Card>
@@ -664,7 +662,7 @@ export default function Reports() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {generatedReports.map((report) => (
                   <Card key={report.id}>
                     <CardHeader>
@@ -709,9 +707,9 @@ export default function Reports() {
           </TabsContent>
 
           <TabsContent value="schedules" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Scheduled Reports</h2>
-              <Button onClick={() => setIsScheduleDialogOpen(true)}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-xl sm:text-2xl font-semibold">Scheduled Reports</h2>
+              <Button onClick={() => setIsScheduleDialogOpen(true)} size="sm">
                 <Plus className="mr-2 h-4 w-4" />
                 New Schedule
               </Button>

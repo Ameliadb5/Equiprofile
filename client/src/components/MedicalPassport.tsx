@@ -135,22 +135,22 @@ export function MedicalPassport({
       <Card ref={passportRef} className="medical-passport w-full overflow-hidden">
         <CardHeader className="pb-4">
           {/* Branded Letterhead — visible in print and PDF export */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-[#0c2352]">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-4 border-b-2 border-[#0c2352]">
+            <div className="flex items-center gap-3">
               <img
                 src="/logo.png"
                 alt="EquiProfile"
-                className="h-12 w-auto object-contain"
+                className="h-10 sm:h-12 w-auto object-contain shrink-0"
                 crossOrigin="anonymous"
               />
               <div>
-                <p className="text-lg font-bold bg-gradient-to-r from-blue-800 via-indigo-700 to-purple-700 bg-clip-text text-transparent">EquiProfile</p>
-                <p className="text-sm text-[#0c2352]/70">Professional Equine Management</p>
-                <p className="text-xs text-muted-foreground">www.equiprofile.online</p>
+                <p className="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-800 via-indigo-700 to-purple-700 bg-clip-text text-transparent">EquiProfile</p>
+                <p className="text-xs sm:text-sm text-[#0c2352]/70">Professional Equine Management</p>
+                <p className="text-[11px] sm:text-xs text-muted-foreground">www.equiprofile.online</p>
               </div>
             </div>
             {qrCodeUrl && (
-              <div className="shrink-0 ml-4">
+              <div className="self-start sm:self-auto shrink-0">
                 <img src={qrCodeUrl} alt="QR Code" className="w-20 h-20 sm:w-24 sm:h-24" />
               </div>
             )}

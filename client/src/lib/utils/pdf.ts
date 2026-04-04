@@ -73,19 +73,21 @@ function injectPdfSafeStyles(doc: Document): void {
   //     with a generic safe fallback. This catches direct oklch() usage in
   //     gradients, box-shadows, and animations that CSS variable overrides
   //     cannot reach.
-  const oklchPattern = /oklch\([^)]*\)/gi;
+  //     Use a fresh regex literal per call — reusing a /g regex across
+  //     multiple .test() + .replace() calls causes lastIndex to advance
+  //     unpredictably and can silently miss matches.
   const fallbackColor = "#2563eb"; // safe blue fallback
   doc.querySelectorAll("style").forEach((el) => {
-    if (el.textContent && oklchPattern.test(el.textContent)) {
-      el.textContent = el.textContent.replace(oklchPattern, fallbackColor);
+    if (el.textContent) {
+      el.textContent = el.textContent.replace(/oklch\([^)]*\)/gi, fallbackColor);
     }
   });
 
   // 3 ─ Strip oklch() from inline styles on all elements
   doc.querySelectorAll("[style]").forEach((el) => {
     const s = el.getAttribute("style");
-    if (s && oklchPattern.test(s)) {
-      el.setAttribute("style", s.replace(oklchPattern, fallbackColor));
+    if (s) {
+      el.setAttribute("style", s.replace(/oklch\([^)]*\)/gi, fallbackColor));
     }
   });
 }
