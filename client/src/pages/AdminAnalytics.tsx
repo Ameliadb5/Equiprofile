@@ -99,7 +99,8 @@ export default function AdminAnalytics() {
 
   const data = analytics.data;
 
-  // Four headline stats for the overview — no duplicate Visits/PageViews
+  // Four headline stats for the overview — Visits, Unique Visitors, Avg Session, Live Now
+  // (Page Views removed as it duplicated Total Visits — same counter in the DB)
   const overviewStats = [
     {
       label: "Total Visits",
