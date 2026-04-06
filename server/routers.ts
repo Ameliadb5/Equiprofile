@@ -1057,21 +1057,50 @@ export const appRouter = router({
       }),
 
     delete: subscribedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(
+        z.object({
+          id: z.number(),
+          mode: z.enum(["archive", "delete", "delete_all"]).default("archive"),
+        }),
+      )
       .mutation(async ({ ctx, input }) => {
-        await db.deleteHorse(input.id, ctx.user.id);
-        await db.logActivity({
-          userId: ctx.user!.id,
-          action: "horse_deleted",
-          entityType: "horse",
-          entityId: input.id,
-        });
+        const horseId = input.id;
+        const userId = ctx.user.id;
+
+        if (input.mode === "archive") {
+          // Soft-delete: hide from listing but keep all data
+          await db.deleteHorse(horseId, userId);
+          await db.logActivity({
+            userId,
+            action: "horse_archived",
+            entityType: "horse",
+            entityId: horseId,
+          });
+        } else if (input.mode === "delete") {
+          // Remove the horse record (soft-delete) but keep linked data in case of audit
+          await db.deleteHorse(horseId, userId);
+          await db.logActivity({
+            userId,
+            action: "horse_deleted",
+            entityType: "horse",
+            entityId: horseId,
+          });
+        } else if (input.mode === "delete_all") {
+          // Delete the horse AND all linked data permanently
+          await db.deleteHorseAndData(horseId, userId);
+          await db.logActivity({
+            userId,
+            action: "horse_deleted_with_data",
+            entityType: "horse",
+            entityId: horseId,
+          });
+        }
 
         // Publish real-time event
         const { publishModuleEvent } = await import("./_core/realtime");
-        publishModuleEvent("horses", "deleted", { id: input.id }, ctx.user.id);
+        publishModuleEvent("horses", "deleted", { id: horseId }, userId);
 
-        return { success: true };
+        return { success: true, mode: input.mode };
       }),
 
     exportCSV: subscribedProcedure.query(async ({ ctx }) => {

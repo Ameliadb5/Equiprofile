@@ -1271,6 +1271,46 @@ export async function deleteHorse(id: number, userId: number) {
     .where(and(eq(horses.id, id), eq(horses.userId, userId)));
 }
 
+/**
+ * Permanently delete a horse AND all its linked data.
+ * This is destructive and cannot be undone.
+ */
+export async function deleteHorseAndData(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) return;
+
+  // Verify ownership
+  const [horse] = await db
+    .select({ id: horses.id })
+    .from(horses)
+    .where(and(eq(horses.id, id), eq(horses.userId, userId)));
+  if (!horse) return;
+
+  // Delete all linked data (order matters for FK constraints)
+  await db.delete(healthRecords).where(eq(healthRecords.horseId, id));
+  await db.delete(vaccinations).where(eq(vaccinations.horseId, id));
+  await db.delete(dewormings).where(eq(dewormings.horseId, id));
+  await db.delete(treatments).where(eq(treatments.horseId, id));
+  await db.delete(trainingSessions).where(eq(trainingSessions.horseId, id));
+  await db.delete(feedingPlans).where(eq(feedingPlans.horseId, id));
+  await db.delete(feedCosts).where(eq(feedCosts.horseId, id));
+  await db.delete(documents).where(eq(documents.horseId, id));
+  await db.delete(appointments).where(eq(appointments.horseId, id));
+  await db.delete(dentalCare).where(eq(dentalCare.horseId, id));
+  await db.delete(xrays).where(eq(xrays.horseId, id));
+  await db.delete(hoofcare).where(eq(hoofcare.horseId, id));
+  await db.delete(nutritionLogs).where(eq(nutritionLogs.horseId, id));
+  await db.delete(nutritionPlans).where(eq(nutritionPlans.horseId, id));
+  await db.delete(notes).where(eq(notes.horseId, id));
+  await db.delete(rides).where(eq(rides.horseId, id));
+  await db.delete(competitions).where(eq(competitions.horseId, id));
+  await db.delete(pedigree).where(eq(pedigree.horseId, id));
+  await db.delete(events).where(eq(events.horseId, id));
+
+  // Finally, hard-delete the horse record
+  await db.delete(horses).where(and(eq(horses.id, id), eq(horses.userId, userId)));
+}
+
 // ============ HEALTH RECORD QUERIES ============
 
 export async function createHealthRecord(data: InsertHealthRecord) {
