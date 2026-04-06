@@ -534,8 +534,9 @@ function ContactsContent() {
                   const mapsUrl = addressParts.length
                     ? `https://maps.google.com/?q=${encodeURIComponent(addressParts.join(", "))}`
                     : null;
-                  const websiteUrl = contact.website
-                    ? contact.website.startsWith("http") ? contact.website : `https://${contact.website}`
+                  const rawWebsite = contact.website ?? "";
+                  const websiteUrl = rawWebsite
+                    ? rawWebsite.startsWith("http") ? rawWebsite : `https://${rawWebsite}`
                     : null;
                   const avatarColor = avatarColors[contact.contactType] ?? "bg-gray-500";
                   const initial = contact.name ? contact.name.charAt(0).toUpperCase() : "?";
@@ -612,7 +613,7 @@ function ContactsContent() {
                               href={websiteUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              title={contact.website ?? "Website"}
+                              title={rawWebsite || "Website"}
                               className="inline-flex items-center justify-center w-9 h-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                             >
                               <Globe className="w-4 h-4" />
