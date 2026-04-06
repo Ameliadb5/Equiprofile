@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
   Card,
@@ -36,7 +37,106 @@ import {
   Brain,
   AlertCircle,
   Navigation,
+  GitBranch,
+  Tag,
+  FileText,
+  Apple,
+  ShoppingCart,
+  BookOpen,
+  TrendingUp,
+  Syringe,
+  Pill,
+  Scissors,
+  XCircle,
+  Home,
 } from "lucide-react";
+
+// ─── Stable module groups for desktop feature directory ──────────────────────
+const stableModuleGroups = [
+  {
+    label: "Operations",
+    gradient: "from-amber-500 to-orange-600",
+    labelColor: "text-amber-400",
+    items: [
+      { icon: Heart, label: "Horses", path: "/horses" },
+      { icon: UserCog, label: "Staff", path: "/staff" },
+      { icon: Users, label: "Contacts", path: "/contacts" },
+      { icon: Calendar, label: "Calendar", path: "/calendar" },
+      { icon: ClipboardList, label: "Tasks", path: "/tasks" },
+      { icon: Clock, label: "Appointments", path: "/appointments" },
+    ],
+  },
+  {
+    label: "Health",
+    gradient: "from-rose-500 to-red-600",
+    labelColor: "text-rose-400",
+    items: [
+      { icon: Stethoscope, label: "Health Hub", path: "/health" },
+      { icon: Syringe, label: "Vaccinations", path: "/vaccinations" },
+      { icon: Scissors, label: "Dental Care", path: "/dental" },
+      { icon: Activity, label: "Hoof Care", path: "/hoofcare" },
+      { icon: Pill, label: "Dewormings", path: "/dewormings" },
+      { icon: Heart, label: "Treatments", path: "/treatments" },
+      { icon: XCircle, label: "X-Rays", path: "/xrays" },
+    ],
+  },
+  {
+    label: "Training & Activity",
+    gradient: "from-green-500 to-emerald-600",
+    labelColor: "text-emerald-400",
+    items: [
+      { icon: Dumbbell, label: "Training Log", path: "/training" },
+      { icon: BookOpen, label: "Templates", path: "/training-templates" },
+      { icon: Navigation, label: "GPS Tracking", path: "/ride-tracking" },
+      { icon: Activity, label: "Lessons", path: "/lessons" },
+      { icon: Baby, label: "Breeding", path: "/breeding" },
+    ],
+  },
+  {
+    label: "Nutrition",
+    gradient: "from-lime-500 to-green-600",
+    labelColor: "text-lime-400",
+    items: [
+      { icon: Apple, label: "Feeding Plans", path: "/feeding" },
+      { icon: FileText, label: "Nutrition Plans", path: "/nutrition-plans" },
+      { icon: BookOpen, label: "Nutrition Logs", path: "/nutrition-logs" },
+      { icon: ShoppingCart, label: "Feed Costs", path: "/feed-costs" },
+    ],
+  },
+  {
+    label: "Data & Reports",
+    gradient: "from-indigo-500 to-violet-600",
+    labelColor: "text-indigo-400",
+    items: [
+      { icon: FolderOpen, label: "Documents", path: "/documents" },
+      { icon: BarChart3, label: "Analytics", path: "/analytics" },
+      { icon: FileText, label: "Reports", path: "/reports" },
+      { icon: Tag, label: "Tags", path: "/tags" },
+      { icon: GitBranch, label: "Pedigree", path: "/pedigree" },
+      { icon: Shield, label: "Equine Passport", path: "/equine-passport" },
+    ],
+  },
+  {
+    label: "Stable & People",
+    gradient: "from-cyan-500 to-teal-600",
+    labelColor: "text-cyan-400",
+    items: [
+      { icon: Home, label: "Stable Profile", path: "/stable" },
+      { icon: Wrench, label: "Stable Setup", path: "/stable-setup" },
+      { icon: MessageSquare, label: "Messages", path: "/messages" },
+      { icon: TrendingUp, label: "AI Assistant", path: "/ai-chat" },
+    ],
+  },
+  {
+    label: "Account",
+    gradient: "from-slate-500 to-gray-600",
+    labelColor: "text-slate-400",
+    items: [
+      { icon: Settings, label: "Settings", path: "/settings" },
+      { icon: DollarSign, label: "Billing", path: "/billing" },
+    ],
+  },
+];
 
 type HorseEntry = {
   id: number;
@@ -235,6 +335,35 @@ function StableDashboardContent() {
     undefined,
     { retry: false },
   );
+  const { data: smartAlerts = [] } = trpc.timeline.getHealthAlerts.useQuery({}, {
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+  const { data: trainingStats } = trpc.analytics.getTrainingStats.useQuery(
+    {},
+    { retry: false },
+  );
+  const { data: stats } = trpc.user.getDashboardStats.useQuery(undefined, {
+    retry: false,
+    staleTime: 2 * 60 * 1000,
+  });
+
+  // Stable calendar query dates — computed once per mount
+  const calendarQueryDates = useMemo(() => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    return {
+      startDate: start.toISOString(),
+      endDate: new Date(start.getTime() + 31 * 24 * 60 * 60 * 1000).toISOString(),
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const { data: allCalendarEvents = [] } = trpc.calendar.getEvents.useQuery(
+    calendarQueryDates,
+    { retry: false, staleTime: 5 * 60 * 1000 },
+  );
+
   const isStablePlan = subscriptionStatus?.planTier === "stable";
 
   if (subLoading) {
@@ -412,6 +541,58 @@ function StableDashboardContent() {
           </div>
         </Link>
       </motion.div>
+
+      {/* ── Care Alerts ──────────────────────────────────────── */}
+      {(() => {
+        const actionableAlerts = (smartAlerts as any[]).filter(
+          (a) => (a.severity === "urgent" || a.severity === "warning") &&
+            a.type !== "no_recent_health"
+        );
+        if (actionableAlerts.length === 0) return null;
+        const visibleAlerts = actionableAlerts.slice(0, 3);
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            <Card className="border-amber-500/20 bg-gradient-to-br from-amber-950/20 to-slate-950/30">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="font-serif text-sm flex items-center gap-2">
+                    <Stethoscope className="w-4 h-4 text-amber-400" />
+                    Care Reminders
+                  </CardTitle>
+                  {actionableAlerts.length > 3 && (
+                    <Link href="/health">
+                      <Button variant="ghost" size="sm" className="h-6 text-[11px] text-amber-400/80 hover:text-amber-300 px-2">
+                        View all →
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-1.5">
+                {visibleAlerts.map((alert: any) => (
+                  <Link key={alert.id} href={alert.horseId ? `/horses/${alert.horseId}` : "/health"}>
+                    <div className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer transition-colors ${
+                      alert.severity === "urgent"
+                        ? "border-red-500/25 bg-red-500/5 hover:bg-red-500/10"
+                        : "border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10"
+                    }`}>
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className={`w-3.5 h-3.5 shrink-0 ${alert.severity === "urgent" ? "text-red-400" : "text-amber-400"}`} />
+                        <p className="text-xs font-medium leading-snug">{alert.title}</p>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
+                    </div>
+                  </Link>
+                ))}
+              </CardContent>
+            </Card>
+          </motion.div>
+        );
+      })()}
 
       {/* ── Getting Started (shown when no horses yet) ─────────── */}
       {(horses as HorseEntry[]).length === 0 && !horsesLoading && (
@@ -693,6 +874,75 @@ function StableDashboardContent() {
           })}
         </div>
       </motion.div>
+
+      {/* ── Training & Health Summary ─────────────────────────── */}
+      {(trainingStats?.totalSessions || 0) > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.22 }}
+          className="grid grid-cols-2 gap-3"
+        >
+          <div className="flex items-center gap-2.5 p-3 rounded-xl border border-muted/30 bg-card/60">
+            <Dumbbell className="w-4 h-4 shrink-0 text-green-400" />
+            <div>
+              <p className="text-lg font-bold leading-none">{Math.round((trainingStats?.totalDuration || 0) / 60)}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Training hrs logged</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 p-3 rounded-xl border border-muted/30 bg-card/60">
+            <Stethoscope className="w-4 h-4 shrink-0 text-amber-400" />
+            <div>
+              <p className="text-lg font-bold leading-none">{stats?.reminderCount || 0}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Health reminders</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── All Features — desktop-only module directory ─────── */}
+      <div className="hidden md:block">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.28 }}
+          className="space-y-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-5 rounded-full bg-gradient-to-b from-amber-500 via-orange-500 to-rose-500" />
+            <h2 className="font-serif text-base font-semibold">All Features</h2>
+            <span className="text-xs text-muted-foreground">Complete stable toolkit</span>
+          </div>
+          <div className="space-y-3">
+            {stableModuleGroups.map((group) => (
+              <div key={group.label} className="rounded-xl border border-white/5 bg-card/40 p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2.5 h-2.5 rounded-sm bg-gradient-to-br ${group.gradient} shrink-0`} />
+                  <p className={`text-xs font-bold uppercase tracking-widest ${group.labelColor}`}>
+                    {group.label}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link key={item.path} href={item.path}>
+                        <div className="group flex flex-col items-center gap-1.5 p-3 rounded-xl border border-white/5 bg-card/60 hover:bg-card hover:border-white/15 hover:shadow-sm transition-all duration-200 text-center cursor-pointer active:scale-95">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br ${group.gradient}`}>
+                            <Icon className="h-5 w-5 text-white" />
+                          </div>
+                          <span className="text-[11px] leading-tight font-medium">{item.label}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
     </div>
   );
 }
