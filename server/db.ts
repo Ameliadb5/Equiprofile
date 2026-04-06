@@ -1749,6 +1749,97 @@ export async function getSystemStats() {
   };
 }
 
+// ============ USER SEGMENTATION ============
+
+export async function getUserSegmentation() {
+  const db = await getDb();
+  if (!db) return null;
+
+  // Get all users with their preferences to distinguish free-access from paid
+  const allUsers = await db
+    .select({
+      id: users.id,
+      isActive: users.isActive,
+      isSuspended: users.isSuspended,
+      subscriptionStatus: users.subscriptionStatus,
+      preferences: users.preferences,
+      createdAt: users.createdAt,
+      stripeCustomerId: users.stripeCustomerId,
+      lastPaymentAt: users.lastPaymentAt,
+    })
+    .from(users);
+
+  let leads = 0;
+  let freeAccessUsers = 0;
+  let trialUsers = 0;
+  let paidUsers = 0;
+  let overdueUsers = 0;
+  let deletedUsers = 0;
+  let cancelledUsers = 0;
+  let expiredUsers = 0;
+  const recentSignups: number[] = [];
+
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86_400_000);
+
+  for (const u of allUsers) {
+    // Deleted users (soft-deleted)
+    if (!u.isActive) {
+      deletedUsers++;
+      continue;
+    }
+
+    // Parse preferences to check freeAccess
+    let prefs: any = {};
+    try {
+      prefs = u.preferences ? JSON.parse(u.preferences as string) : {};
+    } catch { /* ignore */ }
+
+    const status = u.subscriptionStatus;
+
+    if (status === "overdue") {
+      overdueUsers++;
+    } else if (status === "cancelled") {
+      cancelledUsers++;
+    } else if (status === "expired") {
+      expiredUsers++;
+    } else if (status === "trial") {
+      trialUsers++;
+    } else if (status === "active") {
+      if (prefs.freeAccess) {
+        freeAccessUsers++;
+      } else {
+        paidUsers++;
+      }
+    }
+
+    // Recent signups (last 7 days)
+    if (u.createdAt && new Date(u.createdAt) >= sevenDaysAgo) {
+      recentSignups.push(u.id);
+    }
+  }
+
+  // Count leads from chatLeads table
+  const { chatLeads: chatLeadsTable } = await import("../drizzle/schema");
+  const [leadCount] = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(chatLeadsTable);
+
+  leads = leadCount?.count || 0;
+
+  return {
+    leads,
+    freeAccessUsers,
+    trialUsers,
+    paidUsers,
+    overdueUsers,
+    deletedUsers,
+    cancelledUsers,
+    expiredUsers,
+    recentSignups: recentSignups.length,
+    totalReal: trialUsers + paidUsers + freeAccessUsers, // active real users
+  };
+}
+
 // ============ STRIPE EVENT QUERIES ============
 
 export async function createStripeEvent(

@@ -2924,6 +2924,11 @@ Format your response as JSON with keys: recommendation, explanation, precautions
       return db.getSystemStats();
     }),
 
+    // User segmentation for admin dashboard
+    getUserSegmentation: adminUnlockedProcedure.query(async () => {
+      return db.getUserSegmentation();
+    }),
+
     getOverdueUsers: adminUnlockedProcedure.query(async () => {
       return db.getOverdueSubscriptions();
     }),
@@ -3683,22 +3688,23 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           .from(siteAnalytics)
           .where(gte(siteAnalytics.createdAt, startDate));
 
-        // Avg session duration
+        // Avg session duration (only non-zero durations for meaningful average)
         const [durationResult] = await dbConn
           .select({
-            avg: sql<number>`COALESCE(AVG(${siteAnalytics.duration}), 0)`,
+            avg: sql<number>`COALESCE(AVG(CASE WHEN ${siteAnalytics.duration} > 0 THEN ${siteAnalytics.duration} ELSE NULL END), 0)`,
           })
           .from(siteAnalytics)
           .where(gte(siteAnalytics.createdAt, startDate));
 
-        // Top pages
+        // Top pages — exclude probe/scanner paths that slipped through before filtering was added
+        const probePathFilter = sql`${siteAnalytics.path} NOT LIKE '/_profiler%' AND ${siteAnalytics.path} NOT LIKE '/phpinfo%' AND ${siteAnalytics.path} NOT LIKE '/wp-%' AND ${siteAnalytics.path} NOT LIKE '/.env%' AND ${siteAnalytics.path} NOT LIKE '/.git%' AND ${siteAnalytics.path} NOT LIKE '/actuator%' AND ${siteAnalytics.path} NOT LIKE '/solr%' AND ${siteAnalytics.path} NOT LIKE '/admin.php%' AND ${siteAnalytics.path} NOT LIKE '/cgi-bin%' AND ${siteAnalytics.path} NOT LIKE '/phpmyadmin%' AND ${siteAnalytics.path} NOT LIKE '/xmlrpc%'`;
         const topPages = await dbConn
           .select({
             path: siteAnalytics.path,
             views: sql<number>`COUNT(*)`,
           })
           .from(siteAnalytics)
-          .where(gte(siteAnalytics.createdAt, startDate))
+          .where(and(gte(siteAnalytics.createdAt, startDate), probePathFilter))
           .groupBy(siteAnalytics.path)
           .orderBy(sql`COUNT(*) DESC`)
           .limit(10);

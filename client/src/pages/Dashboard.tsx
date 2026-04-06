@@ -871,6 +871,7 @@ function DashboardContent() {
                 if (
                   !isStablePlan &&
                   (item.label === "Breeding" ||
+                    item.label === "Lessons" ||
                     item.label === "Stable Management" ||
                     item.label === "Staff" ||
                     item.label === "Messages")
