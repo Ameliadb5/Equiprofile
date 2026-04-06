@@ -1041,6 +1041,7 @@ async function startServer() {
     }
 
     if (!fs.existsSync(filePath)) {
+      console.warn(`[FileServe] 404 – file not found on disk: ${filePath} (key: ${fileKey}, uploadsDir: ${uploadsDir})`);
       return res.status(404).json({ error: "File not found" });
     }
 
@@ -1097,6 +1098,25 @@ async function startServer() {
 
   // Validate pricing configuration at startup
   validatePricingConfig();
+
+  // Ensure local uploads directory exists and is writable.
+  // Without this, file uploads silently fail on a fresh VPS deploy.
+  const uploadsDir = path.resolve(ENV.storagePath);
+  try {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    fs.accessSync(uploadsDir, fs.constants.W_OK);
+    console.log(`✓ Uploads directory ready: ${uploadsDir}`);
+  } catch (err) {
+    console.error(`❌ Uploads directory not writable: ${uploadsDir}`, err);
+  }
+
+  // Pre-warm the database connection so that ensureTables() runs before the
+  // first user request arrives.  Without this, the first API call (e.g.
+  // calendar.getEvents) would block for the full ensureTables duration and
+  // could exceed the 30 s Nginx proxy timeout.
+  getDb().catch((err) =>
+    console.error("[Startup] DB pre-warm error:", err),
+  );
 
   // Verify SMTP configuration — non-blocking, logs result to console
   email.verifySmtpConfig().catch((err) =>
