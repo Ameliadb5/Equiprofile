@@ -7,6 +7,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -25,6 +36,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import {
   BarChart3,
   Eye,
@@ -39,6 +51,7 @@ import {
   Tablet,
   Activity,
   ArrowUpRight,
+  Trash2,
 } from "lucide-react";
 
 function formatDuration(seconds: number): string {
@@ -71,8 +84,18 @@ function DeviceIcon({ device }: { device: string }) {
 
 export default function AdminAnalytics() {
   const [period, setPeriod] = useState<"day" | "week" | "month">("week");
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetMode, setResetMode] = useState<"all" | "before_today">("before_today");
 
   const analytics = trpc.admin.getAnalytics.useQuery({ period });
+  const resetMutation = trpc.admin.resetAnalytics.useMutation({
+    onSuccess: (result) => {
+      toast.success(result.mode === "all" ? "Analytics data cleared" : "Historical analytics cleared");
+      analytics.refetch();
+      setResetDialogOpen(false);
+    },
+    onError: (err) => toast.error(err.message),
+  });
 
   const data = analytics.data;
 
@@ -145,28 +168,89 @@ export default function AdminAnalytics() {
 
   return (
     <div className="space-y-6">
-      {/* Period selector */}
-      <div className="flex items-center justify-between">
+      {/* Period selector + Reset */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-xl font-bold">Site Analytics</h2>
           <p className="text-sm text-muted-foreground">
             Internal analytics — no external dependencies
           </p>
         </div>
-        <Select
-          value={period}
-          onValueChange={(v) => setPeriod(v as "day" | "week" | "month")}
-        >
-          <SelectTrigger className="w-32">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="day">Last 24h</SelectItem>
-            <SelectItem value="week">Last 7 days</SelectItem>
-            <SelectItem value="month">Last 30 days</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Select
+            value={period}
+            onValueChange={(v) => setPeriod(v as "day" | "week" | "month")}
+          >
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="day">Last 24h</SelectItem>
+              <SelectItem value="week">Last 7 days</SelectItem>
+              <SelectItem value="month">Last 30 days</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-destructive hover:text-destructive border-destructive/30 hover:border-destructive/60"
+            onClick={() => setResetDialogOpen(true)}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Reset
+          </Button>
+        </div>
       </div>
+
+      {/* Reset confirmation dialog */}
+      <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset Analytics Data</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>Choose what to clear. This only removes analytics tracking rows — no user or horse data will be affected.</p>
+              <div className="flex flex-col gap-2 pt-1">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="resetMode"
+                    value="before_today"
+                    checked={resetMode === "before_today"}
+                    onChange={() => setResetMode("before_today")}
+                    className="mt-0.5"
+                  />
+                  <span className="text-sm">
+                    <strong>Clear historical data</strong> — keeps today's activity, removes everything older
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="resetMode"
+                    value="all"
+                    checked={resetMode === "all"}
+                    onChange={() => setResetMode("all")}
+                    className="mt-0.5"
+                  />
+                  <span className="text-sm">
+                    <strong>Clear all analytics</strong> — complete fresh start
+                  </span>
+                </label>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => resetMutation.mutate({ mode: resetMode })}
+              className="bg-destructive hover:bg-destructive/90"
+              disabled={resetMutation.isPending}
+            >
+              {resetMutation.isPending ? "Clearing..." : "Clear analytics"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Tabbed Analytics */}
       <Tabs defaultValue="overview" className="space-y-4">

@@ -3962,6 +3962,36 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           dailyTrend,
         };
       }),
+
+    // Reset analytics — wipes siteAnalytics rows older than a cutoff date so
+    // the admin can start fresh without touching user/business data.
+    resetAnalytics: adminUnlockedProcedure
+      .input(
+        z.object({
+          // 'all' deletes everything; 'before_today' deletes rows before today
+          mode: z.enum(["all", "before_today"]).default("all"),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const dbConn = await getDb();
+        if (!dbConn)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database not available",
+          });
+
+        if (input.mode === "all") {
+          await dbConn.delete(siteAnalytics);
+        } else {
+          const todayStart = new Date();
+          todayStart.setHours(0, 0, 0, 0);
+          await dbConn
+            .delete(siteAnalytics)
+            .where(sql`${siteAnalytics.createdAt} < ${todayStart}`);
+        }
+
+        return { success: true, mode: input.mode };
+      }),
   }),
 
   // Stable management
