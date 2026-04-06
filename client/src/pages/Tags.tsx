@@ -170,8 +170,8 @@ function TagsContent() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Tags</h1>
-          <p className="text-muted-foreground">
-            Organize your horses, documents, and tasks
+          <p className="text-sm text-muted-foreground">
+            Organise your horses with colour-coded tags. Tags help you filter, group, and quickly identify horses by category, status, or any custom label.
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
