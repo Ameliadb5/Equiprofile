@@ -99,7 +99,8 @@ export default function AdminAnalytics() {
 
   const data = analytics.data;
 
-  const statCards = [
+  // Four headline stats for the overview — no duplicate Visits/PageViews
+  const overviewStats = [
     {
       label: "Total Visits",
       value: data?.totalVisits || 0,
@@ -113,13 +114,6 @@ export default function AdminAnalytics() {
       icon: Users,
       color: "text-purple-600",
       bg: "bg-purple-50 dark:bg-purple-950/30",
-    },
-    {
-      label: "Page Views",
-      value: data?.pageViews || 0,
-      icon: BarChart3,
-      color: "text-indigo-600",
-      bg: "bg-indigo-50 dark:bg-indigo-950/30",
     },
     {
       label: "Avg Session",
@@ -136,6 +130,9 @@ export default function AdminAnalytics() {
       bg: "bg-green-50 dark:bg-green-950/30",
       pulse: (data?.liveVisitors || 0) > 0,
     },
+  ];
+
+  const engagementStats = [
     {
       label: "CTA Clicks",
       value: data?.ctaClicks || 0,
@@ -264,7 +261,7 @@ export default function AdminAnalytics() {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[statCards[0], statCards[1], statCards[3], statCards[4]].map((stat) => (
+            {overviewStats.map((stat) => (
               <Card key={stat.label} className={stat.bg}>
                 <CardContent className="pt-4 pb-4">
                   <div className="flex items-center justify-between mb-2">
@@ -424,28 +421,25 @@ export default function AdminAnalytics() {
         {/* Traffic Tab */}
         <TabsContent value="traffic" className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {(() => {
-              const stat = statCards[1];
-              return (
-                <Card className={stat.bg}>
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                    </div>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    {analytics.isLoading ? (
-                      <Skeleton className="h-7 w-16 mt-1" />
-                    ) : (
-                      <p className={`text-2xl font-bold ${stat.color}`}>
-                        {typeof stat.value === "number"
-                          ? stat.value.toLocaleString()
-                          : stat.value}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })()}
+            {[overviewStats[0], overviewStats[1]].map((stat) => (
+              <Card key={stat.label} className={stat.bg}>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                  </div>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  {analytics.isLoading ? (
+                    <Skeleton className="h-7 w-16 mt-1" />
+                  ) : (
+                    <p className={`text-2xl font-bold ${stat.color}`}>
+                      {typeof stat.value === "number"
+                        ? stat.value.toLocaleString()
+                        : stat.value}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -551,7 +545,7 @@ export default function AdminAnalytics() {
         {/* Engagement Tab */}
         <TabsContent value="engagement" className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {[statCards[2], statCards[3], statCards[5]].map((stat) => (
+            {[overviewStats[2], overviewStats[3], engagementStats[0]].map((stat) => (
               <Card key={stat.label} className={stat.bg}>
                 <CardContent className="pt-4 pb-4">
                   <div className="flex items-center justify-between mb-2">
@@ -615,7 +609,7 @@ export default function AdminAnalytics() {
         {/* Conversions Tab */}
         <TabsContent value="conversions" className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {[statCards[6], statCards[7], statCards[8]].map((stat) => (
+            {[engagementStats[1], engagementStats[2], engagementStats[3]].map((stat) => (
               <Card key={stat.label} className={stat.bg}>
                 <CardContent className="pt-4 pb-4">
                   <div className="flex items-center justify-between mb-2">
