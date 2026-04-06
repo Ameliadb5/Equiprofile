@@ -1124,7 +1124,8 @@ export async function hardDeleteUser(id: number) {
   const db = await getDb();
   if (!db) return;
   // Permanently remove all user-owned data across every table, then the user record.
-  // Order: leaf data first, then parent records, then user.
+  // The schema defines no FK constraints, so deletion order is not constrained.
+  // Tables are grouped logically: health/care data, activity data, system data, then user.
   await db.delete(healthRecords).where(eq(healthRecords.userId, id));
   await db.delete(trainingSessions).where(eq(trainingSessions.userId, id));
   await db.delete(feedingPlans).where(eq(feedingPlans.userId, id));
