@@ -6693,6 +6693,34 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
         return { success: true };
       }),
+
+    attachToHorse: protectedProcedure
+      .input(z.object({ horseId: z.number(), tagId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        // Verify horse ownership
+        const horse = await db.getHorseById(input.horseId, ctx.user.id);
+        if (!horse) throw new TRPCError({ code: "NOT_FOUND", message: "Horse not found" });
+
+        // Verify tag ownership
+        const tag = await db.getTagById(input.tagId, ctx.user.id);
+        if (!tag) throw new TRPCError({ code: "NOT_FOUND", message: "Tag not found" });
+
+        await db.attachTagToHorse(input.horseId, input.tagId, ctx.user.id);
+        return { success: true };
+      }),
+
+    detachFromHorse: protectedProcedure
+      .input(z.object({ horseId: z.number(), tagId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.detachTagFromHorse(input.horseId, input.tagId, ctx.user.id);
+        return { success: true };
+      }),
+
+    listByHorse: protectedProcedure
+      .input(z.object({ horseId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await db.getTagsByHorse(input.horseId, ctx.user.id);
+      }),
   }),
 
   // ============ HOOFCARE ROUTER ============
