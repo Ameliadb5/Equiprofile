@@ -219,6 +219,13 @@ const TRAINING_DAY_OFFSET: Record<string, number> = {
   Saturday: 6,
 };
 
+// Maximum number of weeks to schedule when applying a template
+// Limited to prevent excessive database operations and ensure reasonable initial load
+const MAX_WEEKS_TO_SCHEDULE = 4;
+
+// Default duration for training sessions when not specified in template
+const DEFAULT_SESSION_DURATION_MINUTES = 30;
+
 // Session type mapping: template type → trainingSessions sessionType
 function mapTemplateSessionType(type: string): "flatwork" | "jumping" | "hacking" | "lunging" | "groundwork" | "competition" | "lesson" | "other" {
   const lowerType = type.toLowerCase();
@@ -5121,8 +5128,8 @@ Format your response as JSON with keys: recommendation, explanation, precautions
               const baseDate = new Date(input.startDate);
               const baseDayOfWeek = baseDate.getDay();
 
-              // Create sessions for first 4 weeks
-              for (const week of programData.weeks.slice(0, 4)) {
+              // Create sessions for first few weeks
+              for (const week of programData.weeks.slice(0, MAX_WEEKS_TO_SCHEDULE)) {
                 if (!week.sessions || !Array.isArray(week.sessions)) continue;
                 
                 const weekOffset = (week.week - 1) * 7;
@@ -5147,7 +5154,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
                     horseId: input.horseId,
                     sessionDate,
                     sessionType: mapTemplateSessionType(session.type),
-                    duration: session.duration || 30,
+                    duration: session.duration || DEFAULT_SESSION_DURATION_MINUTES,
                     notes: session.description || undefined,
                     isCompleted: false,
                   });
@@ -5189,7 +5196,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
             const calendarInserts: Array<typeof events.$inferInsert> = [];
 
-            for (const week of (programData.weeks ?? []).slice(0, 4)) {
+            for (const week of (programData.weeks ?? []).slice(0, MAX_WEEKS_TO_SCHEDULE)) {
               const weekOffset = (week.week - 1) * 7;
               for (const session of week.sessions ?? []) {
                 if (session.type === "rest") continue;
