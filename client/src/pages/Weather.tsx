@@ -77,7 +77,7 @@ function WeatherContent() {
         updateLocation.mutate({
           latitude: position.coords.latitude.toString(),
           longitude: position.coords.longitude.toString(),
-          location: "",
+          location: undefined,
         });
       },
       (error) => {
