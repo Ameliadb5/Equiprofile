@@ -81,7 +81,7 @@ function HorsesContent() {
         delete: "Horse removed successfully",
         delete_all: "Horse and all data permanently deleted",
       };
-      toast.success(labels[(variables as any).mode] || "Done");
+      toast.success(labels[variables.mode ?? "archive"] || "Done");
       setDeleteTarget(null);
     },
     onError: (error) => {

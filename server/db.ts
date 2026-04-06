@@ -1829,7 +1829,7 @@ export async function getUserSegmentation() {
     }
 
     // Parse preferences to check freeAccess
-    let prefs: any = {};
+    let prefs: { freeAccess?: boolean } = {};
     try {
       prefs = u.preferences ? JSON.parse(u.preferences as string) : {};
     } catch { /* ignore */ }

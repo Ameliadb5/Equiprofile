@@ -108,7 +108,7 @@ const BOT_UA_PATTERNS = [
 ];
 
 function isBot(ua: string): boolean {
-  if (!ua) return true; // no user-agent = likely a scanner
+  if (!ua || ua.length < 10) return true; // empty or suspiciously short UA = likely a scanner/probe
   const lower = ua.toLowerCase();
   return BOT_UA_PATTERNS.some((p) => lower.includes(p));
 }
