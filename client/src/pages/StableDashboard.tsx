@@ -146,6 +146,17 @@ type HorseEntry = {
   photoUrl?: string | null;
 };
 
+type HealthAlert = {
+  id: string;
+  horseId: number;
+  horseName: string;
+  type: "vaccination_due" | "deworming_due" | "treatment_due" | "no_recent_health" | "appointment_upcoming";
+  severity: "info" | "warning" | "urgent";
+  title: string;
+  dueDate?: string;
+  daysDue?: number;
+};
+
 // ─── Stable operational quick-stats ────────────────────────────────────────
 
 const PRIORITY_COLOR: Record<string, string> = {
@@ -338,7 +349,7 @@ function StableDashboardContent() {
   const { data: smartAlerts = [] } = trpc.timeline.getHealthAlerts.useQuery({}, {
     retry: false,
     staleTime: 5 * 60 * 1000,
-  });
+  }) as { data: HealthAlert[] };
   const { data: trainingStats } = trpc.analytics.getTrainingStats.useQuery(
     {},
     { retry: false },
@@ -356,7 +367,6 @@ function StableDashboardContent() {
       startDate: start.toISOString(),
       endDate: new Date(start.getTime() + 31 * 24 * 60 * 60 * 1000).toISOString(),
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { data: allCalendarEvents = [] } = trpc.calendar.getEvents.useQuery(
@@ -544,7 +554,7 @@ function StableDashboardContent() {
 
       {/* ── Care Alerts ──────────────────────────────────────── */}
       {(() => {
-        const actionableAlerts = (smartAlerts as any[]).filter(
+        const actionableAlerts = smartAlerts.filter(
           (a) => (a.severity === "urgent" || a.severity === "warning") &&
             a.type !== "no_recent_health"
         );
@@ -573,7 +583,7 @@ function StableDashboardContent() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-1.5">
-                {visibleAlerts.map((alert: any) => (
+                {visibleAlerts.map((alert) => (
                   <Link key={alert.id} href={alert.horseId ? `/horses/${alert.horseId}` : "/health"}>
                     <div className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer transition-colors ${
                       alert.severity === "urgent"
