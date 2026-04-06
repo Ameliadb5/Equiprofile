@@ -160,6 +160,31 @@ function parseUserPrefs(raw: string | null | undefined): Record<string, any> {
   }
 }
 
+/**
+ * Stable-plan procedure — extends subscribedProcedure with a planTier check.
+ * Only users whose planTier is "stable" (or who have bothDashboardsUnlocked)
+ * may access breeding, stable management, staff, and messaging features.
+ */
+const stablePlanProcedure = subscribedProcedure.use(async ({ ctx, next }) => {
+  const user = await db.getUserById(ctx.user.id);
+  if (!user) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+  }
+  const prefs = parseUserPrefs(
+    typeof user.preferences === "string"
+      ? user.preferences
+      : JSON.stringify(user.preferences ?? {}),
+  );
+  if (prefs.planTier !== "stable" && !prefs.bothDashboardsUnlocked) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message:
+        "This feature requires the Stable plan. Please upgrade to continue.",
+    });
+  }
+  return next({ ctx });
+});
+
 /** Format a date in en-GB style: "4 April 2026" */
 function formatDateGB(d: Date = new Date()): string {
   return d.toLocaleDateString("en-GB", {
@@ -327,7 +352,7 @@ export const appRouter = router({
 
   // AI chat
   ai: router({
-    chat: protectedProcedure
+    chat: subscribedProcedure
       .input(
         z.object({
           messages: z.array(
@@ -2506,7 +2531,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
   // Notes with voice dictation
   notes: router({
-    list: protectedProcedure
+    list: subscribedProcedure
       .input(
         z.object({
           horseId: z.number().optional(),
@@ -2517,7 +2542,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return db.getNotesByUserId(ctx.user.id, input.horseId, input.limit);
       }),
 
-    create: protectedProcedure
+    create: subscribedProcedure
       .input(
         z.object({
           title: z.string().optional(),
@@ -2553,7 +2578,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         }
       }),
 
-    update: protectedProcedure
+    update: subscribedProcedure
       .input(
         z.object({
           id: z.number(),
@@ -2582,7 +2607,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
-    delete: protectedProcedure
+    delete: subscribedProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
         // Verify ownership
@@ -3765,7 +3790,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
   // Stable management
   stables: router({
-    create: subscribedProcedure
+    create: stablePlanProcedure
       .input(
         z.object({
           name: z.string().min(1).max(200),
@@ -3851,7 +3876,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return stable[0] || null;
       }),
 
-    update: subscribedProcedure
+    update: stablePlanProcedure
       .input(
         z.object({
           id: z.number(),
@@ -3895,7 +3920,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
-    inviteMember: subscribedProcedure
+    inviteMember: stablePlanProcedure
       .input(
         z.object({
           stableId: z.number(),
@@ -4970,7 +4995,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
   // Breeding Management
   breeding: router({
-    createRecord: subscribedProcedure
+    createRecord: stablePlanProcedure
       .input(
         z.object({
           mareId: z.number(),
@@ -5071,7 +5096,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return records.length > 0 ? records[0] : null;
       }),
 
-    update: subscribedProcedure
+    update: stablePlanProcedure
       .input(
         z.object({
           id: z.number(),
@@ -5130,7 +5155,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
-    delete: subscribedProcedure
+    delete: stablePlanProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
         const db = await getDb();
@@ -5170,7 +5195,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
-    confirmPregnancy: subscribedProcedure
+    confirmPregnancy: stablePlanProcedure
       .input(
         z.object({
           id: z.number(),
@@ -5222,7 +5247,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
-    addFoal: subscribedProcedure
+    addFoal: stablePlanProcedure
       .input(
         z.object({
           breedingId: z.number(),
@@ -5266,7 +5291,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return db.select().from(foals).orderBy(desc(foals.birthDate));
       }),
 
-    exportCSV: subscribedProcedure.query(async ({ ctx }) => {
+    exportCSV: stablePlanProcedure.query(async ({ ctx }) => {
       const dbInstance = await getDb();
       if (!dbInstance) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
