@@ -323,6 +323,7 @@ function ContactsContent() {
                       setFormData({ ...formData, name: e.target.value })
                     }
                     placeholder="Dr. Smith"
+                    autoComplete="name"
                   />
                 </div>
 
@@ -334,7 +335,7 @@ function ContactsContent() {
                       setFormData({ ...formData, contactType: value })
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger id="contactType">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -375,6 +376,7 @@ function ContactsContent() {
                       setFormData({ ...formData, email: e.target.value })
                     }
                     placeholder="contact@example.com"
+                    autoComplete="email"
                   />
                 </div>
 
@@ -387,6 +389,7 @@ function ContactsContent() {
                       setFormData({ ...formData, phone: e.target.value })
                     }
                     placeholder="01234 567890"
+                    autoComplete="tel"
                   />
                 </div>
               </div>
@@ -401,6 +404,7 @@ function ContactsContent() {
                       setFormData({ ...formData, mobile: e.target.value })
                     }
                     placeholder="07123 456789"
+                    autoComplete="tel"
                   />
                 </div>
 
@@ -413,6 +417,7 @@ function ContactsContent() {
                       setFormData({ ...formData, website: e.target.value })
                     }
                     placeholder="https://example.com"
+                    autoComplete="url"
                   />
                 </div>
               </div>
@@ -439,6 +444,7 @@ function ContactsContent() {
                       setFormData({ ...formData, city: e.target.value })
                     }
                     placeholder="London"
+                    autoComplete="address-level2"
                   />
                 </div>
 
@@ -451,6 +457,7 @@ function ContactsContent() {
                       setFormData({ ...formData, postcode: e.target.value })
                     }
                     placeholder="SW1A 1AA"
+                    autoComplete="postal-code"
                   />
                 </div>
 
@@ -462,6 +469,7 @@ function ContactsContent() {
                     onChange={(e) =>
                       setFormData({ ...formData, country: e.target.value })
                     }
+                    autoComplete="country-name"
                   />
                 </div>
               </div>
@@ -678,6 +686,7 @@ function ContactsContent() {
                   id="edit-name"
                   value={editFormData.name}
                   onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                  autoComplete="name"
                 />
               </div>
               <div>
@@ -719,6 +728,7 @@ function ContactsContent() {
                   type="email"
                   value={editFormData.email}
                   onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                  autoComplete="email"
                 />
               </div>
               <div>
@@ -727,6 +737,7 @@ function ContactsContent() {
                   id="edit-phone"
                   value={editFormData.phone}
                   onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                  autoComplete="tel"
                 />
               </div>
             </div>
@@ -737,6 +748,7 @@ function ContactsContent() {
                   id="edit-mobile"
                   value={editFormData.mobile}
                   onChange={(e) => setEditFormData({ ...editFormData, mobile: e.target.value })}
+                  autoComplete="tel"
                 />
               </div>
               <div>
@@ -745,6 +757,7 @@ function ContactsContent() {
                   id="edit-website"
                   value={editFormData.website}
                   onChange={(e) => setEditFormData({ ...editFormData, website: e.target.value })}
+                  autoComplete="url"
                 />
               </div>
             </div>
@@ -763,6 +776,7 @@ function ContactsContent() {
                   id="edit-city"
                   value={editFormData.city}
                   onChange={(e) => setEditFormData({ ...editFormData, city: e.target.value })}
+                  autoComplete="address-level2"
                 />
               </div>
               <div>
@@ -771,6 +785,7 @@ function ContactsContent() {
                   id="edit-postcode"
                   value={editFormData.postcode}
                   onChange={(e) => setEditFormData({ ...editFormData, postcode: e.target.value })}
+                  autoComplete="postal-code"
                 />
               </div>
               <div>
@@ -779,6 +794,7 @@ function ContactsContent() {
                   id="edit-country"
                   value={editFormData.country}
                   onChange={(e) => setEditFormData({ ...editFormData, country: e.target.value })}
+                  autoComplete="country-name"
                 />
               </div>
             </div>

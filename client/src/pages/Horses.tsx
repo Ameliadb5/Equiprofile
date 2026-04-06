@@ -179,7 +179,7 @@ function HorsesContent() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {localHorses.map((horse) => (
-            <Card key={horse.id} className="card-hover overflow-hidden">
+            <Card key={horse.id} className="card-hover overflow-hidden flex flex-col">
               <div className="p-3 pb-0">
                 <div className="aspect-[4/3] bg-muted rounded-xl overflow-hidden relative">
                   {horse.photoUrl ? (
@@ -211,7 +211,7 @@ function HorsesContent() {
                   {horse.age && ` • ${horse.age} years old`}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col flex-1">
                 <div className="flex flex-wrap gap-2 mb-4">
                   {horse.discipline && (
                     <Badge variant="secondary">{horse.discipline}</Badge>
@@ -220,26 +220,30 @@ function HorsesContent() {
                     <Badge variant="outline">{horse.level}</Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Link href={`/horses/${horse.id}`} className="flex-1">
-                    <Button variant="outline" className="w-full">
-                      View Profile
-                      <ChevronRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
-                  <Link href={`/horses/${horse.id}/edit`}>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => { setDeleteTarget(horse); setConfirmFullDelete(false); }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                <div className="mt-auto">
+                  <div className="border-t pt-3 mt-3">
+                    <div className="flex items-center gap-2">
+                      <Link href={`/horses/${horse.id}`} className="flex-1">
+                        <Button variant="outline" className="w-full">
+                          View Profile
+                          <ChevronRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                      <Link href={`/horses/${horse.id}/edit`}>
+                        <Button variant="ghost" size="icon">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => { setDeleteTarget(horse); setConfirmFullDelete(false); }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
