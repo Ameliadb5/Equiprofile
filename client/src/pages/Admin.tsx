@@ -137,6 +137,10 @@ function AdminContent() {
     undefined,
     { enabled: isUnlocked },
   );
+  const { data: segmentation } = trpc.admin.getUserSegmentation.useQuery(
+    undefined,
+    { enabled: isUnlocked },
+  );
   const {
     data: users,
     isLoading: usersLoading,
@@ -465,6 +469,47 @@ function AdminContent() {
           </CardContent>
         </Card>
       </div>
+
+      {/* User Segmentation — executive summary */}
+      {segmentation && (
+        <Card className="border-indigo-500/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">User Segmentation</CardTitle>
+            <CardDescription className="text-xs">Real-time breakdown of user lifecycle stages</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              <div className="text-center p-3 rounded-lg bg-green-50 dark:bg-green-950/30">
+                <p className="text-2xl font-bold text-green-600">{segmentation.paidUsers}</p>
+                <p className="text-[11px] text-muted-foreground font-medium">Paid Users</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30">
+                <p className="text-2xl font-bold text-blue-600">{segmentation.freeAccessUsers}</p>
+                <p className="text-[11px] text-muted-foreground font-medium">Free Access</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30">
+                <p className="text-2xl font-bold text-amber-600">{segmentation.trialUsers}</p>
+                <p className="text-[11px] text-muted-foreground font-medium">Trial Users</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-red-50 dark:bg-red-950/30">
+                <p className="text-2xl font-bold text-red-600">{segmentation.overdueUsers}</p>
+                <p className="text-[11px] text-muted-foreground font-medium">Overdue</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-950/30">
+                <p className="text-2xl font-bold text-gray-500">{segmentation.deletedUsers}</p>
+                <p className="text-[11px] text-muted-foreground font-medium">Deleted</p>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              <span>Leads: <span className="font-semibold text-foreground">{segmentation.leads}</span></span>
+              <span>Cancelled: <span className="font-semibold text-foreground">{segmentation.cancelledUsers}</span></span>
+              <span>Expired: <span className="font-semibold text-foreground">{segmentation.expiredUsers}</span></span>
+              <span>Recent signups (7d): <span className="font-semibold text-foreground">{segmentation.recentSignups}</span></span>
+              <span>Total real users: <span className="font-semibold text-foreground">{segmentation.totalReal}</span></span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Main Tabs */}
       <Tabs defaultValue="users" className="space-y-4">
