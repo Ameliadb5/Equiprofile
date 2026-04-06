@@ -4920,6 +4920,22 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return db.getCompetitionsByUserId(ctx.user.id);
       }),
 
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        await dbConn
+          .delete(competitions)
+          .where(
+            and(
+              eq(competitions.id, input.id),
+              eq(competitions.userId, ctx.user.id),
+            ),
+          );
+        return { success: true };
+      }),
+
     exportCSV: subscribedProcedure.query(async ({ ctx }) => {
       const competitionData = await db.getCompetitionsByUserId(ctx.user.id);
       const csv = exportCompetitionsCSV(competitionData);

@@ -69,6 +69,7 @@ import {
   Navigation,
   ShoppingCart,
   Wrench,
+  Trophy,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -171,6 +172,7 @@ const moreModuleGroups = [
       { icon: Dumbbell, label: "Training Log", path: "/training" },
       { icon: BookOpen, label: "Templates", path: "/training-templates" },
       { icon: Navigation, label: "GPS Tracking", path: "/ride-tracking" },
+      { icon: Trophy, label: "Competitions", path: "/competitions" },
       { icon: Users, label: "Lessons", path: "/lessons" },
       { icon: Baby, label: "Breeding", path: "/breeding" },
     ],

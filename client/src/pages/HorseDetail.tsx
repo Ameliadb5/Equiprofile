@@ -48,6 +48,7 @@ function HorseDetailContent() {
     horseId,
   });
   const { data: feedingPlans } = trpc.feeding.listByHorse.useQuery({ horseId });
+  const { data: competitionRecords } = trpc.competitions.list.useQuery({ horseId });
   const { data: timeline } = trpc.timeline.getHorseTimeline.useQuery({ horseId, limit: 50 });
   const { data: healthAlerts } = trpc.timeline.getHealthAlerts.useQuery({ horseId });
 
@@ -275,6 +276,11 @@ function HorseDetailContent() {
           <TabsTrigger value="feeding" className="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5">
             <Utensils className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
             Feeding
+          </TabsTrigger>
+          <TabsTrigger value="competitions" className="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5">
+            <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+            <span className="hidden sm:inline">Competitions</span>
+            <span className="sm:hidden">Comps</span>
           </TabsTrigger>
           <TabsTrigger value="passport" className="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm px-3 py-1.5">
             <FileHeart className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
@@ -517,6 +523,88 @@ function HorseDetailContent() {
                       <Badge variant="outline" className="capitalize">
                         {plan.mealTime}
                       </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Competitions Tab */}
+        <TabsContent value="competitions">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Trophy className="w-5 h-5 text-amber-500" />
+                    Competition Record
+                  </CardTitle>
+                  <CardDescription>
+                    All competition entries and results for {horse.name}
+                  </CardDescription>
+                </div>
+                <Link href="/competitions">
+                  <Button variant="outline" size="sm">
+                    <Plus className="w-4 h-4 mr-1.5" />
+                    Log Competition
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {!competitionRecords || competitionRecords.length === 0 ? (
+                <div className="text-center py-8">
+                  <Trophy className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-muted-foreground text-sm">
+                    No competition records yet
+                  </p>
+                  <Link href="/competitions">
+                    <Button size="sm" className="mt-3">
+                      <Plus className="w-4 h-4 mr-1.5" />
+                      Log a Competition
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {(competitionRecords as any[]).map((comp) => (
+                    <div
+                      key={comp.id}
+                      className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30"
+                    >
+                      <Trophy className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm leading-tight">
+                          {comp.competitionName}
+                        </p>
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
+                          {comp.date && (
+                            <span>
+                              {new Date(comp.date).toLocaleDateString("en-GB", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </span>
+                          )}
+                          {comp.venue && <span>{comp.venue}</span>}
+                          {comp.discipline && <span>{comp.discipline}</span>}
+                        </div>
+                      </div>
+                      {comp.placement && (
+                        <Badge
+                          variant="outline"
+                          className={
+                            comp.placement === "1st"
+                              ? "bg-yellow-400/20 text-yellow-700 border-yellow-400/40 dark:text-yellow-300"
+                              : "bg-blue-100/50 text-blue-700 border-blue-300/40 dark:text-blue-300"
+                          }
+                        >
+                          {comp.placement}
+                        </Badge>
+                      )}
                     </div>
                   ))}
                 </div>
