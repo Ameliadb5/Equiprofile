@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Send, MessageSquare, Plus, Users } from "lucide-react";
+import { Send, MessageSquare, Plus, Users, Shield, ChevronRight, Loader2 } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -44,22 +45,30 @@ export default function MessagesPage() {
   const [showNewThread, setShowNewThread] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Get user's stables
-  const { data: stables = [] } = trpc.stables.list.useQuery();
+  const { data: subscriptionStatus, isLoading: subLoading } =
+    trpc.user.getSubscriptionStatus.useQuery();
+  const isStablePlan =
+    subscriptionStatus?.planTier === "stable" ||
+    !!subscriptionStatus?.bothDashboardsUnlocked;
+
+  // Get user's stables — disabled until we know the user has stable plan
+  const { data: stables = [] } = trpc.stables.list.useQuery(undefined, {
+    enabled: isStablePlan,
+  });
   const selectedStableId = stables[0]?.id;
 
   // Get threads for the first stable
   const { data: threads = [], refetch: refetchThreads } =
     trpc.messages.getThreads.useQuery(
       { stableId: selectedStableId! },
-      { enabled: !!selectedStableId },
+      { enabled: isStablePlan && !!selectedStableId },
     );
 
   // Get messages for selected thread
   const { data: threadMessages = [], refetch: refetchMessages } =
     trpc.messages.getMessages.useQuery(
       { threadId: selectedThreadId! },
-      { enabled: !!selectedThreadId },
+      { enabled: isStablePlan && !!selectedThreadId },
     );
 
   // Send message mutation
@@ -110,6 +119,44 @@ export default function MessagesPage() {
       handleSendMessage();
     }
   };
+
+  // Plan loading state
+  if (subLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Upgrade gate for non-stable users
+  if (!isStablePlan) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mb-4">
+            <Shield className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="font-serif text-2xl font-bold mb-2">Stable Plan Required</h2>
+          <p className="text-muted-foreground mb-6 max-w-sm text-sm">
+            Stable Messaging is exclusively for Stable plan subscribers. Upgrade to
+            communicate with your yard team, clients, and staff.
+          </p>
+          <Link href="/billing">
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white border-0"
+            >
+              Upgrade to Stable Plan
+              <ChevronRight className="w-5 h-5 ml-2" />
+            </Button>
+          </Link>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const noStable = stables.length === 0;
 

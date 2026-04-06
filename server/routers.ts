@@ -2766,9 +2766,11 @@ Format your response as JSON with keys: recommendation, explanation, precautions
     hardDeleteUser: adminUnlockedProcedure
       .input(z.object({ userId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        // Safety check: only allow hard-delete on already-soft-deleted users
+        // Safety check: only allow hard-delete on already-soft-deleted users.
+        // getUserById returns the user regardless of isActive status, so we
+        // must explicitly check isActive to distinguish active vs soft-deleted.
         const targetUser = await db.getUserById(input.userId);
-        if (targetUser) {
+        if (targetUser && targetUser.isActive !== false) {
           throw new TRPCError({
             code: "BAD_REQUEST",
             message:
@@ -3718,11 +3720,11 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           .from(chatLeads)
           .where(gte(chatLeads.createdAt, startDate));
 
-        // Signup conversions (new users in period)
+        // Signup conversions (new active users in period — excludes soft-deleted)
         const [signupsResult] = await dbConn
           .select({ count: sql<number>`COUNT(*)` })
           .from(users)
-          .where(gte(users.createdAt, startDate));
+          .where(and(gte(users.createdAt, startDate), eq(users.isActive, true)));
 
         // Trial-to-paid conversions
         const [t2pResult] = await dbConn
@@ -3824,7 +3826,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { id: result[0].insertId };
       }),
 
-    list: protectedProcedure.query(async ({ ctx }) => {
+    list: stablePlanProcedure.query(async ({ ctx }) => {
       const db = await getDb();
       if (!db) return [];
 
@@ -3845,7 +3847,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         );
     }),
 
-    getById: protectedProcedure
+    getById: stablePlanProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ ctx, input }) => {
         const db = await getDb();
@@ -4003,7 +4005,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
   // Messages
   messages: router({
-    getThreads: protectedProcedure
+    getThreads: stablePlanProcedure
       .input(z.object({ stableId: z.number() }))
       .query(async ({ ctx, input }) => {
         const db = await getDb();
@@ -4021,7 +4023,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           .orderBy(desc(messageThreads.updatedAt));
       }),
 
-    getMessages: protectedProcedure
+    getMessages: stablePlanProcedure
       .input(
         z.object({
           threadId: z.number(),
@@ -4051,7 +4053,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return rows;
       }),
 
-    sendMessage: protectedProcedure
+    sendMessage: stablePlanProcedure
       .input(
         z.object({
           threadId: z.number(),
@@ -5032,7 +5034,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { id: recordId };
       }),
 
-    list: protectedProcedure
+    list: stablePlanProcedure
       .input(
         z.object({
           mareId: z.number().optional(),
@@ -5071,7 +5073,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return query.orderBy(desc(breeding.breedingDate));
       }),
 
-    get: protectedProcedure
+    get: stablePlanProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ ctx, input }) => {
         const db = await getDb();
@@ -5270,7 +5272,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { id: result[0].insertId };
       }),
 
-    listFoals: protectedProcedure
+    listFoals: stablePlanProcedure
       .input(
         z.object({
           breedingId: z.number().optional(),

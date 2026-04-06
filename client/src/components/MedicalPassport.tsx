@@ -127,11 +127,13 @@ export function MedicalPassport({
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
     .letterhead-left { display: flex; align-items: center; gap: 12px; }
     .letterhead-text h1 { font-size: 16pt; font-weight: bold; margin-bottom: 2px; }
     .letterhead-text p { font-size: 8pt; opacity: .85; }
-    .accent-line { height: 3px; background: #2563eb; }
+    .accent-line { height: 3px; background: #2563eb; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
     .doc-title {
       text-align: center;
@@ -163,9 +165,9 @@ export function MedicalPassport({
     table.fields td { padding: 3px 0; font-size: 9.5pt; }
 
     table.records { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
-    table.records thead tr { background: #0c2352; color: #fff; }
+    table.records thead tr { background: #0c2352; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     table.records thead th { padding: 5px 8px; text-align: left; font-weight: bold; }
-    table.records tbody tr:nth-child(even) { background: #f3f6fb; }
+    table.records tbody tr:nth-child(even) { background: #f3f6fb; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     table.records tbody td { padding: 5px 8px; }
     table.records td.empty { color: #888; font-style: italic; }
 

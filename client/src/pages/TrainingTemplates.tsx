@@ -1271,9 +1271,23 @@ function TrainingTemplatesContent() {
 
   const usePredesignedMutation =
     trpc.trainingPrograms.createTemplate.useMutation({
-      onSuccess: () => {
-        toast.success("Predesigned template added to your templates");
+      onSuccess: (data, variables) => {
         utils.trainingPrograms.listTemplates.invalidate();
+        // Immediately open the apply dialog so the user can apply the template
+        // to a horse right away — no need to search for it in the list.
+        const newTemplate = {
+          id: data.id,
+          name: variables.name,
+          description: variables.description,
+          duration: variables.duration,
+          discipline: variables.discipline,
+          level: variables.level,
+          goals: variables.goals,
+          programData: variables.programData,
+        };
+        setSelectedTemplate(newTemplate);
+        setIsApplyOpen(true);
+        toast.success(`"${variables.name}" added — choose a horse to apply it`);
       },
       onError: (error) => {
         toast.error(`Error: ${error.message}`);
