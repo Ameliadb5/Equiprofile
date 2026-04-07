@@ -42,7 +42,13 @@
     "logHealth": "Gesundheit protokollieren",
     "activityFeed": "Aktivitätsfeed",
     "upcomingEvents": "Bevorstehende Ereignisse",
-    "recentActivity": "Letzte Aktivität"
+    "recentActivity": "Letzte Aktivität",
+    "stats": {
+      "totalHorses": "Pferde gesamt",
+      "trainingHours": "Trainingsstunden",
+      "upcomingEvents": "Bevorstehende Ereignisse",
+      "healthReminders": "Gesundheitserinnerungen"
+    }
   },
   "horses": {
     "title": "Pferde",
@@ -50,11 +56,26 @@
     "editHorse": "Pferd bearbeiten",
     "deleteHorse": "Pferd löschen",
     "horseDetails": "Pferdedetails",
-    "noHorses": "Keine Pferde gefunden"
+    "noHorses": "Keine Pferde gefunden",
+    "fields": {
+      "name": "Name",
+      "breed": "Rasse",
+      "age": "Alter",
+      "gender": "Geschlecht",
+      "color": "Farbe",
+      "height": "Größe",
+      "weight": "Gewicht",
+      "discipline": "Disziplin",
+      "level": "Niveau",
+      "registration": "Registriernummer",
+      "microchip": "Mikrochip-Nummer"
+    }
   },
   "health": {
     "title": "Gesundheitsakte",
     "addRecord": "Eintrag hinzufügen",
+    "editRecord": "Eintrag bearbeiten",
+    "deleteRecord": "Eintrag löschen",
     "vaccinations": "Impfungen",
     "deworming": "Entwurmung",
     "dental": "Zahnpflege",
@@ -68,9 +89,20 @@
     "title": "Trainingseinheiten",
     "addSession": "Einheit hinzufügen",
     "editSession": "Einheit bearbeiten",
+    "deleteSession": "Einheit löschen",
+    "trainingPrograms": "Trainingsprogramme",
     "templates": "Vorlagen",
     "applyTemplate": "Vorlage anwenden",
-    "createTemplate": "Vorlage erstellen"
+    "createTemplate": "Vorlage erstellen",
+    "sessionType": {
+      "flatwork": "Dressur",
+      "jumping": "Springen",
+      "hacking": "Ausritt",
+      "lunging": "Longieren",
+      "groundwork": "Bodenarbeit",
+      "competition": "Wettkampf",
+      "lesson": "Unterricht"
+    }
   },
   "stable": {
     "title": "Stall",
@@ -102,7 +134,9 @@
     "trainingAnalytics": "Trainingsanalytik",
     "healthAnalytics": "Gesundheitsanalytik",
     "performanceMetrics": "Leistungskennzahlen",
-    "costAnalysis": "Kostenanalyse"
+    "costAnalysis": "Kostenanalyse",
+    "comparisonView": "Vergleichsansicht",
+    "customReports": "Benutzerdefinierte Berichte"
   },
   "settings": {
     "title": "Einstellungen",
@@ -111,7 +145,8 @@
     "notifications": "Benachrichtigungen",
     "language": "Sprache",
     "theme": "Design",
-    "subscription": "Abonnement"
+    "subscription": "Abonnement",
+    "apiKeys": "API-Schlüssel"
   },
   "auth": {
     "signIn": "Anmelden",

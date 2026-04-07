@@ -42,7 +42,13 @@
     "logHealth": "Enregistrer la santé",
     "activityFeed": "Fil d'activité",
     "upcomingEvents": "Événements à venir",
-    "recentActivity": "Activité récente"
+    "recentActivity": "Activité récente",
+    "stats": {
+      "totalHorses": "Total chevaux",
+      "trainingHours": "Heures d'entraînement",
+      "upcomingEvents": "Événements à venir",
+      "healthReminders": "Rappels santé"
+    }
   },
   "horses": {
     "title": "Chevaux",
@@ -50,11 +56,26 @@
     "editHorse": "Modifier le cheval",
     "deleteHorse": "Supprimer le cheval",
     "horseDetails": "Détails du cheval",
-    "noHorses": "Aucun cheval trouvé"
+    "noHorses": "Aucun cheval trouvé",
+    "fields": {
+      "name": "Nom",
+      "breed": "Race",
+      "age": "Âge",
+      "gender": "Genre",
+      "color": "Couleur",
+      "height": "Taille",
+      "weight": "Poids",
+      "discipline": "Discipline",
+      "level": "Niveau",
+      "registration": "Numéro d'enregistrement",
+      "microchip": "Numéro de puce"
+    }
   },
   "health": {
     "title": "Dossiers de santé",
     "addRecord": "Ajouter un dossier",
+    "editRecord": "Modifier le dossier",
+    "deleteRecord": "Supprimer le dossier",
     "vaccinations": "Vaccinations",
     "deworming": "Vermifugation",
     "dental": "Dentaire",
@@ -68,9 +89,20 @@
     "title": "Séances d'entraînement",
     "addSession": "Ajouter une séance",
     "editSession": "Modifier la séance",
+    "deleteSession": "Supprimer la séance",
+    "trainingPrograms": "Programmes d'entraînement",
     "templates": "Modèles",
     "applyTemplate": "Appliquer le modèle",
-    "createTemplate": "Créer un modèle"
+    "createTemplate": "Créer un modèle",
+    "sessionType": {
+      "flatwork": "Travail à plat",
+      "jumping": "Saut",
+      "hacking": "Randonnée",
+      "lunging": "Longe",
+      "groundwork": "Travail au sol",
+      "competition": "Compétition",
+      "lesson": "Leçon"
+    }
   },
   "stable": {
     "title": "Écurie",
@@ -102,7 +134,9 @@
     "trainingAnalytics": "Analytique d'entraînement",
     "healthAnalytics": "Analytique de santé",
     "performanceMetrics": "Métriques de performance",
-    "costAnalysis": "Analyse des coûts"
+    "costAnalysis": "Analyse des coûts",
+    "comparisonView": "Vue comparative",
+    "customReports": "Rapports personnalisés"
   },
   "settings": {
     "title": "Paramètres",
@@ -111,7 +145,8 @@
     "notifications": "Notifications",
     "language": "Langue",
     "theme": "Thème",
-    "subscription": "Abonnement"
+    "subscription": "Abonnement",
+    "apiKeys": "Clés API"
   },
   "auth": {
     "signIn": "Se connecter",

@@ -42,7 +42,13 @@
     "logHealth": "Registrar salud",
     "activityFeed": "Feed de actividad",
     "upcomingEvents": "Próximos eventos",
-    "recentActivity": "Actividad reciente"
+    "recentActivity": "Actividad reciente",
+    "stats": {
+      "totalHorses": "Total caballos",
+      "trainingHours": "Horas de entrenamiento",
+      "upcomingEvents": "Próximos eventos",
+      "healthReminders": "Recordatorios de salud"
+    }
   },
   "horses": {
     "title": "Caballos",
@@ -50,11 +56,26 @@
     "editHorse": "Editar caballo",
     "deleteHorse": "Eliminar caballo",
     "horseDetails": "Detalles del caballo",
-    "noHorses": "No se encontraron caballos"
+    "noHorses": "No se encontraron caballos",
+    "fields": {
+      "name": "Nombre",
+      "breed": "Raza",
+      "age": "Edad",
+      "gender": "Género",
+      "color": "Color",
+      "height": "Altura",
+      "weight": "Peso",
+      "discipline": "Disciplina",
+      "level": "Nivel",
+      "registration": "Número de registro",
+      "microchip": "Número de microchip"
+    }
   },
   "health": {
     "title": "Registros de salud",
     "addRecord": "Agregar registro",
+    "editRecord": "Editar registro",
+    "deleteRecord": "Eliminar registro",
     "vaccinations": "Vacunaciones",
     "deworming": "Desparasitación",
     "dental": "Dental",
@@ -68,9 +89,20 @@
     "title": "Sesiones de entrenamiento",
     "addSession": "Agregar sesión",
     "editSession": "Editar sesión",
+    "deleteSession": "Eliminar sesión",
+    "trainingPrograms": "Programas de entrenamiento",
     "templates": "Plantillas",
     "applyTemplate": "Aplicar plantilla",
-    "createTemplate": "Crear plantilla"
+    "createTemplate": "Crear plantilla",
+    "sessionType": {
+      "flatwork": "Trabajo plano",
+      "jumping": "Salto",
+      "hacking": "Paseo",
+      "lunging": "Trabajo a la cuerda",
+      "groundwork": "Trabajo en tierra",
+      "competition": "Competición",
+      "lesson": "Lección"
+    }
   },
   "stable": {
     "title": "Establo",
@@ -102,7 +134,9 @@
     "trainingAnalytics": "Analítica de entrenamiento",
     "healthAnalytics": "Analítica de salud",
     "performanceMetrics": "Métricas de rendimiento",
-    "costAnalysis": "Análisis de costos"
+    "costAnalysis": "Análisis de costos",
+    "comparisonView": "Vista comparativa",
+    "customReports": "Informes personalizados"
   },
   "settings": {
     "title": "Configuración",
@@ -111,7 +145,8 @@
     "notifications": "Notificaciones",
     "language": "Idioma",
     "theme": "Tema",
-    "subscription": "Suscripción"
+    "subscription": "Suscripción",
+    "apiKeys": "Claves de API"
   },
   "auth": {
     "signIn": "Iniciar sesión",

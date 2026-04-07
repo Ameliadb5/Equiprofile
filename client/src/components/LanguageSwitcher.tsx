@@ -29,20 +29,29 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Change language">
-          <Languages className="h-[1.2rem] w-[1.2rem]" />
-          <span className="sr-only">Change language</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-1.5 px-2 h-9 text-xs font-medium"
+          aria-label="Change language"
+        >
+          <Languages className="h-[1.1rem] w-[1.1rem] shrink-0" />
+          <span className="hidden sm:inline">{currentLanguage.flag} {currentLanguage.name}</span>
+          <span className="sm:hidden">{currentLanguage.flag}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="min-w-[140px]">
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => changeLanguage(lang.code)}
+            className="gap-2"
           >
-            <span className="mr-2">{lang.flag}</span>
-            <span>{lang.name}</span>
-            {i18n.language === lang.code && <span className="ml-auto">✓</span>}
+            <span>{lang.flag}</span>
+            <span className="flex-1">{lang.name}</span>
+            {i18n.language === lang.code && (
+              <span className="text-primary font-bold text-xs">✓</span>
+            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
