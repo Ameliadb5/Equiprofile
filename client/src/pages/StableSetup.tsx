@@ -26,9 +26,6 @@ import {
   ChevronLeft,
   Loader2,
   MapPin,
-  Phone,
-  Globe,
-  Mail,
   Settings,
 } from "lucide-react";
 import { toast } from "sonner";
