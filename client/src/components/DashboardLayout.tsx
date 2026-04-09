@@ -627,7 +627,7 @@ function DashboardLayoutContent({
                       Navigate to any feature in the app
                     </SheetDescription>
                   </SheetHeader>
-                  <div className="space-y-5" style={{ paddingBottom: 'calc(1.5rem + var(--safe-area-bottom, 0px))' }}>
+                  <div className="space-y-6" style={{ paddingBottom: 'calc(1.5rem + var(--safe-area-bottom, 0px))' }}>
                     {moreModuleGroups.map((group) => {
                       // Filter stable-only items for non-stable users
                       const items = group.items.filter((item) => {
@@ -645,10 +645,10 @@ function DashboardLayoutContent({
                       if (items.length === 0) return null;
                       return (
                         <div key={group.label}>
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2.5 px-0.5">
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
                             {group.label}
                           </p>
-                          <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                             {items.map((item) => {
                               const Icon = item.icon;
                               const isActive = location === item.path;
@@ -659,16 +659,16 @@ function DashboardLayoutContent({
                                     setLocation(item.path);
                                     setMoreSheetOpen(false);
                                   }}
-                                  className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all text-center active:scale-95 ${
+                                  className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all text-center active:scale-[0.97] min-h-[80px] ${
                                     isActive
-                                      ? "border-primary/40 bg-primary/10 text-primary"
-                                      : "border-border/60 bg-card hover:bg-accent/60"
+                                      ? "border-primary/40 bg-primary/10 text-primary shadow-sm"
+                                      : "border-border/50 bg-card hover:bg-accent/50 hover:border-border"
                                   }`}
                                 >
-                                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${isActive ? "bg-primary/20" : group.iconBg}`}>
-                                    <Icon className="h-4 w-4 text-white" />
+                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isActive ? "bg-primary/20" : group.iconBg}`}>
+                                    <Icon className="h-5 w-5 text-white" />
                                   </div>
-                                  <span className="text-[10px] leading-tight font-medium">
+                                  <span className="text-xs leading-snug font-medium">
                                     {item.label}
                                   </span>
                                 </button>
@@ -679,13 +679,13 @@ function DashboardLayoutContent({
                       );
                     })}
                     {/* Sign Out — always visible at the bottom of the More sheet */}
-                    <div className="pt-2 border-t">
+                    <div className="pt-3 border-t">
                       <button
                         onClick={() => {
                           logout();
                           setMoreSheetOpen(false);
                         }}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl border border-destructive/30 bg-destructive/5 text-destructive hover:bg-destructive/10 transition-colors"
+                        className="w-full flex items-center gap-3 p-4 rounded-2xl border border-destructive/30 bg-destructive/5 text-destructive hover:bg-destructive/10 transition-colors"
                       >
                         <LogOut className="h-5 w-5 shrink-0" />
                         <span className="text-sm font-medium">Sign Out</span>
