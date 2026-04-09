@@ -7,6 +7,7 @@ import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 import {
   CloudSun,
   Thermometer,
@@ -299,14 +300,10 @@ function WeatherContent() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-serif text-3xl font-bold text-foreground">
-          Weather &amp; Riding Conditions
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Real-time weather data with intelligent riding recommendations, including time-of-day and precipitation analysis
-        </p>
-      </div>
+      <PageHeader
+        title="Weather & Riding Conditions"
+        subtitle="Real-time weather data with intelligent riding recommendations, including time-of-day and precipitation analysis"
+      />
 
       {/* Current Weather Card */}
       {currentLoading ? (

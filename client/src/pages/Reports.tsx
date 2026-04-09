@@ -48,6 +48,7 @@ import { trpc } from "../lib/trpc";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
 import { downloadCSV } from "@/lib/csvDownload";
+import { PageHeader } from "@/components/PageHeader";
 
 /** Brand color for PDF letterhead — premium dark navy */
 const BRAND_BLUE_RGB = [12, 35, 82] as const;
@@ -478,10 +479,10 @@ export default function Reports() {
     <DashboardLayout>
       <div className="container mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Reports</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Generate comprehensive reports and set up automated schedules
-          </p>
+          <PageHeader
+            title="Reports"
+            subtitle="Generate comprehensive reports and set up automated schedules"
+          />
         </div>
 
         <Tabs

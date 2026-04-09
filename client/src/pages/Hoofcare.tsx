@@ -32,6 +32,7 @@ import { useToast } from "../hooks/use-toast";
 import { useRealtimeModule } from "../hooks/useRealtime";
 import { PlusCircle, Edit2, Trash2, Heart } from "lucide-react";
 import { Badge } from "../components/ui/badge";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function Hoofcare() {
   return (
@@ -244,10 +245,10 @@ function HoofcareContent() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Hoofcare</h1>
-          <p className="text-muted-foreground">
-            Manage farrier visits and hoof maintenance
-          </p>
+          <PageHeader
+            title="Hoofcare"
+            subtitle="Manage farrier visits and hoof maintenance"
+          />
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -475,10 +476,10 @@ function HoofcareContent() {
       </div>
 
       {upcomingRecords.length > 0 && (
-        <Card className="mb-6 border-blue-200 bg-blue-50">
+        <Card className="mb-6 border-[#4f5fd6]/20 bg-[#4f5fd6]/5 dark:bg-[#4f5fd6]/10">
           <CardHeader>
-            <CardTitle className="text-blue-900">Upcoming Visits</CardTitle>
-            <CardDescription className="text-blue-700">
+            <CardTitle className="text-foreground">Upcoming Visits</CardTitle>
+            <CardDescription className="text-muted-foreground">
               {upcomingRecords.length} visit
               {upcomingRecords.length !== 1 ? "s" : ""} due in the next 30 days
             </CardDescription>

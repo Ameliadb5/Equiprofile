@@ -44,6 +44,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 
 function BreedingManagementContent() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -277,10 +278,10 @@ function BreedingManagementContent() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Breeding Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Track breeding records, pregnancies, and foals
-          </p>
+          <PageHeader
+            title="Breeding Management"
+            subtitle="Track breeding records, pregnancies, and foals"
+          />
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>

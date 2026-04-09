@@ -52,6 +52,7 @@ import {
 import { Search } from "lucide-react";
 import { toast } from "sonner";
 import { downloadCSV } from "@/lib/csvDownload";
+import { PageHeader } from "@/components/PageHeader";
 
 const documentTypes = [
   { value: "health", label: "Health Record" },
@@ -799,14 +800,12 @@ function DocumentsContent() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Documents
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {totalDocs === 0
+          <PageHeader
+            title="Documents"
+            subtitle={totalDocs === 0
               ? "Store and manage important documents for your horses"
               : `${filteredDocs.length} document${filteredDocs.length !== 1 ? "s" : ""} across ${Object.keys(docsByCategory).length} folder${Object.keys(docsByCategory).length !== 1 ? "s" : ""}`}
-          </p>
+          />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {/* Keyword search */}

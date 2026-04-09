@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Calendar, Plus, Pencil, Trash2, Clock, Search, Download } from "lucide-react";
 import DashboardLayout from "../components/DashboardLayout";
 import { downloadCSV } from "@/lib/csvDownload";
+import { PageHeader } from "@/components/PageHeader";
 
 function AppointmentsContent() {
   const { toast } = useToast();
@@ -248,11 +249,10 @@ function AppointmentsContent() {
     <div className="p-3 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-            <Calendar className="h-6 w-6 sm:h-8 sm:w-8" />
-            Appointments
-          </h1>
-          <p className="text-gray-600 mt-1">Schedule and manage appointments</p>
+          <PageHeader
+            title="Appointments"
+            subtitle="Schedule and manage appointments"
+          />
         </div>
         <div className="flex items-center gap-2">
           <div className="relative flex-1 sm:flex-none">

@@ -23,6 +23,7 @@ import {
 } from "../components/ui/tabs";
 import { trpc } from "../lib/trpc";
 import { format } from "date-fns";
+import { PageHeader } from "@/components/PageHeader";
 
 function ClientPortalContent() {
   // Client portal shows the authenticated user's own horses in read-only view.
@@ -40,12 +41,10 @@ function ClientPortalContent() {
       <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-6 mb-6">
         <div className="flex items-center gap-3">
           <Eye className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">Client Portal</h1>
-            <p className="text-muted-foreground">
-              Read-only view of your horses' information
-            </p>
-          </div>
+          <PageHeader
+            title="Client Portal"
+            subtitle="Read-only view of your horses' information"
+          />
         </div>
       </div>
 

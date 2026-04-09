@@ -55,6 +55,7 @@ import {
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { downloadCSV } from "@/lib/csvDownload";
+import { PageHeader } from "@/components/PageHeader";
 
 // ─── Disciplines ─────────────────────────────────────────────────────────────
 const DISCIPLINES = [
@@ -225,10 +226,10 @@ function CompetitionsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold">Competitions</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Track your horses' competition results and performance
-          </p>
+          <PageHeader
+            title="Competitions"
+            subtitle="Track your horses' competition results and performance"
+          />
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={handleExportCSV}>

@@ -29,6 +29,7 @@ import {
 import { Plus, Edit, Trash2, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { useRealtimeModule } from "../hooks/useRealtime";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function Dewormings() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -170,8 +171,8 @@ export default function Dewormings() {
   return (
     <DashboardLayout>
       <div className="px-4 py-6 sm:p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-          <h1 className="text-3xl font-bold">Dewormings</h1>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+          <PageHeader title="Dewormings" subtitle="Track deworming treatments and schedules" />
           <Dialog
             open={isDialogOpen}
             onOpenChange={(open) => {
@@ -372,10 +373,10 @@ export default function Dewormings() {
         </div>
 
         {upcomingDewormings.length > 0 && (
-          <Card className="border-yellow-200 bg-yellow-50">
+          <Card className="border-amber-200/60 bg-amber-50/40 dark:border-amber-800/30 dark:bg-amber-950/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Calendar className="h-5 w-5 text-amber-500" />
                 Upcoming Dewormings (Next 30 Days)
               </CardTitle>
             </CardHeader>
@@ -394,7 +395,7 @@ export default function Dewormings() {
                         <span className="font-medium">{horse?.name}</span> -{" "}
                         {deworming.product}
                       </div>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-muted-foreground">
                         Due:{" "}
                         {new Date(deworming.nextDueDate).toLocaleDateString()}
                       </span>
@@ -417,7 +418,7 @@ export default function Dewormings() {
                       <div className="text-lg">
                         {horse?.name || "Unknown Horse"}
                       </div>
-                      <div className="text-sm font-normal text-gray-600">
+                      <div className="text-sm font-normal text-muted-foreground">
                         {deworming.product}
                       </div>
                     </div>
@@ -441,44 +442,44 @@ export default function Dewormings() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="text-sm">
-                    <span className="text-gray-600">Active Ingredient:</span>{" "}
+                    <span className="text-muted-foreground">Active Ingredient:</span>{" "}
                     {deworming.activeIngredient}
                   </div>
                   <div className="text-sm">
-                    <span className="text-gray-600">Dosage:</span>{" "}
+                    <span className="text-muted-foreground">Dosage:</span>{" "}
                     {deworming.dosage}
                   </div>
                   {deworming.weight && (
                     <div className="text-sm">
-                      <span className="text-gray-600">Weight:</span>{" "}
+                      <span className="text-muted-foreground">Weight:</span>{" "}
                       {deworming.weight} kg
                     </div>
                   )}
                   <div className="text-sm">
-                    <span className="text-gray-600">Date:</span>{" "}
+                    <span className="text-muted-foreground">Date:</span>{" "}
                     {new Date(deworming.dateAdministered).toLocaleDateString()}
                   </div>
                   {deworming.nextDueDate && (
                     <div className="text-sm">
-                      <span className="text-gray-600">Next Due:</span>{" "}
+                      <span className="text-muted-foreground">Next Due:</span>{" "}
                       {new Date(deworming.nextDueDate).toLocaleDateString()}
                     </div>
                   )}
                   {deworming.vet && (
                     <div className="text-sm">
-                      <span className="text-gray-600">Vet:</span>{" "}
+                      <span className="text-muted-foreground">Vet:</span>{" "}
                       {deworming.vet}
                     </div>
                   )}
                   {deworming.cost && (
                     <div className="text-sm">
-                      <span className="text-gray-600">Cost:</span> £
+                      <span className="text-muted-foreground">Cost:</span> £
                       {(deworming.cost / 100).toFixed(2)}
                     </div>
                   )}
                   {deworming.notes && (
                     <div className="text-sm">
-                      <span className="text-gray-600">Notes:</span>{" "}
+                      <span className="text-muted-foreground">Notes:</span>{" "}
                       {deworming.notes}
                     </div>
                   )}
@@ -492,7 +493,7 @@ export default function Dewormings() {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Calendar className="h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-600">No deworming records yet</p>
+              <p className="text-muted-foreground">No deworming records yet</p>
               <p className="text-sm text-gray-500">
                 Click "Add Deworming" to create your first record
               </p>

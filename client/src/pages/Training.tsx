@@ -60,6 +60,7 @@ import {
 import { toast } from "sonner";
 import { useRealtimeModule } from "@/hooks/useRealtime";
 import { downloadCSV } from "@/lib/csvDownload";
+import { PageHeader } from "@/components/PageHeader";
 
 const sessionTypes = [
   { value: "flatwork", label: "Flatwork" },
@@ -281,12 +282,10 @@ function TrainingContent() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Training
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Sessions, schedules, and training programmes
-          </p>
+          <PageHeader
+            title="Training"
+            subtitle="Sessions, schedules, and training programmes"
+          />
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">

@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../../../server/routers";
 import { downloadCSV } from "@/lib/csvDownload";
+import { PageHeader } from "@/components/PageHeader";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type FeedingPlan = RouterOutput["feeding"]["listAll"][number];
@@ -159,12 +160,10 @@ function FeedingContent() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Feeding Plans
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage daily feeding schedules for your horses
-          </p>
+          <PageHeader
+            title="Feeding Plans"
+            subtitle="Manage daily feeding schedules for your horses"
+          />
         </div>
         <div className="flex items-center gap-2">
           <Button

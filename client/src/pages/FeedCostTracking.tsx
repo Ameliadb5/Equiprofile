@@ -52,6 +52,7 @@ import {
   Legend,
 } from "recharts";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 
 const feedTypes = [
   "Hay",
@@ -181,12 +182,10 @@ function FeedCostContent() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Feed Cost Tracking
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Track feed expenses and manage your budget per horse
-          </p>
+          <PageHeader
+            title="Feed Cost Tracking"
+            subtitle="Track feed expenses and manage your budget per horse"
+          />
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>

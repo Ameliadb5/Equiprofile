@@ -51,6 +51,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { PageHeader } from "@/components/PageHeader";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -580,12 +581,10 @@ function RideTrackingContent() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground">
-          GPS Ride Tracking
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Track your rides in real time using GPS. Record your route, distance, and duration — then save rides to your horse's activity history.
-        </p>
+        <PageHeader
+          title="GPS Ride Tracking"
+          subtitle="Track your rides in real time using GPS. Record your route, distance, and duration — then save rides to your horse's activity history."
+        />
       </div>
 
       {/* ── Draft Recovery Banner ────────────────────────────────────────── */}

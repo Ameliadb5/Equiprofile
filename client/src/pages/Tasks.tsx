@@ -42,6 +42,7 @@ import {
 import { toast } from "sonner";
 import { useRealtimeModule } from "@/hooks/useRealtime";
 import { downloadCSV } from "@/lib/csvDownload";
+import { PageHeader } from "@/components/PageHeader";
 
 function TasksContent() {
   const utils = trpc.useUtils();
@@ -298,12 +299,10 @@ function TasksContent() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Tasks
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your horse care tasks and reminders
-          </p>
+          <PageHeader
+            title="Tasks"
+            subtitle="Manage your horse care tasks and reminders"
+          />
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative">

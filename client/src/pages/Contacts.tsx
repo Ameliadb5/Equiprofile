@@ -41,6 +41,7 @@ import {
 import { toast } from "sonner";
 import { useRealtimeModule } from "@/hooks/useRealtime";
 import { downloadCSV } from "@/lib/csvDownload";
+import { PageHeader } from "@/components/PageHeader";
 
 function ContactsContent() {
   const utils = trpc.useUtils();
@@ -273,12 +274,10 @@ function ContactsContent() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Contacts
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage vets, farriers, trainers, and service providers
-          </p>
+          <PageHeader
+            title="Contacts"
+            subtitle="Manage vets, farriers, trainers, and service providers"
+          />
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative">

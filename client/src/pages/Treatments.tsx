@@ -23,6 +23,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Pill, Plus, Pencil, Trash2 } from "lucide-react";
 import DashboardLayout from "../components/DashboardLayout";
+import { PageHeader } from "@/components/PageHeader";
 
 function TreatmentsContent() {
   const { toast } = useToast();
@@ -212,13 +213,10 @@ function TreatmentsContent() {
     <div className="p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Pill className="h-8 w-8" />
-            Treatments
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Track medications, therapies, and procedures
-          </p>
+          <PageHeader
+            title="Treatments"
+            subtitle="Track medications, therapies, and procedures"
+          />
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -432,7 +430,7 @@ function TreatmentsContent() {
         </h2>
         <div className="grid gap-4">
           {activeTreatments.length === 0 ? (
-            <p className="text-gray-500">No active treatments</p>
+            <p className="text-muted-foreground">No active treatments</p>
           ) : (
             activeTreatments.map((treatment: any) => (
               <div
@@ -454,7 +452,7 @@ function TreatmentsContent() {
                         {treatment.treatmentType || treatment.type}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">
+                    <p className="text-sm text-muted-foreground mb-2">
                       Horse:{" "}
                       {horses?.find((h: any) => h.id === treatment.horseId)
                         ?.name || "Unknown"}
@@ -491,7 +489,7 @@ function TreatmentsContent() {
                       </p>
                     )}
                     {treatment.notes && (
-                      <p className="text-sm text-gray-600 mt-2">
+                      <p className="text-sm text-muted-foreground mt-2">
                         {treatment.notes}
                       </p>
                     )}
@@ -542,12 +540,12 @@ function TreatmentsContent() {
                       {treatment.status}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Horse:{" "}
                     {horses?.find((h: any) => h.id === treatment.horseId)
                       ?.name || "Unknown"}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     {new Date(treatment.startDate).toLocaleDateString()} -{" "}
                     {treatment.endDate
                       ? new Date(treatment.endDate).toLocaleDateString()

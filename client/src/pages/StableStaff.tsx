@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "wouter";
+import { PageHeader } from "@/components/PageHeader";
 
 // Staff roles use the existing contact type enum values that represent yard staff
 const STAFF_ROLES = [
@@ -156,13 +157,10 @@ function StableStaffContent() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-bold flex items-center gap-2">
-            <UserCog className="w-6 h-6 text-blue-400" />
-            Staff Management
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Manage your stable&apos;s team members, roles, and contact details.
-          </p>
+          <PageHeader
+            title="Staff Management"
+            subtitle="Manage your stable's team members, roles, and contact details."
+          />
         </div>
         <Button
           onClick={() => setIsAddOpen(true)}

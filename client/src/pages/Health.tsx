@@ -57,6 +57,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { downloadCSV } from "@/lib/csvDownload";
+import { PageHeader } from "@/components/PageHeader";
 
 const recordTypes = [
   { value: "vaccination", label: "Vaccination", icon: Syringe },
@@ -247,12 +248,10 @@ function HealthContent() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Health Records
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Track vaccinations, vet visits, and medical history
-          </p>
+          <PageHeader
+            title="Health Records"
+            subtitle="Track vaccinations, vet visits, and medical history"
+          />
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -437,10 +436,10 @@ function HealthContent() {
 
       {/* Upcoming Reminders */}
       {reminders && reminders.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50/50">
+        <Card className="border-amber-200/60 bg-amber-50/40 dark:border-amber-800/30 dark:bg-amber-950/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-orange-700">
-              <AlertCircle className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <AlertCircle className="w-5 h-5 text-amber-500" />
               Upcoming Reminders
             </CardTitle>
             <CardDescription>
@@ -460,9 +459,9 @@ function HealthContent() {
                 return (
                   <div
                     key={reminder.id}
-                    className="flex items-center gap-4 p-3 rounded-lg bg-white border border-orange-200"
+                    className="flex items-center gap-4 p-3 rounded-lg bg-background border border-border"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center text-amber-600 dark:text-amber-400">
                       {getRecordIcon(reminder.recordType)}
                     </div>
                     <div className="flex-1">
@@ -473,7 +472,7 @@ function HealthContent() {
                     </div>
                     <Badge
                       variant="outline"
-                      className="bg-orange-100 text-orange-700 border-orange-200"
+                      className="bg-muted text-foreground"
                     >
                       {reminder.nextDueDate &&
                         new Date(reminder.nextDueDate).toLocaleDateString()}

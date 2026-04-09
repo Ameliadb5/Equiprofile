@@ -29,6 +29,7 @@ import {
   Settings,
 } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 
 const SETUP_STEPS = [
   {
@@ -472,14 +473,10 @@ function StableSetupContent() {
     <div className="space-y-6 pb-6 max-w-2xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="font-serif text-2xl font-bold flex items-center gap-2">
-          <Building2 className="w-6 h-6 text-amber-400" />
-          Stable Setup
-        </h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Configure your stable step by step. You can always come back to this
-          page to update your setup.
-        </p>
+        <PageHeader
+          title="Stable Setup"
+          subtitle="Configure your stable step by step. You can always come back to this page to update your setup."
+        />
       </div>
 
       {/* Step indicator */}
