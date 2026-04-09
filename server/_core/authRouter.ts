@@ -9,6 +9,9 @@ import * as email from "./email";
 import { ENV } from "./env";
 import { COOKIE_NAME } from "@shared/const";
 
+/** Hours before a verification token expires */
+const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
+
 /** Extract plan-related flags from a JSON preferences string. */
 function extractPlanInfo(preferences: string | null | undefined): {
   planTier: string | null;
@@ -127,7 +130,7 @@ router.post("/signup", signupLimiter, async (req, res) => {
       if (existingUser.emailVerified === false && existingUser.loginMethod === "email") {
         const verificationToken = nanoid(32);
         const verificationTokenExpiry = new Date();
-        verificationTokenExpiry.setHours(verificationTokenExpiry.getHours() + 24);
+        verificationTokenExpiry.setHours(verificationTokenExpiry.getHours() + VERIFICATION_TOKEN_EXPIRY_HOURS);
 
         await db.updateUser(existingUser.id, {
           verificationToken,
@@ -159,7 +162,7 @@ router.post("/signup", signupLimiter, async (req, res) => {
     // Generate verification token
     const verificationToken = nanoid(32);
     const verificationTokenExpiry = new Date();
-    verificationTokenExpiry.setHours(verificationTokenExpiry.getHours() + 24); // 24 hour expiry
+    verificationTokenExpiry.setHours(verificationTokenExpiry.getHours() + VERIFICATION_TOKEN_EXPIRY_HOURS); // 24 hour expiry
 
     // Create user with trial period — starts as unverified
     const trialEnd = new Date();
@@ -529,7 +532,7 @@ router.post("/resend-verification", resendLimiter, async (req, res) => {
     // Generate new verification token
     const verificationToken = nanoid(32);
     const verificationTokenExpiry = new Date();
-    verificationTokenExpiry.setHours(verificationTokenExpiry.getHours() + 24);
+    verificationTokenExpiry.setHours(verificationTokenExpiry.getHours() + VERIFICATION_TOKEN_EXPIRY_HOURS);
 
     await db.updateUser(user.id, {
       verificationToken,
