@@ -36,6 +36,7 @@ import {
 } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { useRealtimeModule } from "../hooks/useRealtime";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function Vaccinations() {
   return (
@@ -236,13 +237,10 @@ function VaccinationsContent() {
     <div className="container mx-auto px-4 py-6 sm:p-6 space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Syringe className="h-8 w-8 text-blue-600" />
-            Vaccinations
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Track vaccination records for your horses
-          </p>
+          <PageHeader
+            title="Vaccinations"
+            subtitle="Track vaccination records for your horses"
+          />
         </div>
         <Button
           onClick={() => {

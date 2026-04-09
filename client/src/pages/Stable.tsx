@@ -44,6 +44,7 @@ import {
 } from "../components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function StablePage() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -142,12 +143,12 @@ export default function StablePage() {
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Stable</h1>
-            <p className="text-muted-foreground">
-              {currentStable
+            <PageHeader
+              title="Stable"
+              subtitle={currentStable
                 ? `Managing: ${currentStable.name}`
                 : "Manage your stable and team members"}
-            </p>
+            />
           </div>
           <div className="flex gap-2">
             {!currentStable ? (

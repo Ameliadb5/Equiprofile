@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { DashboardLayout } from "../components/DashboardLayout";
 import { useRealtimeModule } from "../hooks/useRealtime";
+import { PageHeader } from "@/components/PageHeader";
 
 function DentalCareContent() {
   const { toast } = useToast();
@@ -213,10 +214,10 @@ function DentalCareContent() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">Dental Care</h1>
-          <p className="text-muted-foreground">
-            Track dental exams and procedures
-          </p>
+          <PageHeader
+            title="Dental Care"
+            subtitle="Track dental exams and procedures"
+          />
         </div>
         <Dialog
           open={open}

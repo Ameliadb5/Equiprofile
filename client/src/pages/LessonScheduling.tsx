@@ -49,6 +49,7 @@ import { toast } from "sonner";
 import { trpc } from "../lib/trpc";
 import { format } from "date-fns";
 import DashboardLayout from "../components/DashboardLayout";
+import { PageHeader } from "@/components/PageHeader";
 
 const DAYS_OF_WEEK = [
   "Sunday",
@@ -283,10 +284,10 @@ function LessonSchedulingContent() {
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">Lesson Scheduling</h1>
-          <p className="text-muted-foreground">
-            Manage your riding lessons and trainer availability
-          </p>
+          <PageHeader
+            title="Lesson Scheduling"
+            subtitle="Manage your riding lessons and trainer availability"
+          />
         </div>
       </div>
 

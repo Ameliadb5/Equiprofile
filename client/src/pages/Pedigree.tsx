@@ -28,6 +28,7 @@ import {
 import { Plus, Edit, GitBranch } from "lucide-react";
 import { toast } from "sonner";
 import { useRealtimeModule } from "../hooks/useRealtime";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function Pedigree() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -132,11 +133,10 @@ export default function Pedigree() {
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold font-serif">Pedigree</h1>
-            <p className="text-muted-foreground mt-1 text-sm max-w-xl">
-              Record and view your horse's lineage across up to four generations.
-              Knowing a horse's bloodline helps with breeding decisions, performance expectations, and registration.
-            </p>
+          <PageHeader
+            title="Pedigree"
+            subtitle="Record and view your horse's lineage across up to four generations. Knowing a horse's bloodline helps with breeding decisions, performance expectations, and registration."
+          />
           </div>
         </div>
 

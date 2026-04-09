@@ -22,6 +22,7 @@ import { trpc } from "@/lib/trpc";
 import { useLocation, useParams } from "wouter";
 import { ArrowLeft, Save, Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 import { Link } from "wouter";
 
 const disciplines = [
@@ -244,16 +245,12 @@ function HorseFormContent() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
-        <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            {isEditing ? "Edit Horse" : "Add New Horse"}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {isEditing
-              ? "Update your horse's information"
-              : "Enter details about your equine companion"}
-          </p>
-        </div>
+        <PageHeader
+          title={isEditing ? "Edit Horse" : "Add New Horse"}
+          subtitle={isEditing
+            ? "Update your horse's information"
+            : "Enter details about your equine companion"}
+        />
       </div>
 
       <form onSubmit={handleSubmit}>

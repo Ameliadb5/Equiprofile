@@ -36,6 +36,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function Settings() {
   const { user } = useAuth();
@@ -239,12 +240,10 @@ export default function Settings() {
       <PageTransition>
         <div className="container max-w-4xl py-8">
           <div className="mb-8">
-            <div>
-              <h1 className="text-3xl font-bold font-serif mb-2">Settings</h1>
-              <p className="text-muted-foreground">
-                Manage your account settings and preferences
-              </p>
-            </div>
+            <PageHeader
+              title="Settings"
+              subtitle="Manage your account settings and preferences"
+            />
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">

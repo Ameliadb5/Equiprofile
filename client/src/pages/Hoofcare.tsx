@@ -32,6 +32,7 @@ import { useToast } from "../hooks/use-toast";
 import { useRealtimeModule } from "../hooks/useRealtime";
 import { PlusCircle, Edit2, Trash2, Heart } from "lucide-react";
 import { Badge } from "../components/ui/badge";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function Hoofcare() {
   return (
@@ -244,10 +245,10 @@ function HoofcareContent() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Hoofcare</h1>
-          <p className="text-muted-foreground">
-            Manage farrier visits and hoof maintenance
-          </p>
+          <PageHeader
+            title="Hoofcare"
+            subtitle="Manage farrier visits and hoof maintenance"
+          />
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>

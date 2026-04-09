@@ -38,6 +38,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 
 function EquinePassportContent() {
   const [selectedHorseId, setSelectedHorseId] = useState<string>("");
@@ -195,13 +196,10 @@ function EquinePassportContent() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-3xl font-bold text-foreground flex items-center gap-3">
-          <Shield className="w-8 h-8 text-blue-500" />
-          Equine Passport
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Generate a digital Medical Passport for each horse. Share a read-only view with vets, competition officials, or buyers using a secure link — no login required.
-        </p>
+        <PageHeader
+          title="Equine Passport"
+          subtitle="Generate a digital Medical Passport for each horse. Share a read-only view with vets, competition officials, or buyers using a secure link — no login required."
+        />
       </div>
 
       {/* Horse Selection */}

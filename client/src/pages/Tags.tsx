@@ -26,6 +26,7 @@ import { useRealtimeModule } from "../hooks/useRealtime";
 import { PlusCircle, Edit2, Trash2, Tag, Filter } from "lucide-react";
 import { Badge } from "../components/ui/badge";
 import { Link } from "wouter";
+import { PageHeader } from "@/components/PageHeader";
 
 const PRESET_COLORS = [
   { name: "Red", value: "#ef4444" },
@@ -170,10 +171,10 @@ function TagsContent() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-start mb-6 gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">Tags</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Organise your horses with colour-coded tags. Tags help you filter, group, and quickly identify horses by category, status, or any custom label.
-          </p>
+          <PageHeader
+            title="Tags"
+            subtitle="Organise your horses with colour-coded tags. Tags help you filter, group, and quickly identify horses by category, status, or any custom label."
+          />
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>

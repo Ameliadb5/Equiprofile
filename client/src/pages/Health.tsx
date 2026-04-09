@@ -57,6 +57,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { downloadCSV } from "@/lib/csvDownload";
+import { PageHeader } from "@/components/PageHeader";
 
 const recordTypes = [
   { value: "vaccination", label: "Vaccination", icon: Syringe },
@@ -247,12 +248,10 @@ function HealthContent() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Health Records
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Track vaccinations, vet visits, and medical history
-          </p>
+          <PageHeader
+            title="Health Records"
+            subtitle="Track vaccinations, vet visits, and medical history"
+          />
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">

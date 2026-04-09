@@ -44,6 +44,7 @@ import {
 import { toast } from "sonner";
 import { downloadCSV } from "@/lib/csvDownload";
 import { useRealtimeModule } from "@/hooks/useRealtime";
+import { PageHeader } from "@/components/PageHeader";
 
 function HorsesContent() {
   const [, navigate] = useLocation();
@@ -169,12 +170,10 @@ function HorsesContent() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Your Horses
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage profiles for all your equine companions
-          </p>
+          <PageHeader
+            title="Your Horses"
+            subtitle="Manage profiles for all your equine companions"
+          />
         </div>
         <div className="flex gap-2">
           {localHorses && localHorses.length > 0 && (

@@ -38,6 +38,7 @@ import {
 } from "recharts";
 import { downloadCSV } from "@/lib/csvDownload";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 
 const COLORS = [
   "#0088FE",
@@ -154,10 +155,10 @@ export default function AnalyticsPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Analytics</h1>
-            <p className="text-muted-foreground">
-              Comprehensive insights into your horses' performance and health
-            </p>
+            <PageHeader
+              title="Analytics"
+              subtitle="Comprehensive insights into your horses' performance and health"
+            />
           </div>
         </div>
 

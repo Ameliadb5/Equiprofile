@@ -31,6 +31,7 @@ import {
 import { useToast } from "../hooks/use-toast";
 import { useRealtimeModule } from "../hooks/useRealtime";
 import { PlusCircle, Edit2, Trash2, FileImage, Upload, X } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function Xrays() {
   return (
@@ -284,10 +285,10 @@ function XraysContent() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">X-rays</h1>
-          <p className="text-muted-foreground">
-            Manage x-ray records and imaging
-          </p>
+          <PageHeader
+            title="X-rays"
+            subtitle="Manage x-ray records and imaging"
+          />
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>

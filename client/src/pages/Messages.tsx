@@ -14,6 +14,7 @@ import { ScrollArea } from "../components/ui/scroll-area";
 import { Badge } from "../components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/PageHeader";
 
 interface MessageThread {
   id: number;
@@ -163,13 +164,10 @@ export default function MessagesPage() {
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h1 className="text-2xl font-bold">Messages</h1>
-            {selectedStableId && stables[0] && (
-              <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                <Users className="h-3 w-3" />
-                {stables[0].name}
-              </p>
-            )}
+            <PageHeader
+              title="Messages"
+              subtitle={selectedStableId && stables[0] ? stables[0].name : "Team communication for your stable"}
+            />
           </div>
           {!noStable && (
             <Button
