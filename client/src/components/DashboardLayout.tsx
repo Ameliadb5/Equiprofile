@@ -79,6 +79,7 @@ import { trpc } from "@/lib/trpc";
 import { ThemeToggle } from "./ThemeToggle";
 import { NotificationCenter } from "./NotificationCenter";
 import { TrialBanner } from "./TrialBanner";
+import { isV2 } from "@/config/uiVersion";
 
 // Standard plan primary nav
 const menuItems = [
@@ -564,9 +565,19 @@ function DashboardLayoutContent({
             </div>
           </div>
         )}
-        <main className="flex-1 p-3 sm:p-5 md:p-6 overflow-x-hidden" style={isMobile ? { paddingBottom: 'calc(5rem + var(--safe-area-bottom, 0px))' } : undefined}>
-          <TrialBanner />
-          {children}
+        <main className="flex-1 p-3 sm:p-5 md:p-6 overflow-x-hidden relative" style={isMobile ? { paddingBottom: 'calc(5rem + var(--safe-area-bottom, 0px))' } : undefined}>
+          {/* V2 subtle premium background depth — soft ambient shapes */}
+          {isV2() && (
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#4f5fd6]/[0.025] blur-3xl dark:bg-[#4f5fd6]/[0.04]" />
+              <div className="absolute top-1/3 -left-32 h-[400px] w-[400px] rounded-full bg-[#3b7dd8]/[0.02] blur-3xl dark:bg-[#3b7dd8]/[0.03]" />
+              <div className="absolute bottom-0 right-1/4 h-[350px] w-[350px] rounded-full bg-[#2d8a56]/[0.02] blur-3xl dark:bg-[#2d8a56]/[0.03]" />
+            </div>
+          )}
+          <div className="relative">
+            <TrialBanner />
+            {children}
+          </div>
         </main>
 
         {/* Mobile Bottom Navigation Bar */}
