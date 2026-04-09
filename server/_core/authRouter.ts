@@ -276,11 +276,14 @@ router.post("/login", loginLimiter, async (req, res) => {
       // Legacy users created before email verification was introduced have
       // emailVerified = false but no verificationToken. Auto-verify them so
       // they are never locked out of an account they've always been able to use.
-      // The update is fire-and-forget so a transient DB failure never causes a 500.
+      // The update is wrapped in try/catch so a transient DB failure never
+      // causes a 500 — the user can still log in and we log the failure.
       if (!user.verificationToken) {
-        db.updateUser(user.id, { emailVerified: true }).catch((err) =>
-          console.error("[Auth] Failed to auto-verify legacy user:", err),
-        );
+        try {
+          await db.updateUser(user.id, { emailVerified: true });
+        } catch (err) {
+          console.error("[Auth] Failed to auto-verify legacy user:", err);
+        }
       } else {
         return res.status(403).json({
           error: "Email not verified",

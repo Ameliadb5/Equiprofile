@@ -57,8 +57,12 @@ async function handleLogin(
   // Mirror the email verification logic from authRouter.ts
   if (!user.emailVerified && user.loginMethod === "email") {
     if (!user.verificationToken) {
-      // Legacy user — auto-verify (fire-and-forget)
-      db.updateUser(user.id, { emailVerified: true }).catch(() => {});
+      // Legacy user — auto-verify with error isolation
+      try {
+        await db.updateUser(user.id, { emailVerified: true });
+      } catch {
+        // transient failure — login still proceeds
+      }
     } else {
       return {
         status: 403,
