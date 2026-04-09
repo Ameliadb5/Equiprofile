@@ -475,10 +475,10 @@ function HoofcareContent() {
       </div>
 
       {upcomingRecords.length > 0 && (
-        <Card className="mb-6 border-blue-200 bg-blue-50">
+        <Card className="mb-6 border-[#4f5fd6]/20 bg-[#4f5fd6]/5 dark:bg-[#4f5fd6]/10">
           <CardHeader>
-            <CardTitle className="text-blue-900">Upcoming Visits</CardTitle>
-            <CardDescription className="text-blue-700">
+            <CardTitle className="text-foreground">Upcoming Visits</CardTitle>
+            <CardDescription className="text-muted-foreground">
               {upcomingRecords.length} visit
               {upcomingRecords.length !== 1 ? "s" : ""} due in the next 30 days
             </CardDescription>

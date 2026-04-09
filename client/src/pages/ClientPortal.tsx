@@ -41,7 +41,7 @@ function ClientPortalContent() {
         <div className="flex items-center gap-3">
           <Eye className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold">Client Portal</h1>
+            <h1 className="font-serif text-3xl font-bold text-foreground">Client Portal</h1>
             <p className="text-muted-foreground">
               Read-only view of your horses' information
             </p>

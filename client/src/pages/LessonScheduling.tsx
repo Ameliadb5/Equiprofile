@@ -283,7 +283,7 @@ function LessonSchedulingContent() {
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Lesson Scheduling</h1>
+          <h1 className="font-serif text-3xl font-bold text-foreground">Lesson Scheduling</h1>
           <p className="text-muted-foreground">
             Manage your riding lessons and trainer availability
           </p>

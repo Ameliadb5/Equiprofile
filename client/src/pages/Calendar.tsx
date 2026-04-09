@@ -522,7 +522,7 @@ export default function CalendarPage() {
         {/* Header */}
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold truncate">Calendar</h1>
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground truncate">Calendar</h1>
             <p className="text-muted-foreground text-sm hidden sm:block">
               Schedule and manage all your equestrian activities
             </p>

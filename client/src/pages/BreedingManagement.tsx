@@ -277,7 +277,7 @@ function BreedingManagementContent() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Breeding Management</h1>
+          <h1 className="font-serif text-3xl font-bold text-foreground">Breeding Management</h1>
           <p className="text-muted-foreground mt-1">
             Track breeding records, pregnancies, and foals
           </p>

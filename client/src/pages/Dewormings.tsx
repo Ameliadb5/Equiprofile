@@ -372,10 +372,10 @@ export default function Dewormings() {
         </div>
 
         {upcomingDewormings.length > 0 && (
-          <Card className="border-yellow-200 bg-yellow-50">
+          <Card className="border-amber-200/60 bg-amber-50/40 dark:border-amber-800/30 dark:bg-amber-950/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Calendar className="h-5 w-5 text-amber-500" />
                 Upcoming Dewormings (Next 30 Days)
               </CardTitle>
             </CardHeader>

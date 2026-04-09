@@ -284,7 +284,7 @@ function XraysContent() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">X-rays</h1>
+          <h1 className="font-serif text-3xl font-bold text-foreground">X-rays</h1>
           <p className="text-muted-foreground">
             Manage x-ray records and imaging
           </p>

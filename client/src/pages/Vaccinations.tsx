@@ -258,10 +258,10 @@ function VaccinationsContent() {
 
       {/* Upcoming/Due Vaccinations */}
       {upcomingVaccinations.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-amber-200/60 bg-amber-50/40 dark:border-amber-800/30 dark:bg-amber-950/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-orange-700">
-              <AlertCircle className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <AlertCircle className="h-5 w-5 text-amber-500" />
               Upcoming & Overdue Vaccinations ({upcomingVaccinations.length})
             </CardTitle>
           </CardHeader>
@@ -272,8 +272,8 @@ function VaccinationsContent() {
                   key={vaccination.id}
                   className={
                     isOverdue(vaccination.nextDueDate)
-                      ? "border-red-300 bg-red-50"
-                      : "border-yellow-300 bg-yellow-50"
+                      ? "border-red-300/60 bg-red-50/60 dark:border-red-800/30 dark:bg-red-950/20"
+                      : "border-amber-200/60 bg-amber-50/40 dark:border-amber-800/30 dark:bg-amber-950/20"
                   }
                 >
                   <CardContent className="p-4">
@@ -290,7 +290,7 @@ function VaccinationsContent() {
                             !isOverdue(vaccination.nextDueDate) && (
                               <Badge
                                 variant="outline"
-                                className="bg-yellow-100"
+                                className="bg-amber-100 dark:bg-amber-950/40"
                               >
                                 Due Soon
                               </Badge>
@@ -313,7 +313,7 @@ function VaccinationsContent() {
                             ).toLocaleDateString()}
                           </span>
                           {vaccination.nextDueDate && (
-                            <span className="flex items-center gap-1 font-medium text-orange-700">
+                            <span className="flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
                               <Calendar className="h-4 w-4" />
                               Next Due:{" "}
                               {new Date(

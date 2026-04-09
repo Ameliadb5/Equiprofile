@@ -213,7 +213,7 @@ function DentalCareContent() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Dental Care</h1>
+          <h1 className="font-serif text-3xl font-bold text-foreground">Dental Care</h1>
           <p className="text-muted-foreground">
             Track dental exams and procedures
           </p>
@@ -443,14 +443,14 @@ function DentalCareContent() {
       </div>
 
       {upcomingRecords.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-900 mb-2 flex items-center">
-            <Calendar className="w-4 h-4 mr-2" />
+        <div className="bg-muted/30 border border-border rounded-lg p-4">
+          <h3 className="font-semibold text-foreground mb-2 flex items-center">
+            <Calendar className="w-4 h-4 mr-2 text-[#4f5fd6]" />
             Upcoming Dental Appointments
           </h3>
           <div className="space-y-2">
             {upcomingRecords.map((record) => (
-              <div key={record.id} className="text-sm text-blue-800">
+              <div key={record.id} className="text-sm text-foreground/80">
                 <strong>{getHorseName(record.horseId)}</strong> -{" "}
                 {new Date(record.nextDueDate!).toLocaleDateString()}
               </div>

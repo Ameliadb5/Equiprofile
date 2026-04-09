@@ -609,6 +609,7 @@ function AdminContent() {
                         <TableHead>User</TableHead>
                         <TableHead>Role</TableHead>
                         <TableHead>Subscription</TableHead>
+                        <TableHead>Email</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Joined</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
@@ -645,6 +646,23 @@ function AdminContent() {
                                 </Badge>
                               )}
                             </div>
+                          </TableCell>
+                          <TableCell>
+                            {user.loginMethod === "email" ? (
+                              user.emailVerified ? (
+                                <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                  Verified
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700">
+                                  Unverified
+                                </Badge>
+                              )
+                            ) : (
+                              <Badge variant="secondary" className="text-muted-foreground">
+                                {user.loginMethod || "OAuth"}
+                              </Badge>
+                            )}
                           </TableCell>
                           <TableCell>
                             {user.isSuspended ? (

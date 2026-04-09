@@ -312,8 +312,18 @@ function DashboardContent() {
     }
   };
 
+  // Upcoming events limited to today and tomorrow only — no future clutter
+  const tomorrowEnd = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + 2,
+  );
   const futureAppointments = upcomingAppointments
-    .filter((a: any) => new Date(a.appointmentDate) >= new Date())
+    .filter(
+      (a: any) =>
+        new Date(a.appointmentDate) >= new Date() &&
+        new Date(a.appointmentDate) < tomorrowEnd,
+    )
     .sort(
       (a: any, b: any) =>
         new Date(a.appointmentDate).getTime() -
@@ -565,39 +575,28 @@ function DashboardContent() {
       )}
 
       {/* ── Two-column live view ──────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, delay: 0.12 }}
-        className="grid grid-cols-1 lg:grid-cols-2 gap-3"
-      >
-        {/* Today */}
-        <Card className="border-white/5 bg-card/80 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-serif text-sm flex items-center gap-2">
-              <CalendarDays className="w-4 h-4 text-purple-400" />
-              Today
-            </CardTitle>
-            <CardDescription className="text-[11px]">
-              {today.toLocaleDateString("en-GB", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-              })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {calendarEvents.length === 0 && futureAppointments.length === 0 ? (
-              <div className="text-center py-5 text-muted-foreground">
-                <CalendarDays className="w-7 h-7 mx-auto mb-2 opacity-25" />
-                <p className="text-xs">Nothing scheduled today</p>
-                <Link href="/calendar">
-                  <Button variant="ghost" size="sm" className="mt-2 text-xs h-7">
-                    Open calendar
-                  </Button>
-                </Link>
-              </div>
-            ) : (
+      {/* Today card — hidden when no events scheduled */}
+      {(calendarEvents.length > 0 || futureAppointments.some((a: any) => new Date(a.appointmentDate).toDateString() === new Date().toDateString())) && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.12 }}
+        >
+          <Card className="border-white/5 bg-card/80 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="font-serif text-sm flex items-center gap-2">
+                <CalendarDays className="w-4 h-4 text-purple-400" />
+                Today
+              </CardTitle>
+              <CardDescription className="text-[11px]">
+                {today.toLocaleDateString("en-GB", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-1.5">
                 {calendarEvents.slice(0, 3).map((event: any) => (
                   <div
@@ -647,34 +646,27 @@ function DashboardContent() {
                   </Button>
                 </Link>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
-        {/* Upcoming */}
-        <Card className="border-white/5 bg-card/80 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-serif text-sm flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-indigo-400" />
-              Upcoming
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {futureAppointments.length === 0 ? (
-              <div className="text-center py-5 text-muted-foreground">
-                <Calendar className="w-7 h-7 mx-auto mb-2 opacity-25" />
-                <p className="text-xs">No upcoming appointments</p>
-                <Link href="/appointments">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mt-2 text-xs h-7"
-                  >
-                    Schedule one
-                  </Button>
-                </Link>
-              </div>
-            ) : (
+      {/* Upcoming — today & tomorrow only, hidden when empty */}
+      {futureAppointments.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.14 }}
+        >
+          <Card className="border-white/5 bg-card/80 backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="font-serif text-sm flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-indigo-400" />
+                Upcoming
+              </CardTitle>
+              <CardDescription className="text-[11px]">Today &amp; tomorrow</CardDescription>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-1.5">
                 {futureAppointments.map((appt: any) => {
                   const d = new Date(appt.appointmentDate);
@@ -719,10 +711,10 @@ function DashboardContent() {
                   </Button>
                 </Link>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* ── Horses + Active Tasks ─────────────────────────────── */}
       <motion.div

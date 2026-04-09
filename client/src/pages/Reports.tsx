@@ -478,7 +478,7 @@ export default function Reports() {
     <DashboardLayout>
       <div className="container mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Reports</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground">Reports</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Generate comprehensive reports and set up automated schedules
           </p>
