@@ -17,7 +17,6 @@ import { ProtectedRoute, StableRoute } from "./components/ProtectedRoute";
 import { SalesChatWidget } from "./components/SalesChatWidget";
 import { CookieConsent } from "./components/CookieConsent";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
-import { V2PreviewToggle } from "./v2/components/V2PreviewToggle";
 // Marketing Pages (Public) — kept eager for fast initial paint on public routes
 import Home from "./pages/Home";
 import Features from "./pages/Features";
@@ -104,8 +103,8 @@ function Router() {
   const upgradeModal = useUpgradeModal();
   const uiVersion = getUIVersion();
 
-  // Version-aware component selection — when VITE_UI_VERSION=v2 or
-  // localStorage equiprofile-ui-version=v2, main routes serve V2 content
+  // Version-aware component selection — VITE_UI_VERSION=v2 (set at deploy time)
+  // selects V2 redesigned pages; default is V1 legacy
   const ActiveHome = uiVersion === "v2" ? HomeV2 : Home;
   const ActiveDashboard = uiVersion === "v2" ? DashboardV2 : Dashboard;
   const ActiveStableDashboard = uiVersion === "v2" ? StableDashboardV2 : StableDashboard;
@@ -436,22 +435,6 @@ function Router() {
             {/* Public horse passport — accessible without login (QR scan) */}
             <Route path="/passport/:token" component={PassportView} />
 
-            {/* ── V2 Frontend Routes ─────────────────────────────── */}
-            {/* Preview routes — legacy stays intact at original paths */}
-            <Route path="/v2" component={HomeV2} />
-
-            <Route path="/dashboard-v2">
-              <ProtectedRoute>
-                <DashboardV2 />
-              </ProtectedRoute>
-            </Route>
-
-            <Route path="/stable-dashboard-v2">
-              <StableRoute>
-                <StableDashboardV2 />
-              </StableRoute>
-            </Route>
-
             {/* 404 */}
             <Route path="/404" component={NotFound} />
             <Route component={NotFound} />
@@ -472,7 +455,6 @@ function App() {
           <SalesChatWidget />
           <PWAInstallPrompt />
           <CookieConsent />
-          <V2PreviewToggle />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
