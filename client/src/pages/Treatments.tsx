@@ -430,7 +430,7 @@ function TreatmentsContent() {
         </h2>
         <div className="grid gap-4">
           {activeTreatments.length === 0 ? (
-            <p className="text-gray-500">No active treatments</p>
+            <p className="text-muted-foreground">No active treatments</p>
           ) : (
             activeTreatments.map((treatment: any) => (
               <div

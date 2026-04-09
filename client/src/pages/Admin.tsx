@@ -82,6 +82,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { PageHeader } from "@/components/PageHeader";
 
 const AdminCampaigns = lazy(() => import("./AdminCampaigns"));
 const AdminAnalytics = lazy(() => import("./AdminAnalytics"));
@@ -384,12 +385,10 @@ function AdminContent() {
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground">
-            Admin Dashboard
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Monitor users, subscriptions, and system health
-          </p>
+          <PageHeader
+            title="Admin Dashboard"
+            subtitle="Monitor users, subscriptions, and system health"
+          />
         </div>
       </div>
 

@@ -2,8 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
-import { Link } from "wouter";
-import type { LucideIcon } from "lucide-react";
+import { Link } from "wouter";import type { LucideIcon } from "lucide-react";
 import {
   Heart,
   Users,
@@ -343,6 +342,12 @@ function StableDashboardContent() {
   const { data: tasks } = trpc.tasks.list.useQuery();
   const { data: upcomingAppointments } = trpc.appointments.list.useQuery();
   const { data: recentTraining } = trpc.training.listAll.useQuery();
+  const { data: stableList } = trpc.stables.list.useQuery();
+  const currentStableId = stableList?.[0]?.id;
+  const { data: stableMembers } = trpc.stables.getMembers.useQuery(
+    { stableId: currentStableId! },
+    { enabled: !!currentStableId },
+  );
 
   const today = useMemo(() => formatDate(new Date()), []);
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
@@ -491,7 +496,7 @@ function StableDashboardContent() {
             ) : (
               <>
                 <MetricCard icon={Heart} label="Total Horses" value={horseCount} />
-                <MetricCard icon={Users} label="Active Staff" value="—" />
+                <MetricCard icon={Users} label="Active Staff" value={stableMembers?.length ?? "—"} />
                 <MetricCard icon={AlertCircle} label="Health Alerts" value={alertCount} />
                 <MetricCard icon={ClipboardList} label="Tasks Due" value={pendingTasks.length} />
                 <MetricCard icon={Calendar} label="Appointments Today" value={todayAppointments.length} />
