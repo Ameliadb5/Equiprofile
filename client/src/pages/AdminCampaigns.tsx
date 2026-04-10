@@ -67,6 +67,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldBan,
+  ShieldCheck,
   MapPin,
   BarChart3,
 } from "lucide-react";
@@ -384,6 +385,58 @@ export default function AdminCampaigns() {
         </div>
       )}
 
+      {/* Email Sending Safety / DNS Readiness */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <ShieldCheck className="w-4 h-4 text-blue-600" />
+            Email Sending Readiness
+          </CardTitle>
+          <CardDescription>
+            Ensure DNS and email provider are properly configured before sending campaigns
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              {
+                name: "SPF Record",
+                hint: "TXT record authorizing your SMTP server to send on behalf of your domain.",
+                doc: "v=spf1 include:_spf.google.com ~all",
+              },
+              {
+                name: "DKIM Signing",
+                hint: "Cryptographic signature added by your email provider to authenticate messages.",
+                doc: "Configure via your SMTP/email provider settings.",
+              },
+              {
+                name: "DMARC Policy",
+                hint: "Policy record that tells receiving servers how to handle unauthenticated emails.",
+                doc: 'v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com',
+              },
+              {
+                name: "SMTP Provider",
+                hint: "Ensure SMTP_HOST, SMTP_USER, and SMTP_PASS are configured in your environment.",
+                doc: "SMTP credentials must be set in .env before sending.",
+              },
+            ].map((item) => (
+              <div key={item.name} className="border rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-sm font-medium">{item.name}</span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-1">{item.hint}</p>
+                <code className="text-[10px] text-blue-600 break-all">{item.doc}</code>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            ⚠️ Campaigns will attempt to send via your configured SMTP provider. Ensure DNS records are verified
+            and your sending domain has good reputation before launching campaigns to avoid deliverability issues.
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Templates */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -536,8 +589,13 @@ export default function AdminCampaigns() {
                       <TableCell className="text-right">
                         {c.failedCount}
                       </TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground">
-                        {c.dailyLimit ?? 50}/day
+                      <TableCell className="text-right text-xs">
+                        <span className="text-muted-foreground">{c.dailyLimit ?? 50}/day</span>
+                        {c.status !== "sent" && (
+                          <span className="block text-emerald-600 font-medium">
+                            {Math.max(0, (c.dailyLimit ?? 50) - (c.sentToday ?? 0))} left
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {c.sentAt

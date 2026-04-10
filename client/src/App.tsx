@@ -433,16 +433,16 @@ function Router() {
               </ProtectedRoute>
             </Route>
 
-            {/* Admin panel - accessible to any user with admin session unlocked */}
+            {/* Admin panel - requires admin role */}
             <Route path="/admin">
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin>
                 <Admin />
               </ProtectedRoute>
             </Route>
 
-            {/* QA Checklist - admin-unlocked users only */}
+            {/* QA Checklist - requires admin role */}
             <Route path="/qa-check">
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin>
                 <QAChecklist />
               </ProtectedRoute>
             </Route>
