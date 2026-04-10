@@ -698,7 +698,8 @@ function ContactsContent() {
             const rawWebsite = c.website?.trim();
             let websiteUrl: string | null = null;
             if (rawWebsite) {
-              try { websiteUrl = rawWebsite.startsWith("http") ? rawWebsite : `https://${rawWebsite}`; } catch {}
+              // String operations here never throw; catch is a no-op safety guard
+              websiteUrl = rawWebsite.startsWith("http") ? rawWebsite : `https://${rawWebsite}`;
             }
             const shareText = [
               c.name,
