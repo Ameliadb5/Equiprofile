@@ -41,14 +41,19 @@ export default function Login() {
   const { isAuthenticated, user } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Honour ?redirect= param so invite links work correctly
+  // Honour ?redirect= param so invite links work correctly.
+  // SECURITY: only allow same-origin relative paths (must start with '/' and not '//').
   const redirectParam =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("redirect")
       : null;
-  const postLoginUrl = redirectParam
-    ? decodeURIComponent(redirectParam)
-    : null;
+  const postLoginUrl = (() => {
+    if (!redirectParam) return null;
+    const decoded = decodeURIComponent(redirectParam);
+    // Reject anything that looks like an absolute URL or protocol-relative URL
+    if (!decoded.startsWith("/") || decoded.startsWith("//")) return null;
+    return decoded;
+  })();
 
   // Redirect if already authenticated — honour ?redirect= or go to default dashboard
   if (isAuthenticated) {

@@ -4384,9 +4384,13 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           throw new TRPCError({ code: "BAD_REQUEST", message: "Invite has expired" });
         }
 
+        if (!inv.stableName) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Stable not found" });
+        }
+
         return {
           stableId: inv.stableId,
-          stableName: inv.stableName ?? "Unknown stable",
+          stableName: inv.stableName,
           email: inv.email,
           role: inv.role,
           expiresAt: inv.expiresAt,
