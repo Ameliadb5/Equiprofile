@@ -4513,7 +4513,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         .select()
         .from(stables)
         .where(
-          and(sql`id IN (${stableIds.join(",")})`, eq(stables.isActive, true)),
+          and(inArray(stables.id, stableIds), eq(stables.isActive, true)),
         );
     }),
 
