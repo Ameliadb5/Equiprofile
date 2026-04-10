@@ -5,7 +5,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, CheckCircle, XCircle, LogIn } from "lucide-react";
+import { Loader2, Users, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 function useInviteToken() {
