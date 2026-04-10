@@ -40,6 +40,8 @@ ${body}
 <p style="margin:0;">EquiProfile — Professional Horse Management</p>
 <p style="margin:4px 0 0 0;"><a href="${SITE_URL}" style="color:#6366f1;text-decoration:none;">equiprofile.online</a></p>
 <p style="margin:8px 0 0 0;">{{currentDate}}</p>
+<p style="margin:8px 0 0 0;font-size:11px;color:#b0b8c4;">You received this because you were contacted by EquiProfile.<br/>
+<a href="{{unsubscribeLink}}" style="color:#6366f1;text-decoration:underline;">Unsubscribe</a> from future marketing emails.</p>
 </td></tr>
 </table>
 </td></tr>
@@ -367,6 +369,7 @@ export function applyMergeFields(
     billingLink?: string;
     subject?: string;
     content?: string;
+    unsubscribeLink?: string;
   },
 ): string {
   const safeFields: Record<string, string> = {
@@ -384,6 +387,7 @@ export function applyMergeFields(
     billingLink: fields.billingLink || BILLING_URL,
     subject: fields.subject || "",
     content: fields.content || "",
+    unsubscribeLink: fields.unsubscribeLink || `${SITE_URL}/unsubscribe`,
   };
 
   let result = html;
