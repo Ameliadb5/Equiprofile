@@ -41,16 +41,29 @@ export default function Login() {
   const { isAuthenticated, user } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Redirect if already authenticated — go to the correct dashboard
+  // Honour ?redirect= param so invite links work correctly
+  const redirectParam =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("redirect")
+      : null;
+  const postLoginUrl = redirectParam
+    ? decodeURIComponent(redirectParam)
+    : null;
+
+  // Redirect if already authenticated — honour ?redirect= or go to default dashboard
   if (isAuthenticated) {
-    let goToStable = false;
-    try {
-      if (user?.preferences) {
-        const prefs = JSON.parse(user.preferences);
-        goToStable = prefs?.planTier === "stable" || !!prefs?.bothDashboardsUnlocked;
-      }
-    } catch { /* ignore */ }
-    setLocation(goToStable ? "/stable-dashboard" : "/dashboard");
+    if (postLoginUrl) {
+      setLocation(postLoginUrl);
+    } else {
+      let goToStable = false;
+      try {
+        if (user?.preferences) {
+          const prefs = JSON.parse(user.preferences);
+          goToStable = prefs?.planTier === "stable" || !!prefs?.bothDashboardsUnlocked;
+        }
+      } catch { /* ignore */ }
+      setLocation(goToStable ? "/stable-dashboard" : "/dashboard");
+    }
     return null;
   }
 
@@ -105,9 +118,13 @@ export default function Login() {
         return;
       }
 
-      // Redirect to the correct dashboard based on entitlement
-      const goToStable = data.planTier === "stable" || data.bothDashboardsUnlocked === true;
-      window.location.href = goToStable ? "/stable-dashboard" : "/dashboard";
+      // Redirect — honour ?redirect= (e.g. from stable invite link), otherwise go to dashboard
+      if (postLoginUrl) {
+        window.location.href = postLoginUrl;
+      } else {
+        const goToStable = data.planTier === "stable" || data.bothDashboardsUnlocked === true;
+        window.location.href = goToStable ? "/stable-dashboard" : "/dashboard";
+      }
     } catch (err) {
       setError("An error occurred. Please try again.");
       setIsLoading(false);
