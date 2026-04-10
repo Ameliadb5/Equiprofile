@@ -125,7 +125,13 @@ export default function Login() {
 
       // Redirect — honour ?redirect= (e.g. from stable invite link), otherwise go to dashboard
       if (postLoginUrl) {
-        window.location.href = postLoginUrl;
+        // Use URL constructor to guarantee same-origin redirect (satisfies static analysis)
+        const safe = new URL(postLoginUrl, window.location.origin);
+        if (safe.origin === window.location.origin) {
+          window.location.href = safe.href;
+        } else {
+          window.location.href = "/dashboard";
+        }
       } else {
         const goToStable = data.planTier === "stable" || data.bothDashboardsUnlocked === true;
         window.location.href = goToStable ? "/stable-dashboard" : "/dashboard";

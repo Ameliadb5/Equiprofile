@@ -160,7 +160,7 @@ export default function StableInviteAccept() {
             ) : (
               <CheckCircle className="w-4 h-4 mr-2" />
             )}
-            Accept & join {invite.stableName}
+          Accept &amp; join stable
           </Button>
 
           <div className="text-center">
