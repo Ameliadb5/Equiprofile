@@ -86,6 +86,7 @@ import {
 } from "./_core/emailTemplates";
 import { sendEmail, sendStableInviteEmail } from "./_core/email";
 import { getLiveVisitorCount } from "./_core/analyticsTracker";
+import { studentRouter } from "./studentRouter";
 
 // Allowed MIME types for document and avatar uploads
 const ALLOWED_UPLOAD_MIME_TYPES = [
@@ -249,6 +250,7 @@ function mapTemplateSessionType(type: string): "flatwork" | "jumping" | "hacking
 
 export const appRouter = router({
   system: systemRouter,
+  student: studentRouter,
 
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
@@ -850,12 +852,18 @@ export const appRouter = router({
     }),
 
     setExperience: protectedProcedure
-      .input(z.object({ experience: z.enum(["standard", "stable"]) }))
+      .input(z.object({ experience: z.enum(["standard", "stable", "student"]) }))
       .mutation(async ({ ctx, input }) => {
         const user = await db.getUserById(ctx.user.id);
         const prefs = parseUserPrefs(user?.preferences);
         prefs.selectedExperience = input.experience;
-        prefs.planTier = input.experience === "stable" ? "stable" : "pro";
+        if (input.experience === "stable") {
+          prefs.planTier = "stable";
+        } else if (input.experience === "student") {
+          prefs.planTier = "student";
+        } else {
+          prefs.planTier = "pro";
+        }
         if (!prefs.activationChecklist) {
           prefs.activationChecklist = {};
         }

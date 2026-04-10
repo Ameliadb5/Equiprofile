@@ -1394,3 +1394,149 @@ export const campaignSequenceRecipients = mysqlTable("campaignSequenceRecipients
   sentAt: timestamp("sentAt"),
   error: text("error"),
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Student System (Phase 2) — Virtual Horses, Tasks, Training, Progress, Study Hub, AI Tutor
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Virtual horses – learning-oriented horse profiles for students.
+ * Distinct from the main horses table. Students may also be assigned a real
+ * horse via studentHorseAssignments.
+ */
+export const virtualHorses = mysqlTable("virtualHorses", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  breed: varchar("breed", { length: 100 }),
+  color: varchar("color", { length: 50 }),
+  age: int("age"),
+  personality: varchar("personality", { length: 100 }), // calm, spirited, gentle, etc.
+  // Care status counters (0-100 scale, higher = better)
+  feedingScore: int("feedingScore").default(80).notNull(),
+  groomingScore: int("groomingScore").default(80).notNull(),
+  exerciseScore: int("exerciseScore").default(80).notNull(),
+  healthScore: int("healthScore").default(80).notNull(),
+  overallScore: int("overallScore").default(80).notNull(),
+  photoUrl: text("photoUrl"),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type VirtualHorse = typeof virtualHorses.$inferSelect;
+export type InsertVirtualHorse = typeof virtualHorses.$inferInsert;
+
+/**
+ * Student horse assignments – links a student to a REAL horse (from the
+ * existing horses table) via a school/stable.
+ */
+export const studentHorseAssignments = mysqlTable("studentHorseAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  studentUserId: int("studentUserId").notNull(),
+  horseId: int("horseId").notNull(),
+  assignedBy: int("assignedBy"), // userId of the trainer/school admin
+  stableId: int("stableId"), // optional – if assigned through a stable
+  notes: text("notes"),
+  isActive: boolean("isActive").default(true).notNull(),
+  assignedAt: timestamp("assignedAt").defaultNow().notNull(),
+});
+
+export type StudentHorseAssignment = typeof studentHorseAssignments.$inferSelect;
+export type InsertStudentHorseAssignment = typeof studentHorseAssignments.$inferInsert;
+
+/**
+ * Student tasks – daily/weekly care and learning tasks.
+ */
+export const studentTasks = mysqlTable("studentTasks", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 50 }).default("care").notNull(), // care, grooming, feeding, study, exercise, other
+  frequency: varchar("frequency", { length: 20 }).default("daily").notNull(), // daily, weekly, once
+  targetDate: date("targetDate"),
+  isCompleted: boolean("isCompleted").default(false).notNull(),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type StudentTask = typeof studentTasks.$inferSelect;
+export type InsertStudentTask = typeof studentTasks.$inferInsert;
+
+/**
+ * Student training entries – simplified training log for students.
+ */
+export const studentTrainingEntries = mysqlTable("studentTrainingEntries", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  sessionDate: date("sessionDate").notNull(),
+  duration: int("duration"), // minutes
+  sessionType: varchar("sessionType", { length: 50 }).default("lesson").notNull(), // lesson, practice, groundwork, theory, other
+  notes: text("notes"),
+  wentWell: text("wentWell"),
+  needsImprovement: text("needsImprovement"),
+  instructor: varchar("instructor", { length: 100 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type StudentTrainingEntry = typeof studentTrainingEntries.$inferSelect;
+export type InsertStudentTrainingEntry = typeof studentTrainingEntries.$inferInsert;
+
+/**
+ * Student progress – tracks skill development over time.
+ */
+export const studentProgress = mysqlTable("studentProgress", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  skillArea: varchar("skillArea", { length: 100 }).notNull(), // riding_position, aids_control, grooming, feeding, tack, safety, health_awareness, behaviour
+  level: int("level").default(1).notNull(), // 1-10 proficiency
+  xp: int("xp").default(0).notNull(), // experience points within level
+  lastActivityAt: timestamp("lastActivityAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type StudentProgress = typeof studentProgress.$inferSelect;
+export type InsertStudentProgress = typeof studentProgress.$inferInsert;
+
+/**
+ * Study topics – structured learning content categories.
+ */
+export const studyTopics = mysqlTable("studyTopics", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 80 }).notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 80 }).notNull(), // riding, care, theory, safety
+  difficulty: varchar("difficulty", { length: 20 }).default("beginner").notNull(), // beginner, intermediate, advanced
+  contentMd: text("contentMd"), // Markdown content (expandable later)
+  sortOrder: int("sortOrder").default(0).notNull(),
+  isPublished: boolean("isPublished").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type StudyTopic = typeof studyTopics.$inferSelect;
+export type InsertStudyTopic = typeof studyTopics.$inferInsert;
+
+/**
+ * AI tutor sessions – logs AI tutor interactions for cost tracking and auditing.
+ */
+export const aiTutorSessions = mysqlTable("aiTutorSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  question: text("question").notNull(),
+  answer: text("answer"),
+  modelUsed: varchar("modelUsed", { length: 100 }),
+  tier: varchar("tier", { length: 20 }).default("standard").notNull(), // standard (cheap), smart (escalated)
+  promptTokens: int("promptTokens").default(0).notNull(),
+  completionTokens: int("completionTokens").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AiTutorSession = typeof aiTutorSessions.$inferSelect;
+export type InsertAiTutorSession = typeof aiTutorSessions.$inferInsert;

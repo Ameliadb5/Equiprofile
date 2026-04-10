@@ -13,7 +13,7 @@ import {
 import { useScrollToTop } from "./hooks/useScrollToTop";
 import { UpgradeModal } from "./components/UpgradeModal";
 import { useUpgradeModal } from "./hooks/useUpgradeModal";
-import { ProtectedRoute, StableRoute } from "./components/ProtectedRoute";
+import { ProtectedRoute, StableRoute, StudentRoute } from "./components/ProtectedRoute";
 import { SalesChatWidget } from "./components/SalesChatWidget";
 import { CookieConsent } from "./components/CookieConsent";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
@@ -151,11 +151,11 @@ function Router() {
               </ProtectedRoute>
             </Route>
 
-            {/* Student Dashboard — student plan users */}
+            {/* Student Dashboard — student plan users and admin */}
             <Route path="/student-dashboard">
-              <ProtectedRoute>
+              <StudentRoute>
                 <StudentDashboard />
-              </ProtectedRoute>
+              </StudentRoute>
             </Route>
 
             {/* App Pages (Protected - require auth) — version-aware */}

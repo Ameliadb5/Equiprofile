@@ -45,13 +45,8 @@ export default function Onboarding() {
     setSaving(true);
     setError("");
     try {
-      // Backend currently accepts "standard" | "stable".
-      // Student maps to "standard" for now; full student backend is Phase 2+.
-      const backendExperience =
-        selected === "student" ? "standard" : selected;
-      await setExperience.mutateAsync({
-        experience: backendExperience as "standard" | "stable",
-      });
+      // Backend now accepts "standard" | "stable" | "student" (Phase 2)
+      await setExperience.mutateAsync({ experience: selected });
       // Invalidate auth cache so planTier is fresh
       await utils.auth.me.invalidate();
       if (selected === "stable") {
