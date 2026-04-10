@@ -25,6 +25,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import Students from "./pages/Students";
 import { getUIVersion } from "./config/uiVersion";
 
 // Auth Pages — kept eager so login/register loads instantly
@@ -85,6 +86,7 @@ const StableReports = lazy(() => import("./pages/StableReports"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Competitions = lazy(() => import("./pages/Competitions"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const StudentDashboard = lazy(() => import("./pages/StudentDashboard"));
 
 // V2 Frontend Pages — lazy-loaded for code splitting
 const HomeV2 = lazy(() => import("./v2/pages/HomeV2"));
@@ -130,6 +132,7 @@ function Router() {
             <Route path="/pricing" component={Pricing} />
             <Route path="/about" component={About} />
             <Route path="/contact" component={Contact} />
+            <Route path="/students" component={Students} />
             <Route path="/terms" component={TermsPage} />
             <Route path="/privacy" component={PrivacyPage} />
 
@@ -145,6 +148,13 @@ function Router() {
             <Route path="/onboarding">
               <ProtectedRoute>
                 <Onboarding />
+              </ProtectedRoute>
+            </Route>
+
+            {/* Student Dashboard — student plan users */}
+            <Route path="/student-dashboard">
+              <ProtectedRoute>
+                <StudentDashboard />
               </ProtectedRoute>
             </Route>
 

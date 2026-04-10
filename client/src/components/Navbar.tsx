@@ -39,6 +39,7 @@ import { trpc } from "@/lib/trpc";
 const publicNavLinks = [
   { label: "About", path: "/about" },
   { label: "Features", path: "/features" },
+  { label: "Students", path: "/students" },
   { label: "Pricing", path: "/pricing" },
   { label: "Contact", path: "/contact" },
 ];
