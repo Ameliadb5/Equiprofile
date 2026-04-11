@@ -1,6 +1,6 @@
 // Copyright (c) 2025-2026 Amarktai Network. All rights reserved.
 import { useAuth } from "@/_core/hooks/useAuth";
-import { DashboardLayout } from "@/components/DashboardLayout";
+import StudentDashboardLayout from "@/components/StudentDashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import {
@@ -21,7 +21,6 @@ import {
   Send,
   Loader2,
   X,
-  ArrowLeft,
 } from "lucide-react";
 
 /**
@@ -40,15 +39,8 @@ const STUDENT_BG = "#0c1222";
 const STUDENT_CARD = "#131a2e";
 const STUDENT_BORDER = "rgba(99, 102, 241, 0.15)";
 
-// ─── Types for active view ────────────────────────────────────
-type ActiveView =
-  | "overview"
-  | "virtual-horse"
-  | "tasks"
-  | "training"
-  | "study-hub"
-  | "ai-tutor"
-  | "progress";
+// ─── Re-export the ActiveView type from layout for internal use ──────────
+import type { StudentView as ActiveView } from "@/components/StudentDashboardLayout";
 
 // ─── Sub-components ───────────────────────────────────────────
 
@@ -839,7 +831,7 @@ export default function StudentDashboard() {
   };
 
   return (
-    <DashboardLayout>
+    <StudentDashboardLayout activeView={activeView} onNavigate={setActiveView}>
       <div className="min-h-screen relative" style={{ backgroundColor: STUDENT_BG }}>
         {/* Subtle background depth — student identity */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
@@ -852,14 +844,6 @@ export default function StudentDashboard() {
           {/* ─── Header ───────────────────────────────────── */}
           <section>
             <div className="flex items-center gap-3">
-              {activeView !== "overview" && (
-                <button
-                  onClick={() => setActiveView("overview")}
-                  className="w-9 h-9 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] flex items-center justify-center transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4 text-gray-400" />
-                </button>
-              )}
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
@@ -884,6 +868,6 @@ export default function StudentDashboard() {
           {activeView === "progress" && <ProgressView />}
         </div>
       </div>
-    </DashboardLayout>
+    </StudentDashboardLayout>
   );
 }
