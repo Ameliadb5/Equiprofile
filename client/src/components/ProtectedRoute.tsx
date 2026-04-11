@@ -9,6 +9,7 @@ interface ProtectedRouteProps {
   children: ReactNode;
   requireAdmin?: boolean;
   stableOnly?: boolean;
+  studentOnly?: boolean;
 }
 
 /**
@@ -16,12 +17,13 @@ interface ProtectedRouteProps {
  *
  * Ensures user is authenticated before rendering children.
  * Redirects to login if not authenticated.
- * Optionally can require admin role or stable plan.
+ * Optionally can require admin role, stable plan, or student plan.
  */
 export function ProtectedRoute({
   children,
   requireAdmin = false,
   stableOnly = false,
+  studentOnly = false,
 }: ProtectedRouteProps) {
   const { user, loading, isAuthenticated, error } = useAuth();
   const [, setLocation] = useLocation();
@@ -35,6 +37,18 @@ export function ProtectedRoute({
       return false;
     }
   })();
+
+  const isStudentPlan = (() => {
+    if (!user?.preferences) return false;
+    try {
+      const prefs = JSON.parse(user.preferences);
+      return prefs.planTier === "student" || prefs.selectedExperience === "student";
+    } catch {
+      return false;
+    }
+  })();
+
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
     if (loading) return;
@@ -67,14 +81,19 @@ export function ProtectedRoute({
       return;
     }
 
-    if (requireAdmin && user?.role !== "admin") {
+    if (requireAdmin && !isAdmin) {
       // Redirect to dashboard if user is not admin
       setLocation("/dashboard");
     }
 
-    if (stableOnly && !isStablePlan) {
+    if (stableOnly && !isStablePlan && !isAdmin) {
       toast.error("This feature requires the Stable plan. Upgrade to access.");
       setLocation("/billing");
+    }
+
+    if (studentOnly && !isStudentPlan && !isAdmin) {
+      toast.error("This feature requires the Student plan.");
+      setLocation("/dashboard");
     }
   }, [
     loading,
@@ -82,7 +101,10 @@ export function ProtectedRoute({
     error,
     requireAdmin,
     stableOnly,
+    studentOnly,
     isStablePlan,
+    isStudentPlan,
+    isAdmin,
     user,
     setLocation,
   ]);
@@ -105,12 +127,17 @@ export function ProtectedRoute({
   }
 
   // Don't render if admin required but user is not admin
-  if (requireAdmin && user?.role !== "admin") {
+  if (requireAdmin && !isAdmin) {
     return null;
   }
 
-  // Don't render if stable plan required but user is not on stable plan
-  if (stableOnly && !isStablePlan) {
+  // Don't render if stable plan required but user is not on stable plan (admin bypasses)
+  if (stableOnly && !isStablePlan && !isAdmin) {
+    return null;
+  }
+
+  // Don't render if student plan required but user is not on student plan (admin bypasses)
+  if (studentOnly && !isStudentPlan && !isAdmin) {
     return null;
   }
 
@@ -123,6 +150,14 @@ export function ProtectedRoute({
  */
 export function StableRoute({ children }: { children: ReactNode }) {
   return <ProtectedRoute stableOnly>{children}</ProtectedRoute>;
+}
+
+/**
+ * Student plan route - requires Student subscription tier.
+ * Admin can always access.
+ */
+export function StudentRoute({ children }: { children: ReactNode }) {
+  return <ProtectedRoute studentOnly>{children}</ProtectedRoute>;
 }
 
 export default ProtectedRoute;

@@ -6,6 +6,8 @@ import {
   formatDateForWhatsApp,
   userHasWhatsAppEnabled,
 } from "./whatsapp";
+import { sendEmail } from "./email";
+import { getTodayDateString } from "./campaignService";
 
 /**
  * Reminder Scheduler
@@ -147,6 +149,170 @@ export function startReminderScheduler() {
       console.log("[Reminders] Reminder check complete");
     } catch (error) {
       console.error("[Reminders] Error checking reminders:", error);
+    }
+  });
+
+  // ── Campaign Follow-Up Sequence Scheduler ───────────────────
+  // Runs daily at 10:00 AM UTC — checks for pending sequence steps
+  // that have reached their scheduled date and sends them automatically.
+  cron.schedule("0 10 * * *", async () => {
+    console.log("[CampaignFollowUp] Checking for due follow-up steps...");
+
+    try {
+      const dbConn = await db.getDb();
+      if (!dbConn) {
+        console.log("[CampaignFollowUp] No database connection — skipping");
+        return;
+      }
+
+      const { eq, and, lte, or } = await import("drizzle-orm");
+      const {
+        campaignSequences,
+        campaignSequenceRecipients,
+        emailCampaignRecipients,
+        emailUnsubscribes,
+        marketingContacts,
+        emailCampaigns,
+      } = await import("../../drizzle/schema");
+
+      const today = getTodayDateString();
+
+      // Find pending sequence steps whose scheduledDate is today or earlier
+      const dueSteps = await dbConn
+        .select()
+        .from(campaignSequences)
+        .where(
+          and(
+            eq(campaignSequences.status, "pending"),
+            lte(campaignSequences.scheduledDate, today),
+          ),
+        );
+
+      if (dueSteps.length === 0) {
+        console.log("[CampaignFollowUp] No due follow-up steps");
+        return;
+      }
+
+      console.log(`[CampaignFollowUp] Found ${dueSteps.length} due follow-up step(s)`);
+
+      // Build global suppression set (once for all steps)
+      const suppressions = await dbConn
+        .select({ email: emailUnsubscribes.email })
+        .from(emailUnsubscribes);
+      const suppressedSet = new Set(suppressions.map((s) => s.email.toLowerCase()));
+
+      const mcBounced = await dbConn
+        .select({ email: marketingContacts.email })
+        .from(marketingContacts)
+        .where(
+          or(
+            eq(marketingContacts.status, "unsubscribed"),
+            eq(marketingContacts.status, "bounced"),
+          ),
+        );
+      for (const b of mcBounced) suppressedSet.add(b.email.toLowerCase());
+
+      const BASE_URL = process.env.BASE_URL || "https://equiprofile.online";
+
+      for (const step of dueSteps) {
+        try {
+          // Check that parent campaign exists and is not paused/draft-cancelled
+          const [campaign] = await dbConn
+            .select()
+            .from(emailCampaigns)
+            .where(eq(emailCampaigns.id, step.campaignId));
+          if (!campaign || campaign.status === "paused") {
+            console.log(
+              `[CampaignFollowUp] Skipping step ${step.id} — campaign ${step.campaignId} is paused or missing`,
+            );
+            continue;
+          }
+
+          // Get original recipients who were successfully sent the initial campaign
+          const recipients = await dbConn
+            .select()
+            .from(emailCampaignRecipients)
+            .where(
+              and(
+                eq(emailCampaignRecipients.campaignId, step.campaignId),
+                eq(emailCampaignRecipients.status, "sent"),
+              ),
+            );
+
+          let sentCount = 0;
+          let failedCount = 0;
+
+          for (const recipient of recipients) {
+            // Skip if suppressed/unsubscribed
+            if (suppressedSet.has(recipient.email.toLowerCase())) {
+              await dbConn.insert(campaignSequenceRecipients).values({
+                sequenceId: step.id,
+                campaignId: step.campaignId,
+                email: recipient.email,
+                status: "skipped",
+              });
+              continue;
+            }
+
+            try {
+              // Get unsubscribe token
+              const [mc] = await dbConn
+                .select()
+                .from(marketingContacts)
+                .where(eq(marketingContacts.email, recipient.email.toLowerCase()));
+              const unsubToken = mc?.unsubscribeToken || "";
+              const unsubLink = unsubToken
+                ? `${BASE_URL}/unsubscribe?token=${unsubToken}`
+                : `${BASE_URL}/unsubscribe`;
+
+              // Simple merge field replacement for follow-up body
+              let html = step.htmlBody || "";
+              html = html.replace(/\{\{firstName\}\}/g, recipient.name?.split(" ")[0] || "");
+              html = html.replace(/\{\{email\}\}/g, recipient.email);
+              html = html.replace(/\{\{unsubscribeLink\}\}/g, unsubLink);
+
+              await sendEmail(recipient.email, step.subject || "Follow-up", html);
+
+              await dbConn.insert(campaignSequenceRecipients).values({
+                sequenceId: step.id,
+                campaignId: step.campaignId,
+                email: recipient.email,
+                status: "sent",
+                sentAt: new Date(),
+              });
+              sentCount++;
+            } catch (err) {
+              await dbConn.insert(campaignSequenceRecipients).values({
+                sequenceId: step.id,
+                campaignId: step.campaignId,
+                email: recipient.email,
+                status: "failed",
+                error: err instanceof Error ? err.message : "Unknown error",
+              });
+              failedCount++;
+            }
+          }
+
+          // Mark step as sent
+          await dbConn
+            .update(campaignSequences)
+            .set({ status: "sent", sentAt: new Date(), sentCount, failedCount })
+            .where(eq(campaignSequences.id, step.id));
+
+          console.log(
+            `[CampaignFollowUp] Step ${step.id} (Day ${step.delayDays}): sent=${sentCount} failed=${failedCount} skipped=${recipients.length - sentCount - failedCount}`,
+          );
+        } catch (stepErr) {
+          console.error(
+            `[CampaignFollowUp] Error processing step ${step.id}:`,
+            stepErr,
+          );
+        }
+      }
+
+      console.log("[CampaignFollowUp] Follow-up check complete");
+    } catch (error) {
+      console.error("[CampaignFollowUp] Error:", error);
     }
   });
 

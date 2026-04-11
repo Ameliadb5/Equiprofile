@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -59,14 +59,65 @@ import {
   Loader2,
   TestTube,
   Palette,
+  Pause,
+  Play,
+  Globe,
+  Upload,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  ShieldBan,
+  ShieldCheck,
+  MapPin,
+  BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
+
+// ─── Status Badge Helper ─────────────────────────────────────────────────────
+
+function statusBadge(status: string) {
+  switch (status) {
+    case "draft":
+      return (
+        <Badge variant="outline" className="gap-1">
+          <Clock className="w-3 h-3" /> Draft
+        </Badge>
+      );
+    case "sending":
+      return (
+        <Badge className="gap-1 bg-yellow-500">
+          <Loader2 className="w-3 h-3 animate-spin" /> Sending
+        </Badge>
+      );
+    case "sent":
+      return (
+        <Badge className="gap-1 bg-green-600">
+          <CheckCircle2 className="w-3 h-3" /> Sent
+        </Badge>
+      );
+    case "paused":
+      return (
+        <Badge className="gap-1 bg-orange-500">
+          <Pause className="w-3 h-3" /> Paused
+        </Badge>
+      );
+    case "failed":
+      return (
+        <Badge variant="destructive" className="gap-1">
+          <XCircle className="w-3 h-3" /> Failed
+        </Badge>
+      );
+    default:
+      return <Badge variant="outline">{status}</Badge>;
+  }
+}
+
+// ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function AdminCampaigns() {
   const [createOpen, setCreateOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [confirmSendId, setConfirmSendId] = useState<number | null>(null);
-  const [previewHtml, setPreviewHtml] = useState("");
   const [newCampaign, setNewCampaign] = useState({
     name: "",
     subject: "",
@@ -74,6 +125,9 @@ export default function AdminCampaigns() {
     segment: "" as "leads" | "trial" | "paid" | "all" | "marketing" | "",
     content: "",
     firstName: "",
+    targetCountry: "",
+    targetType: "",
+    dailyLimit: 50,
   });
 
   // Queries
@@ -94,6 +148,9 @@ export default function AdminCampaigns() {
         segment: "",
         content: "",
         firstName: "",
+        targetCountry: "",
+        targetType: "",
+        dailyLimit: 50,
       });
       utils.admin.getCampaigns.invalidate();
     },
@@ -102,9 +159,9 @@ export default function AdminCampaigns() {
 
   const sendMutation = trpc.admin.sendCampaign.useMutation({
     onSuccess: (data) => {
-      toast.success(
-        `Campaign sent! ${data.sentCount} delivered, ${data.failedCount} failed.`,
-      );
+      const parts = [`${data.sentCount} delivered`, `${data.failedCount} failed`];
+      if (data.deferred > 0) parts.push(`${data.deferred} deferred (daily limit: ${data.dailyLimit})`);
+      toast.success(`Campaign sent! ${parts.join(", ")}`);
       setConfirmSendId(null);
       utils.admin.getCampaigns.invalidate();
     },
@@ -119,6 +176,22 @@ export default function AdminCampaigns() {
   const deleteMutation = trpc.admin.deleteCampaign.useMutation({
     onSuccess: () => {
       toast.success("Campaign deleted");
+      utils.admin.getCampaigns.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const pauseMutation = trpc.admin.pauseCampaign.useMutation({
+    onSuccess: () => {
+      toast.success("Campaign paused");
+      utils.admin.getCampaigns.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const resumeMutation = trpc.admin.resumeCampaign.useMutation({
+    onSuccess: () => {
+      toast.success("Campaign resumed");
       utils.admin.getCampaigns.invalidate();
     },
     onError: (e) => toast.error(e.message),
@@ -160,6 +233,9 @@ export default function AdminCampaigns() {
       subject: newCampaign.subject,
       templateId: newCampaign.templateId,
       segment: newCampaign.segment as "leads" | "trial" | "paid" | "all" | "marketing",
+      targetCountry: newCampaign.targetCountry || undefined,
+      targetType: newCampaign.targetType || undefined,
+      dailyLimit: newCampaign.dailyLimit,
       mergeFields: {
         subject: newCampaign.subject,
         content: newCampaign.content,
@@ -183,36 +259,10 @@ export default function AdminCampaigns() {
     });
   }
 
-  function statusBadge(status: string) {
-    switch (status) {
-      case "draft":
-        return (
-          <Badge variant="outline" className="gap-1">
-            <Clock className="w-3 h-3" /> Draft
-          </Badge>
-        );
-      case "sending":
-        return (
-          <Badge className="gap-1 bg-yellow-500">
-            <Loader2 className="w-3 h-3 animate-spin" /> Sending
-          </Badge>
-        );
-      case "sent":
-        return (
-          <Badge className="gap-1 bg-green-600">
-            <CheckCircle2 className="w-3 h-3" /> Sent
-          </Badge>
-        );
-      case "failed":
-        return (
-          <Badge variant="destructive" className="gap-1">
-            <XCircle className="w-3 h-3" /> Failed
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  }
+  // Derive country options for dropdowns
+  const countryOptions = segments.data?.byCountry ?? [];
+  const typeOptions = segments.data?.byType ?? [];
+  const priorityCountries = ["UK", "Ireland", "USA"];
 
   return (
     <div className="space-y-6">
@@ -264,6 +314,128 @@ export default function AdminCampaigns() {
           </Card>
         ))}
       </div>
+
+      {/* Segment Breakdown: By Country & By Type */}
+      {segments.data && (segments.data.byCountry.length > 0 || segments.data.byType.length > 0) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* By Country */}
+          {segments.data.byCountry.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Globe className="w-4 h-4" />
+                  Contacts by Country
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {/* Priority countries first */}
+                  {priorityCountries.map((pc) => {
+                    const entry = segments.data!.byCountry.find(
+                      (c) => c.country.toLowerCase() === pc.toLowerCase(),
+                    );
+                    if (!entry) return null;
+                    return (
+                      <div key={pc} className="flex items-center justify-between rounded-md bg-muted/50 px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3 h-3 text-primary" />
+                          <span className="text-sm font-medium">{entry.country}</span>
+                        </div>
+                        <Badge variant="secondary">{entry.count}</Badge>
+                      </div>
+                    );
+                  })}
+                  {/* Other countries */}
+                  {segments.data.byCountry
+                    .filter((c) => !priorityCountries.some((pc) => pc.toLowerCase() === c.country.toLowerCase()))
+                    .map((c) => (
+                      <div key={c.country} className="flex items-center justify-between px-3 py-1.5">
+                        <span className="text-sm text-muted-foreground">{c.country}</span>
+                        <span className="text-sm">{c.count}</span>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* By Type */}
+          {segments.data.byType.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <BarChart3 className="w-4 h-4" />
+                  Contacts by Type
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {segments.data.byType.map((t) => (
+                    <div key={t.type} className="flex items-center justify-between px-3 py-2 rounded-md bg-muted/50">
+                      <Badge variant="outline" className="capitalize">
+                        {t.type.replace(/_/g, " ")}
+                      </Badge>
+                      <Badge variant="secondary">{t.count}</Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* Email Sending Safety / DNS Readiness */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <ShieldCheck className="w-4 h-4 text-blue-600" />
+            Email Sending Readiness
+          </CardTitle>
+          <CardDescription>
+            Ensure DNS and email provider are properly configured before sending campaigns
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              {
+                name: "SPF Record",
+                hint: "TXT record authorizing your SMTP server to send on behalf of your domain.",
+                doc: "v=spf1 include:_spf.google.com ~all",
+              },
+              {
+                name: "DKIM Signing",
+                hint: "Cryptographic signature added by your email provider to authenticate messages.",
+                doc: "Configure via your SMTP/email provider settings.",
+              },
+              {
+                name: "DMARC Policy",
+                hint: "Policy record that tells receiving servers how to handle unauthenticated emails.",
+                doc: 'v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com',
+              },
+              {
+                name: "SMTP Provider",
+                hint: "Ensure SMTP_HOST, SMTP_USER, and SMTP_PASS are configured in your environment.",
+                doc: "SMTP credentials must be set in .env before sending.",
+              },
+            ].map((item) => (
+              <div key={item.name} className="border rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-sm font-medium">{item.name}</span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-1">{item.hint}</p>
+                <code className="text-[10px] text-blue-600 break-all">{item.doc}</code>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            ⚠️ Campaigns will attempt to send via your configured SMTP provider. Ensure DNS records are verified
+            and your sending domain has good reputation before launching campaigns to avoid deliverability issues.
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Templates */}
       <Card>
@@ -365,10 +537,12 @@ export default function AdminCampaigns() {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Segment</TableHead>
+                    <TableHead>Targeting</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Recipients</TableHead>
                     <TableHead className="text-right">Sent</TableHead>
                     <TableHead className="text-right">Failed</TableHead>
+                    <TableHead className="text-right">Daily Limit</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -382,15 +556,46 @@ export default function AdminCampaigns() {
                       <TableCell>
                         <Badge variant="secondary">{c.segment}</Badge>
                       </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {c.targetCountry && (
+                            <Badge variant="outline" className="text-xs gap-1">
+                              <Globe className="w-3 h-3" />
+                              {c.targetCountry}
+                            </Badge>
+                          )}
+                          {c.targetType && (
+                            <Badge variant="outline" className="text-xs capitalize">
+                              {c.targetType.replace(/_/g, " ")}
+                            </Badge>
+                          )}
+                          {!c.targetCountry && !c.targetType && (
+                            <span className="text-xs text-muted-foreground">All</span>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>{statusBadge(c.status)}</TableCell>
                       <TableCell className="text-right">
                         {c.recipientCount}
                       </TableCell>
                       <TableCell className="text-right">
                         {c.sentCount}
+                        {c.sentToday ? (
+                          <span className="text-xs text-muted-foreground ml-1">
+                            ({c.sentToday} today)
+                          </span>
+                        ) : null}
                       </TableCell>
                       <TableCell className="text-right">
                         {c.failedCount}
+                      </TableCell>
+                      <TableCell className="text-right text-xs">
+                        <span className="text-muted-foreground">{c.dailyLimit ?? 50}/day</span>
+                        {c.status !== "sent" && (
+                          <span className="block text-emerald-600 font-medium">
+                            {Math.max(0, (c.dailyLimit ?? 50) - (c.sentToday ?? 0))} left
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {c.sentAt
@@ -401,7 +606,7 @@ export default function AdminCampaigns() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          {c.status === "draft" && (
+                          {(c.status === "draft" || c.status === "paused") && (
                             <Button
                               size="sm"
                               variant="default"
@@ -409,6 +614,26 @@ export default function AdminCampaigns() {
                               disabled={sendMutation.isPending}
                             >
                               <Send className="w-3 h-3 mr-1" /> Send
+                            </Button>
+                          )}
+                          {c.status === "paused" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => resumeMutation.mutate({ campaignId: c.id })}
+                              disabled={resumeMutation.isPending}
+                            >
+                              <Play className="w-3 h-3 mr-1" /> Resume
+                            </Button>
+                          )}
+                          {(c.status === "draft" || c.status === "sending") && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => pauseMutation.mutate({ campaignId: c.id })}
+                              disabled={pauseMutation.isPending || c.status === "sending"}
+                            >
+                              <Pause className="w-3 h-3 mr-1" /> Pause
                             </Button>
                           )}
                           <Button
@@ -503,7 +728,7 @@ export default function AdminCampaigns() {
                   onValueChange={(v) =>
                     setNewCampaign((p) => ({
                       ...p,
-                      segment: v as "leads" | "trial" | "paid" | "all",
+                      segment: v as "leads" | "trial" | "paid" | "all" | "marketing",
                     }))
                   }
                 >
@@ -530,6 +755,81 @@ export default function AdminCampaigns() {
                 </Select>
               </div>
             </div>
+
+            {/* Targeting: Country, Type, Daily Limit */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Target Country</Label>
+                <Select
+                  value={newCampaign.targetCountry}
+                  onValueChange={(v) =>
+                    setNewCampaign((p) => ({ ...p, targetCountry: v === "__all__" ? "" : v }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All countries" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">All Countries</SelectItem>
+                    {priorityCountries.map((pc) => {
+                      const entry = countryOptions.find(
+                        (c) => c.country.toLowerCase() === pc.toLowerCase(),
+                      );
+                      return (
+                        <SelectItem key={pc} value={pc}>
+                          {pc} {entry ? `(${entry.count})` : ""}
+                        </SelectItem>
+                      );
+                    })}
+                    {countryOptions
+                      .filter((c) => !priorityCountries.some((pc) => pc.toLowerCase() === c.country.toLowerCase()))
+                      .map((c) => (
+                        <SelectItem key={c.country} value={c.country}>
+                          {c.country} ({c.count})
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Target Type</Label>
+                <Select
+                  value={newCampaign.targetType}
+                  onValueChange={(v) =>
+                    setNewCampaign((p) => ({ ...p, targetType: v === "__all__" ? "" : v }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">All Types</SelectItem>
+                    {typeOptions.map((t) => (
+                      <SelectItem key={t.type} value={t.type}>
+                        {t.type.replace(/_/g, " ")} ({t.count})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="daily-limit">Daily Limit</Label>
+                <Input
+                  id="daily-limit"
+                  type="number"
+                  min={1}
+                  max={500}
+                  value={newCampaign.dailyLimit}
+                  onChange={(e) =>
+                    setNewCampaign((p) => ({
+                      ...p,
+                      dailyLimit: Math.max(1, Math.min(500, parseInt(e.target.value) || 50)),
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
             {/* Inline template preview card — shown immediately after selection */}
             {newCampaign.templateId && (() => {
               const selected = templates.data?.find((t) => t.id === newCampaign.templateId);
@@ -782,37 +1082,42 @@ function SequenceTemplatesSection() {
 
 function MarketingContactsSection() {
   const [addOpen, setAddOpen] = useState(false);
-  const [csvOpen, setCsvOpen] = useState(false);
-  const [csvText, setCsvText] = useState("");
+  const [importOpen, setImportOpen] = useState(false);
   const [newContact, setNewContact] = useState({
     email: "",
     name: "",
     businessName: "",
     contactType: "individual" as "individual" | "riding_school" | "stable",
     region: "",
+    country: "",
     tags: "",
   });
 
+  // Filters & pagination
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterCountry, setFilterCountry] = useState("");
+  const [filterType, setFilterType] = useState("");
+  const [page, setPage] = useState(0);
+  const pageSize = 50;
+
   const utils = trpc.useUtils();
-  const contacts = trpc.admin.getMarketingContacts.useQuery();
+  const segments = trpc.admin.getSegmentCounts.useQuery();
+
+  const contacts = trpc.admin.getMarketingContacts.useQuery({
+    search: searchQuery || undefined,
+    country: filterCountry || undefined,
+    contactType: filterType || undefined,
+    limit: pageSize,
+    offset: page * pageSize,
+  });
+
   const unsubscribes = trpc.admin.getUnsubscribes.useQuery();
 
   const createMutation = trpc.admin.createMarketingContact.useMutation({
     onSuccess: () => {
       toast.success("Contact added");
       setAddOpen(false);
-      setNewContact({ email: "", name: "", businessName: "", contactType: "individual", region: "", tags: "" });
-      utils.admin.getMarketingContacts.invalidate();
-      utils.admin.getSegmentCounts.invalidate();
-    },
-    onError: (e) => toast.error(e.message),
-  });
-
-  const importMutation = trpc.admin.importMarketingContacts.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Imported ${data.imported} contacts (${data.skipped} skipped)`);
-      setCsvOpen(false);
-      setCsvText("");
+      setNewContact({ email: "", name: "", businessName: "", contactType: "individual", region: "", country: "", tags: "" });
       utils.admin.getMarketingContacts.invalidate();
       utils.admin.getSegmentCounts.invalidate();
     },
@@ -828,30 +1133,9 @@ function MarketingContactsSection() {
     onError: (e) => toast.error(e.message),
   });
 
-  function handleCSVImport() {
-    if (!csvText.trim()) { toast.error("Paste CSV data first"); return; }
-    const lines = csvText.trim().split("\n");
-    const contacts: Array<{
-      email: string;
-      name?: string;
-      businessName?: string;
-      contactType: "individual" | "riding_school" | "stable";
-      region?: string;
-    }> = [];
-    for (const line of lines) {
-      const cols = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
-      if (cols.length < 1 || !cols[0].includes("@")) continue; // skip header/invalid
-      contacts.push({
-        email: cols[0],
-        name: cols[1] || undefined,
-        businessName: cols[2] || undefined,
-        contactType: (["individual", "riding_school", "stable"].includes(cols[3]?.toLowerCase()) ? cols[3].toLowerCase() : "individual") as "individual" | "riding_school" | "stable",
-        region: cols[4] || undefined,
-      });
-    }
-    if (contacts.length === 0) { toast.error("No valid contacts found in CSV"); return; }
-    importMutation.mutate({ contacts, source: "csv_import" });
-  }
+  const hasMore = (contacts.data?.length ?? 0) >= pageSize;
+  const countryOptions = segments.data?.byCountry ?? [];
+  const typeOptions = segments.data?.byType ?? [];
 
   return (
     <>
@@ -868,8 +1152,9 @@ function MarketingContactsSection() {
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setCsvOpen(true)}>
-              CSV Import
+            <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+              <Upload className="w-4 h-4 mr-1" />
+              Import
             </Button>
             <Button size="sm" onClick={() => setAddOpen(true)}>
               <Plus className="w-4 h-4 mr-1" />
@@ -878,6 +1163,62 @@ function MarketingContactsSection() {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Filters */}
+          <div className="flex flex-wrap gap-3 mb-4">
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search email, name, business..."
+                  className="pl-9"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setPage(0);
+                  }}
+                />
+              </div>
+            </div>
+            <Select
+              value={filterCountry || "__all__"}
+              onValueChange={(v) => {
+                setFilterCountry(v === "__all__" ? "" : v);
+                setPage(0);
+              }}
+            >
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="All Countries" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">All Countries</SelectItem>
+                {countryOptions.map((c) => (
+                  <SelectItem key={c.country} value={c.country}>
+                    {c.country} ({c.count})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={filterType || "__all__"}
+              onValueChange={(v) => {
+                setFilterType(v === "__all__" ? "" : v);
+                setPage(0);
+              }}
+            >
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">All Types</SelectItem>
+                {typeOptions.map((t) => (
+                  <SelectItem key={t.type} value={t.type}>
+                    {t.type.replace(/_/g, " ")} ({t.count})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {contacts.isLoading ? (
             <div className="space-y-2">
               <Skeleton className="h-10 w-full" />
@@ -885,104 +1226,93 @@ function MarketingContactsSection() {
             </div>
           ) : !contacts.data?.length ? (
             <p className="text-sm text-muted-foreground text-center py-8">
-              No marketing contacts yet. Add contacts manually or import via CSV.
+              {searchQuery || filterCountry || filterType
+                ? "No contacts match your filters."
+                : "No marketing contacts yet. Add contacts manually or import a file."}
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Business</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Region</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {contacts.data.map((contact) => (
-                    <TableRow key={contact.id}>
-                      <TableCell className="text-xs">{contact.email}</TableCell>
-                      <TableCell className="text-xs">{contact.name || "—"}</TableCell>
-                      <TableCell className="text-xs">{contact.businessName || "—"}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs capitalize">
-                          {contact.contactType?.replace("_", " ")}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-xs">{contact.region || "—"}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={contact.status === "active" ? "default" : "destructive"}
-                          className="text-xs"
-                        >
-                          {contact.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive"
-                          onClick={() => deleteMutation.mutate({ id: contact.id })}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
+            <>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Business</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Country</TableHead>
+                      <TableHead>Region</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {contacts.data.map((contact) => (
+                      <TableRow key={contact.id}>
+                        <TableCell className="text-xs">{contact.email}</TableCell>
+                        <TableCell className="text-xs">{contact.name || "—"}</TableCell>
+                        <TableCell className="text-xs">{contact.businessName || "—"}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {contact.contactType?.replace(/_/g, " ") || "—"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs">{contact.country || "—"}</TableCell>
+                        <TableCell className="text-xs">{contact.region || "—"}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={contact.status === "active" ? "default" : "destructive"}
+                            className="text-xs"
+                          >
+                            {contact.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                            onClick={() => deleteMutation.mutate({ id: contact.id })}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              {/* Pagination */}
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Page {page + 1} · Showing {contacts.data.length} contacts
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page === 0}
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1" /> Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!hasMore}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
+                    Next <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
 
       {/* Suppression List */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            🚫 Suppression List
-          </CardTitle>
-          <CardDescription>
-            Unsubscribed emails — these are permanently excluded from all marketing sends
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {unsubscribes.isLoading ? (
-            <Skeleton className="h-8 w-full" />
-          ) : !unsubscribes.data?.length ? (
-            <p className="text-sm text-muted-foreground text-center py-4">No unsubscribes yet.</p>
-          ) : (
-            <div className="max-h-60 overflow-y-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Reason</TableHead>
-                    <TableHead>Source</TableHead>
-                    <TableHead>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {unsubscribes.data.map((u) => (
-                    <TableRow key={u.id}>
-                      <TableCell className="text-xs">{u.email}</TableCell>
-                      <TableCell className="text-xs">{u.reason || "—"}</TableCell>
-                      <TableCell className="text-xs">{u.source || "—"}</TableCell>
-                      <TableCell className="text-xs">
-                        {u.unsubscribedAt ? new Date(u.unsubscribedAt).toLocaleDateString("en-GB") : "—"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <SuppressionListSection />
 
       {/* Add Contact Dialog */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
@@ -1016,19 +1346,29 @@ function MarketingContactsSection() {
                 placeholder="Happy Hooves Stables"
               />
             </div>
-            <div>
-              <Label>Type</Label>
-              <Select
-                value={newContact.contactType}
-                onValueChange={(v) => setNewContact({ ...newContact, contactType: v as any })}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="individual">Individual</SelectItem>
-                  <SelectItem value="riding_school">Riding School</SelectItem>
-                  <SelectItem value="stable">Stable / Yard</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Type</Label>
+                <Select
+                  value={newContact.contactType}
+                  onValueChange={(v) => setNewContact({ ...newContact, contactType: v as "individual" | "riding_school" | "stable" })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual</SelectItem>
+                    <SelectItem value="riding_school">Riding School</SelectItem>
+                    <SelectItem value="stable">Stable / Yard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Country</Label>
+                <Input
+                  value={newContact.country}
+                  onChange={(e) => setNewContact({ ...newContact, country: e.target.value })}
+                  placeholder="e.g. UK"
+                />
+              </div>
             </div>
             <div>
               <Label>Region</Label>
@@ -1048,6 +1388,7 @@ function MarketingContactsSection() {
                 businessName: newContact.businessName || undefined,
                 contactType: newContact.contactType,
                 region: newContact.region || undefined,
+                country: newContact.country || undefined,
               })}
               disabled={createMutation.isPending || !newContact.email}
             >
@@ -1058,37 +1399,439 @@ function MarketingContactsSection() {
         </DialogContent>
       </Dialog>
 
-      {/* CSV Import Dialog */}
-      <Dialog open={csvOpen} onOpenChange={setCsvOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Import Marketing Contacts</DialogTitle>
-            <DialogDescription>
-              Paste CSV data below. Format: email, name, business, type (individual/riding_school/stable), region
-            </DialogDescription>
-          </DialogHeader>
-          <Textarea
-            value={csvText}
-            onChange={(e) => setCsvText(e.target.value)}
-            placeholder={`info@example.com, Jane Smith, Happy Hooves, riding_school, Kent\noffice@yard.com, John Doe, Oakfield Livery, stable, Surrey`}
-            rows={8}
-            className="font-mono text-xs"
-          />
-          <p className="text-xs text-muted-foreground">
-            Suppressed and duplicate emails will be automatically skipped.
-          </p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCsvOpen(false)}>Cancel</Button>
-            <Button
-              onClick={handleCSVImport}
-              disabled={importMutation.isPending || !csvText.trim()}
-            >
-              {importMutation.isPending && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-              Import Contacts
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* File Import Dialog */}
+      <FileImportDialog open={importOpen} onOpenChange={setImportOpen} />
     </>
+  );
+}
+
+// ─── Suppression List with Manual Add ────────────────────────────────────────
+
+function SuppressionListSection() {
+  const [suppressEmail, setSuppressEmail] = useState("");
+  const [suppressReason, setSuppressReason] = useState("");
+
+  const utils = trpc.useUtils();
+  const unsubscribes = trpc.admin.getUnsubscribes.useQuery();
+
+  const addSuppressionMutation = trpc.admin.addSuppression.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.message || "Email added to suppression list");
+      setSuppressEmail("");
+      setSuppressReason("");
+      utils.admin.getUnsubscribes.invalidate();
+      utils.admin.getMarketingContacts.invalidate();
+      utils.admin.getSegmentCounts.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  function handleAddSuppression() {
+    if (!suppressEmail.trim() || !suppressEmail.includes("@")) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+    addSuppressionMutation.mutate({
+      email: suppressEmail.trim(),
+      reason: suppressReason.trim() || undefined,
+    });
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <ShieldBan className="w-5 h-5" />
+          Suppression List
+        </CardTitle>
+        <CardDescription>
+          Unsubscribed emails — these are permanently excluded from all marketing sends
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {/* Manual Suppression Form */}
+        <div className="flex flex-wrap gap-2 mb-4 items-end">
+          <div className="flex-1 min-w-[200px]">
+            <Label className="text-xs">Email to suppress</Label>
+            <Input
+              placeholder="email@example.com"
+              value={suppressEmail}
+              onChange={(e) => setSuppressEmail(e.target.value)}
+            />
+          </div>
+          <div className="flex-1 min-w-[160px]">
+            <Label className="text-xs">Reason (optional)</Label>
+            <Input
+              placeholder="e.g. Requested removal"
+              value={suppressReason}
+              onChange={(e) => setSuppressReason(e.target.value)}
+            />
+          </div>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={handleAddSuppression}
+            disabled={addSuppressionMutation.isPending || !suppressEmail.trim()}
+          >
+            {addSuppressionMutation.isPending ? (
+              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+            ) : (
+              <ShieldBan className="w-4 h-4 mr-1" />
+            )}
+            Suppress
+          </Button>
+        </div>
+
+        {unsubscribes.isLoading ? (
+          <Skeleton className="h-8 w-full" />
+        ) : !unsubscribes.data?.length ? (
+          <p className="text-sm text-muted-foreground text-center py-4">No unsubscribes yet.</p>
+        ) : (
+          <div className="max-h-60 overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Reason</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {unsubscribes.data.map((u) => (
+                  <TableRow key={u.id}>
+                    <TableCell className="text-xs">{u.email}</TableCell>
+                    <TableCell className="text-xs">{u.reason || "—"}</TableCell>
+                    <TableCell className="text-xs">{u.source || "—"}</TableCell>
+                    <TableCell className="text-xs">
+                      {u.unsubscribedAt ? new Date(u.unsubscribedAt).toLocaleDateString("en-GB") : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── File Import Dialog ──────────────────────────────────────────────────────
+
+type ParsedImport = {
+  headers: string[];
+  rows: Array<Record<string, string>>;
+  mapping: Record<string, string>;
+  totalRows: number;
+  allRows: Array<Record<string, string>>;
+};
+
+const MAPPING_FIELDS = ["email", "name", "businessName", "contactType", "region", "country", "organizationName", "leadFocus"] as const;
+
+function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [parsed, setParsed] = useState<ParsedImport | null>(null);
+  const [mapping, setMapping] = useState<Record<string, string>>({});
+  const [importResult, setImportResult] = useState<{ imported: number; skipped: number; invalid: number; total: number } | null>(null);
+
+  const utils = trpc.useUtils();
+
+  const parseMutation = trpc.admin.parseImportFile.useMutation({
+    onSuccess: (data) => {
+      if (!data.totalRows) {
+        toast.error("No rows found in file");
+        return;
+      }
+      setParsed(data as ParsedImport);
+      setMapping(data.mapping as Record<string, string>);
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const importMutation = trpc.admin.importMarketingContacts.useMutation({
+    onSuccess: (data) => {
+      setImportResult(data);
+      toast.success(`Imported ${data.imported} contacts (${data.skipped} skipped, ${data.invalid} invalid)`);
+      utils.admin.getMarketingContacts.invalidate();
+      utils.admin.getSegmentCounts.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (ext !== "csv" && ext !== "xlsx") {
+      toast.error("Please upload a CSV or XLSX file");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1] || reader.result as string;
+      parseMutation.mutate({
+        fileContent: base64,
+        fileType: ext as "csv" | "xlsx",
+        fileName: file.name,
+      });
+    };
+    reader.readAsDataURL(file);
+  }, [parseMutation]);
+
+  function handleImport() {
+    if (!parsed?.allRows) return;
+
+    const contacts: Array<{
+      email: string;
+      name?: string;
+      businessName?: string;
+      organizationName?: string;
+      contactType?: string;
+      region?: string;
+      country?: string;
+      leadFocus?: string;
+    }> = [];
+
+    // Build reverse mapping: field -> header column
+    const reverseMap: Record<string, string> = {};
+    for (const [header, field] of Object.entries(mapping)) {
+      if (field && field !== "__skip__") {
+        reverseMap[field] = header;
+      }
+    }
+
+    if (!reverseMap.email) {
+      toast.error("Please map at least the Email column");
+      return;
+    }
+
+    for (const row of parsed.allRows) {
+      const email = row[reverseMap.email]?.trim();
+      if (!email || !email.includes("@")) continue;
+
+      contacts.push({
+        email,
+        name: reverseMap.name ? row[reverseMap.name]?.trim() || undefined : undefined,
+        businessName: reverseMap.businessName ? row[reverseMap.businessName]?.trim() || undefined : undefined,
+        organizationName: reverseMap.organizationName ? row[reverseMap.organizationName]?.trim() || undefined : undefined,
+        contactType: reverseMap.contactType ? row[reverseMap.contactType]?.trim() || "individual" : "individual",
+        region: reverseMap.region ? row[reverseMap.region]?.trim() || undefined : undefined,
+        country: reverseMap.country ? row[reverseMap.country]?.trim() || undefined : undefined,
+        leadFocus: reverseMap.leadFocus ? row[reverseMap.leadFocus]?.trim() || undefined : undefined,
+      });
+    }
+
+    if (contacts.length === 0) {
+      toast.error("No valid contacts found with the current mapping");
+      return;
+    }
+
+    importMutation.mutate({ contacts, source: "file_import" });
+  }
+
+  function handleClose(v: boolean) {
+    if (!v) {
+      setParsed(null);
+      setMapping({});
+      setImportResult(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+    onOpenChange(v);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Upload className="w-5 h-5" />
+            Import Marketing Contacts
+          </DialogTitle>
+          <DialogDescription>
+            Upload a CSV or XLSX file to import contacts in bulk
+          </DialogDescription>
+        </DialogHeader>
+
+        {importResult ? (
+          /* Import Result Summary */
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <Card>
+                <CardContent className="pt-4 pb-4 text-center">
+                  <p className="text-sm text-muted-foreground">Imported</p>
+                  <p className="text-2xl font-bold text-green-600">{importResult.imported}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-4 text-center">
+                  <p className="text-sm text-muted-foreground">Skipped</p>
+                  <p className="text-2xl font-bold text-yellow-600">{importResult.skipped}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-4 text-center">
+                  <p className="text-sm text-muted-foreground">Invalid</p>
+                  <p className="text-2xl font-bold text-red-600">{importResult.invalid}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-4 text-center">
+                  <p className="text-sm text-muted-foreground">Total</p>
+                  <p className="text-2xl font-bold">{importResult.total}</p>
+                </CardContent>
+              </Card>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => handleClose(false)}>Done</Button>
+            </DialogFooter>
+          </div>
+        ) : !parsed ? (
+          /* File Upload Step */
+          <div className="space-y-4 py-4">
+            <div
+              className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
+              <p className="text-sm font-medium">Click to upload CSV or XLSX file</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                File should contain columns for email, name, business, type, country, etc.
+              </p>
+              {parseMutation.isPending && (
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Parsing file...</span>
+                </div>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.xlsx"
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+            <DialogFooter>
+              <Button variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
+            </DialogFooter>
+          </div>
+        ) : (
+          /* Preview & Mapping Step */
+          <div className="space-y-4 py-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">
+                Found <span className="text-primary font-bold">{parsed.totalRows}</span> rows with{" "}
+                <span className="text-primary font-bold">{parsed.headers.length}</span> columns
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setParsed(null);
+                  setMapping({});
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
+              >
+                Choose different file
+              </Button>
+            </div>
+
+            {/* Column Mapping */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Column Mapping</CardTitle>
+                <CardDescription className="text-xs">
+                  Map your file columns to contact fields. Auto-detected mappings are shown.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {parsed.headers.map((header) => (
+                    <div key={header} className="flex items-center gap-2">
+                      <span className="text-xs font-mono bg-muted px-2 py-1 rounded min-w-[100px] truncate">
+                        {header}
+                      </span>
+                      <span className="text-xs text-muted-foreground">→</span>
+                      <Select
+                        value={mapping[header] || "__skip__"}
+                        onValueChange={(v) =>
+                          setMapping((prev) => ({ ...prev, [header]: v }))
+                        }
+                      >
+                        <SelectTrigger className="h-8 text-xs flex-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__skip__">— Skip —</SelectItem>
+                          {MAPPING_FIELDS.map((f) => (
+                            <SelectItem key={f} value={f}>
+                              {f}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Preview Table */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Preview (first {Math.min(10, parsed.rows.length)} rows)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto max-h-60">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {parsed.headers.map((h) => (
+                          <TableHead key={h} className="text-xs whitespace-nowrap">
+                            {h}
+                            {mapping[h] && mapping[h] !== "__skip__" && (
+                              <Badge variant="secondary" className="ml-1 text-[10px]">
+                                {mapping[h]}
+                              </Badge>
+                            )}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {parsed.rows.map((row, i) => (
+                        <TableRow key={i}>
+                          {parsed.headers.map((h) => (
+                            <TableCell key={h} className="text-xs whitespace-nowrap">
+                              {row[h] || "—"}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
+              <Button
+                onClick={handleImport}
+                disabled={importMutation.isPending || !Object.values(mapping).includes("email")}
+              >
+                {importMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4 mr-1" />
+                )}
+                Import {parsed.totalRows} Contacts
+              </Button>
+            </DialogFooter>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

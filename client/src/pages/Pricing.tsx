@@ -15,6 +15,7 @@ import {
   Sparkles,
   Crown,
   Building2,
+  GraduationCap,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -150,6 +151,16 @@ export default function Pricing() {
       "Priority email support",
       "WhatsApp support",
     ],
+    student: [
+      "1 virtual or assigned horse",
+      "Daily care task tracking",
+      "Training log & progress",
+      "Study hub access",
+      "Lesson schedule",
+      "AI tutor support",
+      "Achievement badges",
+      "Progress reports",
+    ],
   };
 
   const isCurrentPlan = (plan: string) => {
@@ -239,6 +250,19 @@ export default function Pricing() {
       features: pricing?.stable?.features || features.stable,
       icon: Building2,
       iconColor: "from-purple-400 to-pink-400",
+      popular: false,
+    },
+    {
+      name: "Student",
+      plan: "student",
+      description: "For students & riding schools",
+      price: billingPeriod === "monthly" ? "5.00" : "50.00",
+      period: billingPeriod === "monthly" ? "/month" : "/year",
+      yearlyPrice: "50.00",
+      monthlySavings: true,
+      features: features.student,
+      icon: GraduationCap,
+      iconColor: "from-emerald-400 to-teal-400",
       popular: false,
     },
   ];
@@ -401,7 +425,7 @@ export default function Pricing() {
           )}
 
           {/* Pricing Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {pricingPlans.map((planData, index) => {
               const isCurrentPlanActive = isCurrentPlan(planData.plan);
 
@@ -511,6 +535,17 @@ export default function Pricing() {
                         >
                           Start Free Trial
                         </Button>
+                      ) : planData.plan === "student" ? (
+                        <Button
+                          className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 hover:from-emerald-600 hover:to-teal-600 shadow-lg hover:shadow-emerald-500/30 transition-all duration-300"
+                          onClick={() =>
+                            setLocation(
+                              `/register?plan=student&interval=${billingPeriod}`,
+                            )
+                          }
+                        >
+                          Get Started
+                        </Button>
                       ) : planData.plan === "pro" ? (
                         <Button
                           className="w-full bg-gradient-to-r from-indigo-500 to-cyan-500 text-white border-0 hover:from-indigo-600 hover:to-cyan-600 shadow-lg hover:shadow-indigo-500/50 transition-all duration-300"
@@ -563,6 +598,59 @@ export default function Pricing() {
               );
             })}
           </div>
+
+          {/* Student Volume Pricing */}
+          <motion.div
+            className="mt-16 max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+          >
+            <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20 rounded-2xl p-8 md:p-10">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 mb-4">
+                  <GraduationCap className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-medium text-emerald-400 uppercase tracking-wider">
+                    Schools & Academies
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  Student Volume Pricing
+                </h3>
+                <p className="text-gray-400 text-sm max-w-xl mx-auto">
+                  Enrolling multiple students? The more students you add, the more
+                  you save. Contact us for custom school packages.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { range: "1–19", discount: "Standard", price: "£5/mo" },
+                  { range: "20+", discount: "10% off", price: "£4.50/mo" },
+                  { range: "50+", discount: "15% off", price: "£4.25/mo" },
+                  { range: "100+", discount: "20% off", price: "£4/mo" },
+                ].map((tier, i) => (
+                  <div
+                    key={i}
+                    className={`rounded-xl p-5 text-center border ${
+                      i === 3
+                        ? "bg-emerald-500/10 border-emerald-500/30"
+                        : "bg-white/5 border-white/10"
+                    }`}
+                  >
+                    <p className="text-xs text-gray-400 mb-1">{tier.range} students</p>
+                    <p className="text-lg font-bold text-white">{tier.price}</p>
+                    <p className="text-xs text-emerald-400 font-medium mt-1">
+                      {tier.discount}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-center text-xs text-gray-500 mt-5">
+                Per student pricing. Yearly billing available at £50/student/year.
+                Volume discounts apply to all billing periods.
+              </p>
+            </div>
+          </motion.div>
 
           {/* FAQ Section */}
           <motion.div
@@ -618,6 +706,16 @@ export default function Pricing() {
                   question: "Can I export my data?",
                   answer:
                     "Yes! All paid plans include the ability to export your data to CSV and PDF formats for backup or sharing.",
+                },
+                {
+                  question: "What is the Student plan?",
+                  answer:
+                    "The Student plan is designed for equestrian students and riding schools. Students get a dedicated dashboard, virtual or real horse management, training logs, and study tools — all from £5/month.",
+                },
+                {
+                  question: "Do schools get volume discounts?",
+                  answer:
+                    "Yes! Schools enrolling 20+ students get 10% off, 50+ students get 15% off, and 100+ students get 20% off. Contact us for custom school packages.",
                 },
               ].map((faq, index) => (
                 <motion.div
