@@ -16,6 +16,7 @@ import {
   BookOpen,
   Brain,
   TrendingUp,
+  Zap,
   LogOut,
   Menu,
   X,
@@ -38,7 +39,8 @@ export type StudentView =
   | "training"
   | "study-hub"
   | "ai-tutor"
-  | "progress";
+  | "progress"
+  | "scenarios";
 
 interface StudentNavItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -62,6 +64,7 @@ const studentNavItems: StudentNavItem[] = [
   { icon: BookOpen, label: "Study Hub", view: "study-hub" },
   { icon: Brain, label: "AI Tutor", view: "ai-tutor" },
   { icon: TrendingUp, label: "Progress", view: "progress" },
+  { icon: Zap, label: "Scenarios", view: "scenarios" },
 ];
 
 // ── Sidebar nav ────────────────────────────────────────────────────────────
@@ -205,6 +208,7 @@ export default function StudentDashboardLayout({
     "study-hub": "Study Hub",
     "ai-tutor": "AI Tutor",
     progress: "Progress",
+    scenarios: "Scenario Training",
   };
 
   return (
