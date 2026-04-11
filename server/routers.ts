@@ -88,6 +88,7 @@ import {
 import { sendEmail, sendStableInviteEmail } from "./_core/email";
 import { getLiveVisitorCount } from "./_core/analyticsTracker";
 import { studentRouter } from "./studentRouter";
+import { teacherRouter } from "./teacherRouter";
 import {
   normalizeCountry,
   normalizeContactType,
@@ -281,6 +282,7 @@ function mapTemplateSessionType(type: string): "flatwork" | "jumping" | "hacking
 export const appRouter = router({
   system: systemRouter,
   student: studentRouter,
+  teacher: teacherRouter,
 
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),

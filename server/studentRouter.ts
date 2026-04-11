@@ -9,7 +9,7 @@ import { z } from "zod";
 import * as db from "./db";
 import { invokeLLM, isAIConfigured } from "./_core/llm";
 import { getRuntimeConfig } from "./dynamicConfig";
-import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
+import { eq, and, desc, gte, lte, sql, inArray } from "drizzle-orm";
 import { getDb } from "./db";
 import {
   virtualHorses,
@@ -21,6 +21,11 @@ import {
   aiTutorSessions,
   horses,
   users,
+  teacherAssignedTasks,
+  teacherFeedback,
+  learningPathwayProgress,
+  studentGroups,
+  studentGroupMembers,
 } from "../drizzle/schema";
 
 /** Safely parse user preferences JSON. */
@@ -957,6 +962,156 @@ export const studentRouter = router({
       await dbConn.update(users)
         .set({ preferences: JSON.stringify(prefs) })
         .where(eq(users.id, ctx.user.id));
+      return { success: true };
+    }),
+
+  // ── Teacher-assigned tasks (student view) ─────────────────────────────────
+
+  listAssignedTasksForMe: studentProcedure.query(async ({ ctx }) => {
+    const dbConn = await getDb();
+    if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+    // Find groups the student is in
+    const memberships = await dbConn.select({ groupId: studentGroupMembers.groupId })
+      .from(studentGroupMembers)
+      .where(eq(studentGroupMembers.studentUserId, ctx.user.id));
+
+    const groupIds = memberships.map(m => m.groupId);
+
+    // Individual + group tasks
+    const conditions = groupIds.length
+      ? [eq(teacherAssignedTasks.studentUserId, ctx.user.id)]
+      : [eq(teacherAssignedTasks.studentUserId, ctx.user.id)];
+
+    const individualTasks = await dbConn.select().from(teacherAssignedTasks)
+      .where(eq(teacherAssignedTasks.studentUserId, ctx.user.id))
+      .orderBy(desc(teacherAssignedTasks.createdAt));
+
+    const groupTasks = groupIds.length
+      ? await dbConn.select().from(teacherAssignedTasks)
+          .where(inArray(teacherAssignedTasks.groupId, groupIds))
+          .orderBy(desc(teacherAssignedTasks.createdAt))
+      : [];
+
+    return [...individualTasks, ...groupTasks];
+  }),
+
+  completeAssignedTask: studentProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+      // Verify the task is assigned to this student (individual or group)
+      const [task] = await dbConn.select().from(teacherAssignedTasks)
+        .where(eq(teacherAssignedTasks.id, input.id)).limit(1);
+
+      if (!task) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Check group membership if group task
+      if (task.groupId) {
+        const [membership] = await dbConn.select({ id: studentGroupMembers.id })
+          .from(studentGroupMembers)
+          .where(and(eq(studentGroupMembers.groupId, task.groupId), eq(studentGroupMembers.studentUserId, ctx.user.id)))
+          .limit(1);
+        if (!membership) throw new TRPCError({ code: "FORBIDDEN" });
+      } else if (task.studentUserId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+
+      await dbConn.update(teacherAssignedTasks)
+        .set({ isCompleted: true, completedAt: new Date(), completedByStudentId: ctx.user.id })
+        .where(eq(teacherAssignedTasks.id, input.id));
+      return { success: true };
+    }),
+
+  // ── Teacher feedback (student view) ──────────────────────────────────────
+
+  listMyFeedback: studentProcedure.query(async ({ ctx }) => {
+    const dbConn = await getDb();
+    if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+    const feedback = await dbConn.select({
+      id: teacherFeedback.id,
+      teacherId: teacherFeedback.teacherId,
+      entryType: teacherFeedback.entryType,
+      entryId: teacherFeedback.entryId,
+      comment: teacherFeedback.comment,
+      feedbackType: teacherFeedback.feedbackType,
+      isRead: teacherFeedback.isRead,
+      createdAt: teacherFeedback.createdAt,
+    }).from(teacherFeedback)
+      .where(eq(teacherFeedback.studentUserId, ctx.user.id))
+      .orderBy(desc(teacherFeedback.createdAt))
+      .limit(50);
+
+    if (!feedback.length) return [];
+
+    // Fetch teacher names
+    const teacherIds = [...new Set(feedback.map(f => f.teacherId))];
+    const teacherUsers = await dbConn.select({ id: users.id, name: users.name })
+      .from(users).where(inArray(users.id, teacherIds));
+    const teacherMap = new Map(teacherUsers.map(u => [u.id, u.name]));
+
+    return feedback.map(f => ({ ...f, teacherName: teacherMap.get(f.teacherId) ?? "Instructor" }));
+  }),
+
+  markFeedbackRead: studentProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+      await dbConn.update(teacherFeedback)
+        .set({ isRead: true })
+        .where(and(eq(teacherFeedback.id, input.id), eq(teacherFeedback.studentUserId, ctx.user.id)));
+      return { success: true };
+    }),
+
+  // ── Learning Pathway Progress ─────────────────────────────────────────────
+
+  getPathwayProgress: studentProcedure.query(async ({ ctx }) => {
+    const dbConn = await getDb();
+    if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+    const completed = await dbConn.select().from(learningPathwayProgress)
+      .where(eq(learningPathwayProgress.studentUserId, ctx.user.id));
+
+    const user = await db.getUserById(ctx.user.id);
+    const prefs = parseUserPrefs(user?.preferences);
+    const currentLevel = (prefs.studentLevel as string) ?? "beginner";
+
+    return { completed, currentLevel };
+  }),
+
+  markPathwayItemComplete: studentProcedure
+    .input(z.object({
+      pathwayLevel: z.enum(["beginner", "developing", "intermediate", "advanced"]),
+      itemType: z.enum(["study_topic", "scenario"]),
+      itemSlug: z.string().min(1).max(100),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+      // Idempotent — only insert if not already completed
+      const [existing] = await dbConn.select({ id: learningPathwayProgress.id })
+        .from(learningPathwayProgress)
+        .where(and(
+          eq(learningPathwayProgress.studentUserId, ctx.user.id),
+          eq(learningPathwayProgress.pathwayLevel, input.pathwayLevel),
+          eq(learningPathwayProgress.itemType, input.itemType),
+          eq(learningPathwayProgress.itemSlug, input.itemSlug),
+        )).limit(1);
+
+      if (!existing) {
+        await dbConn.insert(learningPathwayProgress).values({
+          studentUserId: ctx.user.id,
+          pathwayLevel: input.pathwayLevel,
+          itemType: input.itemType,
+          itemSlug: input.itemSlug,
+        });
+      }
+
       return { success: true };
     }),
 });

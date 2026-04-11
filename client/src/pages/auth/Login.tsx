@@ -69,8 +69,16 @@ export default function Login() {
           goToStudent = prefs?.planTier === "student";
         }
       } catch { /* ignore */ }
+      let goToTeacher = false;
+      try {
+        if (user?.preferences) {
+          const prefs = JSON.parse(user.preferences);
+          goToTeacher = prefs?.planTier === "teacher" || prefs?.selectedExperience === "teacher";
+        }
+      } catch { /* ignore */ }
       if (goToStable) setLocation("/stable-dashboard");
       else if (goToStudent) setLocation("/student-dashboard");
+      else if (goToTeacher) setLocation("/teacher-dashboard");
       else setLocation("/dashboard");
     }
     return null;

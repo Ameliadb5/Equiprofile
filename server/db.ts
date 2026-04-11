@@ -1028,6 +1028,77 @@ async function ensureTables(db: ReturnType<typeof drizzle>): Promise<void> {
       CONSTRAINT \`aiTutorSessions_id\` PRIMARY KEY(\`id\`),
       KEY \`idx_ats_userId\` (\`userId\`)
     )`,
+    // Phase 3 — Student groups
+    `CREATE TABLE IF NOT EXISTS \`studentGroups\` (
+      \`id\` int AUTO_INCREMENT NOT NULL,
+      \`teacherId\` int NOT NULL,
+      \`name\` varchar(200) NOT NULL,
+      \`description\` text,
+      \`level\` varchar(30) NOT NULL DEFAULT 'beginner',
+      \`academicYear\` varchar(20),
+      \`isActive\` boolean NOT NULL DEFAULT true,
+      \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+      \`updatedAt\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+      CONSTRAINT \`studentGroups_id\` PRIMARY KEY(\`id\`),
+      KEY \`idx_sg_teacherId\` (\`teacherId\`)
+    )`,
+    // Phase 3 — Student group members
+    `CREATE TABLE IF NOT EXISTS \`studentGroupMembers\` (
+      \`id\` int AUTO_INCREMENT NOT NULL,
+      \`groupId\` int NOT NULL,
+      \`studentUserId\` int NOT NULL,
+      \`joinedAt\` timestamp NOT NULL DEFAULT (now()),
+      CONSTRAINT \`studentGroupMembers_id\` PRIMARY KEY(\`id\`),
+      KEY \`idx_sgm_groupId\` (\`groupId\`),
+      KEY \`idx_sgm_studentUserId\` (\`studentUserId\`)
+    )`,
+    // Phase 3 — Teacher assigned tasks
+    `CREATE TABLE IF NOT EXISTS \`teacherAssignedTasks\` (
+      \`id\` int AUTO_INCREMENT NOT NULL,
+      \`teacherId\` int NOT NULL,
+      \`studentUserId\` int,
+      \`groupId\` int,
+      \`title\` varchar(200) NOT NULL,
+      \`description\` text,
+      \`category\` varchar(50) NOT NULL DEFAULT 'care',
+      \`dueDate\` date,
+      \`frequency\` varchar(20) NOT NULL DEFAULT 'once',
+      \`isCompleted\` boolean NOT NULL DEFAULT false,
+      \`completedAt\` timestamp NULL,
+      \`completedByStudentId\` int,
+      \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+      \`updatedAt\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+      CONSTRAINT \`teacherAssignedTasks_id\` PRIMARY KEY(\`id\`),
+      KEY \`idx_tat_teacherId\` (\`teacherId\`),
+      KEY \`idx_tat_studentUserId\` (\`studentUserId\`)
+    )`,
+    // Phase 3 — Teacher feedback
+    `CREATE TABLE IF NOT EXISTS \`teacherFeedback\` (
+      \`id\` int AUTO_INCREMENT NOT NULL,
+      \`teacherId\` int NOT NULL,
+      \`studentUserId\` int NOT NULL,
+      \`entryType\` varchar(50) NOT NULL,
+      \`entryId\` int,
+      \`comment\` text NOT NULL,
+      \`feedbackType\` varchar(30) NOT NULL DEFAULT 'general',
+      \`isRead\` boolean NOT NULL DEFAULT false,
+      \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+      \`updatedAt\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+      CONSTRAINT \`teacherFeedback_id\` PRIMARY KEY(\`id\`),
+      KEY \`idx_tf_studentUserId\` (\`studentUserId\`),
+      KEY \`idx_tf_teacherId\` (\`teacherId\`)
+    )`,
+    // Phase 3 — Learning pathway progress
+    `CREATE TABLE IF NOT EXISTS \`learningPathwayProgress\` (
+      \`id\` int AUTO_INCREMENT NOT NULL,
+      \`studentUserId\` int NOT NULL,
+      \`pathwayLevel\` varchar(30) NOT NULL,
+      \`itemType\` varchar(30) NOT NULL,
+      \`itemSlug\` varchar(100) NOT NULL,
+      \`completedAt\` timestamp NOT NULL DEFAULT (now()),
+      CONSTRAINT \`learningPathwayProgress_id\` PRIMARY KEY(\`id\`),
+      KEY \`idx_lpp_studentUserId\` (\`studentUserId\`)
+    )`,
   ];
 
   try {
