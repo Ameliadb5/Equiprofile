@@ -1307,12 +1307,10 @@ export const studentRouter = router({
     const groupIds = memberships.map(m => m.groupId);
 
     // Get assignments for this student directly or via group
+    const directCondition = eq(teacherLessonAssignments.studentUserId, ctx.user.id);
     const studentCondition = groupIds.length > 0
-      ? or(
-          eq(teacherLessonAssignments.studentUserId, ctx.user.id),
-          inArray(teacherLessonAssignments.groupId, groupIds),
-        )!
-      : eq(teacherLessonAssignments.studentUserId, ctx.user.id);
+      ? (or(directCondition, inArray(teacherLessonAssignments.groupId, groupIds)) ?? directCondition)
+      : directCondition;
 
     const assignments = await dbConn.select()
       .from(teacherLessonAssignments)

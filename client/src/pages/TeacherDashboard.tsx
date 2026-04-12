@@ -973,7 +973,7 @@ function ReportsView() {
             <TCard>
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Lesson Review Notes</p>
               <div className="space-y-2">
-                {((report as any).lessonReviews as Array<{ lessonSlug: string; reviewStatus: string; feedback: string; reviewedAt: string }>).map((r, i) => (
+                {((report as any).lessonReviews as Array<{ lessonSlug: string; reviewStatus: string; feedback: string; date: string }>).map((r, i) => (
                   <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg bg-white/[0.03]">
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold shrink-0 mt-0.5 ${r.reviewStatus === "satisfactory" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>
                       {r.reviewStatus === "satisfactory" ? "✓ SAT" : "△ IMP"}
@@ -982,7 +982,7 @@ function ReportsView() {
                       <p className="text-xs font-medium text-white capitalize">{r.lessonSlug.replace(/-/g, " ")}</p>
                       {r.feedback && <p className="text-xs text-gray-400 mt-0.5">{r.feedback}</p>}
                     </div>
-                    <span className="text-[10px] text-gray-600 shrink-0">{String(r.reviewedAt).slice(0, 10)}</span>
+                    <span className="text-[10px] text-gray-600 shrink-0">{String(r.date).slice(0, 10)}</span>
                   </div>
                 ))}
               </div>
@@ -1297,7 +1297,7 @@ function TeacherLessonsView() {
                 feedback: reviewForm.feedback || undefined,
                 recommendedNextLesson: reviewForm.recommendedNextLesson || undefined,
               })}
-              disabled={reviewMutation.isPending || !reviewForm.studentUserId || !reviewForm.lessonSlug || !reviewForm.feedback}
+              disabled={reviewMutation.isPending || !reviewForm.studentUserId || !reviewForm.lessonSlug}
               className="mt-4 px-5 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition-colors disabled:opacity-40">
               {reviewMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin inline" /> : "Submit Review"}
             </button>
