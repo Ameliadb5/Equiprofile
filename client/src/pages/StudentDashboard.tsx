@@ -1153,6 +1153,10 @@ function ProgressView() {
   const utils = trpc.useUtils();
   const { data: progress, isLoading: progressLoading } = trpc.student.getProgress.useQuery();
   const { data: levelData, isLoading: levelLoading } = trpc.student.getLearnerLevel.useQuery();
+  const { data: intelligence } = trpc.student.getProgressIntelligence.useQuery();
+  const { data: competencies } = trpc.student.getMyCompetencies.useQuery();
+  const { data: lessonReviewsData } = trpc.student.getMyLessonReviews.useQuery();
+  const markReadMut = trpc.student.markReviewRead.useMutation({ onSuccess: () => utils.student.getMyLessonReviews.invalidate() });
   const setLevelMut = trpc.student.setLearnerLevel.useMutation({
     onSuccess: () => utils.student.getLearnerLevel.invalidate(),
   });
@@ -1168,6 +1172,25 @@ function ProgressView() {
     s.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 
   const currentLevel = LEARNER_LEVELS.find(l => l.id === levelData?.level) ?? LEARNER_LEVELS[0];
+
+  const readinessColors: Record<string, string> = {
+    ready_for_next_level: "#10b981",
+    needs_support: "#f59e0b",
+    focus_on_safety: "#ef4444",
+    focus_on_riding: "#6366f1",
+    focus_on_care: "#06b6d4",
+  };
+  const readinessLabels: Record<string, string> = {
+    ready_for_next_level: "Ready for Next Level",
+    needs_support: "Needs Support",
+    focus_on_safety: "Focus on Safety",
+    focus_on_riding: "Focus on Riding",
+    focus_on_care: "Focus on Care",
+  };
+
+  const competencyStatusColors: Record<string, string> = {
+    not_assessed: "#6b7280", in_progress: "#6366f1", achieved: "#10b981", needs_support: "#f59e0b",
+  };
 
   if (progressLoading || levelLoading) return <SCard><SkeletonBar className="w-full h-32" /></SCard>;
 
@@ -1253,6 +1276,126 @@ function ProgressView() {
                   />
                 </div>
                 <p className="text-[10px] text-gray-600 mt-1">{skill.xp % 100 === 0 ? "Level up!" : `${100 - (skill.xp % 100)} XP to next level`}</p>
+              </div>
+            ))}
+          </div>
+        </SCard>
+            )}
+
+      {/* ── Progress Intelligence ── */}
+      {intelligence && (
+        <SCard>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Learning Intelligence</p>
+            {intelligence.readinessStatus && (
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+                style={{ color: readinessColors[intelligence.readinessStatus], backgroundColor: `${readinessColors[intelligence.readinessStatus]}18` }}>
+                {readinessLabels[intelligence.readinessStatus]}
+              </span>
+            )}
+          </div>
+
+          {/* Lesson completion overview */}
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm text-white">Overall Lessons</span>
+              <span className="text-xs text-gray-500">{intelligence.overallLessonPercent}%</span>
+            </div>
+            <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-500 bg-indigo-500"
+                style={{ width: `${intelligence.overallLessonPercent}%` }} />
+            </div>
+          </div>
+
+          {/* Pathway breakdown */}
+          {intelligence.pathwayProgress.map(pw => (
+            <div key={pw.slug} className="mb-2">
+              <div className="flex justify-between items-center mb-0.5">
+                <span className="text-xs text-gray-400 capitalize">{pw.slug.replace(/-/g, " ")}</span>
+                <span className="text-xs text-gray-600">{pw.completed}/{pw.total}</span>
+              </div>
+              <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${pw.percent}%`, backgroundColor: pw.percent >= 100 ? "#10b981" : "#6366f1" }} />
+              </div>
+            </div>
+          ))}
+
+          {/* Weak areas */}
+          {intelligence.weakAreas.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-white/[0.05]">
+              <p className="text-xs text-gray-500 mb-1">Areas to Focus</p>
+              <div className="flex flex-wrap gap-1.5">
+                {intelligence.weakAreas.map(w => (
+                  <span key={w} className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400">{w}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recommended next */}
+          {intelligence.recommendedNextPathway && (
+            <div className="mt-3 pt-3 border-t border-white/[0.05]">
+              <p className="text-xs text-gray-500 mb-1">Recommended Next</p>
+              <p className="text-sm text-indigo-300 capitalize">{intelligence.recommendedNextPathway.replace(/-/g, " ")}</p>
+            </div>
+          )}
+        </SCard>
+      )}
+
+      {/* ── Competencies ── */}
+      {competencies && competencies.length > 0 && (
+        <SCard>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Competencies</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {competencies.map(c => (
+              <div key={c.id} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white/[0.03]">
+                <span className="text-xs text-white">{c.competencyKey.replace(/_/g, " ")}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium capitalize"
+                  style={{ color: competencyStatusColors[c.status], backgroundColor: `${competencyStatusColors[c.status]}18` }}>
+                  {c.status.replace(/_/g, " ")}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 pt-3 border-t border-white/[0.05] flex items-center gap-4">
+            <div className="text-center">
+              <p className="text-lg font-bold text-emerald-400">{competencies.filter(c => c.status === "achieved").length}</p>
+              <p className="text-[10px] text-gray-500">Achieved</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-indigo-400">{competencies.filter(c => c.status === "in_progress").length}</p>
+              <p className="text-[10px] text-gray-500">In Progress</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-amber-400">{competencies.filter(c => c.status === "needs_support").length}</p>
+              <p className="text-[10px] text-gray-500">Needs Support</p>
+            </div>
+          </div>
+        </SCard>
+      )}
+
+      {/* ── Teacher Lesson Reviews ── */}
+      {lessonReviewsData && lessonReviewsData.length > 0 && (
+        <SCard>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Teacher Lesson Reviews</p>
+          <div className="space-y-2">
+            {lessonReviewsData.slice(0, 5).map(r => (
+              <div key={r.id} className={`p-3 rounded-lg border transition-colors ${r.isRead ? "bg-white/[0.02] border-white/[0.04]" : "bg-indigo-500/[0.06] border-indigo-500/20"}`}>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.reviewStatus === "satisfactory" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>
+                    {r.reviewStatus === "satisfactory" ? "Satisfactory" : "Needs Improvement"}
+                  </span>
+                  <span className="text-xs text-gray-600">{r.lessonSlug}</span>
+                </div>
+                {r.feedback && <p className="text-xs text-gray-300">{r.feedback}</p>}
+                {r.recommendedNextLesson && <p className="text-xs text-indigo-400 mt-1">Next: {r.recommendedNextLesson}</p>}
+                {!r.isRead && (
+                  <button onClick={() => markReadMut.mutate({ reviewId: r.id })}
+                    className="text-xs text-gray-500 hover:text-gray-300 mt-1 transition-colors">
+                    Mark as read
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -1509,6 +1652,8 @@ function LessonsView() {
   );
 
   const { data: progress } = trpc.student.getLessonProgress.useQuery();
+  const { data: assignedLessons } = trpc.student.getAssignedLessons.useQuery();
+  const { data: lessonReviews } = trpc.student.getMyLessonReviews.useQuery();
   const completeMutation = trpc.student.completeLesson.useMutation();
   const utils = trpc.useUtils();
 
@@ -1800,6 +1945,59 @@ function LessonsView() {
           </button>
         ))}
       </div>
+
+      {/* Assigned lessons panel */}
+      {!selectedPathway && !selectedLesson && (assignedLessons ?? []).length > 0 && (
+        <div className="rounded-xl p-5" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-indigo-400 mb-3 flex items-center gap-2">
+            <BookOpen className="w-3.5 h-3.5" /> Assigned to You
+          </p>
+          <div className="space-y-2">
+            {(assignedLessons ?? []).map(a => (
+              <div key={a.id} className={`flex items-center justify-between gap-3 p-3 rounded-lg border ${
+                a.isOverdue ? "border-rose-500/20 bg-rose-500/[0.04]" : "border-white/[0.05] bg-white/[0.02]"
+              }`}>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${a.assignmentType === "lesson" ? "bg-indigo-500/20 text-indigo-300" : "bg-emerald-500/20 text-emerald-300"}`}>
+                      {a.assignmentType === "lesson" ? "Lesson" : "Pathway"}
+                    </span>
+                    <span className="text-sm text-white font-medium truncate">{a.lessonSlug ?? a.pathwaySlug}</span>
+                    {a.isCompleted && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                  </div>
+                  {a.dueDate && (
+                    <p className={`text-xs mt-0.5 ${a.isOverdue ? "text-rose-400" : "text-gray-500"}`}>
+                      Due {String(a.dueDate).slice(0, 10)}{a.isOverdue ? " — Overdue" : ""}
+                    </p>
+                  )}
+                  {a.instructions && <p className="text-xs text-gray-500 mt-0.5 italic">{a.instructions}</p>}
+                </div>
+                {!a.isCompleted && a.assignmentType === "lesson" && a.lessonSlug && (
+                  <button onClick={() => setSelectedLesson(a.lessonSlug!)}
+                    className="text-xs px-3 py-1 rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 shrink-0 transition-colors">
+                    Open
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Unread lesson reviews panel */}
+      {!selectedPathway && !selectedLesson && (lessonReviews ?? []).some(r => !r.isRead) && (
+        <div className="rounded-xl p-4" style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.2)" }}>
+          <p className="text-xs font-semibold text-indigo-400 mb-2 flex items-center gap-2">
+            <MessageSquare className="w-3.5 h-3.5" /> New Teacher Feedback
+          </p>
+          {(lessonReviews ?? []).filter(r => !r.isRead).slice(0, 3).map(r => (
+            <div key={r.id} className="text-xs text-gray-300 mb-1">
+              <span className="font-medium">{r.lessonSlug}</span>: {r.feedback?.slice(0, 80)}
+              {(r.feedback?.length ?? 0) > 80 ? "…" : ""}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Pathway cards (when no pathway selected) */}
       {!selectedPathway && (

@@ -21,6 +21,13 @@ import {
   Trash2,
   Star,
   Lightbulb,
+  Library,
+  BookOpen,
+  Award,
+  AlertCircle,
+  Calendar,
+  Shield,
+  ChevronLeft,
 } from "lucide-react";
 
 // ── Design tokens ─────────────────────────────────────────────────────────
@@ -904,6 +911,370 @@ function ReportsView() {
   );
 }
 
+// ── Teacher Lessons View ───────────────────────────────────────────────────
+
+const COMPETENCY_DEFINITIONS = [
+  { key: "grooming_safely", label: "Grooming Safely", category: "Care & Handling" },
+  { key: "leading_safely", label: "Leading Safely", category: "Care & Handling" },
+  { key: "tying_up_safely", label: "Tying Up Safely", category: "Care & Handling" },
+  { key: "feeding_awareness", label: "Feeding Awareness", category: "Care & Handling" },
+  { key: "stable_checks", label: "Stable Checks", category: "Care & Handling" },
+  { key: "tack_identification", label: "Tack Identification", category: "Tack & Equipment" },
+  { key: "tacking_up_correctly", label: "Tacking Up Correctly", category: "Tack & Equipment" },
+  { key: "tack_care", label: "Tack Care", category: "Tack & Equipment" },
+  { key: "rider_position", label: "Rider Position", category: "Riding Basics" },
+  { key: "control_at_walk", label: "Control at Walk", category: "Riding Basics" },
+  { key: "control_at_trot", label: "Control at Trot", category: "Riding Basics" },
+  { key: "balance_and_coordination", label: "Balance and Coordination", category: "Riding Basics" },
+  { key: "yard_safety_awareness", label: "Yard Safety Awareness", category: "Safety & Welfare" },
+  { key: "horse_behaviour_awareness", label: "Horse Behaviour Awareness", category: "Safety & Welfare" },
+  { key: "welfare_awareness", label: "Welfare Awareness", category: "Safety & Welfare" },
+  { key: "risk_awareness", label: "Risk Awareness", category: "Safety & Welfare" },
+  { key: "basic_first_aid", label: "Basic First Aid Awareness", category: "Safety & Welfare" },
+];
+
+const COMPETENCY_STATUS_STYLES: Record<string, { label: string; color: string; bg: string }> = {
+  not_assessed: { label: "Not Assessed", color: "#6b7280", bg: "rgba(107,114,128,0.1)" },
+  in_progress: { label: "In Progress", color: "#6366f1", bg: "rgba(99,102,241,0.1)" },
+  achieved: { label: "Achieved", color: "#10b981", bg: "rgba(16,185,129,0.1)" },
+  needs_support: { label: "Needs Support", color: "#f59e0b", bg: "rgba(245,158,11,0.1)" },
+};
+
+function TeacherLessonsView() {
+  const [tab, setTab] = useState<"assign" | "review" | "competencies">("assign");
+  const [assignForm, setAssignForm] = useState<{
+    studentUserId?: number; groupId?: number; type: "lesson" | "pathway";
+    lessonSlug: string; pathwaySlug: string; dueDate: string; instructions: string;
+    targetType: "student" | "group";
+  }>({ type: "lesson", lessonSlug: "", pathwaySlug: "", dueDate: "", instructions: "", targetType: "student" });
+  const [selectedStudentForCompetency, setSelectedStudentForCompetency] = useState<number | null>(null);
+  const [competencyForm, setCompetencyForm] = useState<{
+    key: string; category: string; status: string; comment: string;
+  } | null>(null);
+
+  const utils = trpc.useUtils();
+  const { data: students } = trpc.teacher.listMyStudents.useQuery();
+  const { data: groups } = trpc.teacher.listGroups.useQuery();
+  const { data: assignments } = trpc.teacher.listLessonAssignments.useQuery({});
+  const { data: reviews } = trpc.teacher.listLessonReviews.useQuery({});
+  const { data: competencies } = trpc.teacher.listStudentCompetencies.useQuery(
+    { studentUserId: selectedStudentForCompetency! },
+    { enabled: selectedStudentForCompetency !== null },
+  );
+
+  const assignMutation = trpc.teacher.assignLesson.useMutation({
+    onSuccess: () => {
+      utils.teacher.listLessonAssignments.invalidate();
+      setAssignForm({ type: "lesson", lessonSlug: "", pathwaySlug: "", dueDate: "", instructions: "", targetType: "student" });
+    },
+  });
+  const deleteAssignmentMutation = trpc.teacher.deleteLessonAssignment.useMutation({
+    onSuccess: () => utils.teacher.listLessonAssignments.invalidate(),
+  });
+  const signOffMutation = trpc.teacher.signOffCompetency.useMutation({
+    onSuccess: () => {
+      utils.teacher.listStudentCompetencies.invalidate();
+      setCompetencyForm(null);
+    },
+  });
+
+  const PATHWAY_OPTIONS = [
+    { slug: "horse-care-foundations", label: "Horse Care Foundations" },
+    { slug: "rider-foundations", label: "Rider Foundations" },
+    { slug: "stable-yard-safety", label: "Stable & Yard Safety" },
+    { slug: "horse-behaviour-welfare", label: "Horse Behaviour & Welfare" },
+    { slug: "tack-equipment", label: "Tack & Equipment" },
+    { slug: "developing-rider-skills", label: "Developing Rider Skills" },
+  ];
+
+  const now = new Date();
+
+  return (
+    <div className="space-y-5">
+      {/* Tab bar */}
+      <div className="flex gap-1 rounded-lg bg-white/[0.04] p-1 w-fit">
+        {(["assign", "review", "competencies"] as const).map((t) => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors capitalize ${
+              tab === t ? "bg-emerald-600 text-white" : "text-gray-400 hover:text-white"
+            }`}>
+            {t === "assign" ? "Assign Lessons" : t === "review" ? "Reviews" : "Competencies"}
+          </button>
+        ))}
+      </div>
+
+      {/* ── ASSIGN TAB ── */}
+      {tab === "assign" && (
+        <div className="space-y-5">
+          <TCard>
+            <THeading icon={Library} title="Assign a Lesson or Pathway" />
+            <p className="text-xs text-gray-500 mb-4">Assign structured learning to individual students or whole groups.</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {/* Target type */}
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Assign to</label>
+                <select className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
+                  value={assignForm.targetType}
+                  onChange={e => setAssignForm(f => ({ ...f, targetType: e.target.value as "student" | "group", studentUserId: undefined, groupId: undefined }))}>
+                  <option value="student">Individual Student</option>
+                  <option value="group">Group / Class</option>
+                </select>
+              </div>
+              {/* Student or group select */}
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">{assignForm.targetType === "student" ? "Student" : "Group"}</label>
+                {assignForm.targetType === "student" ? (
+                  <select className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
+                    value={assignForm.studentUserId ?? ""}
+                    onChange={e => setAssignForm(f => ({ ...f, studentUserId: parseInt(e.target.value) || undefined }))}>
+                    <option value="">Select student…</option>
+                    {(students ?? []).map(s => <option key={s.id} value={s.id}>{s.name ?? s.email}</option>)}
+                  </select>
+                ) : (
+                  <select className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
+                    value={assignForm.groupId ?? ""}
+                    onChange={e => setAssignForm(f => ({ ...f, groupId: parseInt(e.target.value) || undefined }))}>
+                    <option value="">Select group…</option>
+                    {(groups ?? []).map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                  </select>
+                )}
+              </div>
+              {/* Assignment type */}
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Assignment Type</label>
+                <select className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
+                  value={assignForm.type}
+                  onChange={e => setAssignForm(f => ({ ...f, type: e.target.value as "lesson" | "pathway" }))}>
+                  <option value="lesson">Single Lesson</option>
+                  <option value="pathway">Full Pathway</option>
+                </select>
+              </div>
+              {/* Lesson or pathway slug */}
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">{assignForm.type === "lesson" ? "Lesson Slug" : "Pathway"}</label>
+                {assignForm.type === "lesson" ? (
+                  <input className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-600"
+                    placeholder="e.g. parts-of-the-horse"
+                    value={assignForm.lessonSlug}
+                    onChange={e => setAssignForm(f => ({ ...f, lessonSlug: e.target.value }))} />
+                ) : (
+                  <select className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
+                    value={assignForm.pathwaySlug}
+                    onChange={e => setAssignForm(f => ({ ...f, pathwaySlug: e.target.value }))}>
+                    <option value="">Select pathway…</option>
+                    {PATHWAY_OPTIONS.map(p => <option key={p.slug} value={p.slug}>{p.label}</option>)}
+                  </select>
+                )}
+              </div>
+              {/* Due date */}
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Due Date (optional)</label>
+                <input type="date" className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
+                  value={assignForm.dueDate}
+                  onChange={e => setAssignForm(f => ({ ...f, dueDate: e.target.value }))} />
+              </div>
+              {/* Instructions */}
+              <div className="sm:col-span-2">
+                <label className="block text-xs text-gray-400 mb-1">Instructions (optional)</label>
+                <textarea className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-600 resize-none"
+                  rows={2} placeholder="Additional notes for the student…"
+                  value={assignForm.instructions}
+                  onChange={e => setAssignForm(f => ({ ...f, instructions: e.target.value }))} />
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                const payload = {
+                  assignmentType: assignForm.type,
+                  lessonSlug: assignForm.type === "lesson" ? assignForm.lessonSlug || undefined : undefined,
+                  pathwaySlug: assignForm.type === "pathway" ? assignForm.pathwaySlug || undefined : undefined,
+                  dueDate: assignForm.dueDate || undefined,
+                  instructions: assignForm.instructions || undefined,
+                  studentUserId: assignForm.targetType === "student" ? assignForm.studentUserId : undefined,
+                  groupId: assignForm.targetType === "group" ? assignForm.groupId : undefined,
+                };
+                assignMutation.mutate(payload);
+              }}
+              disabled={assignMutation.isPending || (!assignForm.studentUserId && !assignForm.groupId) || (assignForm.type === "lesson" && !assignForm.lessonSlug) || (assignForm.type === "pathway" && !assignForm.pathwaySlug)}
+              className="mt-4 px-5 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition-colors disabled:opacity-40">
+              {assignMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin inline" /> : "Assign"}
+            </button>
+          </TCard>
+
+          {/* Active assignments list */}
+          <TCard>
+            <THeading icon={ClipboardList} title="Active Assignments" />
+            {(assignments ?? []).length === 0 ? (
+              <p className="text-sm text-gray-500 py-4 text-center">No active assignments.</p>
+            ) : (
+              <div className="space-y-2 mt-3">
+                {(assignments ?? []).map(a => {
+                  const isOverdue = a.dueDate ? new Date(a.dueDate) < now : false;
+                  return (
+                    <div key={a.id} className="flex items-start justify-between gap-3 p-3 rounded-lg bg-white/[0.03] border border-white/[0.05]">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${a.assignmentType === "lesson" ? "bg-indigo-500/20 text-indigo-300" : "bg-emerald-500/20 text-emerald-300"}`}>
+                            {a.assignmentType === "lesson" ? "Lesson" : "Pathway"}
+                          </span>
+                          <span className="text-sm text-white font-medium truncate">{a.lessonSlug ?? a.pathwaySlug}</span>
+                        </div>
+                        <div className="flex items-center gap-3 mt-1">
+                          {a.dueDate && (
+                            <span className={`text-xs flex items-center gap-1 ${isOverdue ? "text-rose-400" : "text-gray-500"}`}>
+                              <Calendar className="w-3 h-3" /> {String(a.dueDate).slice(0, 10)}
+                              {isOverdue && " (overdue)"}
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-600">
+                            {a.studentUserId ? `Student #${a.studentUserId}` : `Group #${a.groupId}`}
+                          </span>
+                        </div>
+                      </div>
+                      <button onClick={() => deleteAssignmentMutation.mutate({ id: a.id })}
+                        className="p-1.5 rounded-lg text-gray-600 hover:text-rose-400 hover:bg-rose-500/10 transition-colors shrink-0">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </TCard>
+        </div>
+      )}
+
+      {/* ── REVIEW TAB ── */}
+      {tab === "review" && (
+        <div className="space-y-4">
+          <TCard>
+            <THeading icon={BookOpen} title="Lesson Reviews" />
+            <p className="text-xs text-gray-500 mb-4">Review completed lessons and provide feedback to students.</p>
+            {(reviews ?? []).length === 0 ? (
+              <div className="text-center py-8">
+                <BookOpen className="w-7 h-7 text-gray-700 mx-auto mb-2" />
+                <p className="text-sm text-gray-500">No reviews submitted yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-2 mt-3">
+                {(reviews ?? []).map(r => (
+                  <div key={r.id} className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.05]">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.reviewStatus === "satisfactory" ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300"}`}>
+                        {r.reviewStatus === "satisfactory" ? "Satisfactory" : "Needs Improvement"}
+                      </span>
+                      <span className="text-sm text-white font-medium">{r.lessonSlug}</span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">{r.feedback}</p>
+                    {r.recommendedNextLesson && (
+                      <p className="text-xs text-indigo-400 mt-1">Next: {r.recommendedNextLesson}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </TCard>
+        </div>
+      )}
+
+      {/* ── COMPETENCIES TAB ── */}
+      {tab === "competencies" && (
+        <div className="space-y-4">
+          <TCard>
+            <THeading icon={Award} title="Competency Sign-Off" />
+            <p className="text-xs text-gray-500 mb-4">Select a student to view and sign off their competencies.</p>
+            <select className="w-full max-w-xs text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
+              value={selectedStudentForCompetency ?? ""}
+              onChange={e => setSelectedStudentForCompetency(parseInt(e.target.value) || null)}>
+              <option value="">Select student…</option>
+              {(students ?? []).map(s => <option key={s.id} value={s.id}>{s.name ?? s.email}</option>)}
+            </select>
+          </TCard>
+
+          {selectedStudentForCompetency && (
+            <TCard>
+              <div className="space-y-4">
+                {Object.entries(
+                  COMPETENCY_DEFINITIONS.reduce((acc, c) => {
+                    if (!acc[c.category]) acc[c.category] = [];
+                    acc[c.category].push(c);
+                    return acc;
+                  }, {} as Record<string, typeof COMPETENCY_DEFINITIONS>)
+                ).map(([category, items]) => (
+                  <div key={category}>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-2">
+                      <Shield className="w-3.5 h-3.5" /> {category}
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {items.map(comp => {
+                        const existing = (competencies ?? []).find(c => c.competencyKey === comp.key);
+                        const status = existing?.status ?? "not_assessed";
+                        const style = COMPETENCY_STATUS_STYLES[status];
+                        const isEditing = competencyForm?.key === comp.key;
+                        return (
+                          <div key={comp.key} className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.05]">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-sm text-white">{comp.label}</span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0"
+                                style={{ color: style.color, backgroundColor: style.bg }}>
+                                {style.label}
+                              </span>
+                            </div>
+                            {existing?.teacherComment && !isEditing && (
+                              <p className="text-xs text-gray-500 mt-1">{existing.teacherComment}</p>
+                            )}
+                            {isEditing ? (
+                              <div className="mt-2 space-y-2">
+                                <select className="w-full text-xs bg-gray-800 border border-white/10 rounded px-2 py-1.5 text-white"
+                                  value={competencyForm.status}
+                                  onChange={e => setCompetencyForm(f => f ? { ...f, status: e.target.value } : null)}>
+                                  <option value="not_assessed">Not Assessed</option>
+                                  <option value="in_progress">In Progress</option>
+                                  <option value="achieved">Achieved ✓</option>
+                                  <option value="needs_support">Needs Support</option>
+                                </select>
+                                <textarea className="w-full text-xs bg-gray-800 border border-white/10 rounded px-2 py-1.5 text-white resize-none"
+                                  rows={2} placeholder="Teacher comment…"
+                                  value={competencyForm.comment}
+                                  onChange={e => setCompetencyForm(f => f ? { ...f, comment: e.target.value } : null)} />
+                                <div className="flex gap-2">
+                                  <button onClick={() => signOffMutation.mutate({
+                                    studentUserId: selectedStudentForCompetency,
+                                    competencyKey: competencyForm.key,
+                                    category: competencyForm.category,
+                                    status: competencyForm.status as any,
+                                    teacherComment: competencyForm.comment || undefined,
+                                  })} disabled={signOffMutation.isPending}
+                                    className="text-xs px-3 py-1 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 transition-colors disabled:opacity-40">
+                                    {signOffMutation.isPending ? "Saving…" : "Save"}
+                                  </button>
+                                  <button onClick={() => setCompetencyForm(null)}
+                                    className="text-xs px-3 py-1 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors">
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button onClick={() => setCompetencyForm({ key: comp.key, category: comp.category, status, comment: existing?.teacherComment ?? "" })}
+                                className="mt-2 text-xs text-emerald-400 hover:text-emerald-300 transition-colors">
+                                {status === "not_assessed" ? "Assess" : "Update"}
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TCard>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main Teacher Dashboard ─────────────────────────────────────────────────
 
 export default function TeacherDashboard() {
@@ -921,6 +1292,7 @@ export default function TeacherDashboard() {
       {activeView === "students" && <StudentsView onFeedback={handleFeedback} />}
       {activeView === "groups" && <GroupsView />}
       {activeView === "tasks" && <TasksView />}
+      {activeView === "lessons" && <TeacherLessonsView />}
       {activeView === "feedback" && (
         <FeedbackView
           prefillStudentId={feedbackPrefill?.id}

@@ -29,6 +29,9 @@ import {
   lessonPathways,
   lessonUnits,
   lessonCompletion,
+  studentCompetencies,
+  teacherLessonAssignments,
+  lessonReviews,
 } from "../drizzle/schema";
 import { LESSON_PATHWAYS, LESSON_UNITS } from "./lessonContent";
 
@@ -1282,4 +1285,196 @@ export const studentRouter = router({
 
       return completions;
     }),
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Phase 2 — Assigned Lessons, Competencies, Progress Intelligence
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /** Get lessons assigned to this student by their teacher(s). */
+  getAssignedLessons: studentProcedure.query(async ({ ctx }) => {
+    const dbConn = await getDb();
+    if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+    // Find groups this student belongs to
+    const memberships = await dbConn.select({ groupId: studentGroupMembers.groupId })
+      .from(studentGroupMembers)
+      .where(eq(studentGroupMembers.studentUserId, ctx.user.id));
+
+    const groupIds = memberships.map(m => m.groupId);
+
+    // Get assignments for this student directly or via group
+    const conditions = [
+      eq(teacherLessonAssignments.isActive, true),
+    ];
+    const studentCondition = groupIds.length > 0
+      ? sql`(${teacherLessonAssignments.studentUserId} = ${ctx.user.id} OR ${teacherLessonAssignments.groupId} IN (${sql.join(groupIds.map(id => sql`${id}`), sql`, `)}))`
+      : sql`${teacherLessonAssignments.studentUserId} = ${ctx.user.id}`;
+
+    const assignments = await dbConn.select()
+      .from(teacherLessonAssignments)
+      .where(and(...conditions, studentCondition))
+      .orderBy(teacherLessonAssignments.dueDate);
+
+    // Get completion data to mark which are done
+    const completions = await dbConn.select({ lessonSlug: lessonCompletion.lessonSlug })
+      .from(lessonCompletion)
+      .where(eq(lessonCompletion.studentUserId, ctx.user.id));
+
+    const completedSlugs = new Set(completions.map(c => c.lessonSlug));
+    const now = new Date();
+
+    return assignments.map(a => ({
+      ...a,
+      isCompleted: a.assignmentType === "lesson" && a.lessonSlug ? completedSlugs.has(a.lessonSlug) : false,
+      isOverdue: a.dueDate ? new Date(a.dueDate) < now : false,
+    }));
+  }),
+
+  /** Get this student's competency records. */
+  getMyCompetencies: studentProcedure.query(async ({ ctx }) => {
+    const dbConn = await getDb();
+    if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+    return dbConn.select().from(studentCompetencies)
+      .where(eq(studentCompetencies.userId, ctx.user.id))
+      .orderBy(studentCompetencies.category, studentCompetencies.competencyKey);
+  }),
+
+  /** Get lesson reviews (teacher feedback) for this student. */
+  getMyLessonReviews: studentProcedure.query(async ({ ctx }) => {
+    const dbConn = await getDb();
+    if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+    return dbConn.select().from(lessonReviews)
+      .where(eq(lessonReviews.studentUserId, ctx.user.id))
+      .orderBy(desc(lessonReviews.createdAt));
+  }),
+
+  /** Mark a lesson review as read. */
+  markReviewRead: studentProcedure
+    .input(z.object({ reviewId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+      await dbConn.update(lessonReviews)
+        .set({ isRead: true })
+        .where(and(eq(lessonReviews.id, input.reviewId), eq(lessonReviews.studentUserId, ctx.user.id)));
+      return { success: true };
+    }),
+
+  /** Calculate intelligent progress across pathways, competencies, and skill areas. */
+  getProgressIntelligence: studentProcedure.query(async ({ ctx }) => {
+    const dbConn = await getDb();
+    if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+    const TOTAL_LESSONS_PER_PATHWAY: Record<string, number> = {
+      "horse-care-foundations": 7,
+      "rider-foundations": 7,
+      "stable-yard-safety": 6,
+      "horse-behaviour-welfare": 7,
+      "tack-equipment": 6,
+      "developing-rider-skills": 8,
+    };
+    const TOTAL_LESSONS = Object.values(TOTAL_LESSONS_PER_PATHWAY).reduce((a, b) => a + b, 0);
+
+    const [completions, competencies, skillProgress, reviews, assignments] = await Promise.all([
+      dbConn.select().from(lessonCompletion).where(eq(lessonCompletion.studentUserId, ctx.user.id)),
+      dbConn.select().from(studentCompetencies).where(eq(studentCompetencies.userId, ctx.user.id)),
+      dbConn.select().from(studentProgress).where(eq(studentProgress.userId, ctx.user.id)),
+      dbConn.select().from(lessonReviews).where(eq(lessonReviews.studentUserId, ctx.user.id)),
+      dbConn.select().from(teacherLessonAssignments)
+        .where(and(eq(teacherLessonAssignments.studentUserId, ctx.user.id), eq(teacherLessonAssignments.isActive, true))),
+    ]);
+
+    // Pathway completion %
+    const completedByPathway = completions.reduce((acc, lc) => {
+      acc[lc.pathwaySlug] = (acc[lc.pathwaySlug] ?? 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const pathwayProgress = Object.entries(TOTAL_LESSONS_PER_PATHWAY).map(([slug, total]) => ({
+      slug,
+      completed: completedByPathway[slug] ?? 0,
+      total,
+      percent: Math.round(((completedByPathway[slug] ?? 0) / total) * 100),
+    }));
+
+    const overallLessonPercent = Math.round((completions.length / TOTAL_LESSONS) * 100);
+
+    // Competency summary
+    const achievedCompetencies = competencies.filter(c => c.status === "achieved").length;
+    const needsSupportCompetencies = competencies.filter(c => c.status === "needs_support").length;
+    const REQUIRED_COMPETENCIES = 17; // defined competency count
+    const competencyPercent = Math.round((achievedCompetencies / REQUIRED_COMPETENCIES) * 100);
+
+    // Weak areas — skill areas with lowest XP
+    const sortedSkills = [...skillProgress].sort((a, b) => a.xp - b.xp);
+    const weakAreas = sortedSkills.slice(0, 3).map(s => s.skillArea.replace(/_/g, " "));
+
+    // Category-based weak areas from competencies needing support
+    const categoryWeakness: Record<string, number> = {};
+    for (const c of competencies) {
+      if (c.status === "needs_support") {
+        categoryWeakness[c.category] = (categoryWeakness[c.category] ?? 0) + 1;
+      }
+    }
+    const weakCategories = Object.entries(categoryWeakness)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([cat]) => cat);
+
+    // Reviews with needs_improvement
+    const needsImprovementLessons = reviews
+      .filter(r => r.reviewStatus === "needs_improvement")
+      .map(r => r.lessonSlug);
+
+    // Recommended next lesson — first uncompleted lesson in order
+    const completedSlugs = new Set(completions.map(c => c.lessonSlug));
+    const orderedPathways = [
+      "horse-care-foundations", "rider-foundations", "stable-yard-safety",
+      "horse-behaviour-welfare", "tack-equipment", "developing-rider-skills",
+    ];
+    let recommendedNextPathway: string | null = null;
+    for (const pw of orderedPathways) {
+      if ((completedByPathway[pw] ?? 0) < (TOTAL_LESSONS_PER_PATHWAY[pw] ?? 0)) {
+        recommendedNextPathway = pw;
+        break;
+      }
+    }
+
+    // Readiness status
+    let readinessStatus: "ready_for_next_level" | "needs_support" | "focus_on_safety" | "focus_on_riding" | "focus_on_care";
+    if (needsSupportCompetencies > 2 || needsImprovementLessons.length > 3) {
+      readinessStatus = "needs_support";
+    } else if (weakCategories.some(c => c.toLowerCase().includes("safety"))) {
+      readinessStatus = "focus_on_safety";
+    } else if (weakCategories.some(c => c.toLowerCase().includes("riding") || c.toLowerCase().includes("rider"))) {
+      readinessStatus = "focus_on_riding";
+    } else if (weakCategories.some(c => c.toLowerCase().includes("care") || c.toLowerCase().includes("handling"))) {
+      readinessStatus = "focus_on_care";
+    } else {
+      readinessStatus = overallLessonPercent >= 70 && competencyPercent >= 50 ? "ready_for_next_level" : "needs_support";
+    }
+
+    // Unread reviews
+    const unreadReviews = reviews.filter(r => !r.isRead);
+
+    return {
+      overallLessonPercent,
+      pathwayProgress,
+      competencies: {
+        achieved: achievedCompetencies,
+        total: REQUIRED_COMPETENCIES,
+        percent: competencyPercent,
+        needsSupport: needsSupportCompetencies,
+      },
+      weakAreas,
+      weakCategories,
+      needsImprovementLessons,
+      recommendedNextPathway,
+      readinessStatus,
+      unreadReviewCount: unreadReviews.length,
+      assignedLessonsCount: assignments.length,
+    };
+  }),
 });
