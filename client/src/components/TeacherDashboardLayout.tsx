@@ -152,7 +152,7 @@ function SidebarNav({
       <div className="px-4 py-4 border-t border-white/[0.06]">
         <div className="flex items-center gap-3">
           <Avatar className="w-8 h-8">
-            {user?.avatar && <AvatarImage src={user.avatar} />}
+            {user?.profileImageUrl && <AvatarImage src={user.profileImageUrl} />}
             <AvatarFallback className="text-xs font-semibold" style={{ backgroundColor: `${TEACHER_ACCENT}30`, color: TEACHER_ACCENT }}>
               {initials}
             </AvatarFallback>

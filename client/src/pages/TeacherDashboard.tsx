@@ -337,7 +337,7 @@ function StudentsView({ onFeedback }: { onFeedback: (studentId: number, name: st
           <>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                <span className="text-sm font-bold text-emerald-400">{summary.student.name[0]?.toUpperCase()}</span>
+                <span className="text-sm font-bold text-emerald-400">{(summary.student.name ?? "?")[0]?.toUpperCase()}</span>
               </div>
               <div>
                 <h3 className="text-base font-bold text-white">{summary.student.name}</h3>
@@ -360,7 +360,7 @@ function StudentsView({ onFeedback }: { onFeedback: (studentId: number, name: st
                     <div key={i} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
                       <div>
                         <p className="text-sm text-white font-medium">{t.title}</p>
-                        <p className="text-xs text-gray-500">{String(t.date).slice(0, 10)} · {t.sessionType}</p>
+                        <p className="text-xs text-gray-500">{String(t.sessionDate).slice(0, 10)} · {t.sessionType}</p>
                       </div>
                     </div>
                   ))}
@@ -369,7 +369,7 @@ function StudentsView({ onFeedback }: { onFeedback: (studentId: number, name: st
             )}
 
             <button
-              onClick={() => onFeedback(summary.student.id, summary.student.name)}
+              onClick={() => onFeedback(summary.student.id, summary.student.name ?? "")}
               className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
             >
               <MessageSquare className="w-4 h-4 inline mr-2" /> Give Feedback to {summary.student.name}
@@ -394,7 +394,7 @@ function StudentsView({ onFeedback }: { onFeedback: (studentId: number, name: st
                 className="text-left p-4 rounded-xl border border-white/[0.06] bg-[#111827] hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: `${lc}20` }}>
-                    <span className="text-xs font-bold" style={{ color: lc }}>{s.name[0]?.toUpperCase()}</span>
+                    <span className="text-xs font-bold" style={{ color: lc }}>{(s.name ?? "?")[0]?.toUpperCase()}</span>
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-white truncate">{s.name}</p>
@@ -757,7 +757,7 @@ function ReportsView() {
             onChange={e => {
               const id = parseInt(e.target.value);
               const student = (students ?? []).find(s => s.id === id);
-              setSelectedStudent(student ? { id: student.id, name: student.name } : null);
+              setSelectedStudent(student ? { id: student.id, name: student.name ?? "" } : null);
             }}
             className="px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-emerald-500 focus:outline-none"
           >

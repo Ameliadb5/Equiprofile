@@ -910,7 +910,7 @@ const CAT_COLORS: Record<string, string> = {
   safety: "#ef4444",
 };
 
-const CAT_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const CAT_ICONS: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   riding: GraduationCap,
   care: Heart,
   theory: Brain,
@@ -1564,7 +1564,7 @@ function ScenarioTrainingView() {
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
 
   const handleAnswered = (id: string) => {
-    setCompletedIds((prev) => new Set([...prev, id]));
+    setCompletedIds((prev) => new Set(Array.from(prev).concat(id)));
   };
 
   if (isLoading) return <SCard><SkeletonBar className="w-full h-32" /></SCard>;

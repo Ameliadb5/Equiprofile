@@ -1055,7 +1055,7 @@ export const studentRouter = router({
     if (!feedback.length) return [];
 
     // Fetch teacher names
-    const teacherIds = [...new Set(feedback.map(f => f.teacherId))];
+    const teacherIds = Array.from(new Set(feedback.map(f => f.teacherId)));
     const teacherUsers = await dbConn.select({ id: users.id, name: users.name })
       .from(users).where(inArray(users.id, teacherIds));
     const teacherMap = new Map(teacherUsers.map(u => [u.id, u.name]));

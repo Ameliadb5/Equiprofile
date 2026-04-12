@@ -322,7 +322,7 @@ export const teacherRouter = router({
 
     if (!members.length) return [];
 
-    const uniqueStudentIds = [...new Set(members.map(m => m.studentUserId))];
+    const uniqueStudentIds = Array.from(new Set(members.map(m => m.studentUserId)));
     const studentUsers = await dbConn.select({
       id: users.id, name: users.name, email: users.email, preferences: users.preferences,
     }).from(users).where(inArray(users.id, uniqueStudentIds));
