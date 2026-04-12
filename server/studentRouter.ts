@@ -1221,6 +1221,9 @@ export const studentRouter = router({
         try { return JSON.parse(val); } catch { return []; }
       };
 
+      // Lookup static competency mapping from lesson content definitions
+      const staticUnit = LESSON_UNITS.find(u => u.slug === input.slug);
+
       return {
         ...row,
         objectives: parseJSON(row.objectives),
@@ -1228,6 +1231,7 @@ export const studentRouter = router({
         commonMistakes: parseJSON(row.commonMistakes),
         knowledgeCheck: parseJSON(row.knowledgeCheck),
         aiTutorPrompts: parseJSON(row.aiTutorPrompts),
+        linkedCompetencies: staticUnit?.linkedCompetencies ?? [],
       };
     }),
 

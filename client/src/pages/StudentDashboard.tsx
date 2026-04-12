@@ -36,6 +36,7 @@ import {
   ChevronLeft,
   ArrowRight,
   Eye,
+  Award,
 } from "lucide-react";
 
 /**
@@ -1692,6 +1693,7 @@ function LessonsView() {
     const keyPoints = (lessonDetail.keyPoints ?? []) as string[];
     const commonMistakes = (lessonDetail.commonMistakes ?? []) as string[];
     const aiPrompts = (lessonDetail.aiTutorPrompts ?? []) as string[];
+    const linkedCompetencies = (lessonDetail.linkedCompetencies ?? []) as string[];
     const isCompleted = completedSlugs.has(lessonDetail.slug);
 
     return (
@@ -1737,6 +1739,22 @@ function LessonsView() {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Competency mapping — "This lesson helps you achieve" */}
+        {linkedCompetencies.length > 0 && (
+          <div className="rounded-xl p-4 border" style={{ background: "rgba(16,185,129,0.05)", borderColor: "rgba(16,185,129,0.2)" }}>
+            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-2">
+              <Award className="w-3.5 h-3.5" /> This lesson helps you achieve
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {linkedCompetencies.map((key) => (
+                <span key={key} className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-medium capitalize">
+                  {key.replace(/_/g, " ")}
+                </span>
+              ))}
+            </div>
           </div>
         )}
 

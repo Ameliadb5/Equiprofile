@@ -904,6 +904,91 @@ function ReportsView() {
             </TCard>
           )}
 
+          {/* Lessons completed — Phase 2 */}
+          {(report as any).lessonsCompleted !== undefined && (
+            <TCard>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Lessons &amp; Pathways</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                <div className="text-center p-3 rounded-lg bg-indigo-500/[0.08]">
+                  <p className="text-2xl font-bold text-indigo-400">{(report as any).lessonsCompleted}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Lessons Completed</p>
+                </div>
+                {(report as any).averageLessonScore != null && (
+                  <div className="text-center p-3 rounded-lg bg-emerald-500/[0.08]">
+                    <p className="text-2xl font-bold text-emerald-400">{(report as any).averageLessonScore}%</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Avg Quiz Score</p>
+                  </div>
+                )}
+              </div>
+              {(report as any).lessonsByPathway && Object.keys((report as any).lessonsByPathway).length > 0 && (
+                <div className="space-y-1.5 mt-2">
+                  {Object.entries((report as any).lessonsByPathway as Record<string, number>).map(([pathway, count]) => (
+                    <div key={pathway} className="flex items-center justify-between">
+                      <span className="text-xs text-gray-400 capitalize">{pathway.replace(/-/g, " ")}</span>
+                      <span className="text-xs font-semibold text-white">{count} lesson{count !== 1 ? "s" : ""}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TCard>
+          )}
+
+          {/* Competency summary — Phase 2 */}
+          {(report as any).competencies && (
+            <TCard>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Competency Progress</p>
+              <div className="grid grid-cols-3 gap-3 mb-3">
+                <div className="text-center p-3 rounded-lg bg-emerald-500/[0.08]">
+                  <p className="text-xl font-bold text-emerald-400">{(report as any).competencies.achieved}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Achieved</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-indigo-500/[0.08]">
+                  <p className="text-xl font-bold text-indigo-400">{(report as any).competencies.inProgress}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">In Progress</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-amber-500/[0.08]">
+                  <p className="text-xl font-bold text-amber-400">{(report as any).competencies.needsSupport}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Needs Support</p>
+                </div>
+              </div>
+              {(report as any).competencies.total > 0 && (
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-gray-500">Achievement rate</span>
+                    <span className="text-xs text-white">
+                      {Math.round(((report as any).competencies.achieved / Math.max((report as any).competencies.total, 1)) * 100)}%
+                    </span>
+                  </div>
+                  <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
+                    <div className="h-full rounded-full bg-emerald-500 transition-all"
+                      style={{ width: `${Math.round(((report as any).competencies.achieved / Math.max((report as any).competencies.total, 1)) * 100)}%` }} />
+                  </div>
+                </div>
+              )}
+            </TCard>
+          )}
+
+          {/* Lesson reviews — Phase 2 */}
+          {(report as any).lessonReviews?.length > 0 && (
+            <TCard>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Lesson Review Notes</p>
+              <div className="space-y-2">
+                {((report as any).lessonReviews as Array<{ lessonSlug: string; reviewStatus: string; feedback: string; reviewedAt: string }>).map((r, i) => (
+                  <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg bg-white/[0.03]">
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold shrink-0 mt-0.5 ${r.reviewStatus === "satisfactory" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>
+                      {r.reviewStatus === "satisfactory" ? "✓ SAT" : "△ IMP"}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-white capitalize">{r.lessonSlug.replace(/-/g, " ")}</p>
+                      {r.feedback && <p className="text-xs text-gray-400 mt-0.5">{r.feedback}</p>}
+                    </div>
+                    <span className="text-[10px] text-gray-600 shrink-0">{String(r.reviewedAt).slice(0, 10)}</span>
+                  </div>
+                ))}
+              </div>
+            </TCard>
+          )}
+
           <p className="text-xs text-gray-600 text-center">Report generated {new Date(report.generatedAt).toLocaleDateString("en-GB")} · EquiProfile</p>
         </div>
       ) : null}
@@ -951,6 +1036,10 @@ function TeacherLessonsView() {
   const [competencyForm, setCompetencyForm] = useState<{
     key: string; category: string; status: string; comment: string;
   } | null>(null);
+  const [reviewForm, setReviewForm] = useState<{
+    studentUserId?: number; lessonSlug: string;
+    reviewStatus: "satisfactory" | "needs_improvement"; feedback: string; recommendedNextLesson: string;
+  }>({ lessonSlug: "", reviewStatus: "satisfactory", feedback: "", recommendedNextLesson: "" });
 
   const utils = trpc.useUtils();
   const { data: students } = trpc.teacher.listMyStudents.useQuery();
@@ -970,6 +1059,12 @@ function TeacherLessonsView() {
   });
   const deleteAssignmentMutation = trpc.teacher.deleteLessonAssignment.useMutation({
     onSuccess: () => utils.teacher.listLessonAssignments.invalidate(),
+  });
+  const reviewMutation = trpc.teacher.reviewLesson.useMutation({
+    onSuccess: () => {
+      utils.teacher.listLessonReviews.invalidate();
+      setReviewForm({ lessonSlug: "", reviewStatus: "satisfactory", feedback: "", recommendedNextLesson: "" });
+    },
   });
   const signOffMutation = trpc.teacher.signOffCompetency.useMutation({
     onSuccess: () => {
@@ -1147,27 +1242,87 @@ function TeacherLessonsView() {
       {/* ── REVIEW TAB ── */}
       {tab === "review" && (
         <div className="space-y-4">
+          {/* Write a review form */}
           <TCard>
-            <THeading icon={BookOpen} title="Lesson Reviews" />
-            <p className="text-xs text-gray-500 mb-4">Review completed lessons and provide feedback to students.</p>
-            {(reviews ?? []).length === 0 ? (
-              <div className="text-center py-8">
-                <BookOpen className="w-7 h-7 text-gray-700 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">No reviews submitted yet.</p>
+            <THeading icon={BookOpen} title="Write a Lesson Review" />
+            <p className="text-xs text-gray-500 mb-4">Leave structured feedback on a student's lesson completion to guide their progress.</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Student</label>
+                <select className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
+                  value={reviewForm.studentUserId ?? ""}
+                  onChange={e => setReviewForm(f => ({ ...f, studentUserId: parseInt(e.target.value) || undefined }))}>
+                  <option value="">Select student…</option>
+                  {(students ?? []).map(s => <option key={s.id} value={s.id}>{s.name ?? s.email}</option>)}
+                </select>
               </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Lesson Slug</label>
+                <input className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-600"
+                  placeholder="e.g. grooming-basics"
+                  value={reviewForm.lessonSlug}
+                  onChange={e => setReviewForm(f => ({ ...f, lessonSlug: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Review Outcome</label>
+                <div className="flex gap-2">
+                  {(["satisfactory", "needs_improvement"] as const).map(s => (
+                    <button key={s} onClick={() => setReviewForm(f => ({ ...f, reviewStatus: s }))}
+                      className={`flex-1 text-xs py-2 rounded-lg font-medium transition-colors ${reviewForm.reviewStatus === s ? (s === "satisfactory" ? "bg-emerald-600 text-white" : "bg-amber-600 text-white") : "bg-gray-800 text-gray-400 hover:text-white"}`}>
+                      {s === "satisfactory" ? "✓ Satisfactory" : "△ Needs Improvement"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Recommended Next Lesson (optional)</label>
+                <input className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-600"
+                  placeholder="e.g. leading-safely"
+                  value={reviewForm.recommendedNextLesson}
+                  onChange={e => setReviewForm(f => ({ ...f, recommendedNextLesson: e.target.value }))} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs text-gray-400 mb-1">Feedback for student</label>
+                <textarea className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-600 resize-none"
+                  rows={3} placeholder="Describe what the student demonstrated, areas of improvement, and next steps…"
+                  value={reviewForm.feedback}
+                  onChange={e => setReviewForm(f => ({ ...f, feedback: e.target.value }))} />
+              </div>
+            </div>
+            <button
+              onClick={() => reviewMutation.mutate({
+                studentUserId: reviewForm.studentUserId!,
+                lessonSlug: reviewForm.lessonSlug,
+                reviewStatus: reviewForm.reviewStatus,
+                feedback: reviewForm.feedback || undefined,
+                recommendedNextLesson: reviewForm.recommendedNextLesson || undefined,
+              })}
+              disabled={reviewMutation.isPending || !reviewForm.studentUserId || !reviewForm.lessonSlug || !reviewForm.feedback}
+              className="mt-4 px-5 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition-colors disabled:opacity-40">
+              {reviewMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin inline" /> : "Submit Review"}
+            </button>
+          </TCard>
+
+          {/* Reviews submitted */}
+          <TCard>
+            <THeading icon={ClipboardList} title="Reviews Submitted" />
+            {(reviews ?? []).length === 0 ? (
+              <p className="text-sm text-gray-500 py-4 text-center">No reviews submitted yet.</p>
             ) : (
               <div className="space-y-2 mt-3">
                 {(reviews ?? []).map(r => (
                   <div key={r.id} className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.05]">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.reviewStatus === "satisfactory" ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300"}`}>
-                        {r.reviewStatus === "satisfactory" ? "Satisfactory" : "Needs Improvement"}
+                        {r.reviewStatus === "satisfactory" ? "✓ Satisfactory" : "△ Needs Improvement"}
                       </span>
-                      <span className="text-sm text-white font-medium">{r.lessonSlug}</span>
+                      <span className="text-sm text-white font-medium capitalize">{r.lessonSlug.replace(/-/g, " ")}</span>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">{r.feedback}</p>
+                    {r.feedback && <p className="text-xs text-gray-400 mt-1">{r.feedback}</p>}
                     {r.recommendedNextLesson && (
-                      <p className="text-xs text-indigo-400 mt-1">Next: {r.recommendedNextLesson}</p>
+                      <p className="text-xs text-indigo-400 mt-1 flex items-center gap-1">
+                        <ChevronRight className="w-3 h-3" /> Next: {r.recommendedNextLesson}
+                      </p>
                     )}
                   </div>
                 ))}

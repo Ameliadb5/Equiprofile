@@ -33,6 +33,8 @@ export interface LessonUnitData {
   commonMistakes: string[];
   knowledgeCheck: KnowledgeCheckQuestion[];
   aiTutorPrompts: string[];
+  /** Competency keys from the standard competency framework that this lesson directly supports. */
+  linkedCompetencies: string[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -210,6 +212,7 @@ Knowing these terms allows you to communicate clearly with instructors, vets, an
       "What is the difference between a horse's knee and a human's knee anatomically?",
       "Help me practise describing a horse's markings using correct terminology.",
     ],
+    linkedCompetencies: ["horse_behaviour_awareness"],
   },
 
   // ── Lesson 2 ──────────────────────────────────────────────────────────────
@@ -343,6 +346,7 @@ Horses living out at grass should not be groomed as thoroughly as stabled horses
       "What skin conditions should I look out for during grooming?",
       "How does grooming differ for a stabled horse versus a grass-kept horse?",
     ],
+    linkedCompetencies: ["grooming_safely"],
   },
 
   // ── Lesson 3 ──────────────────────────────────────────────────────────────
@@ -480,6 +484,7 @@ Regularly assess your horse's body condition using a scoring system (typically 0
       "What would happen if I suddenly changed my horse's feed without a transition period?",
       "Help me plan a basic diet for a 500 kg horse in light work.",
     ],
+    linkedCompetencies: ["feeding_awareness"],
   },
 
   // ── Lesson 4 ──────────────────────────────────────────────────────────────
@@ -619,6 +624,7 @@ Horses lose electrolytes (sodium, chloride, potassium, calcium, magnesium) throu
       "What factors increase a horse's daily water requirement?",
       "How should I manage water provision differently in winter versus summer?",
     ],
+    linkedCompetencies: ["feeding_awareness"],
   },
 
   // ── Lesson 5 ──────────────────────────────────────────────────────────────
@@ -749,6 +755,7 @@ Healthy horse droppings are formed into soft balls that break on hitting the gro
       "What signs in the droppings should concern me and why?",
       "How do I assess whether a stable environment is safe and suitable for a horse?",
     ],
+    linkedCompetencies: ["stable_checks"],
   },
 
   // ── Lesson 6 ──────────────────────────────────────────────────────────────
@@ -893,6 +900,7 @@ Check rugs at least twice daily for slipping, rubbing or damage. Repair or repla
       "What poisonous plants should I look for when checking a horse's field?",
       "Can you explain the different types of turnout rug and when to use each weight?",
     ],
+    linkedCompetencies: ["stable_checks", "welfare_awareness"],
   },
 
   // ── Lesson 7 ──────────────────────────────────────────────────────────────
@@ -1042,6 +1050,7 @@ Shoes protect the hoof from excessive wear on hard surfaces and can be modified 
       "Walk me through the correct procedure for picking out a horse's hind foot.",
       "What are the differences between the main types of horseshoes and their uses?",
     ],
+    linkedCompetencies: ["grooming_safely", "stable_checks"],
   },
 
 
@@ -1187,6 +1196,7 @@ This should only be taught under direct supervision.`,
       "What are the pre-mount checks I should do every time before riding?",
       "How do I adjust my stirrup length once I am in the saddle?",
     ],
+    linkedCompetencies: ["rider_position", "yard_safety_awareness"],
   },
 
   // ── Lesson 9 ──────────────────────────────────────────────────────────────
@@ -1327,6 +1337,7 @@ Good position is not something you achieve once and forget — it requires const
       "What exercises can I do to improve my position in the saddle?",
       "How does my position affect the horse's way of going?",
     ],
+    linkedCompetencies: ["rider_position"],
   },
 
   // ── Lesson 10 ─────────────────────────────────────────────────────────────
@@ -1463,6 +1474,7 @@ These conventions exist to prevent accidents. Horses are flight animals and can 
       "What should I call out in a shared arena and when?",
       "Explain the difference between left rein and right rein in the school.",
     ],
+    linkedCompetencies: ["yard_safety_awareness", "risk_awareness"],
   },
 
   // ── Lesson 11 ─────────────────────────────────────────────────────────────
@@ -1576,6 +1588,7 @@ The quality of a transition depends on the preparation:
       "How do I apply the aids correctly for a walk-to-trot transition?",
       "What is a half-halt and how does it help transitions?",
     ],
+    linkedCompetencies: ["control_at_walk", "control_at_trot"],
   },
 
   // ── Lesson 12 ─────────────────────────────────────────────────────────────
@@ -1699,6 +1712,7 @@ School figures should be ridden with purpose and precision. A rider who rides ac
       "What are the different ways to change the rein in a standard arena?",
       "How do school figures improve a horse's way of going?",
     ],
+    linkedCompetencies: ["control_at_walk", "balance_and_coordination"],
   },
 
 
@@ -1841,6 +1855,7 @@ A consistent warm-up and cool-down routine protects the horse's body, improves p
       "What happens physiologically when a horse is warmed up properly?",
       "How should I adjust my warm-up routine in very cold weather?",
     ],
+    linkedCompetencies: ["welfare_awareness", "rider_position"],
   },
 
   // ── Lesson 14 ─────────────────────────────────────────────────────────────
@@ -1974,6 +1989,7 @@ Before every ride, verify:
       "How do I check that a saddle is fitted correctly before riding?",
       "Help me plan a structured 45-minute schooling session with warm-up, main work and cool-down.",
     ],
+    linkedCompetencies: ["yard_safety_awareness", "welfare_awareness"],
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -2110,6 +2126,7 @@ Horses are extremely perceptive of human body language and emotional state. A ne
       "How should I approach a horse in the field that does not want to be caught?",
       "Can you explain why horses react the way they do when startled?",
     ],
+    linkedCompetencies: ["horse_behaviour_awareness", "yard_safety_awareness"],
   },
 
 
@@ -2237,6 +2254,7 @@ Leading to and from turnout is one of the highest-risk times on the yard:
       "What techniques can I use to lead a horse that tries to rush ahead?",
       "How should I safely lead a horse through a narrow gateway?",
     ],
+    linkedCompetencies: ["leading_safely"],
   },
 
   // ── Lesson 17 ─────────────────────────────────────────────────────────────
@@ -2356,6 +2374,7 @@ In some yards, horses are cross-tied using two ropes attached to opposite walls.
       "What should I do if a horse panics and pulls back while tied?",
       "Why is tying to a moveable object so dangerous?",
     ],
+    linkedCompetencies: ["tying_up_safely"],
   },
 
   // ── Lesson 18 ─────────────────────────────────────────────────────────────
@@ -2510,6 +2529,7 @@ A tidy yard is a safe yard. The discipline of putting things away, keeping paths
       "What should a yard fire evacuation plan include?",
       "How should chemicals and veterinary products be stored safely on a yard?",
     ],
+    linkedCompetencies: ["yard_safety_awareness", "risk_awareness"],
   },
 
   // ── Lesson 19 ─────────────────────────────────────────────────────────────
@@ -2648,6 +2668,7 @@ Risk assessment and incident reporting work best when everyone on the yard takes
       "What should be included in an incident report form for an equestrian yard?",
       "Explain the difference between a hazard, a risk and a control measure.",
     ],
+    linkedCompetencies: ["risk_awareness", "yard_safety_awareness"],
   },
 
   // ── Lesson 20 ─────────────────────────────────────────────────────────────
@@ -2779,6 +2800,7 @@ The ability to think through these scenarios — identifying the hazard, assessi
       "What are the legal implications of duty of care for a riding school owner?",
       "How should I brief a novice handler before asking them to lead a horse?",
     ],
+    linkedCompetencies: ["risk_awareness", "welfare_awareness"],
   },
 
 
@@ -2917,6 +2939,7 @@ Understanding natural behaviour helps us make better management decisions:
       "How does the flight instinct affect the way we should train and handle horses?",
       "What are stereotypic behaviours and why do they develop?",
     ],
+    linkedCompetencies: ["horse_behaviour_awareness"],
   },
 
   // ── Lesson 22 ─────────────────────────────────────────────────────────────
@@ -3051,6 +3074,7 @@ While not every change in TPR requires an emergency call, the following signs wa
       "What signs should make me call the vet immediately?",
       "How do I take a horse's temperature safely?",
     ],
+    linkedCompetencies: ["welfare_awareness", "stable_checks"],
   },
 
   // ── Lesson 23 ─────────────────────────────────────────────────────────────
@@ -3186,6 +3210,7 @@ Management strategies include:
       "What is the safest procedure for introducing a new horse to an established group?",
       "How should I handle a horse that becomes extremely anxious when separated from its companion?",
     ],
+    linkedCompetencies: ["horse_behaviour_awareness", "yard_safety_awareness"],
   },
 
   // ── Lesson 24 ─────────────────────────────────────────────────────────────
@@ -3318,6 +3343,7 @@ Dismissing behavioural changes as "attitude" or "laziness" without considering p
       "How can I tell if a horse is lame by watching it move?",
       "What is the difference between acute and chronic pain in horses, and how does each present?",
     ],
+    linkedCompetencies: ["welfare_awareness", "horse_behaviour_awareness"],
   },
 
 
@@ -3452,6 +3478,7 @@ A horse that is brought into work after a period of rest (holiday, illness, time
       "Can you help me plan a gradual fitness programme for a horse coming back into work?",
       "What are the signs of overtraining and how should I respond?",
     ],
+    linkedCompetencies: ["welfare_awareness"],
   },
 
   // ── Lesson 26 ─────────────────────────────────────────────────────────────
@@ -3591,6 +3618,7 @@ While waiting for the vet:
       "What are the most common causes of sudden lameness in horses?",
       "How do I tell the difference between foreleg and hind limb lameness by watching the horse trot?",
     ],
+    linkedCompetencies: ["welfare_awareness", "stable_checks"],
   },
 
   // ── Lesson 27 ─────────────────────────────────────────────────────────────
@@ -3723,6 +3751,7 @@ Regular, honest welfare assessment — ideally involving an objective third part
       "How do I know when a horse should be retired from work?",
       "What factors should I consider when making a difficult welfare decision about a horse in poor health?",
     ],
+    linkedCompetencies: ["welfare_awareness", "risk_awareness"],
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -3848,6 +3877,7 @@ Knowing the name and function of each piece of tack allows you to:
       "What are all the parts of a snaffle bridle and what does each do?",
       "How do I check that a saddle and bridle are safe to use before riding?",
     ],
+    linkedCompetencies: ["tack_identification"],
   },
 
   // ── Lesson 29 ─────────────────────────────────────────────────────────────
@@ -3980,6 +4010,7 @@ A correctly fitted headcollar:
       "What should I do if a horse is difficult to catch in the field?",
       "What are the different types of headcollar and when would I use each?",
     ],
+    linkedCompetencies: ["tack_identification", "leading_safely"],
   },
 
 
@@ -4108,6 +4139,7 @@ A correctly fitted headcollar:
       "How often should I use leather conditioner versus saddle soap?",
       "What signs of damage should I look for during tack cleaning?",
     ],
+    linkedCompetencies: ["tack_care"],
   },
 
   // ── Lesson 31 ─────────────────────────────────────────────────────────────
@@ -4236,6 +4268,7 @@ A qualified saddle fitter (look for Society of Master Saddlers or equivalent qua
       "What signs tell me a saddle is not fitting my horse correctly?",
       "How does poor saddle fit affect a horse's behaviour and performance?",
     ],
+    linkedCompetencies: ["tacking_up_correctly", "tack_identification"],
   },
 
   // ── Lesson 32 ─────────────────────────────────────────────────────────────
@@ -4364,6 +4397,7 @@ If a horse shows these signs, consult an experienced instructor, bit fitter or e
       "How do I know if a bit is fitted correctly?",
       "What signs should tell me that a horse is uncomfortable with its bit?",
     ],
+    linkedCompetencies: ["tack_identification", "tacking_up_correctly"],
   },
 
   // ── Lesson 33 ─────────────────────────────────────────────────────────────
@@ -4517,6 +4551,7 @@ Equipment should never be used to mask a problem (e.g., using a stronger bit ins
       "How do I fit brushing boots correctly?",
       "What is the difference between exercise bandages and stable bandages, and when should each be used?",
     ],
+    linkedCompetencies: ["tacking_up_correctly", "tack_care"],
   },
 
   // ── Pathway 6: Developing Rider Skills ──────────────────────────────────────
@@ -4623,6 +4658,7 @@ Regular practice of walk to trot and trot to walk transitions builds the rider's
       "What exercises can help me stop tipping forward during walk to trot transitions?",
       "How can I tell if my horse is properly prepared for a transition?",
     ],
+    linkedCompetencies: ["control_at_trot", "control_at_walk"],
   },
   {
     slug: "trot-rhythm-and-balance",
@@ -4740,6 +4776,7 @@ The quality of the trot is a direct reflection of the partnership between horse 
       "How do I know if I am on the correct diagonal without looking down?",
       "Can you explain why rhythm is considered one of the scales of training?",
     ],
+    linkedCompetencies: ["control_at_trot", "balance_and_coordination"],
   },
   {
     slug: "steering-and-accuracy",
@@ -4847,6 +4884,7 @@ Practising steering exercises at walk before attempting them at trot allows the 
       "What exercises can help me ride more accurately to markers?",
       "Can you explain why pulling on the inside rein actually makes steering worse?",
     ],
+    linkedCompetencies: ["control_at_walk", "balance_and_coordination"],
   },
   {
     slug: "circles-and-school-figures",
@@ -4953,6 +4991,7 @@ Regular practice of school figures at walk, trot, and canter develops the rider'
       "What are the key differences in the aids for a 20-metre circle versus a 15-metre circle?",
       "Can you explain the correct way to ride a three-loop serpentine with changes of bend?",
     ],
+    linkedCompetencies: ["balance_and_coordination", "control_at_trot"],
   },
   {
     slug: "rider-balance-independent-seat",
@@ -5070,6 +5109,7 @@ The independent seat is not achieved overnight. It is a gradual process that req
       "How do I know if I am gripping with my knees, and what does it feel like when I stop?",
       "Can you explain the concept of a three-point seat and neutral pelvis in more detail?",
     ],
+    linkedCompetencies: ["balance_and_coordination", "rider_position"],
   },
   {
     slug: "warmup-cooldown-basics",
@@ -5178,6 +5218,7 @@ A responsible rider always prioritises the horse's welfare by allowing adequate 
       "What are the signs of tying-up, and how does a proper cool-down help prevent it?",
       "Can you suggest a ten-minute warm-up plan I can use before my flatwork sessions?",
     ],
+    linkedCompetencies: ["welfare_awareness", "rider_position"],
   },
   {
     slug: "preparing-for-a-lesson",
@@ -5295,6 +5336,7 @@ Good preparation becomes second nature with practice, and it is a mark of a comm
       "How do I check that my saddle and bridle are fitted correctly?",
       "What should I include in a pre-lesson safety checklist?",
     ],
+    linkedCompetencies: ["yard_safety_awareness", "tacking_up_correctly"],
   },
   {
     slug: "reflecting-on-performance",
@@ -5401,5 +5443,6 @@ Finally, reflection should be balanced. It is easy to focus only on what went wr
       "How do I set effective goals for my riding improvement?",
       "What should I look for when reviewing a video of my riding?",
     ],
+    linkedCompetencies: ["rider_position", "welfare_awareness"],
   }
 ];
