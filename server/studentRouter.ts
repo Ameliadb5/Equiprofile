@@ -1214,7 +1214,7 @@ export const studentRouter = router({
 
       // Parse JSON fields
       const parseJSON = (val: string | null) => {
-        if (!val) return [];
+        if (val === null || val === undefined) return [];
         try { return JSON.parse(val); } catch { return []; }
       };
 

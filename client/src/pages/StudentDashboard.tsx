@@ -1495,8 +1495,11 @@ function LessonsView() {
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
 
+  const levelParam = levelFilter !== "all" ? { level: levelFilter as "beginner" | "developing" | "intermediate" | "advanced" } : {};
+  const listInput = selectedPathway ? { pathwaySlug: selectedPathway, ...levelParam } : { ...levelParam };
+
   const { data: lessons, isLoading: loadingLessons } = trpc.student.listLessons.useQuery(
-    selectedPathway ? { pathwaySlug: selectedPathway, ...(levelFilter !== "all" ? { level: levelFilter as any } : {}) } : { ...(levelFilter !== "all" ? { level: levelFilter as any } : {}) },
+    listInput,
     { enabled: true },
   );
 
