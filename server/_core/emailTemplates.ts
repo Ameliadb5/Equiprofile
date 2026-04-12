@@ -40,8 +40,15 @@ ${body}
 <p style="margin:0;">EquiProfile — Professional Horse Management</p>
 <p style="margin:4px 0 0 0;"><a href="${SITE_URL}" style="color:#6366f1;text-decoration:none;">equiprofile.online</a></p>
 <p style="margin:8px 0 0 0;">{{currentDate}}</p>
-<p style="margin:8px 0 0 0;font-size:11px;color:#b0b8c4;">You received this because you were contacted by EquiProfile.<br/>
-<a href="{{unsubscribeLink}}" style="color:#6366f1;text-decoration:underline;">Unsubscribe</a> from future marketing emails.</p>
+<p style="margin:8px 0 0 0;font-size:11px;color:#b0b8c4;">
+You received this email because you subscribed to EquiProfile marketing communications or were contacted as a business.<br/>
+<a href="{{unsubscribeLink}}" style="color:#6366f1;text-decoration:underline;">Unsubscribe instantly</a> from future marketing emails.<br/>
+<a href="${SITE_URL}/privacy" style="color:#6366f1;text-decoration:underline;">Privacy Policy</a>
+</p>
+<p style="margin:8px 0 0 0;font-size:10px;color:#c5cdd8;">
+EquiProfile, Amarktai Network Ltd. All rights reserved.<br/>
+This is a marketing email. If you no longer wish to receive these, click unsubscribe above.
+</p>
 </td></tr>
 </table>
 </td></tr>
