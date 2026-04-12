@@ -96,6 +96,21 @@ const TYPE_ALIASES: Record<string, string> = {
   breeder: "breeding",
   individual: "individual",
   personal: "individual",
+  // ── Student / Education segment ──────────────────────────────
+  student: "student",
+  pupil: "student",
+  learner: "student",
+  "riding student": "student",
+  // ── Teacher / Instructor segment ─────────────────────────────
+  teacher: "teacher",
+  instructor: "teacher",
+  coach: "teacher",
+  "riding instructor": "teacher",
+  "riding teacher": "teacher",
+  "riding coach": "teacher",
+  trainer: "teacher",
+  "equestrian coach": "teacher",
+  "equestrian instructor": "teacher",
 };
 
 export function normalizeContactType(raw: string | null | undefined): string {
@@ -186,6 +201,12 @@ const COLUMN_MAP: Record<string, string> = {
   type: "contactType",
   "contact type": "contactType",
   category: "contactType",
+  role: "contactType",
+  "role type": "contactType",
+  roletype: "contactType",
+  role_type: "contactType",
+  segment: "contactType",
+  audience: "contactType",
   country: "country",
   region: "region",
   area: "region",

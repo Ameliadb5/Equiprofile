@@ -644,10 +644,6 @@ If you'd like a quick walkthrough, just reply — we're happy to help.`,
 };
 
 export const CAMPAIGN_SEQUENCE_TEMPLATES: CampaignSequenceTemplate[] = [
-  campaign1_individualOwners,
-  campaign2_ridingSchools,
-  campaign3_stables,
-];
 
 /**
  * Generate full HTML for a sequence step body.
