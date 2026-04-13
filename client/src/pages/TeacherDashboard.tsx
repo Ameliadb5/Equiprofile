@@ -1046,6 +1046,7 @@ function TeacherLessonsView() {
   const { data: groups } = trpc.teacher.listGroups.useQuery();
   const { data: assignments } = trpc.teacher.listLessonAssignments.useQuery({});
   const { data: reviews } = trpc.teacher.listLessonReviews.useQuery({});
+  const { data: availableLessons } = trpc.teacher.listLessons.useQuery();
   const { data: competencies } = trpc.teacher.listStudentCompetencies.useQuery(
     { studentUserId: selectedStudentForCompetency! },
     { enabled: selectedStudentForCompetency !== null },
@@ -1146,12 +1147,18 @@ function TeacherLessonsView() {
               </div>
               {/* Lesson or pathway slug */}
               <div>
-                <label className="block text-xs text-gray-400 mb-1">{assignForm.type === "lesson" ? "Lesson Slug" : "Pathway"}</label>
+                <label className="block text-xs text-gray-400 mb-1">{assignForm.type === "lesson" ? "Lesson" : "Pathway"}</label>
                 {assignForm.type === "lesson" ? (
-                  <input className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-600"
-                    placeholder="e.g. parts-of-the-horse"
+                  <select className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
                     value={assignForm.lessonSlug}
-                    onChange={e => setAssignForm(f => ({ ...f, lessonSlug: e.target.value }))} />
+                    onChange={e => setAssignForm(f => ({ ...f, lessonSlug: e.target.value }))}>
+                    <option value="">Select lesson…</option>
+                    {(availableLessons ?? []).map(l => (
+                      <option key={l.slug} value={l.slug}>
+                        {l.title} ({l.level})
+                      </option>
+                    ))}
+                  </select>
                 ) : (
                   <select className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
                     value={assignForm.pathwaySlug}
@@ -1257,11 +1264,15 @@ function TeacherLessonsView() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Lesson Slug</label>
-                <input className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-600"
-                  placeholder="e.g. grooming-basics"
+                <label className="block text-xs text-gray-400 mb-1">Lesson</label>
+                <select className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
                   value={reviewForm.lessonSlug}
-                  onChange={e => setReviewForm(f => ({ ...f, lessonSlug: e.target.value }))} />
+                  onChange={e => setReviewForm(f => ({ ...f, lessonSlug: e.target.value }))}>
+                  <option value="">Select lesson…</option>
+                  {(availableLessons ?? []).map(l => (
+                    <option key={l.slug} value={l.slug}>{l.title} ({l.level})</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Review Outcome</label>
@@ -1276,10 +1287,14 @@ function TeacherLessonsView() {
               </div>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Recommended Next Lesson (optional)</label>
-                <input className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-gray-600"
-                  placeholder="e.g. leading-safely"
+                <select className="w-full text-sm bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white"
                   value={reviewForm.recommendedNextLesson}
-                  onChange={e => setReviewForm(f => ({ ...f, recommendedNextLesson: e.target.value }))} />
+                  onChange={e => setReviewForm(f => ({ ...f, recommendedNextLesson: e.target.value }))}>
+                  <option value="">None / not specified</option>
+                  {(availableLessons ?? []).map(l => (
+                    <option key={l.slug} value={l.slug}>{l.title} ({l.level})</option>
+                  ))}
+                </select>
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-xs text-gray-400 mb-1">Feedback for student</label>
