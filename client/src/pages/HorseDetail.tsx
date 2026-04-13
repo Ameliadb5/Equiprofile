@@ -377,7 +377,7 @@ function HorseDetailContent() {
             <Utensils className="w-5 h-5 sm:w-4 sm:h-4 shrink-0" />
             <span>Feeding</span>
           </TabsTrigger>
-          <TabsTrigger value="competitions" className="flex flex-col items-center gap-1.5 py-3 sm:py-2.5 px-2 text-xs font-medium leading-none min-h-[56px] sm:min-h-[52px] rounded-lg data-[state=active]:shadow-sm">
+          <TabsTrigger value="competitions" className="flex flex-col items-center gap-1.5 py-3 sm:py-2.5 px-2 text-xs font-medium leading-none min-h-[56px] sm:min-h-[52px] rounded-lg data-[state=active]:shadow-sm" aria-label="Competitions">
             <Trophy className="w-5 h-5 sm:w-4 sm:h-4 shrink-0" />
             <span className="sm:hidden">Comps</span>
             <span className="hidden sm:inline">Competitions</span>

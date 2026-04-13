@@ -719,6 +719,9 @@ export async function sendCompensationEmail(
   const baseUrl = process.env.BASE_URL || "https://equiprofile.online";
   const dashboardUrl = `${baseUrl}/dashboard`;
 
+  // Sanitize inputs at entry for defense in depth
+  const safeCustomNote = customNote ? sanitizeHtml(customNote) : "";
+
   const reasonLabel = reason
     ? sanitizeHtml(FREE_ACCESS_REASON_LABELS[reason] ?? "Administrative action")
     : "Complimentary access";
@@ -727,7 +730,7 @@ export async function sendCompensationEmail(
   const reasonBlock = reason
     ? `<div style="background:#fff7ed;border-radius:8px;padding:14px 18px;margin:0 0 20px;border:1px solid #fed7aa;">
         <p style="margin:0;font-size:13px;color:#92400e;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Reason</p>
-        <p style="margin:6px 0 0;font-size:14px;color:#374151;">${reasonLabel}${customNote ? `<br/><span style="color:#6b7280;font-style:italic;">${sanitizeHtml(customNote)}</span>` : ""}</p>
+        <p style="margin:6px 0 0;font-size:14px;color:#374151;">${reasonLabel}${safeCustomNote ? `<br/><span style="color:#6b7280;font-style:italic;">${safeCustomNote}</span>` : ""}</p>
       </div>`
     : "";
   const html = brandedEmail(`

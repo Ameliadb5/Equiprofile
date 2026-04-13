@@ -281,7 +281,7 @@ export default function StudentDashboardLayout({
         {/* Admin view indicator — shown when admin is reviewing this portal */}
         {isAdmin && <AdminViewIndicator />}
 
-        {/* Trial banner — shown if on trial */}
+        {/* Trial banner — show for non-admin users (admin previewing sees student UI faithfully) */}
         {subscriptionStatus && !isAdmin && (
           <TrialBanner />
         )}
