@@ -307,27 +307,29 @@ function HorsesContent() {
                 </div>
                 <div className="mt-auto">
                   <div className="border-t pt-4 mt-3">
-                    {/* Mobile: stacked layout. Desktop: inline */}
-                    <div className="flex items-center gap-2.5">
-                      <Link href={`/horses/${horse.id}`} className="flex-1">
+                    {/* Mobile: full-width view profile + icon row. Desktop: inline */}
+                    <div className="space-y-2 sm:space-y-0 sm:flex sm:items-center sm:gap-2.5">
+                      <Link href={`/horses/${horse.id}`} className="block sm:flex-1">
                         <Button variant="outline" className="w-full h-11">
                           View Profile
                           <ChevronRight className="w-4 h-4 ml-2" />
                         </Button>
                       </Link>
-                      <Link href={`/horses/${horse.id}/edit`}>
-                        <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0">
-                          <Edit className="w-4 h-4" />
+                      <div className="flex items-center gap-2 justify-end">
+                        <Link href={`/horses/${horse.id}/edit`}>
+                          <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive h-11 w-11 shrink-0"
+                          onClick={() => { setDeleteTarget(horse); setConfirmFullDelete(false); }}
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </Button>
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive h-11 w-11 shrink-0"
-                        onClick={() => { setDeleteTarget(horse); setConfirmFullDelete(false); }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      </div>
                     </div>
                   </div>
                 </div>

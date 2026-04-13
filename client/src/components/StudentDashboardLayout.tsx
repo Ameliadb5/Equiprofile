@@ -128,7 +128,7 @@ function SidebarNav({
                 onNavigate(item.view);
                 onClose?.();
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-0.5 text-sm font-medium transition-all text-left ${
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-0.5 text-sm font-medium transition-all text-left ${
                 isActive
                   ? "bg-indigo-500/20 text-indigo-300"
                   : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200"
@@ -149,14 +149,14 @@ function SidebarNav({
         <div className="mt-3 pt-3 border-t border-white/[0.06]">
           <button
             onClick={() => { onNavigate("settings"); onClose?.(); }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-0.5 text-sm font-medium text-gray-400 hover:bg-white/[0.06] hover:text-gray-200 transition-all text-left"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-0.5 text-sm font-medium text-gray-400 hover:bg-white/[0.06] hover:text-gray-200 transition-all text-left"
           >
             <Settings className="w-4 h-4 shrink-0 text-gray-500" />
             <span>Settings</span>
           </button>
           <button
             onClick={() => { setLocation("/billing"); onClose?.(); }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-0.5 text-sm font-medium text-gray-400 hover:bg-white/[0.06] hover:text-gray-200 transition-all text-left"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-0.5 text-sm font-medium text-gray-400 hover:bg-white/[0.06] hover:text-gray-200 transition-all text-left"
           >
             <DollarSign className="w-4 h-4 shrink-0 text-gray-500" />
             <span>Billing</span>

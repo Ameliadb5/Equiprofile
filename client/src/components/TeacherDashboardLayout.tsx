@@ -112,7 +112,7 @@ function SidebarNav({
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {teacherNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeView === item.view;
@@ -120,7 +120,7 @@ function SidebarNav({
             <button
               key={item.view}
               onClick={() => { onNavigate(item.view); onClose?.(); }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all ${
                 isActive ? "text-white" : "text-gray-400 hover:text-white hover:bg-white/[0.04]"
               }`}
               style={isActive ? { background: `${TEACHER_ACCENT}20`, color: TEACHER_ACCENT } : {}}
@@ -133,22 +133,22 @@ function SidebarNav({
       </nav>
 
       {/* Footer: settings, billing, logout */}
-      <div className="px-3 py-4 border-t border-white/[0.06] space-y-1">
+      <div className="px-3 py-4 border-t border-white/[0.06] space-y-0.5">
         <button
           onClick={() => { setLocation("/settings"); onClose?.(); }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/[0.04] transition-all"
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/[0.04] transition-all"
         >
           <Settings className="w-4 h-4" /> Settings
         </button>
         <button
           onClick={() => { setLocation("/billing"); onClose?.(); }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/[0.04] transition-all"
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/[0.04] transition-all"
         >
           <DollarSign className="w-4 h-4" /> Billing
         </button>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.06] transition-all"
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.06] transition-all"
         >
           <LogOut className="w-4 h-4" /> Sign Out
         </button>
@@ -249,7 +249,8 @@ export default function TeacherDashboardLayout({
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden text-gray-400 hover:text-white p-1"
+              className="md:hidden text-gray-400 hover:text-white p-2 -ml-1 rounded-lg hover:bg-white/[0.06] transition-colors"
+              aria-label="Open menu"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -261,7 +262,7 @@ export default function TeacherDashboardLayout({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto px-5 py-6">
+        <main className="flex-1 overflow-y-auto px-4 sm:px-5 py-5 sm:py-6">
           {children}
         </main>
       </div>
