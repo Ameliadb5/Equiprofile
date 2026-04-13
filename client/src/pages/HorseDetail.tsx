@@ -358,31 +358,32 @@ function HorseDetailContent() {
       )}
 
       {/* Tabs for Timeline, Health, Training, Feeding, Medical Passport */}
-      <Tabs defaultValue="timeline" className="space-y-4">
-        <TabsList className="grid grid-cols-3 sm:grid-cols-6 w-full h-auto gap-1 sm:gap-0.5 rounded-md p-1">
-          <TabsTrigger value="timeline" className="flex flex-col items-center gap-1 py-2.5 px-1 text-[11px] sm:text-xs font-medium leading-none min-h-[52px] data-[state=active]:shadow-sm">
-            <Clock className="w-4 h-4 shrink-0" />
+      <Tabs defaultValue="timeline" className="space-y-4 sm:space-y-6">
+        {/* Desktop: single row of 6 tabs. Mobile: 2-row grid (3 per row) with generous tap targets */}
+        <TabsList className="grid grid-cols-3 sm:grid-cols-6 w-full h-auto gap-1.5 sm:gap-1 rounded-xl p-1.5 sm:p-1">
+          <TabsTrigger value="timeline" className="flex flex-col items-center gap-1.5 py-3 sm:py-2.5 px-2 text-xs font-medium leading-none min-h-[56px] sm:min-h-[52px] rounded-lg data-[state=active]:shadow-sm">
+            <Clock className="w-5 h-5 sm:w-4 sm:h-4 shrink-0" />
             <span>Timeline</span>
           </TabsTrigger>
-          <TabsTrigger value="health" className="flex flex-col items-center gap-1 py-2.5 px-1 text-[11px] sm:text-xs font-medium leading-none min-h-[52px] data-[state=active]:shadow-sm">
-            <Heart className="w-4 h-4 shrink-0" />
+          <TabsTrigger value="health" className="flex flex-col items-center gap-1.5 py-3 sm:py-2.5 px-2 text-xs font-medium leading-none min-h-[56px] sm:min-h-[52px] rounded-lg data-[state=active]:shadow-sm">
+            <Heart className="w-5 h-5 sm:w-4 sm:h-4 shrink-0" />
             <span>Health</span>
           </TabsTrigger>
-          <TabsTrigger value="training" className="flex flex-col items-center gap-1 py-2.5 px-1 text-[11px] sm:text-xs font-medium leading-none min-h-[52px] data-[state=active]:shadow-sm">
-            <Activity className="w-4 h-4 shrink-0" />
+          <TabsTrigger value="training" className="flex flex-col items-center gap-1.5 py-3 sm:py-2.5 px-2 text-xs font-medium leading-none min-h-[56px] sm:min-h-[52px] rounded-lg data-[state=active]:shadow-sm">
+            <Activity className="w-5 h-5 sm:w-4 sm:h-4 shrink-0" />
             <span>Training</span>
           </TabsTrigger>
-          <TabsTrigger value="feeding" className="flex flex-col items-center gap-1 py-2.5 px-1 text-[11px] sm:text-xs font-medium leading-none min-h-[52px] data-[state=active]:shadow-sm">
-            <Utensils className="w-4 h-4 shrink-0" />
+          <TabsTrigger value="feeding" className="flex flex-col items-center gap-1.5 py-3 sm:py-2.5 px-2 text-xs font-medium leading-none min-h-[56px] sm:min-h-[52px] rounded-lg data-[state=active]:shadow-sm">
+            <Utensils className="w-5 h-5 sm:w-4 sm:h-4 shrink-0" />
             <span>Feeding</span>
           </TabsTrigger>
-          <TabsTrigger value="competitions" className="flex flex-col items-center gap-1 py-2.5 px-1 text-[11px] sm:text-xs font-medium leading-none min-h-[52px] data-[state=active]:shadow-sm">
-            <Trophy className="w-4 h-4 shrink-0" />
+          <TabsTrigger value="competitions" className="flex flex-col items-center gap-1.5 py-3 sm:py-2.5 px-2 text-xs font-medium leading-none min-h-[56px] sm:min-h-[52px] rounded-lg data-[state=active]:shadow-sm">
+            <Trophy className="w-5 h-5 sm:w-4 sm:h-4 shrink-0" />
             <span className="sm:hidden">Comps</span>
             <span className="hidden sm:inline">Competitions</span>
           </TabsTrigger>
-          <TabsTrigger value="passport" className="flex flex-col items-center gap-1 py-2.5 px-1 text-[11px] sm:text-xs font-medium leading-none min-h-[52px] data-[state=active]:shadow-sm">
-            <FileHeart className="w-4 h-4 shrink-0" />
+          <TabsTrigger value="passport" className="flex flex-col items-center gap-1.5 py-3 sm:py-2.5 px-2 text-xs font-medium leading-none min-h-[56px] sm:min-h-[52px] rounded-lg data-[state=active]:shadow-sm">
+            <FileHeart className="w-5 h-5 sm:w-4 sm:h-4 shrink-0" />
             <span>Passport</span>
           </TabsTrigger>
         </TabsList>

@@ -157,9 +157,9 @@ function HorsesContent() {
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-32" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-64" />
+            <Skeleton key={i} className="h-72" />
           ))}
         </div>
       </div>
@@ -262,10 +262,10 @@ function HorsesContent() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {displayedHorses.map((horse) => (
             <Card key={horse.id} className="card-hover overflow-hidden flex flex-col">
-              <div className="p-3 pb-0">
+              <div className="p-4 pb-0">
                 <div className="aspect-[4/3] bg-muted rounded-xl overflow-hidden relative">
                   {horse.photoUrl ? (
                     <img
@@ -289,14 +289,14 @@ function HorsesContent() {
                   )}
                 </div>
               </div>
-              <CardHeader>
-                <CardTitle className="font-serif">{horse.name}</CardTitle>
-                <CardDescription>
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="font-serif text-lg">{horse.name}</CardTitle>
+                <CardDescription className="text-sm">
                   {horse.breed || "Unknown breed"}
                   {horse.age && ` • ${horse.age} years old`}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col flex-1">
+              <CardContent className="flex flex-col flex-1 pt-0">
                 <div className="flex flex-wrap gap-2 mb-4">
                   {horse.discipline && (
                     <Badge variant="secondary">{horse.discipline}</Badge>
@@ -306,23 +306,24 @@ function HorsesContent() {
                   )}
                 </div>
                 <div className="mt-auto">
-                  <div className="border-t pt-3 mt-3">
-                    <div className="flex items-center gap-2">
+                  <div className="border-t pt-4 mt-3">
+                    {/* Mobile: stacked layout. Desktop: inline */}
+                    <div className="flex items-center gap-2.5">
                       <Link href={`/horses/${horse.id}`} className="flex-1">
-                        <Button variant="outline" className="w-full h-10">
+                        <Button variant="outline" className="w-full h-11">
                           View Profile
                           <ChevronRight className="w-4 h-4 ml-2" />
                         </Button>
                       </Link>
                       <Link href={`/horses/${horse.id}/edit`}>
-                        <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
+                        <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0">
                           <Edit className="w-4 h-4" />
                         </Button>
                       </Link>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-destructive hover:text-destructive h-10 w-10 shrink-0"
+                        className="text-destructive hover:text-destructive h-11 w-11 shrink-0"
                         onClick={() => { setDeleteTarget(horse); setConfirmFullDelete(false); }}
                       >
                         <Trash2 className="w-4 h-4" />
