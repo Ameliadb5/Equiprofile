@@ -37,6 +37,7 @@ import {
   ArrowRight,
   Eye,
   Award,
+  LogOut,
 } from "lucide-react";
 
 /**
@@ -256,10 +257,10 @@ function PathwayProgressPanel({ onNavigate }: { onNavigate: (v: ActiveView) => v
             </div>
           )}
           <button
-            onClick={() => onNavigate("study-hub")}
+            onClick={() => onNavigate("lessons")}
             className="text-sm text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
           >
-            Open Study Hub <ChevronRight className="w-4 h-4" />
+            Open Lessons <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </SCard>
@@ -422,8 +423,8 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
         <SectionHeading icon={Target} title="Quick Actions" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
+            { icon: Library, label: "Lessons", desc: "Continue your structured learning pathways", color: "#6366f1", view: "lessons" as ActiveView },
             { icon: TrendingUp, label: "Log Training", desc: "Record a riding or groundwork session", color: "#10b981", view: "training" as ActiveView },
-            { icon: BookOpen, label: "Study Hub", desc: "Browse learning materials", color: "#6366f1", view: "study-hub" as ActiveView },
             { icon: Brain, label: "Ask AI Tutor", desc: "Get help with equine topics", color: "#a78bfa", view: "ai-tutor" as ActiveView },
             { icon: Target, label: "View Progress", desc: "Track your skill development", color: "#06b6d4", view: "progress" as ActiveView },
           ].map((action) => {
@@ -1980,7 +1981,7 @@ function LessonsView() {
                     <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${a.assignmentType === "lesson" ? "bg-indigo-500/20 text-indigo-300" : "bg-emerald-500/20 text-emerald-300"}`}>
                       {a.assignmentType === "lesson" ? "Lesson" : "Pathway"}
                     </span>
-                    <span className="text-sm text-white font-medium truncate">{a.lessonSlug ?? a.pathwaySlug}</span>
+                    <span className="text-sm text-white font-medium truncate">{a.lessonTitle ?? a.lessonSlug ?? a.pathwaySlug}</span>
                     {a.isCompleted && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
                   </div>
                   {a.dueDate && (
@@ -2010,7 +2011,7 @@ function LessonsView() {
           </p>
           {(lessonReviews ?? []).filter(r => !r.isRead).slice(0, 3).map(r => (
             <div key={r.id} className="text-xs text-gray-300 mb-1">
-              <span className="font-medium">{r.lessonSlug}</span>: {r.feedback?.slice(0, 80)}
+              <span className="font-medium capitalize">{r.lessonSlug?.replace(/-/g, " ")}</span>: {r.feedback?.slice(0, 80)}
               {(r.feedback?.length ?? 0) > 80 ? "…" : ""}
             </div>
           ))}
@@ -2098,6 +2099,96 @@ function LessonsView() {
   );
 }
 
+// ─── Student Settings View ────────────────────────────────────
+function StudentSettingsView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
+  const { user, logout } = useAuth();
+  const utils = trpc.useUtils();
+  const [name, setName] = useState(user?.name ?? "");
+  const [saved, setSaved] = useState(false);
+
+  const updateProfileMutation = trpc.user.updateProfile.useMutation({
+    onSuccess: () => {
+      utils.auth.me.invalidate();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    },
+  });
+
+  return (
+    <div className="space-y-6 max-w-xl">
+      {/* Profile */}
+      <div className="rounded-xl p-5 space-y-4" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
+        <h3 className="text-sm font-semibold text-indigo-400 uppercase tracking-wider">Profile</h3>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Display name</label>
+            <input
+              className="w-full text-sm bg-[#0c1222] border border-indigo-500/20 rounded-lg px-3 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Your name"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Email</label>
+            <input
+              className="w-full text-sm bg-[#0c1222] border border-indigo-500/10 rounded-lg px-3 py-2 text-gray-500 cursor-not-allowed"
+              value={user?.email ?? ""}
+              readOnly
+            />
+          </div>
+          <button
+            onClick={() => updateProfileMutation.mutate({ name })}
+            disabled={updateProfileMutation.isPending || !name.trim() || name === user?.name}
+            className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-40"
+          >
+            {updateProfileMutation.isPending ? "Saving…" : saved ? "✓ Saved" : "Save Profile"}
+          </button>
+        </div>
+      </div>
+
+      {/* Password */}
+      <div className="rounded-xl p-5 space-y-3" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
+        <h3 className="text-sm font-semibold text-indigo-400 uppercase tracking-wider">Security</h3>
+        <p className="text-xs text-gray-500">Need to change your password? Use the account security settings.</p>
+        <a
+          href="/settings#security"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300"
+        >
+          Open security settings <ChevronRight className="w-3.5 h-3.5" />
+        </a>
+      </div>
+
+      {/* Billing */}
+      <div className="rounded-xl p-5 space-y-3" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
+        <h3 className="text-sm font-semibold text-indigo-400 uppercase tracking-wider">Subscription & Billing</h3>
+        <p className="text-xs text-gray-500">Manage your student plan subscription.</p>
+        <a
+          href="/billing"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300"
+        >
+          Manage billing <ChevronRight className="w-3.5 h-3.5" />
+        </a>
+      </div>
+
+      {/* Sign out */}
+      <div className="rounded-xl p-5" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
+        <h3 className="text-sm font-semibold text-rose-400 uppercase tracking-wider mb-3">Account</h3>
+        <button
+          onClick={logout}
+          className="flex items-center gap-2 text-sm text-rose-400 hover:text-rose-300 transition-colors"
+        >
+          <LogOut className="w-4 h-4" /> Sign out
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────
 export default function StudentDashboard() {
   const { user } = useAuth();
@@ -2115,6 +2206,7 @@ export default function StudentDashboard() {
     "ai-tutor": "AI Tutor",
     "progress": "Progress",
     "scenarios": "Scenario Training",
+    "settings": "Settings",
   };
 
   return (
@@ -2155,6 +2247,7 @@ export default function StudentDashboard() {
           {activeView === "ai-tutor" && <AITutorView />}
           {activeView === "progress" && <ProgressView />}
           {activeView === "scenarios" && <ScenarioTrainingView />}
+          {activeView === "settings" && <StudentSettingsView onNavigate={setActiveView} />}
         </div>
       </div>
     </StudentDashboardLayout>

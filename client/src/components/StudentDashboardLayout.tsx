@@ -42,7 +42,8 @@ export type StudentView =
   | "study-hub"
   | "ai-tutor"
   | "progress"
-  | "scenarios";
+  | "scenarios"
+  | "settings";
 
 interface StudentNavItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -141,7 +142,7 @@ function SidebarNav({
         {/* Divider + account links */}
         <div className="mt-3 pt-3 border-t border-white/[0.06]">
           <button
-            onClick={() => { setLocation("/settings"); onClose?.(); }}
+            onClick={() => { onNavigate("settings"); onClose?.(); }}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-0.5 text-sm font-medium text-gray-400 hover:bg-white/[0.06] hover:text-gray-200 transition-all text-left"
           >
             <Settings className="w-4 h-4 shrink-0 text-gray-500" />
@@ -213,6 +214,7 @@ export default function StudentDashboardLayout({
     "ai-tutor": "AI Tutor",
     progress: "Progress",
     scenarios: "Scenario Training",
+    settings: "Settings",
   };
 
   return (

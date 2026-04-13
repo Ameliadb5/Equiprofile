@@ -1312,8 +1312,22 @@ export const studentRouter = router({
       ? (or(directCondition, inArray(teacherLessonAssignments.groupId, groupIds)) ?? directCondition)
       : directCondition;
 
-    const assignments = await dbConn.select()
+    const assignments = await dbConn
+      .select({
+        id: teacherLessonAssignments.id,
+        assignmentType: teacherLessonAssignments.assignmentType,
+        lessonSlug: teacherLessonAssignments.lessonSlug,
+        pathwaySlug: teacherLessonAssignments.pathwaySlug,
+        dueDate: teacherLessonAssignments.dueDate,
+        instructions: teacherLessonAssignments.instructions,
+        isActive: teacherLessonAssignments.isActive,
+        createdAt: teacherLessonAssignments.createdAt,
+        groupId: teacherLessonAssignments.groupId,
+        studentUserId: teacherLessonAssignments.studentUserId,
+        lessonTitle: lessonUnits.title,
+      })
       .from(teacherLessonAssignments)
+      .leftJoin(lessonUnits, eq(teacherLessonAssignments.lessonSlug, lessonUnits.slug))
       .where(and(eq(teacherLessonAssignments.isActive, true), studentCondition))
       .orderBy(teacherLessonAssignments.dueDate);
 

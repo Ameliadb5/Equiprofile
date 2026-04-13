@@ -5453,9 +5453,9 @@ Format your response as JSON with keys: recommendation, explanation, precautions
               senderId: ctx.user.id,
             };
 
-            for (const m of memberRows) {
-              publishModuleEvent("messages", "created", payload, m.userId);
-            }
+            await Promise.all(
+              memberRows.map(m => publishModuleEvent("messages", "created", payload, m.userId))
+            );
           }
         } catch (err) {
           console.error("[Messages] Failed to publish realtime event:", err);

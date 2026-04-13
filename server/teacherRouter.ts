@@ -806,6 +806,24 @@ export const teacherRouter = router({
   // Phase 2 — Lesson Assignment, Review, and Competency Procedures
   // ─────────────────────────────────────────────────────────────────────────
 
+  /** List all available lesson units so teachers can pick from a dropdown. */
+  listLessons: teacherProcedure.query(async () => {
+    const dbConn = await getDb();
+    if (!dbConn) return [];
+    const rows = await dbConn
+      .select({
+        slug: lessonUnits.slug,
+        title: lessonUnits.title,
+        pathwaySlug: lessonUnits.pathwaySlug,
+        level: lessonUnits.level,
+        category: lessonUnits.category,
+        sortOrder: lessonUnits.sortOrder,
+      })
+      .from(lessonUnits)
+      .orderBy(lessonUnits.pathwaySlug, lessonUnits.sortOrder);
+    return rows;
+  }),
+
   /** Assign a lesson or pathway to a student or group. */
   assignLesson: teacherProcedure
     .input(z.object({
