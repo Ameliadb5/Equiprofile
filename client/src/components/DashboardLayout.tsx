@@ -70,6 +70,7 @@ import {
   ShoppingCart,
   Wrench,
   Trophy,
+  ShieldCheck,
 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -568,6 +569,41 @@ function DashboardLayoutContent({
           </div>
         )}
         <main className="flex-1 p-3 sm:p-5 md:p-6 overflow-x-hidden relative" style={isMobile ? { paddingBottom: 'calc(5rem + var(--safe-area-bottom, 0px))' } : undefined}>
+          {/* Admin portal switcher — compact top bar for admin users */}
+          {isAdmin && (
+            <div className="flex items-center gap-2 -mx-3 sm:-mx-5 md:-mx-6 px-3 sm:px-5 py-1.5 mb-4 bg-amber-500/[0.07] border-b border-amber-500/20 overflow-x-auto no-scrollbar">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-500/80 shrink-0" />
+              <span className="text-[11px] font-semibold text-amber-500/80 shrink-0 mr-1">Admin:</span>
+              <div className="flex items-center gap-1">
+                {[
+                  { label: "Admin", path: "/admin", icon: "🛡️" },
+                  { label: "Pro", path: "/dashboard", icon: "🐴" },
+                  { label: "Stable", path: "/stable-dashboard", icon: "🏠" },
+                  { label: "Student", path: "/student-dashboard", icon: "🎓" },
+                  { label: "Teacher", path: "/teacher-dashboard", icon: "📋" },
+                ].map((p) => {
+                  const isCurrent = p.path === "/dashboard"
+                    ? !location.startsWith("/stable-dashboard") && (location === "/dashboard" || location === "/")
+                    : location.startsWith(p.path);
+                  return (
+                    <button
+                      key={p.path}
+                      onClick={() => setLocation(p.path)}
+                      disabled={isCurrent}
+                      className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors whitespace-nowrap ${
+                        isCurrent
+                          ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 cursor-default"
+                          : "text-amber-600/60 dark:text-amber-500/60 hover:text-amber-600 dark:hover:text-amber-300 hover:bg-amber-500/10"
+                      }`}
+                    >
+                      <span>{p.icon}</span>
+                      <span>{p.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {/* V2 subtle premium background depth — soft ambient shapes */}
           {isV2() && (
             <div className="pointer-events-none absolute inset-0 overflow-hidden">

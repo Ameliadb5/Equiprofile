@@ -25,7 +25,6 @@ import {
   DollarSign,
   Library,
   ShieldAlert,
-  ArrowLeft,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -172,25 +171,41 @@ function SidebarNav({
   );
 }
 
+// ── Admin portal switcher definitions ─────────────────────────────────────
+
+const ADMIN_PORTALS = [
+  { label: "Admin", path: "/admin", icon: "🛡️" },
+  { label: "Pro", path: "/dashboard", icon: "🐴" },
+  { label: "Stable", path: "/stable-dashboard", icon: "🏠" },
+  { label: "Student", path: "/student-dashboard", icon: "🎓" },
+  { label: "Teacher", path: "/teacher-dashboard", icon: "📋" },
+] as const;
+
 // ── Admin view banner ──────────────────────────────────────────────────────
 
-function AdminViewBanner({ dashboardName }: { dashboardName: string }) {
+function AdminViewBanner({ current }: { current: string }) {
   const [, setLocation] = useLocation();
   return (
-    <div className="flex items-center justify-between gap-3 px-4 py-2 bg-amber-500/10 border-b border-amber-500/30 shrink-0">
-      <div className="flex items-center gap-2 min-w-0">
-        <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
-        <span className="text-xs font-medium text-amber-300 truncate">
-          Admin view — {dashboardName}
-        </span>
+    <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border-b border-amber-500/30 shrink-0 overflow-x-auto no-scrollbar">
+      <ShieldAlert className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+      <span className="text-[11px] font-semibold text-amber-300 shrink-0 mr-1">Admin:</span>
+      <div className="flex items-center gap-1 shrink-0">
+        {ADMIN_PORTALS.map((p) => (
+          <button
+            key={p.path}
+            onClick={() => setLocation(p.path)}
+            className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors whitespace-nowrap ${
+              current === p.label
+                ? "bg-amber-500/25 text-amber-200 cursor-default"
+                : "text-amber-400/70 hover:text-amber-200 hover:bg-amber-500/15"
+            }`}
+            disabled={current === p.label}
+          >
+            <span>{p.icon}</span>
+            <span>{p.label}</span>
+          </button>
+        ))}
       </div>
-      <button
-        onClick={() => setLocation("/admin")}
-        className="flex items-center gap-1.5 text-xs font-medium text-amber-300 hover:text-amber-100 whitespace-nowrap transition-colors shrink-0"
-      >
-        <ArrowLeft className="w-3.5 h-3.5" />
-        Back to Admin
-      </button>
     </div>
   );
 }
@@ -240,8 +255,8 @@ export default function TeacherDashboardLayout({
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Admin view banner — shown when admin is reviewing this portal */}
-        {isAdmin && <AdminViewBanner dashboardName="Teacher Portal" />}
+        {/* Admin portal switcher — shown when admin is reviewing this portal */}
+        {isAdmin && <AdminViewBanner current="Teacher" />}
 
         {/* Topbar */}
         <header className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06] bg-[#0e1520] shrink-0">

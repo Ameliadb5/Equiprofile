@@ -378,7 +378,8 @@ function HorseDetailContent() {
           </TabsTrigger>
           <TabsTrigger value="competitions" className="flex flex-col items-center gap-1 py-2 px-1 text-[10px] sm:text-xs font-medium leading-none min-h-[52px] data-[state=active]:shadow-sm">
             <Trophy className="w-4 h-4 shrink-0" />
-            <span>Competitions</span>
+            <span className="sm:hidden">Comps</span>
+            <span className="hidden sm:inline">Competitions</span>
           </TabsTrigger>
           <TabsTrigger value="passport" className="flex flex-col items-center gap-1 py-2 px-1 text-[10px] sm:text-xs font-medium leading-none min-h-[52px] data-[state=active]:shadow-sm">
             <FileHeart className="w-4 h-4 shrink-0" />
