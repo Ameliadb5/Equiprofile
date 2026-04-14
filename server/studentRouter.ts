@@ -1586,16 +1586,20 @@ export const studentRouter = router({
       // Seed pathways if table is empty
       const existing = await dbConn.select({ id: lessonPathways.id }).from(lessonPathways).limit(1);
       if (existing.length === 0) {
-        await dbConn.insert(lessonPathways).values(
-          LESSON_PATHWAYS.map((p) => ({
-            slug: p.slug,
-            title: p.title,
-            description: p.description,
-            sortOrder: p.sortOrder,
-            iconName: p.iconName,
-            isPublished: true,
-          })),
-        );
+        try {
+          await dbConn.insert(lessonPathways).values(
+            LESSON_PATHWAYS.map((p) => ({
+              slug: p.slug,
+              title: p.title,
+              description: p.description,
+              sortOrder: p.sortOrder,
+              iconName: p.iconName,
+              isPublished: true,
+            })),
+          );
+        } catch (seedErr) {
+          console.error("[lesson-seed] Failed to seed pathways:", seedErr);
+        }
       }
 
       const rows = await dbConn.select().from(lessonPathways).orderBy(lessonPathways.sortOrder);
@@ -1612,28 +1616,37 @@ export const studentRouter = router({
       const dbConn = await getDb();
       if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE", message: "Database unavailable" });
 
-      // Seed lessons if table is empty
+      // Seed lessons if table is empty — use batched insert to avoid max_packet issues
       const existing = await dbConn.select({ id: lessonUnits.id }).from(lessonUnits).limit(1);
       if (existing.length === 0) {
-        await dbConn.insert(lessonUnits).values(
-          LESSON_UNITS.map((l) => ({
-            slug: l.slug,
-            pathwaySlug: l.pathwaySlug,
-            title: l.title,
-            level: l.level,
-            category: l.category,
-            sortOrder: l.sortOrder,
-            objectives: JSON.stringify(l.objectives),
-            content: l.content,
-            keyPoints: JSON.stringify(l.keyPoints),
-            safetyNote: l.safetyNote,
-            practicalApplication: l.practicalApplication,
-            commonMistakes: JSON.stringify(l.commonMistakes),
-            knowledgeCheck: JSON.stringify(l.knowledgeCheck),
-            aiTutorPrompts: JSON.stringify(l.aiTutorPrompts),
-            isPublished: true,
-          })),
-        );
+        const allValues = LESSON_UNITS.map((l) => ({
+          slug: l.slug,
+          pathwaySlug: l.pathwaySlug,
+          title: l.title,
+          level: l.level,
+          category: l.category,
+          sortOrder: l.sortOrder,
+          objectives: JSON.stringify(l.objectives),
+          content: l.content,
+          keyPoints: JSON.stringify(l.keyPoints),
+          safetyNote: l.safetyNote,
+          practicalApplication: l.practicalApplication,
+          commonMistakes: JSON.stringify(l.commonMistakes),
+          knowledgeCheck: JSON.stringify(l.knowledgeCheck),
+          aiTutorPrompts: JSON.stringify(l.aiTutorPrompts),
+          isPublished: true,
+        }));
+
+        // Insert in batches of 10 to avoid MySQL max_allowed_packet issues
+        const BATCH_SIZE = 10;
+        for (let i = 0; i < allValues.length; i += BATCH_SIZE) {
+          const batch = allValues.slice(i, i + BATCH_SIZE);
+          try {
+            await dbConn.insert(lessonUnits).values(batch);
+          } catch (seedErr) {
+            console.error(`[lesson-seed] Failed to seed lessons batch ${i}-${i + batch.length}:`, seedErr);
+          }
+        }
       }
 
       const conditions = [];

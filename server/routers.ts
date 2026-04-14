@@ -89,6 +89,7 @@ import { sendEmail, sendCampaignEmail, sendStableInviteEmail, sendCompensationEm
 import { getLiveVisitorCount } from "./_core/analyticsTracker";
 import { studentRouter } from "./studentRouter";
 import { teacherRouter } from "./teacherRouter";
+import { schoolRouter } from "./schoolRouter";
 import {
   normalizeCountry,
   normalizeContactType,
@@ -300,6 +301,7 @@ export const appRouter = router({
   system: systemRouter,
   student: studentRouter,
   teacher: teacherRouter,
+  school: schoolRouter,
 
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
