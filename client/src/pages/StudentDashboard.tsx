@@ -1163,12 +1163,33 @@ const GUIDED_PROMPTS = [
   { label: "Improve my score", icon: TrendingUp, text: "How can I improve my horse's overall care score?" },
 ];
 
-function AITutorView() {
+function AITutorView({ initialQuestion, onQuestionConsumed }: { initialQuestion?: string | null; onQuestionConsumed?: () => void }) {
   const { data: usage } = trpc.student.getTutorUsage.useQuery();
   const askMut = trpc.student.askTutor.useMutation();
 
   const [question, setQuestion] = useState("");
   const [history, setHistory] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
+
+  // Auto-ask if an initial question was passed from another view
+  const [hasConsumedInitial, setHasConsumedInitial] = useState(false);
+  useEffect(() => {
+    if (initialQuestion && !hasConsumedInitial && !askMut.isPending) {
+      setHasConsumedInitial(true);
+      const text = initialQuestion.trim();
+      if (text) {
+        setHistory((prev) => [...prev, { role: "user", content: text }]);
+        askMut.mutate(
+          { question: text, conversationHistory: [] },
+          {
+            onSuccess: (res) => {
+              setHistory((prev) => [...prev, { role: "assistant", content: res.answer }]);
+            },
+          },
+        );
+      }
+      onQuestionConsumed?.();
+    }
+  }, [initialQuestion, hasConsumedInitial, askMut.isPending, onQuestionConsumed]);
 
   const handleAsk = (q?: string) => {
     const text = (q ?? question).trim();
@@ -1800,7 +1821,7 @@ function estimatePathwayTime(lessonCount: number): string {
   return rem > 0 ? `${hrs}h ${rem}m` : `${hrs}h`;
 }
 
-function LessonsView() {
+function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }) {
   const { data: pathways, isLoading: loadingPathways } = trpc.student.listLessonPathways.useQuery();
   const [selectedPathway, setSelectedPathway] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
@@ -2072,13 +2093,20 @@ function LessonsView() {
         {aiPrompts.length > 0 && (
           <div className="rounded-xl p-5" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
             <h3 className="text-sm font-semibold text-violet-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4" /> Ask the AI Tutor
+              <Brain className="w-4 h-4" /> Ask the AI Tutor
             </h3>
+            <p className="text-xs text-gray-500 mb-3">Click a question to ask the AI Tutor directly</p>
             <div className="grid gap-2">
               {aiPrompts.map((prompt, i) => (
-                <p key={i} className="text-sm text-gray-400 italic flex items-start gap-2">
-                  <Brain className="w-3 h-3 text-violet-400 mt-1 shrink-0" /> &ldquo;{prompt}&rdquo;
-                </p>
+                <button
+                  key={i}
+                  onClick={() => onAskTutor?.(prompt)}
+                  className="text-left text-sm text-gray-400 italic flex items-start gap-2 p-2.5 rounded-lg hover:bg-violet-500/10 hover:text-violet-300 transition-colors group"
+                >
+                  <Brain className="w-3.5 h-3.5 text-violet-400 mt-0.5 shrink-0 group-hover:text-violet-300" />
+                  <span>&ldquo;{prompt}&rdquo;</span>
+                  <ArrowRight className="w-3 h-3 text-violet-500/0 group-hover:text-violet-400 shrink-0 mt-0.5 transition-colors ml-auto" />
+                </button>
               ))}
             </div>
           </div>
@@ -2685,6 +2713,13 @@ export default function StudentDashboard() {
   const rawName = user?.name?.trim() ?? "";
   const firstName = rawName.split(/\s+/)[0] || "Student";
   const [activeView, setActiveView] = useState<ActiveView>("overview");
+  /** Shared AI tutor question — set from lessons/scenarios, consumed by AITutorView */
+  const [pendingAIQuestion, setPendingAIQuestion] = useState<string | null>(null);
+
+  const navigateToAITutor = (question: string) => {
+    setPendingAIQuestion(question);
+    setActiveView("ai-tutor");
+  };
 
   const viewTitle: Record<ActiveView, string> = {
     "overview": "Student Dashboard",
@@ -2726,10 +2761,10 @@ export default function StudentDashboard() {
 
           {/* ─── Active View ──────────────────────────────── */}
           {activeView === "overview" && <OverviewView onNavigate={setActiveView} />}
-          {activeView === "learning-path" && <LessonsView />}
+          {activeView === "learning-path" && <LessonsView onAskTutor={navigateToAITutor} />}
           {activeView === "practice" && <PracticeView />}
           {activeView === "assignments" && <AssignmentsView />}
-          {activeView === "ai-tutor" && <AITutorView />}
+          {activeView === "ai-tutor" && <AITutorView initialQuestion={pendingAIQuestion} onQuestionConsumed={() => setPendingAIQuestion(null)} />}
           {activeView === "progress" && <ProgressView />}
           {activeView === "settings" && <StudentSettingsView onNavigate={setActiveView} />}
         </div>
