@@ -30,39 +30,53 @@ const studentFeatures = [
     color: "from-rose-500 to-pink-500",
   },
   {
-    icon: ClipboardList,
-    title: "Structured Daily Routines",
-    description:
-      "Follow professional yard routines covering mucking out, grooming, tack checks, and health inspections. Build the discipline and attention to detail that top yards expect.",
-    color: "from-amber-500 to-orange-500",
-  },
-  {
     icon: BookOpen,
-    title: "Equine Study Hub",
+    title: "Structured Lesson Pathways",
     description:
-      "Dive into guided learning covering anatomy, nutrition, common ailments, first aid, and stable management — structured around real BHS and Pony Club syllabi to complement your studies.",
+      "Follow professional pathways covering horse care foundations, rider skills, stable management, and more. Each lesson includes objectives, knowledge checks, and progress tracking — aligned with BHS and Pony Club syllabi.",
     color: "from-blue-500 to-indigo-500",
   },
   {
-    icon: TrendingUp,
-    title: "Training & Progress Tracking",
+    icon: ClipboardList,
+    title: "Assignments & Submissions",
     description:
-      "Log every flatwork session, jumping lesson, and lunge workout. Track your riding hours, monitor skill development over time, and share detailed summaries with trainers and parents.",
-    color: "from-green-500 to-emerald-500",
+      "Receive assignments from your teacher, upload PDF submissions, and get detailed feedback and marks. Track your assignment history and build evidence of your learning for assessments and qualifications.",
+    color: "from-amber-500 to-orange-500",
   },
   {
     icon: Brain,
-    title: "AI-Powered Learning Support",
+    title: "AI-Powered Tutor",
     description:
-      "Ask questions about equine care and get clear, knowledgeable answers instantly. From understanding lameness signs to calculating feed ratios — your AI tutor is always available.",
+      "Ask questions about equine care and get clear, knowledgeable answers instantly. From understanding lameness signs to calculating feed ratios — your AI tutor is always available to help you learn.",
     color: "from-violet-500 to-purple-500",
+  },
+  {
+    icon: Sparkles,
+    title: "Scenario Training",
+    description:
+      "Practice real-world equine scenarios in a safe environment. Handle simulated emergencies, make feeding decisions, and develop the critical thinking skills that employers and examiners look for.",
+    color: "from-cyan-500 to-teal-500",
+  },
+  {
+    icon: TrendingUp,
+    title: "Progress & Competency Tracking",
+    description:
+      "Track your development across all skill areas with detailed competency maps. See your strengths, identify areas for improvement, and share verifiable progress reports with trainers and parents.",
+    color: "from-green-500 to-emerald-500",
   },
   {
     icon: Trophy,
     title: "Achievements & Portfolios",
     description:
       "Earn recognition for milestones — first solo health check, 100 logged care tasks, consistent training streaks. Build a verifiable portfolio for assessments, interviews, and qualifications.",
-    color: "from-cyan-500 to-teal-500",
+    color: "from-yellow-500 to-amber-500",
+  },
+  {
+    icon: Users,
+    title: "Teacher Connection",
+    description:
+      "Stay connected with your instructor through messaging, receive resource materials (PDFs, images, documents), and get personalised feedback on your lesson progress and riding development.",
+    color: "from-indigo-500 to-violet-500",
   },
 ];
 
@@ -83,9 +97,9 @@ const schoolBenefits = [
       "Generate detailed, data-driven reports for parents, inspectors, and accreditation bodies. Evidence student progress with real activity logs, not just instructor notes.",
   },
   {
-    title: "School Pricing on Request",
+    title: "Flexible School Pricing",
     description:
-      "We offer tailored pricing for riding schools, colleges, and training centres. Contact us to discuss a plan that works for your student numbers and budget.",
+      "Tiered plans from £49/month for up to 10 students, scaling to £199/month for 50. Larger schools can contact us for enterprise pricing. All plans include a 7-day free trial.",
   },
 ];
 
@@ -111,7 +125,7 @@ export default function Students() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#4f5fd6]/15 border border-[#4f5fd6]/30 mb-6">
               <GraduationCap className="w-5 h-5 text-[#8b9cf7]" />
               <span className="text-sm font-medium text-[#8b9cf7]">
-                Student Programme — £5/month
+                Student Programme — From £8/month
               </span>
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-serif text-white mb-6 tracking-tight">
@@ -333,15 +347,15 @@ export default function Students() {
                   </p>
                   <p className="text-gray-400 leading-relaxed mb-6">
                     Individual student plans start at just{" "}
-                    <span className="text-white font-semibold">£5/month</span>.
-                    For schools and academies enrolling multiple students, we
-                    offer tailored pricing to fit your budget. Get in touch and
-                    we'll build a plan around your needs.
+                    <span className="text-white font-semibold">£8/month</span>.
+                    School plans from{" "}
+                    <span className="text-white font-semibold">£49/month</span>{" "}
+                    for up to 10 students. View all school tiers on our pricing page.
                   </p>
-                  <Link href="/contact">
+                  <Link href="/pricing?type=school">
                     <Button className="bg-[#4f5fd6] hover:bg-[#4554c4] text-white px-6 py-3 rounded-lg group">
-                      <Mail className="w-4 h-4 mr-2" />
-                      Contact Us for School Pricing
+                      <School className="w-4 h-4 mr-2" />
+                      View School Pricing
                       <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
@@ -401,7 +415,7 @@ export default function Students() {
                     you the tools to prove all three.
                   </p>
                   <p className="text-gray-400 mb-8 max-w-xl mx-auto">
-                    Start your free 7-day trial today. Just £5/month after that
+                    Start your free 7-day trial today. Just £8/month after that
                     — less than a single riding lesson.
                   </p>
                   <Link href="/register?plan=student">
