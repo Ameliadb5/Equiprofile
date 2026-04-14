@@ -211,8 +211,8 @@ function parseUserPrefs(raw: string | null | undefined): Record<string, any> {
   }
 }
 
-type PlanTier = "free" | "student" | "pro" | "stable";
-const VALID_PLAN_TIERS: readonly PlanTier[] = ["free", "student", "pro", "stable"];
+type PlanTier = "free" | "student" | "teacher" | "pro" | "stable";
+const VALID_PLAN_TIERS: readonly PlanTier[] = ["free", "student", "teacher", "pro", "stable"];
 
 /**
  * Extract and validate planTier from parsed preferences.
@@ -3069,20 +3069,23 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         prefs.freeAccessUntil = expiryDate.toISOString();
         prefs.freeAccessDays = input.freeDays;
 
-        // Only the explicitly chosen dashboard is unlocked — never both by default
+        // Only the explicitly chosen dashboard is unlocked — never both by default.
+        // bothDashboardsUnlocked = false is set on every branch to prevent a
+        // previous free-access grant from inadvertently leaving it set to true.
         if (input.tier === "stable") {
-          // Stable only needs planTier — ProtectedRoute checks planTier === "stable"
+          // Stable only needs planTier; bothDashboardsUnlocked is cleared for safety.
           prefs.planTier = "stable";
           prefs.bothDashboardsUnlocked = false;
         } else if (input.tier === "student") {
-          // Student requires both planTier and selectedExperience because ProtectedRoute
-          // checks: planTier === "student" || selectedExperience === "student"
+          // Both planTier and selectedExperience are set:
+          // - parsePlanTier() (server) reads planTier
+          // - ProtectedRoute (client) checks planTier OR selectedExperience
+          // Setting both ensures the check works via either path.
           prefs.planTier = "student";
           prefs.selectedExperience = "student";
           prefs.bothDashboardsUnlocked = false;
         } else if (input.tier === "teacher") {
-          // Teacher requires both planTier and selectedExperience because ProtectedRoute
-          // checks: planTier === "teacher" || selectedExperience === "teacher"
+          // Same dual-field pattern as student — see comment above.
           prefs.planTier = "teacher";
           prefs.selectedExperience = "teacher";
           prefs.bothDashboardsUnlocked = false;
