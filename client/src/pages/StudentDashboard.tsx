@@ -385,6 +385,50 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
         })}
       </div>
 
+      {/* Weekly Learning Momentum */}
+      {(() => {
+        const lessonsDone = (lessonProgress ?? []).length;
+        const weeklyGoal = 3; // target: 3 lesson completions per week
+        const weeklyDone = Math.min(weekSessions, weeklyGoal);
+        const weekPct = Math.round((weeklyDone / weeklyGoal) * 100);
+        const lastCompletedLesson = (lessonProgress ?? []).slice(-1)[0];
+        return (
+          <div className="rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3"
+            style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)" }}>
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-500/20 shrink-0">
+                <Flame className="w-5 h-5 text-indigo-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-indigo-300">Weekly Learning Goal</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {weeklyDone >= weeklyGoal
+                    ? "🎉 Goal reached this week — great work!"
+                    : `${weeklyDone}/${weeklyGoal} sessions this week · ${weeklyGoal - weeklyDone} more to hit your goal`}
+                </p>
+                <div className="mt-2 h-1.5 bg-white/[0.06] rounded-full overflow-hidden max-w-[200px]">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${weekPct}%`, background: weeklyDone >= weeklyGoal ? "#10b981" : "#6366f1" }} />
+                </div>
+              </div>
+            </div>
+            {lastCompletedLesson && (
+              <div className="sm:ml-auto text-right shrink-0">
+                <p className="text-[10px] text-gray-600 uppercase tracking-wider">Last completed</p>
+                <p className="text-xs text-indigo-300 capitalize">{lastCompletedLesson.lessonSlug?.replace(/-/g, " ")}</p>
+              </div>
+            )}
+            {lessonsDone === 0 && (
+              <button
+                onClick={() => onNavigate("learning-path")}
+                className="shrink-0 text-xs px-3 py-1.5 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors"
+              >
+                Start Your First Lesson
+              </button>
+            )}
+          </div>
+        );
+      })()}
+
       {/* My Horse */}
       <section>
         <SectionHeading icon={Heart} title="My Horse" />
