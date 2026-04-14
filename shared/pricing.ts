@@ -79,7 +79,7 @@ export const SCHOOL_PRICING = {
   ],
 } as const;
 
-/** Free trial duration in days — applies to all plans */
+/** Free trial duration in days — applies to ALL plans (individual, student, and school). */
 export const FREE_TRIAL_DAYS = 7;
 
 /** Convert pence amount to formatted GBP string (e.g. 1000 → "10.00") */

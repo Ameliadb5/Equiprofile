@@ -12,6 +12,7 @@
  */
 import { ReactNode } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import StudentDashboardLayout from "@/components/StudentDashboardLayout";
 import TeacherDashboardLayout from "@/components/TeacherDashboardLayout";
@@ -27,6 +28,7 @@ function parseUserPrefs(raw: string | null | undefined): Record<string, any> {
 
 export default function PlanAwareLayout({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const prefs = parseUserPrefs(user?.preferences);
   const planTier = prefs.planTier ?? prefs.selectedExperience ?? "";
   const isAdmin = user?.role === "admin";
@@ -38,7 +40,14 @@ export default function PlanAwareLayout({ children }: { children: ReactNode }) {
 
   if (planTier === "student") {
     return (
-      <StudentDashboardLayout activeView="settings" onNavigate={() => {}}>
+      <StudentDashboardLayout
+        activeView="settings"
+        onNavigate={(view) => {
+          // Navigate back to student dashboard with the selected view
+          if (view === "settings") return; // Already on settings-like page
+          setLocation("/student-dashboard");
+        }}
+      >
         {children}
       </StudentDashboardLayout>
     );
@@ -46,7 +55,13 @@ export default function PlanAwareLayout({ children }: { children: ReactNode }) {
 
   if (planTier === "teacher") {
     return (
-      <TeacherDashboardLayout activeView="overview" onNavigate={() => {}}>
+      <TeacherDashboardLayout
+        activeView="overview"
+        onNavigate={(view) => {
+          // Navigate back to teacher dashboard with the selected view
+          setLocation("/teacher-dashboard");
+        }}
+      >
         {children}
       </TeacherDashboardLayout>
     );

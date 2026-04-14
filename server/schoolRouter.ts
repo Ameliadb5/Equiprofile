@@ -16,6 +16,7 @@ import {
   users,
 } from "../drizzle/schema";
 import { nanoid } from "nanoid";
+import { FREE_TRIAL_DAYS } from "@shared/pricing";
 
 /** Safely parse user preferences JSON. */
 function parseUserPrefs(raw: string | null | undefined): Record<string, any> {
@@ -85,7 +86,7 @@ export const schoolRouter = router({
         planTier: input.planTier,
         maxStudents,
         maxTeachers: input.planTier === "school_enterprise" ? 50 : Math.ceil(maxStudents / 5),
-        trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7-day trial
+        trialEndsAt: new Date(Date.now() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000),
       });
 
       // Add owner as first member
@@ -199,7 +200,7 @@ export const schoolRouter = router({
         invitedEmail: input.email,
         role: input.role,
         token,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        expiresAt: new Date(Date.now() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000),
       });
 
       // TODO: Send invite email via SMTP
@@ -253,13 +254,17 @@ export const schoolRouter = router({
         .set({ acceptedAt: new Date() })
         .where(eq(organizationInvites.id, invite.id));
 
-      // Update user preferences with their role
+      // Update user preferences with their role within the organization
       const user = await db.getUserById(ctx.user.id);
       if (user) {
         const prefs = parseUserPrefs(user.preferences);
-        prefs.planTier = invite.role;
+        // Map org role to plan tier: teachers remain "teacher", students remain "student"
         prefs.selectedExperience = invite.role;
         prefs.organizationId = invite.organizationId;
+        // Only set planTier if the user doesn't already have one (preserves existing subscription)
+        if (!prefs.planTier) {
+          prefs.planTier = invite.role;
+        }
         await db.updateUser(ctx.user.id, { preferences: JSON.stringify(prefs) });
       }
 

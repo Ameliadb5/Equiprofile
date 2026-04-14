@@ -1612,6 +1612,8 @@ function TeacherProgressView() {
 }
 
 // ── Messages View — Simple teacher ↔ student messaging ─────────────────────
+// NOTE: Messages are stored in local state for now (MVP/demo). Backend persistence
+// via a dedicated messages table should be added before production go-live.
 
 function MessagesView() {
   const { data: students, isLoading } = trpc.teacher.listMyStudents.useQuery();
@@ -1734,6 +1736,8 @@ function MessagesView() {
 }
 
 // ── Resources View — Teacher resource upload/management ─────────────────────
+// NOTE: Resources are stored in local state for now (MVP/demo). Backend persistence
+// via the teacherResources table should be wired before production go-live.
 
 function ResourcesView() {
   const [resources, setResources] = useState<Array<{ id: number; title: string; fileType: string; shareScope: string; createdAt: string }>>([]);
