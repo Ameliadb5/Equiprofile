@@ -602,10 +602,12 @@ export const appRouter = router({
           });
         }
 
+        // The "monthly" in planConfig check above guarantees planConfig has monthly/yearly
+        const billingConfig = planConfig as { monthly: { priceId: string }; yearly: { priceId: string } };
         const priceId =
           input.interval === "yearly"
-            ? (planConfig as any).yearly.priceId
-            : (planConfig as any).monthly.priceId;
+            ? billingConfig.yearly.priceId
+            : billingConfig.monthly.priceId;
 
         if (!priceId) {
           throw new TRPCError({

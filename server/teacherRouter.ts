@@ -1363,7 +1363,12 @@ export const teacherRouter = router({
             templateData: tpl.templateData,
             isSystem: true,
           });
-        } catch { /* ignore duplicate seed errors */ }
+        } catch (e: any) {
+          // Log non-duplicate errors for debugging; duplicates are expected during concurrent seeding
+          if (e?.code !== "ER_DUP_ENTRY") {
+            console.warn(`[ReportTemplates] Failed to seed "${tpl.name}":`, e?.message ?? e);
+          }
+        }
       }
     }
 

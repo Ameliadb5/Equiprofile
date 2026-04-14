@@ -16,7 +16,7 @@ import {
   users,
 } from "../drizzle/schema";
 import { nanoid } from "nanoid";
-import { FREE_TRIAL_DAYS } from "@shared/pricing";
+import { FREE_TRIAL_DAYS, INVITE_EXPIRY_DAYS } from "@shared/pricing";
 
 /** Safely parse user preferences JSON. */
 function parseUserPrefs(raw: string | null | undefined): Record<string, any> {
@@ -200,7 +200,7 @@ export const schoolRouter = router({
         invitedEmail: input.email,
         role: input.role,
         token,
-        expiresAt: new Date(Date.now() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + INVITE_EXPIRY_DAYS * 24 * 60 * 60 * 1000),
       });
 
       // TODO: Send invite email via SMTP

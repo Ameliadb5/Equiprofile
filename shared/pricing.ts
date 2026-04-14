@@ -97,6 +97,9 @@ export const SCHOOL_PRICING = {
 /** Free trial duration in days — applies to ALL plans (individual, student, and school). */
 export const FREE_TRIAL_DAYS = 7;
 
+/** Duration in days before an organization invite link expires. */
+export const INVITE_EXPIRY_DAYS = 7;
+
 /** Convert pence amount to formatted GBP string (e.g. 1000 → "10.00") */
 export function penceToGBP(pence: number): string {
   return (pence / 100).toFixed(2);

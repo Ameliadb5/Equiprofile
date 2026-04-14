@@ -1988,13 +1988,34 @@ function ResourcesView() {
   const [description, setDescription] = useState("");
   const [shareScope, setShareScope] = useState<"all" | "group" | "individual">("all");
   const [fileType, setFileType] = useState<"pdf" | "image" | "document">("pdf");
+  const [fileData, setFileData] = useState<{ name: string; data: string; mimeType: string } | null>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { alert("File too large (max 10MB)"); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1] || "";
+      setFileData({ name: file.name, data: base64, mimeType: file.type });
+      // Auto-detect file type
+      if (file.type.includes("pdf")) setFileType("pdf");
+      else if (file.type.startsWith("image/")) setFileType("image");
+      else setFileType("document");
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleCreate = () => {
     if (!title.trim()) return;
+    // Use the real file name if available, or generate a placeholder path
+    const url = fileData
+      ? `/uploads/resources/${Date.now()}-${fileData.name.replace(/\s+/g, "-")}`
+      : `/uploads/resources/${Date.now()}-${title.trim().replace(/\s+/g, "-").toLowerCase()}.${fileType}`;
     createMutation.mutate({
       title: title.trim(),
       description: description.trim() || undefined,
-      fileUrl: `/uploads/resources/${Date.now()}-${title.trim().replace(/\s+/g, "-").toLowerCase()}`,
+      fileUrl: url,
       fileType,
       shareScope,
     });
@@ -2063,11 +2084,18 @@ function ResourcesView() {
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">File (PDF, Image, Document)</label>
-              <div className="border-2 border-dashed border-white/[0.1] rounded-lg p-6 text-center hover:border-emerald-500/30 transition-colors cursor-pointer">
+              <label className="border-2 border-dashed border-white/[0.1] rounded-lg p-6 text-center hover:border-emerald-500/30 transition-colors cursor-pointer block">
+                <input type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" onChange={handleFileSelect} className="hidden" />
                 <FolderOpen className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-                <p className="text-xs text-gray-500">Click to upload or drag & drop</p>
-                <p className="text-[10px] text-gray-600 mt-1">PDF, PNG, JPG, DOC up to 10MB</p>
-              </div>
+                {fileData ? (
+                  <p className="text-xs text-emerald-400">✓ {fileData.name}</p>
+                ) : (
+                  <>
+                    <p className="text-xs text-gray-500">Click to upload or drag & drop</p>
+                    <p className="text-[10px] text-gray-600 mt-1">PDF, PNG, JPG, DOC up to 10MB</p>
+                  </>
+                )}
+              </label>
             </div>
             <div className="flex gap-2">
               <button
