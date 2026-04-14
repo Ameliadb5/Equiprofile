@@ -1693,15 +1693,26 @@ function ScenarioCard({
 function ScenarioTrainingView() {
   const { data: levelData } = trpc.student.getLearnerLevel.useQuery();
   const currentLevel = levelData?.level ?? "beginner";
+  const utils = trpc.useUtils();
 
   const [levelFilter, setLevelFilter] = useState<string>(currentLevel);
-  const { data: scenarios, isLoading } = trpc.student.listScenarios.useQuery(
-    { level: levelFilter as "beginner" | "developing" | "intermediate" | "advanced" },
-  );
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+
+  // Pass completed IDs as excludeIds for rotation control
+  const { data: scenarios, isLoading } = trpc.student.listScenarios.useQuery(
+    {
+      level: levelFilter as "beginner" | "developing" | "intermediate" | "advanced",
+      excludeIds: Array.from(completedIds),
+      limit: 8,
+    },
+  );
 
   const handleAnswered = (id: string) => {
     setCompletedIds((prev) => new Set(Array.from(prev).concat(id)));
+  };
+
+  const handleLoadMore = () => {
+    utils.student.listScenarios.invalidate();
   };
 
   if (isLoading) return <SCard><SkeletonBar className="w-full h-32" /></SCard>;
@@ -1710,15 +1721,27 @@ function ScenarioTrainingView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <SectionHeading icon={Zap} title="Scenario Training" />
-        {completedIds.size > 0 && (
-          <span className="text-xs text-emerald-400">{completedIds.size} answered this session</span>
-        )}
+        <div className="flex items-center gap-3">
+          {completedIds.size > 0 && (
+            <span className="text-xs text-emerald-400 flex items-center gap-1">
+              <Flame className="w-3 h-3" />{completedIds.size} answered this session
+            </span>
+          )}
+          {completedIds.size >= 4 && (
+            <button
+              onClick={handleLoadMore}
+              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1"
+            >
+              <ArrowRight className="w-3 h-3" />Load new scenarios
+            </button>
+          )}
+        </div>
       </div>
 
       <p className="text-sm text-gray-500 -mt-2">
-        Real-world decision scenarios to develop your equestrian judgement. Work through situations you'll face in the yard, stable, and arena.
+        Real-world decision scenarios to develop your equestrian judgement. Scenarios are randomised — you'll see fresh ones each session.
       </p>
 
       {/* Level filter */}
@@ -1728,7 +1751,7 @@ function ScenarioTrainingView() {
           return (
             <button
               key={l}
-              onClick={() => setLevelFilter(l)}
+              onClick={() => { setLevelFilter(l); setCompletedIds(new Set()); }}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
                 levelFilter === l ? "text-white border-transparent" : "border-white/10 text-gray-500 hover:text-gray-300 hover:border-white/20"
               }`}
@@ -1763,9 +1786,19 @@ function ScenarioTrainingView() {
 }
 
 // ─── Lessons View ─────────────────────────────────────────────
-const PATHWAY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const PATHWAY_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Heart, Eye, Shield, BookOpen, Target, TrendingUp,
+  Zap, Award, Star, Brain, Flame,
 };
+
+/** Estimate reading time: ~15 min per lesson unit */
+function estimatePathwayTime(lessonCount: number): string {
+  const mins = lessonCount * 15;
+  if (mins < 60) return `${mins} min`;
+  const hrs = Math.floor(mins / 60);
+  const rem = mins % 60;
+  return rem > 0 ? `${hrs}h ${rem}m` : `${hrs}h`;
+}
 
 function LessonsView() {
   const { data: pathways, isLoading: loadingPathways } = trpc.student.listLessonPathways.useQuery();
@@ -1863,6 +1896,7 @@ function LessonsView() {
                   {lessonDetail.level}
                 </span>
                 <span className="text-xs text-gray-500">{lessonDetail.category}</span>
+                <span className="text-xs text-gray-600 flex items-center gap-1"><Clock className="w-3 h-3" />~15 min</span>
                 {isCompleted && <span className="text-xs text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Completed</span>}
               </div>
               <h2 className="text-xl font-bold text-white">{lessonDetail.title}</h2>
@@ -2215,26 +2249,34 @@ function LessonsView() {
             pathways?.map((pw) => {
               const pwLessons = (lessons ?? []).filter((l) => l.pathwaySlug === pw.slug);
               const pwCompleted = pwLessons.filter((l) => completedSlugs.has(l.slug)).length;
+              const estTime = estimatePathwayTime(pwLessons.length);
+              const IconComp = PATHWAY_ICON_MAP[pw.iconName ?? ""] ?? Library;
               return (
                 <button key={pw.slug} onClick={() => setSelectedPathway(pw.slug)}
                   className="text-left rounded-xl p-5 transition-all hover:scale-[1.01] hover:border-indigo-500/40"
                   style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-9 h-9 rounded-lg bg-indigo-500/20 flex items-center justify-center">
-                      <Library className="w-4 h-4 text-indigo-400" />
+                      <IconComp className="w-4 h-4 text-indigo-400" />
                     </div>
                     <h3 className="text-sm font-semibold text-white">{pw.title}</h3>
                   </div>
                   <p className="text-xs text-gray-400 line-clamp-2 mb-3">{pw.description}</p>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs text-gray-500">{pwLessons.length} lessons</span>
                     {pwLessons.length > 0 && (
                       <>
+                        <span className="text-xs text-gray-600">·</span>
+                        <span className="text-xs text-gray-500 flex items-center gap-1"><Clock className="w-3 h-3" />{estTime}</span>
+                        <span className="text-xs text-gray-600">·</span>
                         <span className="text-xs text-emerald-400">{pwCompleted} done</span>
-                        <div className="flex-1 h-1 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="flex-1 h-1 bg-gray-700 rounded-full overflow-hidden min-w-[40px]">
                           <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(pwCompleted / pwLessons.length) * 100}%` }} />
                         </div>
                       </>
+                    )}
+                    {pwLessons.length === 0 && (
+                      <span className="text-xs text-gray-600 italic">Coming soon</span>
                     )}
                   </div>
                 </button>
@@ -2267,11 +2309,12 @@ function LessonsView() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-white truncate">{lesson.title}</h4>
-                    <div className="flex items-center gap-2 mt-0.5">
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${levelColors[lesson.level] ?? ""}`}>
                         {lesson.level}
                       </span>
                       <span className="text-[10px] text-gray-500">{lesson.category}</span>
+                      <span className="text-[10px] text-gray-600 flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />~15 min</span>
                     </div>
                   </div>
                   <ArrowRight className="w-4 h-4 text-gray-600 shrink-0" />
