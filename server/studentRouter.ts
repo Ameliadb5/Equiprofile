@@ -511,7 +511,7 @@ const SCENARIO_DATA: Scenario[] = [
       { id: "c", text: "Jump off the horse immediately.", isCorrect: false, explanation: "Jumping from a bolting horse at speed significantly increases injury risk for both horse and rider. The one-rein stop is a safer and more effective first response." },
       { id: "d", text: "Let the horse run — he will tire and stop on his own.", isCorrect: false, explanation: "While a horse may eventually stop, allowing an uncontrolled bolt in an arena or open space creates significant hazards. Actively managing the situation is correct." },
     ],
-    learningTakeaway: "For a bolting horse, use the one-rein pulley stop: one rein to the hip, bend into a circle. Stay balanced. Direct pulback with both reins can cause rearing.",
+    learningTakeaway: "For a bolting horse, use the one-rein pulley stop: one rein to the hip, bend into a circle. Stay balanced. Direct pull-back with both reins can cause rearing.",
   },
   {
     id: "s024",
