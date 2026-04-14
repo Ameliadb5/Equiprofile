@@ -576,7 +576,7 @@ export const appRouter = router({
     createCheckout: protectedProcedure
       .input(
         z.object({
-          plan: z.enum(["pro", "stable"]).default("pro"),
+          plan: z.enum(["student", "pro", "stable", "school_10", "school_20", "school_50"]).default("pro"),
           interval: z.enum(["monthly", "yearly"]).default("monthly"),
         }),
       )
@@ -594,17 +594,23 @@ export const appRouter = router({
           throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
         }
 
-        const planConfig =
-          input.plan === "stable" ? PRICING_PLANS.stable : PRICING_PLANS.pro;
+        const planConfig = PRICING_PLANS[input.plan as keyof typeof PRICING_PLANS];
+        if (!planConfig || !("monthly" in planConfig)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid plan selected",
+          });
+        }
+
         const priceId =
           input.interval === "yearly"
-            ? planConfig.yearly.priceId
-            : planConfig.monthly.priceId;
+            ? (planConfig as any).yearly.priceId
+            : (planConfig as any).monthly.priceId;
 
         if (!priceId) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "Stripe price ID not configured",
+            message: "Stripe price ID not configured for this plan",
           });
         }
 

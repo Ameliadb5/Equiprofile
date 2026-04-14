@@ -32,6 +32,10 @@ import {
   studentCompetencies,
   teacherLessonAssignments,
   lessonReviews,
+  teacherStudentMessages,
+  studentAssignments,
+  teacherResources,
+  studentReports,
 } from "../drizzle/schema";
 import { LESSON_PATHWAYS, LESSON_UNITS } from "./lessonContent";
 
@@ -2082,5 +2086,180 @@ export const studentRouter = router({
     }
 
     return { generated: inserted.length, tasks: inserted };
+  }),
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STUDENT MESSAGING — Student side of teacher ↔ student messages
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /** Send a message to a teacher. */
+  sendMessageToTeacher: studentProcedure
+    .input(z.object({
+      teacherId: z.number(),
+      content: z.string().min(1).max(5000),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+      const [result] = await dbConn.insert(teacherStudentMessages).values({
+        teacherId: input.teacherId,
+        studentId: ctx.user.id,
+        senderRole: "student",
+        content: input.content,
+      });
+      return { id: result.insertId };
+    }),
+
+  /** Get messages between this student and a specific teacher. */
+  getTeacherMessages: studentProcedure
+    .input(z.object({ teacherId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+      const msgs = await dbConn.select()
+        .from(teacherStudentMessages)
+        .where(and(
+          eq(teacherStudentMessages.teacherId, input.teacherId),
+          eq(teacherStudentMessages.studentId, ctx.user.id),
+        ))
+        .orderBy(teacherStudentMessages.createdAt);
+
+      // Mark unread messages from teacher as read
+      await dbConn.update(teacherStudentMessages)
+        .set({ isRead: true })
+        .where(and(
+          eq(teacherStudentMessages.teacherId, input.teacherId),
+          eq(teacherStudentMessages.studentId, ctx.user.id),
+          eq(teacherStudentMessages.senderRole, "teacher"),
+          eq(teacherStudentMessages.isRead, false),
+        ));
+
+      return msgs.map((m) => ({
+        id: m.id,
+        from: m.senderRole as "teacher" | "student",
+        text: m.content,
+        time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
+        createdAt: m.createdAt,
+      }));
+    }),
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STUDENT ASSIGNMENTS — View & submit assignments
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /** List assignments assigned to this student. */
+  listMyAssignments: studentProcedure.query(async ({ ctx }) => {
+    const dbConn = await getDb();
+    if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+    return dbConn.select({
+      id: studentAssignments.id,
+      teacherId: studentAssignments.teacherId,
+      title: studentAssignments.title,
+      description: studentAssignments.description,
+      dueDate: studentAssignments.dueDate,
+      status: studentAssignments.status,
+      submissionUrl: studentAssignments.submissionUrl,
+      submittedAt: studentAssignments.submittedAt,
+      grade: studentAssignments.grade,
+      feedback: studentAssignments.feedback,
+      reviewedAt: studentAssignments.reviewedAt,
+      createdAt: studentAssignments.createdAt,
+      teacherName: users.name,
+    })
+      .from(studentAssignments)
+      .leftJoin(users, eq(studentAssignments.teacherId, users.id))
+      .where(eq(studentAssignments.studentId, ctx.user.id))
+      .orderBy(desc(studentAssignments.createdAt));
+  }),
+
+  /** Submit work for an assignment. */
+  submitAssignment: studentProcedure
+    .input(z.object({
+      assignmentId: z.number(),
+      submissionUrl: z.string().min(1).max(1000),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+      // Verify this assignment belongs to the student
+      const [assignment] = await dbConn.select()
+        .from(studentAssignments)
+        .where(and(
+          eq(studentAssignments.id, input.assignmentId),
+          eq(studentAssignments.studentId, ctx.user.id),
+        ))
+        .limit(1);
+
+      if (!assignment) throw new TRPCError({ code: "NOT_FOUND", message: "Assignment not found" });
+      if (assignment.status === "reviewed") throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Already reviewed" });
+
+      await dbConn.update(studentAssignments)
+        .set({
+          submissionUrl: input.submissionUrl,
+          submittedAt: new Date(),
+          status: "submitted",
+        })
+        .where(eq(studentAssignments.id, input.assignmentId));
+
+      return { success: true };
+    }),
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STUDENT RESOURCES — View shared resources from teachers
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /** List resources shared with this student. */
+  listSharedResources: studentProcedure.query(async ({ ctx }) => {
+    const dbConn = await getDb();
+    if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+    // Find groups this student is in
+    const memberships = await dbConn.select({ groupId: studentGroupMembers.groupId })
+      .from(studentGroupMembers)
+      .where(eq(studentGroupMembers.studentUserId, ctx.user.id));
+    const groupIds = memberships.map((m) => m.groupId);
+
+    // Get resources shared with: all, this student specifically, or groups they're in
+    const conditions = [
+      eq(teacherResources.shareScope, "all"),
+      and(eq(teacherResources.shareScope, "individual"), eq(teacherResources.studentId, ctx.user.id)),
+    ];
+    if (groupIds.length > 0) {
+      conditions.push(
+        and(eq(teacherResources.shareScope, "group"), inArray(teacherResources.groupId, groupIds)),
+      );
+    }
+
+    return dbConn.select()
+      .from(teacherResources)
+      .where(or(...conditions))
+      .orderBy(desc(teacherResources.createdAt));
+  }),
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STUDENT REPORTS — View reports sent by teachers
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /** List reports sent to this student. */
+  listMyReports: studentProcedure.query(async ({ ctx }) => {
+    const dbConn = await getDb();
+    if (!dbConn) throw new TRPCError({ code: "SERVICE_UNAVAILABLE" });
+
+    return dbConn.select({
+      id: studentReports.id,
+      title: studentReports.title,
+      reportData: studentReports.reportData,
+      sentAt: studentReports.sentAt,
+      createdAt: studentReports.createdAt,
+      teacherName: users.name,
+    })
+      .from(studentReports)
+      .leftJoin(users, eq(studentReports.teacherId, users.id))
+      .where(eq(studentReports.studentId, ctx.user.id))
+      .orderBy(desc(studentReports.createdAt));
   }),
 });

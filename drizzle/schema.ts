@@ -1936,3 +1936,20 @@ export const studentReports = mysqlTable("studentReports", {
 
 export type StudentReport = typeof studentReports.$inferSelect;
 export type InsertStudentReport = typeof studentReports.$inferInsert;
+
+/**
+ * Teacher ↔ Student messages — direct messaging between teachers and their
+ * assigned students. Each message belongs to a teacher-student pair.
+ */
+export const teacherStudentMessages = mysqlTable("teacherStudentMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  teacherId: int("teacherId").notNull(),
+  studentId: int("studentId").notNull(),
+  senderRole: varchar("senderRole", { length: 10 }).notNull(), // 'teacher' | 'student'
+  content: text("content").notNull(),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TeacherStudentMessage = typeof teacherStudentMessages.$inferSelect;
+export type InsertTeacherStudentMessage = typeof teacherStudentMessages.$inferInsert;
