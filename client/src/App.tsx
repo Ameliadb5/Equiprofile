@@ -27,6 +27,7 @@ import Contact from "./pages/Contact";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import Students from "./pages/Students";
+import Schools from "./pages/Schools";
 import { getUIVersion } from "./config/uiVersion";
 
 // Auth Pages — kept eager so login/register loads instantly
@@ -149,6 +150,7 @@ function Router() {
             <Route path="/about" component={About} />
             <Route path="/contact" component={Contact} />
             <Route path="/students" component={Students} />
+            <Route path="/schools" component={Schools} />
             <Route path="/terms" component={TermsPage} />
             <Route path="/privacy" component={PrivacyPage} />
 

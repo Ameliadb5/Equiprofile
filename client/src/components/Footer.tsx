@@ -66,7 +66,7 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm text-gray-400">
               <li>
                 <Link
-                  href="/pricing?type=school"
+                  href="/schools"
                   className="hover:text-white transition-colors"
                 >
                   School Pricing
@@ -74,7 +74,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/students"
+                  href="/schools"
                   className="hover:text-white transition-colors"
                 >
                   Teacher Tools

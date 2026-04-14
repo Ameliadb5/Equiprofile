@@ -98,27 +98,43 @@ export default function Home() {
   const testimonials = [
     {
       name: "Sarah Thompson",
-      role: "Professional Dressage Rider",
+      role: "Dressage Rider & Horse Owner",
       content:
-        "EquiProfile has completely revolutionized how I manage my horses. The health tracking and intelligent reminders have been absolutely invaluable for maintaining peak performance!",
+        "EquiProfile has completely revolutionised how I manage my horses' health records. I used to lose track of vaccination dates and farrier visits — now everything is in one place with smart reminders. My vet was impressed!",
       rating: 5,
       avatar: "ST",
     },
     {
-      name: "Michael Chen",
-      role: "Stable Manager - 25+ Horses",
+      name: "James Whitfield",
+      role: "Riding School Owner — 35 Students",
       content:
-        "Managing a large stable used to be overwhelming. EquiProfile makes it simple, organised, and efficient. The time savings alone have been incredible. Highly recommend!",
+        "We switched from paper-based tracking to EquiProfile for our school and the difference is night and day. Teachers can assign lessons, track student progression, and parents love the progress reports. Worth every penny.",
+      rating: 5,
+      avatar: "JW",
+    },
+    {
+      name: "Emily Hart",
+      role: "BHS Stage 3 Student",
+      content:
+        "The learning pathways are brilliant — I can study equine nutrition and welfare at my own pace, and the daily practice scenarios really test my knowledge. The AI tutor is great for quick questions between lessons.",
+      rating: 5,
+      avatar: "EH",
+    },
+    {
+      name: "Michael Chen",
+      role: "Stable Manager — 25+ Horses",
+      content:
+        "Managing a large stable used to be overwhelming. EquiProfile makes it simple, organised, and efficient. The time savings on health tracking and scheduling alone have been incredible.",
       rating: 5,
       avatar: "MC",
     },
     {
-      name: "Emma Rodriguez",
-      role: "Eventing Trainer & Coach",
+      name: "Lucy Brennan",
+      role: "Equine Studies Teacher",
       content:
-        "The training logs and analytics are phenomenal. I can see progress clearly, identify areas for improvement, and share detailed updates with clients easily. Game-changing!",
+        "Being able to see exactly where each student is in their learning journey is invaluable. I can spot weak areas, set targeted assignments, and track improvement over time. It's transformed my teaching.",
       rating: 5,
-      avatar: "ER",
+      avatar: "LB",
     },
   ];
 
