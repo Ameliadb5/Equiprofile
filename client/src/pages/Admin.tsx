@@ -102,10 +102,16 @@ function getUserPlanTier(user: { preferences?: string | null }): "standard" | "s
   if (!user.preferences) return null;
   try {
     const prefs = JSON.parse(user.preferences);
+    // planTier is the canonical field — check it first for deterministic precedence.
+    // selectedExperience is only used as a fallback for older records that pre-date
+    // the planTier field being set on student/teacher onboarding.
     if (prefs.planTier === "stable" || prefs.bothDashboardsUnlocked) return "stable";
-    if (prefs.planTier === "teacher" || prefs.selectedExperience === "teacher") return "teacher";
-    if (prefs.planTier === "student" || prefs.selectedExperience === "student") return "student";
+    if (prefs.planTier === "teacher") return "teacher";
+    if (prefs.planTier === "student") return "student";
     if (prefs.planTier === "standard" || prefs.planTier === "pro") return "standard";
+    // Fallback for legacy records where only selectedExperience was written
+    if (prefs.selectedExperience === "teacher") return "teacher";
+    if (prefs.selectedExperience === "student") return "student";
     return null;
   } catch {
     return null;

@@ -3071,13 +3071,18 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
         // Only the explicitly chosen dashboard is unlocked — never both by default
         if (input.tier === "stable") {
+          // Stable only needs planTier — ProtectedRoute checks planTier === "stable"
           prefs.planTier = "stable";
           prefs.bothDashboardsUnlocked = false;
         } else if (input.tier === "student") {
+          // Student requires both planTier and selectedExperience because ProtectedRoute
+          // checks: planTier === "student" || selectedExperience === "student"
           prefs.planTier = "student";
           prefs.selectedExperience = "student";
           prefs.bothDashboardsUnlocked = false;
         } else if (input.tier === "teacher") {
+          // Teacher requires both planTier and selectedExperience because ProtectedRoute
+          // checks: planTier === "teacher" || selectedExperience === "teacher"
           prefs.planTier = "teacher";
           prefs.selectedExperience = "teacher";
           prefs.bothDashboardsUnlocked = false;
