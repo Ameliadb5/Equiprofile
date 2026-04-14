@@ -223,6 +223,8 @@ function DashboardContent() {
       setLocation("/stable-dashboard");
     } else if (subscription?.planTier === "student") {
       setLocation("/student-dashboard");
+    } else if (subscription?.planTier === "teacher") {
+      setLocation("/teacher-dashboard");
     }
   }, [user?.role, subscription?.planTier, subscription?.bothDashboardsUnlocked, setLocation]);
 

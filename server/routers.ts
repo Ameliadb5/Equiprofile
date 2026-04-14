@@ -211,8 +211,8 @@ function parseUserPrefs(raw: string | null | undefined): Record<string, any> {
   }
 }
 
-type PlanTier = "free" | "student" | "pro" | "stable";
-const VALID_PLAN_TIERS: readonly PlanTier[] = ["free", "student", "pro", "stable"];
+type PlanTier = "free" | "student" | "teacher" | "pro" | "stable";
+const VALID_PLAN_TIERS: readonly PlanTier[] = ["free", "student", "teacher", "pro", "stable"];
 
 /**
  * Extract and validate planTier from parsed preferences.
@@ -3035,15 +3035,17 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
-    // Grant free access — admin must explicitly choose Standard-only or Stable-only
+    // Grant free access — admin must explicitly choose which dashboard tier to unlock
     grantFreeAccess: adminUnlockedProcedure
       .input(
         z.object({
           userId: z.number(),
           // "standard" = Standard dashboard only (pro tier, no stable)
           // "stable"   = Stable dashboard only (stable tier, no standard)
-          tier: z.enum(["standard", "stable"]),
-          // Duration in days: 30, 60, or 90 (admin-selected per user)
+          // "student"  = Student portal access
+          // "teacher"  = Teacher portal access
+          tier: z.enum(["standard", "stable", "student", "teacher"]),
+          // Duration in days: admin-selected per user
           freeDays: z.number().int().min(1).max(365).default(7),
           // Reason template key for the grant (required — admin must pick a reason)
           reason: z.string().min(1).max(500),
@@ -3067,9 +3069,25 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         prefs.freeAccessUntil = expiryDate.toISOString();
         prefs.freeAccessDays = input.freeDays;
 
-        // Only the explicitly chosen dashboard is unlocked — never both by default
+        // Only the explicitly chosen dashboard is unlocked — never both by default.
+        // bothDashboardsUnlocked = false is set on every branch to prevent a
+        // previous free-access grant from inadvertently leaving it set to true.
         if (input.tier === "stable") {
+          // Stable only needs planTier; bothDashboardsUnlocked is cleared for safety.
           prefs.planTier = "stable";
+          prefs.bothDashboardsUnlocked = false;
+        } else if (input.tier === "student") {
+          // Both planTier and selectedExperience are set:
+          // - parsePlanTier() (server) reads planTier
+          // - ProtectedRoute (client) checks planTier OR selectedExperience
+          // Setting both ensures the check works via either path.
+          prefs.planTier = "student";
+          prefs.selectedExperience = "student";
+          prefs.bothDashboardsUnlocked = false;
+        } else if (input.tier === "teacher") {
+          // Same dual-field pattern as student — see comment above.
+          prefs.planTier = "teacher";
+          prefs.selectedExperience = "teacher";
           prefs.bothDashboardsUnlocked = false;
         } else {
           prefs.planTier = "pro";
