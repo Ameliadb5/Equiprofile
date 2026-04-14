@@ -218,13 +218,13 @@ export default function Home() {
                 className="text-center mb-12"
               >
                 <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 text-white">
-                  Powerful Features Built for{" "}
+                  Powerful Features for{" "}
                   <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-                    Modern Stables
+                    Modern Equestrians
                   </span>
                 </h2>
                 <p className="text-xl text-white/70 max-w-2xl mx-auto">
-                  Discover the tools that make horse management effortless
+                  From health tracking to structured learning — everything you need in one platform
                 </p>
               </motion.div>
 

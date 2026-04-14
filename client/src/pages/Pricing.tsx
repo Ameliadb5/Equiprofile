@@ -116,7 +116,8 @@ export default function Pricing() {
 
   const formatPrice = (amountInPence: number | undefined): string => {
     if (!amountInPence || amountInPence <= 0) return "";
-    return penceToGBP(amountInPence);
+    const value = amountInPence / 100;
+    return value % 1 === 0 ? `£${value}` : `£${value.toFixed(2)}`;
   };
 
   const getStudentPrice = () => {
@@ -220,7 +221,7 @@ export default function Pricing() {
     <MarketingLayout>
       <PageBanner
         title="Pricing"
-        subtitle="Professional equine management for every need"
+        subtitle="Horse management, equestrian learning, and school solutions — plans for every rider and organisation"
         imageSrc="/images/price3.jpg"
         imagePosition="center"
       />
