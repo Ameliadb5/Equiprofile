@@ -1740,9 +1740,9 @@ function TeacherAssignmentsView() {
   if (isLoading) return <TCard><Loader2 className="w-5 h-5 animate-spin text-emerald-600 mx-auto" /></TCard>;
 
   const statusColor: Record<string, string> = {
-    pending: "text-yellow-400 bg-yellow-500/10",
-    submitted: "text-blue-400 bg-blue-500/10",
-    reviewed: "text-emerald-600 bg-emerald-500/10",
+    pending: "text-amber-600 bg-amber-50",
+    submitted: "text-blue-600 bg-blue-50",
+    reviewed: "text-emerald-600 bg-emerald-50",
   };
 
   return (
@@ -1852,9 +1852,9 @@ function TeacherAssignmentsView() {
 
                   {/* Submission info */}
                   {a.status === "submitted" && a.submissionUrl && (
-                    <div className="mt-2 p-2 bg-blue-500/5 border border-blue-500/10 rounded-lg">
-                      <p className="text-xs text-blue-400 font-medium">📄 Submission received</p>
-                      <a href={a.submissionUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-300 underline mt-1 inline-block">
+                    <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs text-blue-600 font-medium">📄 Submission received</p>
+                      <a href={a.submissionUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline mt-1 inline-block">
                         View submission
                       </a>
                     </div>

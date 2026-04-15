@@ -1254,7 +1254,7 @@ function StudyHubView() {
                     {expandedTopic === topic.id && topic.description && (
                       <div
                         className="mt-1 rounded-xl border p-4 text-sm text-slate-600"
-                        style={{ backgroundColor: "#1a2240", borderColor: STUDENT_BORDER }}
+                        style={{ backgroundColor: STUDENT_CARD, borderColor: STUDENT_BORDER }}
                       >
                         <p className="text-sm text-slate-600 leading-relaxed">{topic.description}</p>
                         <div className="mt-3 pt-3 border-t border-slate-200">
@@ -2788,7 +2788,7 @@ function StudentSettingsView({ onNavigate }: { onNavigate: (v: ActiveView) => vo
         <h3 className="text-sm font-semibold text-rose-600 uppercase tracking-wider mb-3">Account</h3>
         <button
           onClick={logout}
-          className="flex items-center gap-2 text-sm text-rose-600 hover:text-rose-300 transition-colors"
+          className="flex items-center gap-2 text-sm text-rose-600 hover:text-rose-500 transition-colors"
         >
           <LogOut className="w-4 h-4" /> Sign out
         </button>
