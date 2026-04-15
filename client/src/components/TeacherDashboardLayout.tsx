@@ -106,17 +106,17 @@ function SidebarNav({
   return (
     <div className="flex flex-col h-full">
       {/* Logo / brand */}
-      <div className="px-5 py-5 border-b border-white/[0.06]">
+      <div className="px-5 py-5 border-b border-slate-200">
         <div className="flex items-center gap-3">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm"
             style={{ background: `linear-gradient(135deg, ${TEACHER_ACCENT}, #059669)` }}
           >
             <GraduationCap className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white">EquiProfile</p>
-            <p className="text-[10px]" style={{ color: TEACHER_ACCENT }}>Instructor Portal</p>
+            <p className="text-sm font-bold text-slate-800">EquiProfile</p>
+            <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: TEACHER_ACCENT }}>Instructor Portal</p>
           </div>
         </div>
       </div>
@@ -131,11 +131,10 @@ function SidebarNav({
               key={item.view}
               onClick={() => { onNavigate(item.view); onClose?.(); }}
               className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all ${
-                isActive ? "text-white" : "text-gray-400 hover:text-white hover:bg-white/[0.04]"
+                isActive ? "bg-emerald-50 text-emerald-700" : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
               }`}
-              style={isActive ? { background: `${TEACHER_ACCENT}20`, color: TEACHER_ACCENT } : {}}
             >
-              <Icon className="w-4 h-4 shrink-0" />
+              <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-emerald-500" : "text-slate-400"}`} />
               {item.label}
             </button>
           );
@@ -143,39 +142,39 @@ function SidebarNav({
       </nav>
 
       {/* Footer: settings, billing, logout */}
-      <div className="px-3 py-4 border-t border-white/[0.06] space-y-0.5">
+      <div className="px-3 py-4 border-t border-slate-200 space-y-0.5">
         <button
           onClick={() => { setLocation("/settings"); onClose?.(); }}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/[0.04] transition-all"
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all"
         >
           <Settings className="w-4 h-4" /> Settings
         </button>
         <button
           onClick={() => { setLocation("/billing"); onClose?.(); }}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/[0.04] transition-all"
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all"
         >
           <DollarSign className="w-4 h-4" /> Billing
         </button>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.06] transition-all"
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-red-500 hover:text-red-600 hover:bg-red-50 transition-all"
         >
           <LogOut className="w-4 h-4" /> Sign Out
         </button>
       </div>
 
       {/* User info */}
-      <div className="px-4 py-4 border-t border-white/[0.06]">
+      <div className="px-4 py-4 border-t border-slate-200">
         <div className="flex items-center gap-3">
           <Avatar className="w-8 h-8">
             {user?.profileImageUrl && <AvatarImage src={user.profileImageUrl} />}
-            <AvatarFallback className="text-xs font-semibold" style={{ backgroundColor: `${TEACHER_ACCENT}30`, color: TEACHER_ACCENT }}>
+            <AvatarFallback className="text-xs font-semibold bg-emerald-50 text-emerald-600">
               {initials}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-white truncate">{user?.name ?? "Instructor"}</p>
-            <p className="text-[10px] text-gray-500 truncate">{user?.email ?? ""}</p>
+            <p className="text-xs font-semibold text-slate-700 truncate">{user?.name ?? "Instructor"}</p>
+            <p className="text-[10px] text-slate-400 truncate">{user?.email ?? ""}</p>
           </div>
         </div>
       </div>
@@ -190,15 +189,15 @@ function AdminViewIndicator() {
   const { exitViewMode } = useAdminViewMode();
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border-b border-emerald-500/20 shrink-0">
-      <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-      <span className="text-xs font-semibold text-emerald-300">
+    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border-b border-emerald-200 shrink-0">
+      <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+      <span className="text-xs font-semibold text-emerald-600">
         Admin Preview — Teacher Portal
       </span>
       <div className="flex-1" />
       <button
         onClick={() => { exitViewMode(); setLocation("/admin"); }}
-        className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-colors"
       >
         <ShieldCheck className="w-3.5 h-3.5" />
         Back to Admin
@@ -233,19 +232,19 @@ export default function TeacherDashboardLayout({
   };
 
   return (
-    <div className="flex h-screen bg-[#0e1117] overflow-hidden">
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
       {/* Sidebar — desktop */}
-      <aside className="hidden md:flex flex-col w-60 border-r border-white/[0.06] bg-[#0e1520]">
+      <aside className="hidden md:flex flex-col w-60 border-r border-slate-200 bg-white">
         <SidebarNav activeView={activeView} onNavigate={onNavigate} />
       </aside>
 
       {/* Mobile sidebar overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-64 bg-[#0e1520] border-r border-white/[0.06] flex flex-col z-10">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileOpen(false)} />
+          <aside className="absolute left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 flex flex-col z-10">
             <div className="flex justify-end px-4 pt-4">
-              <button onClick={() => setMobileOpen(false)} className="text-gray-400 hover:text-white p-1">
+              <button onClick={() => setMobileOpen(false)} className="text-slate-400 hover:text-slate-600 p-1">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -260,16 +259,16 @@ export default function TeacherDashboardLayout({
         {isAdmin && <AdminViewIndicator />}
 
         {/* Topbar */}
-        <header className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06] bg-[#0e1520] shrink-0">
+        <header className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-white shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden text-gray-400 hover:text-white p-2 -ml-1 rounded-lg hover:bg-white/[0.06] transition-colors"
+              className="md:hidden text-slate-500 hover:text-slate-700 p-2 -ml-1 rounded-lg hover:bg-slate-100 transition-colors"
               aria-label="Open menu"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-base font-semibold text-white">{viewLabels[activeView]}</h1>
+            <h1 className="text-base font-semibold text-slate-800">{viewLabels[activeView]}</h1>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
