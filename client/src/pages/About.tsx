@@ -70,7 +70,7 @@ export default function About() {
 
   return (
     <MarketingLayout>
-      <div className="min-h-screen bg-[#0a1628] relative overflow-hidden">
+      <div className="min-h-screen bg-[#0b1726] relative overflow-hidden">
         {/* Background Gradient Overlays */}
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/40 via-[#071428] to-cyan-950/40 pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/30 via-transparent to-transparent pointer-events-none" />
@@ -103,7 +103,7 @@ export default function About() {
 
               <AnimatedSection>
                 <div>
-                  <h2 className="text-3xl md:text-4xl font-bold font-serif mb-6 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                  <h2 className="text-3xl md:text-4xl font-bold font-serif mb-6 bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                     Our Story
                   </h2>
                   <div className="space-y-4 text-gray-300">
@@ -138,15 +138,15 @@ export default function About() {
           </section>
 
           {/* Mission Section */}
-          <section className="py-16 bg-[#0f2040]/60">
+          <section className="py-16 bg-[#101f3a]/60">
             <div className="container mx-auto px-4">
             <AnimatedSection>
               <div className="relative max-w-6xl mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 rounded-3xl blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#3a93b8]/10 to-[#5b8def]/10 rounded-3xl blur-3xl" />
                 <div className="relative backdrop-blur-md bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 hover:bg-white/10 hover:border-white/20 transition-all duration-500 hover:shadow-[0_0_50px_rgba(99,102,241,0.3)] group">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                     <div>
-                      <h2 className="text-3xl md:text-4xl font-bold font-serif mb-6 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                      <h2 className="text-3xl md:text-4xl font-bold font-serif mb-6 bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                         Our Mission
                       </h2>
                       <p className="text-lg text-gray-300 mb-6">
@@ -165,7 +165,7 @@ export default function About() {
                       </p>
                     </div>
                     <div className="relative aspect-square rounded-2xl overflow-hidden backdrop-blur-md bg-white/5 border border-white/10 p-4 hover:border-white/20 transition-all duration-300">
-                      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-cyan-500/20" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#3a93b8]/20 to-[#5b8def]/20" />
                       <img
                         src="/images/hero/image4.jpg"
                         alt="Our Mission"
@@ -186,7 +186,7 @@ export default function About() {
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4 text-white">
                   Our{" "}
-                  <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                     Core Values
                   </span>
                 </h2>
@@ -227,13 +227,13 @@ export default function About() {
           </section>
 
           {/* Team Section */}
-          <section className="py-16 bg-[#0f2040]/60">
+          <section className="py-16 bg-[#101f3a]/60">
             <div className="container mx-auto px-4">
             <AnimatedSection>
               <div className="max-w-4xl mx-auto text-center">
                 <h2 className="text-3xl md:text-4xl font-bold font-serif mb-6 text-white">
                   Built by{" "}
-                  <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                     Equestrians
                   </span>
                   , for Equestrians
@@ -263,7 +263,7 @@ export default function About() {
             <div className="container mx-auto px-4">
             <AnimatedSection>
               <div className="relative max-w-4xl mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 rounded-3xl blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#3a93b8]/20 to-[#5b8def]/20 rounded-3xl blur-3xl" />
                 <div className="relative backdrop-blur-md bg-white/5 border-2 border-white/20 rounded-3xl p-8 md:p-12 hover:bg-white/10 hover:border-white/30 transition-all duration-500 hover:shadow-[0_0_60px_rgba(99,102,241,0.4)]">
                   <div className="text-center">
                     <Heart className="w-16 h-16 text-indigo-400 mx-auto mb-6" />
@@ -279,7 +279,7 @@ export default function About() {
                       <Link href="/register">
                         <Button
                           size="lg"
-                          className="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white group"
+                          className="bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#1a5276] hover:to-[#4a7dd4] text-white group"
                         >
                           Start Free Trial
                           <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

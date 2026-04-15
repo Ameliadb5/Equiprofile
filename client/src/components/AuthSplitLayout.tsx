@@ -22,7 +22,7 @@ interface AuthSplitLayoutProps {
  */
 export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
   return (
-    <div className="w-full relative flex flex-col min-h-screen md:flex-row md:bg-[#0a1628]">
+    <div className="w-full relative flex flex-col min-h-screen md:flex-row md:bg-[#0b1726]">
       {/* Image slider panel — absolute full-bg on mobile, left 50% on desktop.
           No top padding so it extends behind the fixed navbar. */}
       <div className="absolute inset-0 z-0 md:sticky md:top-0 md:inset-auto md:z-auto md:w-1/2 md:flex-shrink-0 md:h-screen overflow-hidden">
@@ -48,7 +48,7 @@ export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
           "relative z-10 w-full flex items-center justify-center px-4 py-8",
           "pt-[72px] min-h-screen",
           // desktop: fill remaining width, allow natural scroll
-          "md:w-1/2 md:pb-8 md:pt-[72px] md:bg-[#0a1628] md:border-l md:border-white/5",
+          "md:w-1/2 md:pb-8 md:pt-[72px] md:bg-[#0b1726] md:border-l md:border-white/5",
         ].join(" ")}
       >
         <div className="w-full max-w-md">{children}</div>

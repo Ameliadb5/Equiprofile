@@ -45,7 +45,7 @@ function PassportContent({ token }: { token: string }) {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
       {/* Branded Header */}
-      <div className="bg-gradient-to-r from-[#0a1628] to-[#0f2e6b] rounded-lg p-5 mb-4">
+      <div className="bg-gradient-to-r from-[#0b1726] to-[#0f2e6b] rounded-lg p-5 mb-4">
         <div className="flex items-center gap-4">
           <img
             src="/logo.png"

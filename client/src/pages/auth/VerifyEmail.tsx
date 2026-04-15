@@ -117,7 +117,7 @@ export default function VerifyEmail() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="bg-[#0a1628]/70 backdrop-blur-xl border border-white/10 shadow-2xl">
+            <Card className="bg-[#0b1726]/70 backdrop-blur-xl border border-white/10 shadow-2xl">
               <CardHeader className="space-y-3 pb-2">
                 <div className="flex justify-center mb-4">
                   {status === "verifying" && (
@@ -181,7 +181,7 @@ export default function VerifyEmail() {
                     <Button
                       onClick={handleResend}
                       disabled={resendLoading || !resendEmail}
-                      className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 h-12"
+                      className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 h-12"
                     >
                       {resendLoading ? (
                         <>

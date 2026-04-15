@@ -192,7 +192,7 @@ export default function Login() {
             </Link>
 
             {/* Login Form Card */}
-            <Card className="bg-[#0a1628]/70 backdrop-blur-xl border border-white/10 shadow-2xl">
+            <Card className="bg-[#0b1726]/70 backdrop-blur-xl border border-white/10 shadow-2xl">
               <CardHeader className="space-y-3 pb-2">
                 {/* Brand logo */}
                 <div className="flex justify-center mb-2">
@@ -202,14 +202,14 @@ export default function Login() {
                 {/* Step indicator */}
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <div
-                    className={`h-1.5 w-12 rounded-full transition-colors duration-300 ${step >= 1 ? "bg-gradient-to-r from-indigo-500 to-cyan-500" : "bg-white/10"}`}
+                    className={`h-1.5 w-12 rounded-full transition-colors duration-300 ${step >= 1 ? "bg-gradient-to-r from-[#3a93b8] to-[#5b8def]" : "bg-white/10"}`}
                   />
                   <div
-                    className={`h-1.5 w-12 rounded-full transition-colors duration-300 ${step >= 2 ? "bg-gradient-to-r from-indigo-500 to-cyan-500" : "bg-white/10"}`}
+                    className={`h-1.5 w-12 rounded-full transition-colors duration-300 ${step >= 2 ? "bg-gradient-to-r from-[#3a93b8] to-[#5b8def]" : "bg-white/10"}`}
                   />
                 </div>
 
-                <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                   Welcome back
                 </CardTitle>
                 <CardDescription className="text-center text-gray-400">
@@ -244,7 +244,7 @@ export default function Login() {
                       <Button
                         onClick={handleResendVerification}
                         disabled={resendingVerification}
-                        className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 h-12"
+                        className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 h-12"
                       >
                         {resendingVerification ? (
                           <>
@@ -320,7 +320,7 @@ export default function Login() {
 
                       <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
+                        className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-12 text-base"
                       >
                         Continue
                         <ArrowRight className="w-4 h-4 ml-2" />
@@ -358,7 +358,7 @@ export default function Login() {
                           </Label>
                           <Link
                             href="/forgot-password"
-                            className="text-sm bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
+                            className="text-sm bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
                           >
                             Forgot password?
                           </Link>
@@ -381,7 +381,7 @@ export default function Login() {
 
                       <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
+                        className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-12 text-base"
                         disabled={isLoading}
                       >
                         {isLoading ? (
@@ -403,7 +403,7 @@ export default function Login() {
                     <span className="w-full border-t border-white/10" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#0a1628]/60 px-2 text-gray-400">
+                    <span className="bg-[#0b1726]/60 px-2 text-gray-400">
                       Or
                     </span>
                   </div>
@@ -414,7 +414,7 @@ export default function Login() {
                   <span className="text-gray-400">Don't have an account? </span>
                   <Link
                     href="/register"
-                    className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent font-medium hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
+                    className="bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent font-medium hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
                   >
                     Create account
                   </Link>

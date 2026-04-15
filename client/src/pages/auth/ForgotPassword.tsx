@@ -77,12 +77,12 @@ export default function ForgotPassword() {
               Back to login
             </Link>
 
-            <Card className="bg-[#0a1628]/70 backdrop-blur-xl border border-white/10 shadow-2xl">
+            <Card className="bg-[#0b1726]/70 backdrop-blur-xl border border-white/10 shadow-2xl">
               <CardHeader className="space-y-3 pb-2">
                 <div className="flex justify-center mb-2">
                   <img src="/logo.png" alt="EquiProfile" className="h-14 w-auto object-contain" />
                 </div>
-                <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                   Forgot password?
                 </CardTitle>
                 <CardDescription className="text-center text-gray-400">
@@ -161,7 +161,7 @@ export default function ForgotPassword() {
                     {/* Submit button */}
                     <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
+                      className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-12 text-base"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -180,7 +180,7 @@ export default function ForgotPassword() {
                       </span>
                       <Link
                         href="/login"
-                        className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent font-medium hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
+                        className="bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent font-medium hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
                       >
                         Sign in
                       </Link>

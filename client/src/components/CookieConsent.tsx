@@ -75,7 +75,7 @@ export function CookieConsent() {
               <Button
                 size="sm"
                 onClick={() => persist("accepted")}
-                className="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0"
+                className="bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0"
               >
                 Accept
               </Button>

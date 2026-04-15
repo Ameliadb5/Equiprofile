@@ -1566,7 +1566,7 @@ function TrainingTemplatesContent() {
       {/* Predesigned Templates Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#3a93b8]/20 to-[#5b8def]/20 flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-indigo-500" />
           </div>
           <div>
@@ -1628,7 +1628,7 @@ function TrainingTemplatesContent() {
                     variant="default"
                     onClick={() => handleAddPredesignedTemplate(predesigned)}
                     disabled={usePredesignedMutation.isPending}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700"
+                    className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#1a5276] hover:to-[#4a7dd4]"
                   >
                     <Plus className="w-3 h-3 mr-1" />
                     Use This Template

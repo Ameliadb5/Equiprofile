@@ -198,8 +198,8 @@ export function AIChatBox({
       style={{ height }}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b bg-gradient-to-r from-indigo-600/15 via-purple-500/10 to-cyan-500/10">
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shadow-sm">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b bg-gradient-to-r from-[#2e86ab]/15 via-purple-500/10 to-[#5b8def]/10">
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#3a93b8] to-[#5b8def] flex items-center justify-center shadow-sm">
           <Sparkles className="size-3.5 text-white" />
         </div>
         <div className="flex-1">
@@ -216,7 +216,7 @@ export function AIChatBox({
           <div className="flex h-full flex-col p-6">
             <div className="flex flex-1 flex-col items-center justify-center gap-4 text-muted-foreground">
               <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#3a93b8]/20 to-[#5b8def]/20 flex items-center justify-center">
                   <Sparkles className="size-6 text-indigo-400" />
                 </div>
                 <p className="text-sm font-medium">{emptyStateMessage}</p>
@@ -263,7 +263,7 @@ export function AIChatBox({
                     }
                   >
                     {message.role === "assistant" && (
-                      <div className="size-7 shrink-0 mt-0.5 rounded-lg bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 flex items-center justify-center">
+                      <div className="size-7 shrink-0 mt-0.5 rounded-lg bg-gradient-to-br from-[#3a93b8]/20 to-[#5b8def]/20 flex items-center justify-center">
                         <Sparkles className="size-3.5 text-indigo-500" />
                       </div>
                     )}
@@ -305,7 +305,7 @@ export function AIChatBox({
                       : undefined
                   }
                 >
-                  <div className="size-7 shrink-0 mt-0.5 rounded-lg bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 flex items-center justify-center">
+                  <div className="size-7 shrink-0 mt-0.5 rounded-lg bg-gradient-to-br from-[#3a93b8]/20 to-[#5b8def]/20 flex items-center justify-center">
                     <Sparkles className="size-3.5 text-indigo-500" />
                   </div>
                   <div className="rounded-xl bg-muted/80 px-3.5 py-2">
