@@ -33,18 +33,26 @@ mkdir -p "$MERGED_ASSETS"
 
 # Copy management assets
 if [ -d "$MGMT_ASSETS" ]; then
-  cp -n "$MGMT_ASSETS"/* "$MERGED_ASSETS"/ 2>/dev/null || true
-  MGMT_COUNT=$(ls -1 "$MGMT_ASSETS" 2>/dev/null | wc -l)
-  echo "   ✓ Management assets: $MGMT_COUNT files"
+  MGMT_COUNT=$(find "$MGMT_ASSETS" -type f | wc -l)
+  if [ "$MGMT_COUNT" -gt 0 ]; then
+    cp -r --update=none "$MGMT_ASSETS"/. "$MERGED_ASSETS"/
+    echo "   ✓ Management assets: $MGMT_COUNT files"
+  else
+    echo "   ⚠ Management assets directory exists but is empty"
+  fi
 else
   echo "   ⚠ Management assets not found at $MGMT_ASSETS"
 fi
 
-# Copy school assets (cp -n = no-clobber, skip if exists)
+# Copy school assets (cp -rn = recursive, no-clobber)
 if [ -d "$SCHOOL_ASSETS" ]; then
-  cp -n "$SCHOOL_ASSETS"/* "$MERGED_ASSETS"/ 2>/dev/null || true
-  SCHOOL_COUNT=$(ls -1 "$SCHOOL_ASSETS" 2>/dev/null | wc -l)
-  echo "   ✓ School assets: $SCHOOL_COUNT files"
+  SCHOOL_COUNT=$(find "$SCHOOL_ASSETS" -type f | wc -l)
+  if [ "$SCHOOL_COUNT" -gt 0 ]; then
+    cp -r --update=none "$SCHOOL_ASSETS"/. "$MERGED_ASSETS"/
+    echo "   ✓ School assets: $SCHOOL_COUNT files"
+  else
+    echo "   ⚠ School assets directory exists but is empty"
+  fi
 else
   echo "   ⚠ School assets not found at $SCHOOL_ASSETS"
 fi
