@@ -217,13 +217,13 @@ export default function Home() {
                   className="text-center"
                 >
                   <span className="inline-block mb-5 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-white/90 text-sm font-medium tracking-wide border border-white/20">
-                    Trusted by horse owners, students &amp; schools across the UK
+                    Trusted by horse owners, students & schools across the UK
                   </span>
 
                   <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-white drop-shadow-2xl">
                     Professional Horse Management
                     <br />
-                    <span className="text-[#7dd3c0]">&amp;</span>{" "}
+                    <span className="text-[#7dd3c0]">&</span>{" "}
                     Equestrian Learning
                   </h1>
 
@@ -345,7 +345,7 @@ export default function Home() {
                       <div className="absolute bottom-4 left-6">
                         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2e6da4] text-white text-sm font-medium">
                           <Stethoscope className="w-4 h-4" />
-                          Pro &amp; Stable Plans
+                          Pro & Stable Plans
                         </span>
                       </div>
                     </div>
@@ -359,11 +359,11 @@ export default function Home() {
                         Built for single-horse owners to multi-horse stables.
                       </p>
                       <ul className="space-y-2 mb-6 flex-1">
-                        {["Health &amp; vet record tracking", "Training &amp; performance logs", "Nutrition plans &amp; cost tracking", "Document storage &amp; reminders", "Weather &amp; riding suitability"].map(
+                        {["Health & vet record tracking", "Training & performance logs", "Nutrition plans & cost tracking", "Document storage & reminders", "Weather & riding suitability"].map(
                           (item, i) => (
                             <li key={i} className="flex items-start gap-2 text-gray-600 text-sm">
                               <Check className="w-4 h-4 text-[#2e6da4] mt-0.5 shrink-0" />
-                              <span dangerouslySetInnerHTML={{ __html: item }} />
+                              <span>{item}</span>
                             </li>
                           ),
                         )}
@@ -408,11 +408,11 @@ export default function Home() {
                         Perfect for students, teachers, and riding schools.
                       </p>
                       <ul className="space-y-2 mb-6 flex-1">
-                        {["15 pathways from beginner to advanced", "AI tutor for instant answers", "Daily scenario-based practice", "Teacher dashboards &amp; cohort management", "Certificates &amp; learning portfolios"].map(
+                        {["15 pathways from beginner to advanced", "AI tutor for instant answers", "Daily scenario-based practice", "Teacher dashboards & cohort management", "Certificates & learning portfolios"].map(
                           (item, i) => (
                             <li key={i} className="flex items-start gap-2 text-gray-600 text-sm">
                               <Check className="w-4 h-4 text-[#3a9d8f] mt-0.5 shrink-0" />
-                              <span dangerouslySetInnerHTML={{ __html: item }} />
+                              <span>{item}</span>
                             </li>
                           ),
                         )}
