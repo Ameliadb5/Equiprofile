@@ -66,6 +66,7 @@ function getDisciplineBadgeClass(discipline: string): string {
 const PREDESIGNED_TEMPLATES = [
   {
     id: "flatwork",
+    category: "foundation",
     name: "Flatwork Session",
     description:
       "Foundation flatwork training focusing on rhythm, suppleness, and connection",
@@ -136,6 +137,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "jumping",
+    category: "foundation",
     name: "Jumping Session",
     description:
       "Progressive jumping training from ground poles to small fences",
@@ -206,6 +208,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "dressage",
+    category: "foundation",
     name: "Dressage Session",
     description:
       "Classical dressage training emphasizing precision and collection",
@@ -276,6 +279,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "conditioning",
+    category: "fitness",
     name: "Conditioning Session",
     description:
       "Fitness and stamina building for all-around horse development",
@@ -347,6 +351,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "warmup",
+    category: "warmup",
     name: "Warmup Session",
     description: "Essential warmup routine before training or competition",
     duration: 2,
@@ -417,6 +422,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "rehab",
+    category: "rehabilitation",
     name: "Rehab Session",
     description:
       "Gentle rehabilitation program for horses returning from injury",
@@ -487,6 +493,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "young-horse",
+    category: "development",
     name: "Young Horse Basics",
     description:
       "Progressive foundation program for young horses in early development (3–5 year olds)",
@@ -567,6 +574,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "schooling",
+    category: "foundation",
     name: "Schooling / Arena Session",
     description:
       "Focused arena schooling session developing suppleness, obedience, and collection",
@@ -646,6 +654,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "pole-work",
+    category: "foundation",
     name: "Pole Work Session",
     description:
       "Ground pole and raised pole exercises to improve rhythm, lift, and proprioception",
@@ -724,6 +733,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "jump-conditioning",
+    category: "fitness",
     name: "Jump Conditioning Programme",
     description:
       "Systematic jumping programme to build confidence, power, and technique over fences",
@@ -802,6 +812,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "hacking-conditioning",
+    category: "fitness",
     name: "Hacking / Conditioning Ride",
     description:
       "Outdoor conditioning rides combining terrain work, fitness, and mental wellbeing",
@@ -880,6 +891,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "groundwork",
+    category: "foundation",
     name: "Groundwork Session",
     description:
       "In-hand and lungeing programme to develop obedience, suppleness, and partnership",
@@ -960,6 +972,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "rest-recovery",
+    category: "recovery",
     name: "Rest & Light Recovery",
     description:
       "Low-intensity recovery week for horses after competition, injury, or heavy training",
@@ -1038,6 +1051,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "fitness-building",
+    category: "fitness",
     name: "Fitness Building Week",
     description:
       "Progressive weekly fitness plan to increase cardiovascular capacity and muscle strength",
@@ -1117,6 +1131,7 @@ const PREDESIGNED_TEMPLATES = [
   },
   {
     id: "confidence-rebuilding",
+    category: "rehabilitation",
     name: "Confidence Rebuilding",
     description:
       "Gentle, structured programme to rebuild confidence in horses that have had a setback",
@@ -1582,15 +1597,32 @@ function TrainingTemplatesContent() {
         </Dialog>
       </div>
 
-      {/* Predesigned Templates Section */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
+      {/* Predesigned Templates Section — Grouped by Purpose */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
           <div className="w-1 h-5 rounded-full bg-gradient-to-b from-[#2e6da4] to-[#2e6da4]/40" />
           <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Predesigned Templates</h2>
           <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">— Professional training programs ready to use</span>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {PREDESIGNED_TEMPLATES.map((predesigned) => (
+
+        {[
+          { key: "foundation", label: "Foundation Training", desc: "Core flatwork, schooling, and groundwork sessions" },
+          { key: "fitness", label: "Fitness & Conditioning", desc: "Build strength, stamina, and athletic performance" },
+          { key: "rehabilitation", label: "Rehabilitation & Confidence", desc: "Recovery programmes and confidence rebuilding" },
+          { key: "development", label: "Young Horse Development", desc: "Structured programmes for young or green horses" },
+          { key: "warmup", label: "Warm-Up & Cool-Down", desc: "Structured warm-up and cool-down routines" },
+          { key: "recovery", label: "Recovery & Rest", desc: "Active recovery and rest day planning" },
+        ].map((group) => {
+          const groupTemplates = PREDESIGNED_TEMPLATES.filter((t) => t.category === group.key);
+          if (groupTemplates.length === 0) return null;
+          return (
+            <div key={group.key} className="space-y-3">
+              <div className="flex items-baseline gap-2 px-1">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">{group.label}</h3>
+                <span className="text-xs text-gray-400 dark:text-gray-500">{group.desc}</span>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {groupTemplates.map((predesigned) => (
             <Card
               key={predesigned.id}
               className="bg-white dark:bg-[#1a2435] rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
@@ -1648,7 +1680,10 @@ function TrainingTemplatesContent() {
               </CardContent>
             </Card>
           ))}
-        </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* User Templates Section */}
