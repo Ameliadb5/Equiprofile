@@ -34,8 +34,7 @@ import SchoolPricing from "./pages/school/Pricing";
 import SchoolAbout from "./pages/school/About";
 import SchoolContact from "./pages/school/Contact";
 
-// Legacy Marketing Pages (kept for /students, /schools routes + V2 fallback)
-import LegacyHome from "./pages/Home";
+// Shared public pages — active routes that don't have management/school variants yet
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import Students from "./pages/Students";
