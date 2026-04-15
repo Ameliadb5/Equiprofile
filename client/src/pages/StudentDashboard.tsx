@@ -439,7 +439,7 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
               <Lightbulb className="w-5 h-5 text-emerald-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-emerald-300">Recommended Next Lesson</p>
+              <p className="text-xs font-semibold text-emerald-600">Recommended Next Lesson</p>
               <p className="text-sm text-slate-800 mt-0.5 truncate">{unlockData.recommendedNextLesson.title}</p>
               <p className="text-[10px] text-slate-500 mt-0.5 capitalize">
                 {unlockData.recommendedNextLesson.level} · {unlockData.recommendedNextLesson.pathwaySlug.replace(/-/g, " ")}
@@ -948,7 +948,7 @@ function TasksView() {
           <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 mb-3">Completed ({completed.length})</p>
           <div className="space-y-2">
             {completed.slice(0, 10).map((task) => (
-              <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/[0.03]">
+              <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                 <button
                   onClick={() => uncompleteMut.mutate({ id: task.id })}
                   className="w-6 h-6 rounded-full border-2 bg-emerald-50 border-emerald-500 flex items-center justify-center shrink-0"
@@ -1257,7 +1257,7 @@ function StudyHubView() {
                         style={{ backgroundColor: "#1a2240", borderColor: STUDENT_BORDER }}
                       >
                         <p className="text-sm text-slate-600 leading-relaxed">{topic.description}</p>
-                        <div className="mt-3 pt-3 border-t border-white/[0.05]">
+                        <div className="mt-3 pt-3 border-t border-slate-200">
                           <p className="text-xs text-indigo-500 font-medium">Suggested next step</p>
                           <p className="text-xs text-slate-500 mt-1">Use the AI Tutor to explore this topic further or ask for a quiz.</p>
                         </div>
@@ -1502,7 +1502,7 @@ function ProgressView() {
           </div>
         </div>
         {showLevelPicker && (
-          <div className="mt-4 pt-4 border-t border-white/[0.05] grid grid-cols-2 gap-2">
+          <div className="mt-4 pt-4 border-t border-slate-200 grid grid-cols-2 gap-2">
             {LEARNER_LEVELS.map((l) => (
               <button
                 key={l.id}
@@ -1511,7 +1511,7 @@ function ProgressView() {
                   setShowLevelPicker(false);
                 }}
                 className={`p-3 rounded-lg border text-left transition-all ${
-                  l.id === levelData?.level ? "border-transparent" : "border-slate-200 hover:border-white/20"
+                  l.id === levelData?.level ? "border-transparent" : "border-slate-200 hover:border-slate-300"
                 }`}
                 style={l.id === levelData?.level ? { backgroundColor: `${l.color}18`, borderColor: `${l.color}40` } : {}}
               >
@@ -1603,7 +1603,7 @@ function ProgressView() {
 
           {/* Weak areas */}
           {intelligence.weakAreas.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-white/[0.05]">
+            <div className="mt-3 pt-3 border-t border-slate-200">
               <p className="text-xs text-slate-500 mb-1">Areas to Focus</p>
               <div className="flex flex-wrap gap-1.5">
                 {intelligence.weakAreas.map(w => (
@@ -1615,7 +1615,7 @@ function ProgressView() {
 
           {/* Recommended next */}
           {intelligence.recommendedNextPathway && (
-            <div className="mt-3 pt-3 border-t border-white/[0.05]">
+            <div className="mt-3 pt-3 border-t border-slate-200">
               <p className="text-xs text-slate-500 mb-1">Recommended Next</p>
               <p className="text-sm text-indigo-600 capitalize">{intelligence.recommendedNextPathway.replace(/-/g, " ")}</p>
             </div>
@@ -1638,7 +1638,7 @@ function ProgressView() {
               </div>
             ))}
           </div>
-          <div className="mt-3 pt-3 border-t border-white/[0.05] flex items-center gap-4">
+          <div className="mt-3 pt-3 border-t border-slate-200 flex items-center gap-4">
             <div className="text-center">
               <p className="text-lg font-bold text-emerald-600">{competencies.filter(c => c.status === "achieved").length}</p>
               <p className="text-[10px] text-slate-500">Achieved</p>
@@ -1661,7 +1661,7 @@ function ProgressView() {
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Teacher Lesson Reviews</p>
           <div className="space-y-2">
             {lessonReviewsData.slice(0, 5).map(r => (
-              <div key={r.id} className={`p-3 rounded-lg border transition-colors ${r.isRead ? "bg-white/[0.02] border-slate-200" : "bg-indigo-500/[0.06] border-slate-200"}`}>
+              <div key={r.id} className={`p-3 rounded-lg border transition-colors ${r.isRead ? "bg-slate-50 border-slate-200" : "bg-indigo-50 border-slate-200"}`}>
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.reviewStatus === "satisfactory" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
                     {r.reviewStatus === "satisfactory" ? "Satisfactory" : "Needs Improvement"}
@@ -1753,7 +1753,7 @@ function ScenarioCard({
       </div>
 
       {/* Prompt */}
-      <div className="rounded-lg bg-slate-50 border border-white/[0.05] p-4">
+      <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
         <p className="text-sm text-slate-600 leading-relaxed">{scenario.prompt}</p>
       </div>
 
@@ -1809,18 +1809,18 @@ function ScenarioCard({
 
       {/* Result reveal */}
       {result && (
-        <div className="rounded-lg border border-slate-200 bg-indigo-500/[0.05] p-4 space-y-3">
+        <div className="rounded-lg border border-slate-200 bg-indigo-50 p-4 space-y-3">
           <div className="flex items-center gap-2">
             {result.isCorrect
               ? <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
               : <XCircle className="w-5 h-5 text-red-400 shrink-0" />
             }
-            <p className={`text-sm font-semibold ${result.isCorrect ? "text-emerald-300" : "text-red-300"}`}>
+            <p className={`text-sm font-semibold ${result.isCorrect ? "text-emerald-600" : "text-red-500"}`}>
               {result.isCorrect ? "Correct!" : "Not quite right."}
             </p>
           </div>
           <p className="text-xs text-slate-500 leading-relaxed">{result.selectedChoice.explanation}</p>
-          <div className="pt-2 border-t border-white/[0.05]">
+          <div className="pt-2 border-t border-slate-200">
             <div className="flex items-start gap-2">
               <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-xs text-amber-200/80 leading-relaxed">{result.learningTakeaway}</p>
@@ -2055,7 +2055,7 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
 
         {/* Main content */}
         <div className="rounded-xl p-5" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
-          <div className="prose prose-invert prose-sm max-w-none text-slate-600 whitespace-pre-line leading-relaxed">
+          <div className="prose prose-slate prose-sm max-w-none text-slate-600 whitespace-pre-line leading-relaxed">
             {lessonDetail.content}
           </div>
         </div>
@@ -2139,8 +2139,8 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
                           <button key={oi} disabled={quizSubmitted}
                             onClick={() => setQuizAnswers((prev) => ({ ...prev, [qi]: oi }))}
                             className={`text-left text-sm px-3 py-2 rounded-lg border transition-colors ${
-                              isCorrect ? "border-emerald-500 bg-emerald-50 text-emerald-300" :
-                              isWrong ? "border-rose-500 bg-rose-500/20 text-rose-300" :
+                              isCorrect ? "border-emerald-500 bg-emerald-50 text-emerald-700" :
+                              isWrong ? "border-rose-500 bg-rose-50 text-rose-600" :
                               selected ? "border-indigo-500 bg-indigo-50 text-indigo-600" :
                               "border-slate-200 bg-slate-100 text-slate-400 hover:border-slate-300"
                             }`}>
@@ -2310,11 +2310,11 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
           <div className="space-y-2">
             {(assignedLessons ?? []).map(a => (
               <div key={a.id} className={`flex items-center justify-between gap-3 p-3 rounded-lg border ${
-                a.isOverdue ? "border-rose-500/20 bg-rose-500/[0.04]" : "border-white/[0.05] bg-white/[0.02]"
+                a.isOverdue ? "border-rose-200 bg-rose-50" : "border-slate-200 bg-slate-50"
               }`}>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${a.assignmentType === "lesson" ? "bg-indigo-50 text-indigo-600" : "bg-emerald-50 text-emerald-300"}`}>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${a.assignmentType === "lesson" ? "bg-indigo-50 text-indigo-600" : "bg-emerald-50 text-emerald-600"}`}>
                       {a.assignmentType === "lesson" ? "Lesson" : "Pathway"}
                     </span>
                     <span className="text-sm text-slate-800 font-medium truncate">{a.lessonTitle ?? a.lessonSlug ?? a.pathwaySlug}</span>

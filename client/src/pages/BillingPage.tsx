@@ -47,7 +47,7 @@ export default function BillingPage() {
     trpc.billing.getStatus.useQuery();
 
   // Check if the user belongs to a school organization (student/teacher under a school)
-  const { data: orgData } = trpc.school.getOrganization.useQuery(undefined, {
+  const { data: orgData } = trpc.school.getMyOrganization.useQuery(undefined, {
     enabled: !!user,
     staleTime: 5 * 60 * 1000,
     retry: false,

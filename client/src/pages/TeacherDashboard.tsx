@@ -258,7 +258,7 @@ function GroupsView() {
                 </div>
 
                 {isExpanded && (
-                  <div className="mt-4 pt-4 border-t border-white/[0.05] space-y-3">
+                  <div className="mt-4 pt-4 border-t border-slate-200 space-y-3">
                     {/* Members list */}
                     {(members ?? []).length === 0 ? (
                       <p className="text-xs text-slate-500 text-center py-2">No students yet.</p>
@@ -1214,7 +1214,7 @@ function TeacherLessonsView() {
                 {(assignments ?? []).map(a => {
                   const isOverdue = a.dueDate ? new Date(a.dueDate) < now : false;
                   return (
-                    <div key={a.id} className="flex items-start justify-between gap-3 p-3 rounded-lg bg-slate-50 border border-white/[0.05]">
+                    <div key={a.id} className="flex items-start justify-between gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${a.assignmentType === "lesson" ? "bg-indigo-500/20 text-indigo-600" : "bg-emerald-500/20 text-emerald-600"}`}>
@@ -1327,7 +1327,7 @@ function TeacherLessonsView() {
             ) : (
               <div className="space-y-2 mt-3">
                 {(reviews ?? []).map(r => (
-                  <div key={r.id} className="p-3 rounded-lg bg-slate-50 border border-white/[0.05]">
+                  <div key={r.id} className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.reviewStatus === "satisfactory" ? "bg-emerald-500/20 text-emerald-600" : "bg-amber-500/20 text-amber-600"}`}>
                         {r.reviewStatus === "satisfactory" ? "✓ Satisfactory" : "△ Needs Improvement"}
@@ -1383,7 +1383,7 @@ function TeacherLessonsView() {
                         const style = COMPETENCY_STATUS_STYLES[status];
                         const isEditing = competencyForm?.key === comp.key;
                         return (
-                          <div key={comp.key} className="p-3 rounded-lg bg-slate-50 border border-white/[0.05]">
+                          <div key={comp.key} className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                             <div className="flex items-center justify-between gap-2">
                               <span className="text-sm text-slate-800">{comp.label}</span>
                               <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0"
@@ -1573,7 +1573,7 @@ function TeacherProgressView() {
                           <p className="text-xs text-slate-500 mb-2">Lessons by Pathway</p>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                             {Object.entries(lessonSummary.byPathway).map(([pw, count]) => (
-                              <div key={pw} className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-white/[0.02]">
+                              <div key={pw} className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-slate-50">
                                 <span className="text-xs text-slate-500 capitalize truncate">{pw.replace(/-/g, " ")}</span>
                                 <span className="text-xs font-semibold text-emerald-600 shrink-0 ml-2">{count as number}</span>
                               </div>
@@ -1654,7 +1654,7 @@ function TeacherProgressView() {
                               {(comps as any[]).map(comp => {
                                 const st = COMP_STATUS_STYLES[(comp as any).status] ?? COMP_STATUS_STYLES.not_started;
                                 return (
-                                  <div key={(comp as any).key ?? (comp as any).competencyKey} className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-white/[0.02]">
+                                  <div key={(comp as any).key ?? (comp as any).competencyKey} className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-slate-50">
                                     <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: st.color }} />
                                     <span className="text-xs text-slate-500 flex-1 truncate">
                                       {((comp as any).key ?? (comp as any).competencyKey ?? "").replace(/-/g, " ")}
@@ -1766,7 +1766,7 @@ function TeacherAssignmentsView() {
               <select
                 value={newStudentId?.toString() ?? ""}
                 onChange={(e) => setNewStudentId(e.target.value ? parseInt(e.target.value) : null)}
-                className="w-full bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500/40"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500/40"
               >
                 <option value="">Select student</option>
                 {(students ?? []).map((s: any) => (
@@ -1780,7 +1780,7 @@ function TeacherAssignmentsView() {
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 placeholder="e.g. Horse Anatomy Diagram Labelling"
-                className="w-full bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40"
               />
             </div>
             <div>
@@ -1790,7 +1790,7 @@ function TeacherAssignmentsView() {
                 onChange={(e) => setNewDesc(e.target.value)}
                 placeholder="Instructions for the student..."
                 rows={3}
-                className="w-full bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40 resize-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40 resize-none"
               />
             </div>
             <div>
@@ -1799,7 +1799,7 @@ function TeacherAssignmentsView() {
                 type="date"
                 value={newDueDate}
                 onChange={(e) => setNewDueDate(e.target.value)}
-                className="w-full bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500/40"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500/40"
               />
             </div>
             <div className="flex gap-2">
@@ -1820,7 +1820,7 @@ function TeacherAssignmentsView() {
               </button>
               <button
                 onClick={() => setShowCreate(false)}
-                className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 text-sm font-medium hover:bg-white/[0.1] transition-colors"
+                className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 text-sm font-medium hover:bg-slate-100 transition-colors"
               >
                 Cancel
               </button>
@@ -1887,7 +1887,7 @@ function TeacherAssignmentsView() {
                           value={grade}
                           onChange={(e) => setGrade(e.target.value)}
                           placeholder="e.g. A, B+, 85%"
-                          className="w-full bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40"
                         />
                       </div>
                       <div>
@@ -1897,7 +1897,7 @@ function TeacherAssignmentsView() {
                           onChange={(e) => setFeedback(e.target.value)}
                           placeholder="Your feedback for the student..."
                           rows={3}
-                          className="w-full bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40 resize-none"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40 resize-none"
                         />
                       </div>
                       <div className="flex gap-2">
@@ -1914,7 +1914,7 @@ function TeacherAssignmentsView() {
                         </button>
                         <button
                           onClick={() => setReviewingId(null)}
-                          className="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500 text-xs hover:bg-white/[0.1] transition-colors"
+                          className="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500 text-xs hover:bg-slate-100 transition-colors"
                         >
                           Cancel
                         </button>
@@ -1980,7 +1980,7 @@ function MessagesView() {
                 <button
                   key={s.id}
                   onClick={() => setSelectedStudent(s.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-3 text-left text-sm transition-colors border-b border-white/[0.03] ${
+                  className={`w-full flex items-center gap-3 px-3 py-3 text-left text-sm transition-colors border-b border-slate-100 ${
                     selectedStudent === s.id ? "bg-emerald-500/10 text-slate-800" : "text-slate-500 hover:bg-slate-50"
                   }`}
                 >
@@ -2034,7 +2034,7 @@ function MessagesView() {
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder="Type a message..."
-                  className="flex-1 bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40"
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40"
                 />
                 <button
                   onClick={handleSend}
@@ -2136,7 +2136,7 @@ function ResourcesView() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Horse Anatomy Diagram"
-                className="w-full bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40"
               />
             </div>
             <div>
@@ -2145,7 +2145,7 @@ function ResourcesView() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Brief description of the resource"
-                className="w-full bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500/40"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -2154,7 +2154,7 @@ function ResourcesView() {
                 <select
                   value={fileType}
                   onChange={(e) => setFileType(e.target.value as any)}
-                  className="w-full bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500/40"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500/40"
                 >
                   <option value="pdf">PDF</option>
                   <option value="image">Image</option>
@@ -2166,7 +2166,7 @@ function ResourcesView() {
                 <select
                   value={shareScope}
                   onChange={(e) => setShareScope(e.target.value as any)}
-                  className="w-full bg-slate-50 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500/40"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500/40"
                 >
                   <option value="all">All Students</option>
                   <option value="group">Specific Group</option>
@@ -2176,7 +2176,7 @@ function ResourcesView() {
             </div>
             <div>
               <label className="block text-xs text-slate-500 mb-1">File (PDF, Image, Document)</label>
-              <label className="border-2 border-dashed border-white/[0.1] rounded-lg p-6 text-center hover:border-emerald-300 transition-colors cursor-pointer block">
+              <label className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:border-emerald-400 transition-colors cursor-pointer block">
                 <input type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" onChange={handleFileSelect} className="hidden" />
                 <FolderOpen className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                 {fileData ? (
@@ -2199,7 +2199,7 @@ function ResourcesView() {
               </button>
               <button
                 onClick={() => setShowForm(false)}
-                className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 text-sm font-medium hover:bg-white/[0.1] transition-colors"
+                className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 text-sm font-medium hover:bg-slate-100 transition-colors"
               >
                 Cancel
               </button>
