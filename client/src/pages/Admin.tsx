@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -118,9 +118,26 @@ function getUserPlanTier(user: { preferences?: string | null }): "standard" | "s
   }
 }
 
+type AdminSection = "users" | "overdue" | "churn" | "leads" | "campaigns" | "whatsapp" | "system" | "settings" | "analytics" | "deleted" | "portals";
+
+const adminSections: { value: AdminSection; label: string; icon: typeof Users; group: string }[] = [
+  { value: "users", label: "Users", icon: Users, group: "People" },
+  { value: "overdue", label: "Overdue", icon: AlertCircle, group: "People" },
+  { value: "churn", label: "Churn", icon: Activity, group: "People" },
+  { value: "leads", label: "Leads", icon: MessageSquare, group: "Communications" },
+  { value: "campaigns", label: "Campaigns", icon: Mail, group: "Communications" },
+  { value: "whatsapp", label: "WhatsApp", icon: Smartphone, group: "Communications" },
+  { value: "system", label: "System", icon: Server, group: "System" },
+  { value: "settings", label: "Settings", icon: Settings, group: "System" },
+  { value: "analytics", label: "Analytics", icon: BarChart3, group: "System" },
+  { value: "deleted", label: "Deleted", icon: Trash2, group: "Other" },
+  { value: "portals", label: "Portals", icon: Eye, group: "Other" },
+];
+
 function AdminContent() {
   const [, navigate] = useLocation();
   const { viewMode, setViewMode } = useAdminViewMode();
+  const [activeSection, setActiveSection] = useState<AdminSection>("users");
   const [searchQuery, setSearchQuery] = useState("");
   const [suspendReason, setSuspendReason] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -421,142 +438,134 @@ function AdminContent() {
         </div>
       </div>
 
-      {/* Stats Overview — coloured accent tiles */}
+      {/* Stats Overview — clean white cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="border-blue-500/20 bg-gradient-to-br from-blue-950/30 to-indigo-950/20 dark:from-blue-950/40 dark:to-indigo-950/30">
+        <Card className="bg-white dark:bg-card border border-gray-200 dark:border-gray-700 shadow-sm">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-medium text-muted-foreground">Total Users</p>
-              <Users className="w-4 h-4 text-blue-400" />
+              <p className="text-xs font-medium text-gray-500 dark:text-muted-foreground">Total Users</p>
+              <div className="w-8 h-8 rounded-lg bg-[#2e6da4]/10 flex items-center justify-center">
+                <Users className="w-4 h-4 text-[#2e6da4]" />
+              </div>
             </div>
             {statsLoading ? (
               <Skeleton className="h-8 w-16 mt-1" />
             ) : (
-              <p className="text-2xl font-bold text-blue-400">{stats?.users?.totalUsers || 0}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-foreground">{stats?.users?.totalUsers || 0}</p>
             )}
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-gray-400 dark:text-muted-foreground mt-1">
               {stats?.users?.activeUsers || 0} active
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-950/30 to-green-950/20 dark:from-emerald-950/40 dark:to-green-950/30">
+        <Card className="bg-white dark:bg-card border border-gray-200 dark:border-gray-700 shadow-sm">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-medium text-muted-foreground">Paid Subscribers</p>
-              <Shield className="w-4 h-4 text-emerald-400" />
+              <p className="text-xs font-medium text-gray-500 dark:text-muted-foreground">Paid Subscribers</p>
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+                <Shield className="w-4 h-4 text-[#2d6a4f]" />
+              </div>
             </div>
             {statsLoading ? (
               <Skeleton className="h-8 w-16 mt-1" />
             ) : (
-              <p className="text-2xl font-bold text-emerald-400">{stats?.users?.paidUsers || 0}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-foreground">{stats?.users?.paidUsers || 0}</p>
             )}
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-gray-400 dark:text-muted-foreground mt-1">
               {stats?.users?.trialUsers || 0} on trial
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-rose-500/20 bg-gradient-to-br from-rose-950/30 to-pink-950/20 dark:from-rose-950/40 dark:to-pink-950/30">
+        <Card className="bg-white dark:bg-card border border-gray-200 dark:border-gray-700 shadow-sm">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-medium text-muted-foreground">Total Horses</p>
-              <Heart className="w-4 h-4 text-rose-400" />
+              <p className="text-xs font-medium text-gray-500 dark:text-muted-foreground">Total Horses</p>
+              <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center">
+                <Heart className="w-4 h-4 text-rose-500" />
+              </div>
             </div>
             {statsLoading ? (
               <Skeleton className="h-8 w-16 mt-1" />
             ) : (
-              <p className="text-2xl font-bold text-rose-400">{stats?.horses?.totalHorses || 0}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-foreground">{stats?.horses?.totalHorses || 0}</p>
             )}
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-gray-400 dark:text-muted-foreground mt-1">
               {stats?.horses?.activeHorses || 0} active
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-red-500/20 bg-gradient-to-br from-red-950/30 to-orange-950/20 dark:from-red-950/40 dark:to-orange-950/30">
+        <Card className="bg-white dark:bg-card border border-gray-200 dark:border-gray-700 shadow-sm">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-medium text-muted-foreground">Overdue Payments</p>
-              <AlertCircle className="w-4 h-4 text-red-400" />
+              <p className="text-xs font-medium text-gray-500 dark:text-muted-foreground">Overdue Payments</p>
+              <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                <AlertCircle className="w-4 h-4 text-red-500" />
+              </div>
             </div>
             {statsLoading ? (
               <Skeleton className="h-8 w-16 mt-1" />
             ) : (
-              <p className="text-2xl font-bold text-red-400">{stats?.users?.overdueUsers || 0}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-foreground">{stats?.users?.overdueUsers || 0}</p>
             )}
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-gray-400 dark:text-muted-foreground mt-1">
               {stats?.users?.suspendedUsers || 0} suspended
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Tabs — grouped for clarity */}
-      <Tabs defaultValue="users" className="space-y-4">
-        <div className="overflow-x-auto scrollbar-hide -mx-1 px-1">
-          <TabsList className="flex flex-nowrap gap-1 bg-muted/50 p-1 rounded-xl border border-border/40 w-max min-w-full">
-            {/* ── People ── */}
-            <TabsTrigger value="users" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Users className="w-3.5 h-3.5" />
-              <span>Users</span>
-            </TabsTrigger>
-            <TabsTrigger value="overdue" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <AlertCircle className="w-3.5 h-3.5" />
-              <span>Overdue</span>
-            </TabsTrigger>
-            <TabsTrigger value="churn" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Activity className="w-3.5 h-3.5" />
-              <span>Churn</span>
-            </TabsTrigger>
-
-            <div className="w-px bg-border/60 mx-1 self-stretch" />
-
-            {/* ── Comms ── */}
-            <TabsTrigger value="leads" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span>Leads</span>
-            </TabsTrigger>
-            <TabsTrigger value="campaigns" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Mail className="w-3.5 h-3.5" />
-              <span>Campaigns</span>
-            </TabsTrigger>
-            <TabsTrigger value="whatsapp" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Smartphone className="w-3.5 h-3.5" />
-              <span>WhatsApp</span>
-            </TabsTrigger>
-
-            <div className="w-px bg-border/60 mx-1 self-stretch" />
-
-            {/* ── System ── */}
-            <TabsTrigger value="system" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Server className="w-3.5 h-3.5" />
-              <span>System</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Settings className="w-3.5 h-3.5" />
-              <span>Settings</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <BarChart3 className="w-3.5 h-3.5" />
-              <span>Analytics</span>
-            </TabsTrigger>
-            <TabsTrigger value="deleted" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Deleted</span>
-            </TabsTrigger>
-            <TabsTrigger value="portals" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Eye className="w-3.5 h-3.5" />
-              <span>Portals</span>
-            </TabsTrigger>
-          </TabsList>
+      {/* Main layout — sidebar nav + content */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Sidebar nav (desktop) */}
+        <div className="hidden lg:block w-52 shrink-0">
+          <div className="sticky top-0 space-y-1">
+            {(["People", "Communications", "System", "Other"] as const).map((group) => (
+              <div key={group}>
+                <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2 mt-4 first:mt-0">{group}</p>
+                {adminSections.filter((s) => s.group === group).map((s) => {
+                  const Icon = s.icon;
+                  return (
+                    <button
+                      key={s.value}
+                      onClick={() => setActiveSection(s.value)}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all text-left ${
+                        activeSection === s.value
+                          ? "bg-[#2e6da4]/10 text-[#2e6da4] dark:bg-[#2e6da4]/20 dark:text-[#5a9fd4]"
+                          : "text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{s.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Users Tab */}
-        <TabsContent value="users">
+        {/* Mobile section select */}
+        <div className="lg:hidden w-full">
+          <select
+            value={activeSection}
+            onChange={(e) => setActiveSection(e.target.value as AdminSection)}
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-card px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2e6da4]/30"
+          >
+            {adminSections.map((s) => (
+              <option key={s.value} value={s.value}>{s.group} — {s.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Content area */}
+        <div className="flex-1 min-w-0 space-y-4">
+          {activeSection === "users" && (<>
           {/* User Segmentation — executive summary */}
           {segmentation && (
-            <Card className="border-indigo-500/20 mb-4">
+            <Card className="bg-white dark:bg-card border border-gray-200 dark:border-gray-700 shadow-sm mb-4">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <div className="w-1 h-4 rounded-full bg-gradient-to-b from-indigo-500 to-purple-500 shrink-0" />
@@ -1118,10 +1127,9 @@ function AdminContent() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        </>)}
 
-        {/* Overdue Tab */}
-        <TabsContent value="overdue">
+        {activeSection === "overdue" && (<>
           <Card>
             <CardHeader>
               <CardTitle>Overdue Subscriptions</CardTitle>
@@ -1180,10 +1188,9 @@ function AdminContent() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        </>)}
 
-        {/* Settings Tab */}
-        <TabsContent value="settings">
+        {activeSection === "settings" && (<>
           <div className="space-y-6">
             {/* AI / LLM Configuration */}
             <Card>
@@ -1472,10 +1479,9 @@ function AdminContent() {
               </Card>
             )}
           </div>
-        </TabsContent>
+        </>)}
 
-        {/* System Health Tab */}
-        <TabsContent value="system" className="space-y-4">
+        {activeSection === "system" && (<>
           <Card>
             <CardHeader>
               <CardTitle>Environment Health</CardTitle>
@@ -1637,10 +1643,9 @@ function AdminContent() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        </>)}
 
-        {/* Sales Leads Tab */}
-        <TabsContent value="leads">
+        {activeSection === "leads" && (<>
           <Card>
             <CardHeader>
               <CardTitle>Chat Leads</CardTitle>
@@ -1694,10 +1699,9 @@ function AdminContent() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        </>)}
 
-        {/* WhatsApp Configuration Tab */}
-        <TabsContent value="whatsapp">
+        {activeSection === "whatsapp" && (<>
           <div className="space-y-4">
             <Card>
               <CardHeader>
@@ -1894,10 +1898,9 @@ function AdminContent() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
+        </>)}
 
-        {/* Deleted Users Tab */}
-        <TabsContent value="deleted">
+        {activeSection === "deleted" && (<>
           <Card>
             <CardHeader>
               <CardTitle>Deleted Users</CardTitle>
@@ -2002,10 +2005,9 @@ function AdminContent() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        </>)}
 
-        {/* Campaigns Tab */}
-        <TabsContent value="campaigns">
+        {activeSection === "campaigns" && (<>
           <Suspense
             fallback={
               <div className="flex justify-center py-12">
@@ -2015,10 +2017,9 @@ function AdminContent() {
           >
             <AdminCampaigns />
           </Suspense>
-        </TabsContent>
+        </>)}
 
-        {/* Analytics Tab */}
-        <TabsContent value="analytics">
+        {activeSection === "analytics" && (<>
           <Suspense
             fallback={
               <div className="flex justify-center py-12">
@@ -2028,10 +2029,9 @@ function AdminContent() {
           >
             <AdminAnalytics />
           </Suspense>
-        </TabsContent>
+        </>)}
 
-        {/* Churn Risk Tab */}
-        <TabsContent value="churn">
+        {activeSection === "churn" && (<>
           <div className="space-y-4">
             {/* Trial Expiring Soon */}
             <Card>
@@ -2124,14 +2124,13 @@ function AdminContent() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
+        </>)}
 
-        {/* ── Portal Access ── */}
-        <TabsContent value="portals">
-          <Card>
+        {activeSection === "portals" && (<>
+          <Card className="bg-white dark:bg-card border border-gray-200 dark:border-gray-700 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <Eye className="w-4 h-4 text-indigo-500" /> Quick Portal Access
+                <Eye className="w-4 h-4 text-[#2e6da4]" /> Quick Portal Access
               </CardTitle>
               <CardDescription>
                 Switch to any dashboard to preview the user experience.
@@ -2140,15 +2139,15 @@ function AdminContent() {
             <CardContent>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
-                  { label: "Pro Dashboard", icon: "🐴", path: "/dashboard", btnColor: "bg-blue-600 hover:bg-blue-500" },
-                  { label: "Stable Dashboard", icon: "🏠", path: "/stable-dashboard", btnColor: "bg-emerald-600 hover:bg-emerald-500" },
-                  { label: "Student Portal", icon: "🎓", path: "/student-dashboard", btnColor: "bg-violet-600 hover:bg-violet-500" },
-                  { label: "Teacher Portal", icon: "📋", path: "/teacher-dashboard", btnColor: "bg-amber-600 hover:bg-amber-500" },
+                  { label: "Pro Dashboard", icon: "🐴", path: "/dashboard", btnColor: "bg-[#2e6da4] hover:bg-[#245a8a]" },
+                  { label: "Stable Dashboard", icon: "🏠", path: "/stable-dashboard", btnColor: "bg-[#2d6a4f] hover:bg-[#245a42]" },
+                  { label: "Student Portal", icon: "🎓", path: "/student-dashboard", btnColor: "bg-[#4a9eca] hover:bg-[#3a8dba]" },
+                  { label: "Teacher Portal", icon: "📋", path: "/teacher-dashboard", btnColor: "bg-[#3a9d8f] hover:bg-[#2e8a7d]" },
                 ].map((portal) => (
                   <Button
                     key={portal.label}
                     size="sm"
-                    className={`w-full text-white text-xs h-auto py-3 ${portal.btnColor}`}
+                    className={`w-full text-white text-xs h-auto py-3 rounded-lg shadow-sm ${portal.btnColor}`}
                     onClick={() => navigate(portal.path)}
                   >
                     <span className="mr-2">{portal.icon}</span> {portal.label}
@@ -2157,8 +2156,9 @@ function AdminContent() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </>)}
+        </div>
+      </div>
     </div>
   );
 }
