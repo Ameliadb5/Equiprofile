@@ -228,7 +228,7 @@ export default function SchoolPricing() {
                   transition={{ delay: idx * 0.1, duration: 0.5 }}
                   className={`relative bg-white rounded-2xl shadow-lg border-2 ${
                     isPopular ? colors.border : "border-gray-100"
-                  } p-7 flex flex-col ${isPopular ? "ring-2 " + colors.ring + " ring-offset-2" : ""}`}
+                  } p-7 flex flex-col ${isPopular ? `ring-2 ${colors.ring} ring-offset-2` : ""}`}
                 >
                   {isPopular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -274,7 +274,7 @@ export default function SchoolPricing() {
                     {tierDescriptions[idx]}
                   </p>
 
-                  <Link href={isEnterprise ? "/school/contact" : "/school/contact"}>
+                  <Link href="/school/contact">
                     <Button
                       className={`w-full rounded-xl ${
                         isPopular
