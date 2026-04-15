@@ -53,8 +53,8 @@ import {
 
 // ─── Design Tokens (Student-specific) ─────────────────────────
 // Balanced slate palette — NOT dark-heavy, NOT pure white. Premium SaaS feel.
-const STUDENT_ACCENT = "#6366f1";
-const STUDENT_BG = "#f8fafc";       // Light slate background
+const STUDENT_ACCENT = "#2e6da4";
+const STUDENT_BG = "#f8f6f3";       // Warm cream background
 const STUDENT_CARD = "#ffffff";      // Clean white cards
 const STUDENT_BORDER = "rgba(100, 116, 139, 0.15)"; // Slate border
 const STUDENT_TEXT = "#1e293b";      // Dark text for readability
@@ -74,7 +74,7 @@ function formatDate(d: Date | string | null | undefined): string {
 function SkeletonBar({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`rounded-md bg-slate-200 animate-pulse ${className}`}
+      className={`rounded-md bg-gray-200 animate-pulse ${className}`}
     />
   );
 }
@@ -95,8 +95,8 @@ function SCard({ children, className = "" }: { children: React.ReactNode; classN
 function SectionHeading({ icon: Icon, title }: { icon: React.ComponentType<{ className?: string }>; title: string }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <Icon className="w-5 h-5 text-indigo-500" />
-      <h2 className="text-lg font-semibold text-slate-800">{title}</h2>
+      <Icon className="w-5 h-5 text-[#2e6da4]" />
+      <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
     </div>
   );
 }
@@ -108,7 +108,7 @@ const FEEDBACK_STYLES: Record<string, { label: string; color: string; bg: string
   good: { label: "Good Work", color: "#10b981", bg: "rgba(16,185,129,0.08)" },
   needs_improvement: { label: "Needs Improvement", color: "#f59e0b", bg: "rgba(245,158,11,0.08)" },
   urgent: { label: "Urgent", color: "#ef4444", bg: "rgba(239,68,68,0.08)" },
-  general: { label: "Comment", color: "#6366f1", bg: "rgba(99,102,241,0.08)" },
+  general: { label: "Comment", color: "#2e6da4", bg: "rgba(46,109,164,0.08)" },
 };
 
 function TeacherFeedbackPanel() {
@@ -130,24 +130,24 @@ function TeacherFeedbackPanel() {
         {shown.map(f => {
           const style = FEEDBACK_STYLES[f.feedbackType] ?? FEEDBACK_STYLES.general;
           return (
-            <SCard key={f.id} className={`!p-4 ${!f.isRead ? "ring-1 ring-indigo-500/20" : ""}`}>
+            <SCard key={f.id} className={`!p-4 ${!f.isRead ? "ring-1 ring-[#2e6da4]/20" : ""}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: style.bg, color: style.color }}>
                       {style.label}
                     </span>
-                    <span className="text-[10px] text-slate-500 capitalize">{f.entryType?.replace(/_/g, " ")}</span>
-                    {f.teacherName && <span className="text-[10px] text-slate-400">from {f.teacherName}</span>}
-                    {!f.isRead && <span className="text-[10px] text-indigo-500 font-semibold">● New</span>}
+                    <span className="text-[10px] text-gray-500 capitalize">{f.entryType?.replace(/_/g, " ")}</span>
+                    {f.teacherName && <span className="text-[10px] text-gray-400">from {f.teacherName}</span>}
+                    {!f.isRead && <span className="text-[10px] text-[#2e6da4] font-semibold">● New</span>}
                   </div>
-                  <p className="text-sm text-slate-600">{f.comment}</p>
-                  <p className="text-[10px] text-slate-400 mt-1">{String(f.createdAt).slice(0, 10)}</p>
+                  <p className="text-sm text-gray-600">{f.comment}</p>
+                  <p className="text-[10px] text-gray-400 mt-1">{String(f.createdAt).slice(0, 10)}</p>
                 </div>
                 {!f.isRead && (
                   <button
                     onClick={() => markReadMut.mutate({ id: f.id })}
-                    className="text-xs text-indigo-500 hover:text-indigo-600 shrink-0 mt-0.5"
+                    className="text-xs text-[#2e6da4] hover:text-[#2e6da4] shrink-0 mt-0.5"
                     title="Mark as read"
                   >
                     <CheckCircle2 className="w-4 h-4" />
@@ -185,7 +185,7 @@ function AssignedTasksPanel({ onNavigate }: { onNavigate: (v: ActiveView) => voi
                 <ClipboardList className="w-3 h-3 text-amber-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-slate-800 font-medium truncate">{t.title}</p>
+                <p className="text-sm text-gray-800 font-medium truncate">{t.title}</p>
                 <p className="text-[10px] text-amber-600/70">
                   {t.category} · {t.frequency}
                   {t.dueDate ? ` · Due ${String(t.dueDate).slice(0, 10)}` : ""}
@@ -203,7 +203,7 @@ function AssignedTasksPanel({ onNavigate }: { onNavigate: (v: ActiveView) => voi
           ))}
           <button
             onClick={() => onNavigate("practice")}
-            className="text-sm text-indigo-500 hover:text-indigo-600 flex items-center gap-1 pt-1"
+            className="text-sm text-[#2e6da4] hover:text-[#2e6da4] flex items-center gap-1 pt-1"
           >
             View all tasks <ChevronRight className="w-4 h-4" />
           </button>
@@ -244,25 +244,25 @@ function PathwayProgressPanel({ onNavigate }: { onNavigate: (v: ActiveView) => v
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-slate-800">{LEVEL_LABELS[currentLevel] ?? "Beginner"} Pathway</p>
-              <p className="text-xs text-slate-500">{completedCount} of {totalCount} topics completed</p>
+              <p className="text-sm font-semibold text-gray-800">{LEVEL_LABELS[currentLevel] ?? "Beginner"} Pathway</p>
+              <p className="text-xs text-gray-500">{completedCount} of {totalCount} topics completed</p>
             </div>
-            <span className="text-lg font-bold text-indigo-500">{pct}%</span>
+            <span className="text-lg font-bold text-[#2e6da4]">{pct}%</span>
           </div>
-          <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #6366f1, #818cf8)" }} />
+          <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #2e6da4, #4a9eca)" }} />
           </div>
           {nextItem && (
             <div className="flex items-center gap-2 pt-1">
-              <Lightbulb className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-              <p className="text-xs text-slate-500">
-                Next: <span className="text-indigo-600 capitalize">{nextItem.replace(/-/g, " ")}</span>
+              <Lightbulb className="w-3.5 h-3.5 text-[#2e6da4] shrink-0" />
+              <p className="text-xs text-gray-500">
+                Next: <span className="text-[#2e6da4] capitalize">{nextItem.replace(/-/g, " ")}</span>
               </p>
             </div>
           )}
           <button
             onClick={() => onNavigate("learning-path")}
-            className="text-sm text-indigo-500 hover:text-indigo-600 flex items-center gap-1"
+            className="text-sm text-[#2e6da4] hover:text-[#2e6da4] flex items-center gap-1"
           >
             Open Lessons <ChevronRight className="w-4 h-4" />
           </button>
@@ -321,18 +321,18 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
   return (
     <div className="space-y-6">
       {/* Student mode banner */}
-      <div className={`rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 ${isSchoolLed ? "bg-indigo-50 border border-indigo-200" : "bg-emerald-50 border border-emerald-200"}`}>
+      <div className={`rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 ${isSchoolLed ? "bg-blue-50 border border-[#2e6da4]/20" : "bg-emerald-50 border border-emerald-200"}`}>
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSchoolLed ? "bg-indigo-100" : "bg-emerald-100"}`}>
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSchoolLed ? "bg-blue-100" : "bg-emerald-100"}`}>
             {isSchoolLed
-              ? <GraduationCap className="w-4 h-4 text-indigo-500" />
+              ? <GraduationCap className="w-4 h-4 text-[#2e6da4]" />
               : <Route className="w-4 h-4 text-emerald-600" />}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-semibold" style={{ color: isSchoolLed ? "#818cf8" : "#34d399" }}>
+            <p className="text-xs font-semibold" style={{ color: isSchoolLed ? "#4a9eca" : "#34d399" }}>
               {isSchoolLed ? "School-Led Learning" : "Independent Learning"}
             </p>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-gray-500 mt-0.5">
               {isSchoolLed
                 ? "Your teacher has assigned lessons and tasks for you."
                 : "Explore pathways at your own pace — no teacher required."}
@@ -342,7 +342,7 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
         {nextAssigned && (
           <button
             onClick={() => onNavigate("learning-path")}
-            className="shrink-0 text-xs px-3 py-1.5 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors"
+            className="shrink-0 text-xs px-3 py-1.5 rounded-lg font-medium text-white bg-[#2e6da4] hover:bg-[#245a8a] transition-colors"
           >
             Open Assignment
           </button>
@@ -369,7 +369,7 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { icon: Flame, label: "Active Days", value: `${weekSessions > 0 ? weekSessions : 0} this week`, color: "#f59e0b" },
-          { icon: ClipboardList, label: "Tasks Today", value: `${completedCount}/${completedCount + pendingCount}`, color: "#6366f1" },
+          { icon: ClipboardList, label: "Tasks Today", value: `${completedCount}/${completedCount + pendingCount}`, color: "#2e6da4" },
           { icon: TrendingUp, label: "This Week", value: `${weekSessions} sessions`, color: "#10b981" },
           { icon: Trophy, label: "Level", value: avgLevel > 0 ? `Level ${avgLevel}` : "—", color: "#f97316" },
         ].map((stat) => {
@@ -380,8 +380,8 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
                 <span style={{ color: stat.color }}><StatIcon className="w-4 h-4 sm:w-5 sm:h-5" /></span>
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] sm:text-xs text-slate-500">{stat.label}</p>
-                <p className="text-xs sm:text-sm font-semibold text-slate-800 mt-0.5">{stat.value}</p>
+                <p className="text-[11px] sm:text-xs text-gray-500">{stat.label}</p>
+                <p className="text-xs sm:text-sm font-semibold text-gray-800 mt-0.5">{stat.value}</p>
               </div>
             </SCard>
           );
@@ -396,33 +396,33 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
         const weekPct = Math.round((weeklyDone / weeklyGoal) * 100);
         const lastCompletedLesson = (lessonProgress ?? []).slice(-1)[0];
         return (
-          <div className="rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-indigo-50 border border-indigo-200">
+          <div className="rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-blue-50 border border-[#2e6da4]/20">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-50 shrink-0">
-                <Flame className="w-5 h-5 text-indigo-500" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 shrink-0">
+                <Flame className="w-5 h-5 text-[#2e6da4]" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-indigo-600">Weekly Learning Goal</p>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs font-semibold text-[#2e6da4]">Weekly Learning Goal</p>
+                <p className="text-xs text-gray-500 mt-0.5">
                   {weeklyDone >= weeklyGoal
                     ? "🎉 Goal reached this week — great work!"
                     : `${weeklyDone}/${weeklyGoal} sessions this week · ${weeklyGoal - weeklyDone} more to hit your goal`}
                 </p>
-                <div className="mt-2 h-1.5 bg-slate-100 rounded-full overflow-hidden max-w-[200px]">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${weekPct}%`, background: weeklyDone >= weeklyGoal ? "#10b981" : "#6366f1" }} />
+                <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden max-w-[200px]">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${weekPct}%`, background: weeklyDone >= weeklyGoal ? "#10b981" : "#2e6da4" }} />
                 </div>
               </div>
             </div>
             {lastCompletedLesson && (
               <div className="sm:ml-auto text-right shrink-0">
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider">Last completed</p>
-                <p className="text-xs text-indigo-600 capitalize">{lastCompletedLesson.lessonSlug?.replace(/-/g, " ")}</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Last completed</p>
+                <p className="text-xs text-[#2e6da4] capitalize">{lastCompletedLesson.lessonSlug?.replace(/-/g, " ")}</p>
               </div>
             )}
             {lessonsDone === 0 && (
               <button
                 onClick={() => onNavigate("learning-path")}
-                className="shrink-0 text-xs px-3 py-1.5 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors"
+                className="shrink-0 text-xs px-3 py-1.5 rounded-lg font-medium text-white bg-[#2e6da4] hover:bg-[#245a8a] transition-colors"
               >
                 Start Your First Lesson
               </button>
@@ -440,8 +440,8 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold text-emerald-600">Recommended Next Lesson</p>
-              <p className="text-sm text-slate-800 mt-0.5 truncate">{unlockData.recommendedNextLesson.title}</p>
-              <p className="text-[10px] text-slate-500 mt-0.5 capitalize">
+              <p className="text-sm text-gray-800 mt-0.5 truncate">{unlockData.recommendedNextLesson.title}</p>
+              <p className="text-[10px] text-gray-500 mt-0.5 capitalize">
                 {unlockData.recommendedNextLesson.level} · {unlockData.recommendedNextLesson.pathwaySlug.replace(/-/g, " ")}
               </p>
             </div>
@@ -457,19 +457,19 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
 
       {/* Current Level & Progression */}
       {unlockData && (
-        <div className="rounded-xl p-4 flex items-center gap-3 bg-indigo-50/50 border border-indigo-100">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-indigo-50 shrink-0">
-            <Award className="w-4.5 h-4.5 text-indigo-500" />
+        <div className="rounded-xl p-4 flex items-center gap-3 bg-blue-50/50 border border-[#2e6da4]/20">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-blue-50 shrink-0">
+            <Award className="w-4.5 h-4.5 text-[#2e6da4]" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-indigo-600 capitalize">{unlockData.unlockedLevel} Level Unlocked</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">
+            <p className="text-xs font-semibold text-[#2e6da4] capitalize">{unlockData.unlockedLevel} Level Unlocked</p>
+            <p className="text-[10px] text-gray-500 mt-0.5">
               {unlockData.completedByLevel.beginner + unlockData.completedByLevel.developing + unlockData.completedByLevel.intermediate + unlockData.completedByLevel.advanced} lessons completed total
             </p>
           </div>
           <button
             onClick={() => onNavigate("progress")}
-            className="shrink-0 text-[10px] px-3 py-1 rounded-lg font-medium text-indigo-500 border border-indigo-400/30 hover:bg-indigo-50 transition-colors"
+            className="shrink-0 text-[10px] px-3 py-1 rounded-lg font-medium text-[#2e6da4] border border-[#2e6da4]/30 hover:bg-blue-50 transition-colors"
           >
             View Progress
           </button>
@@ -485,8 +485,8 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
                 <Zap className="w-4 h-4 text-amber-600" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-800">Daily Practice</p>
-                <p className="text-[10px] text-slate-500">3 fresh scenarios matched to your level</p>
+                <p className="text-sm font-semibold text-gray-800">Daily Practice</p>
+                <p className="text-[10px] text-gray-500">3 fresh scenarios matched to your level</p>
               </div>
             </div>
           </SCard>
@@ -498,8 +498,8 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
                 <Brain className="w-4 h-4 text-violet-600" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-800">AI Tutor</p>
-                <p className="text-[10px] text-slate-500">Get help with any topic or question</p>
+                <p className="text-sm font-semibold text-gray-800">AI Tutor</p>
+                <p className="text-[10px] text-gray-500">Get help with any topic or question</p>
               </div>
             </div>
           </SCard>
@@ -518,18 +518,18 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
                   <Sparkles className="w-5 h-5 text-violet-600" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-slate-800">Your Virtual Horse</h3>
-                  <p className="text-xs text-slate-500">Learn through simulation</p>
+                  <h3 className="text-base font-semibold text-gray-800">Your Virtual Horse</h3>
+                  <p className="text-xs text-gray-500">Learn through simulation</p>
                 </div>
               </div>
               {vHorse ? (
                 <div className="space-y-2">
-                  <div className="flex justify-between"><span className="text-xs text-slate-500">Name</span><span className="text-sm text-slate-800">{vHorse.name}</span></div>
-                  {vHorse.breed && <div className="flex justify-between"><span className="text-xs text-slate-500">Breed</span><span className="text-sm text-slate-600">{vHorse.breed}</span></div>}
-                  <div className="flex justify-between"><span className="text-xs text-slate-500">Overall Score</span><span className="text-sm text-emerald-600">{vHorse.overallScore}/100</span></div>
+                  <div className="flex justify-between"><span className="text-xs text-gray-500">Name</span><span className="text-sm text-gray-800">{vHorse.name}</span></div>
+                  {vHorse.breed && <div className="flex justify-between"><span className="text-xs text-gray-500">Breed</span><span className="text-sm text-gray-600">{vHorse.breed}</span></div>}
+                  <div className="flex justify-between"><span className="text-xs text-gray-500">Overall Score</span><span className="text-sm text-emerald-600">{vHorse.overallScore}/100</span></div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-indigo-600 text-sm mt-1">
+                <div className="flex items-center gap-2 text-[#2e6da4] text-sm mt-1">
                   <Plus className="w-4 h-4" /> Create your virtual horse
                 </div>
               )}
@@ -543,17 +543,17 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
                 <Heart className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-slate-800">Your Assigned Horse</h3>
-                <p className="text-xs text-slate-500">Assigned by your school</p>
+                <h3 className="text-base font-semibold text-gray-800">Your Assigned Horse</h3>
+                <p className="text-xs text-gray-500">Assigned by your school</p>
               </div>
             </div>
             {aHorse ? (
               <div className="space-y-2">
-                <div className="flex justify-between"><span className="text-xs text-slate-500">Name</span><span className="text-sm text-slate-800">{aHorse.horseName}</span></div>
-                {aHorse.horseBreed && <div className="flex justify-between"><span className="text-xs text-slate-500">Breed</span><span className="text-sm text-slate-600">{aHorse.horseBreed}</span></div>}
+                <div className="flex justify-between"><span className="text-xs text-gray-500">Name</span><span className="text-sm text-gray-800">{aHorse.horseName}</span></div>
+                {aHorse.horseBreed && <div className="flex justify-between"><span className="text-xs text-gray-500">Breed</span><span className="text-sm text-gray-600">{aHorse.horseBreed}</span></div>}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 mt-1">No horse assigned yet. Your school or stable can assign one.</p>
+              <p className="text-sm text-gray-500 mt-1">No horse assigned yet. Your school or stable can assign one.</p>
             )}
           </div>
         </div>
@@ -565,11 +565,11 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
         <SCard>
           {tasks.length === 0 ? (
             <div className="text-center py-6">
-              <ClipboardList className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-              <p className="text-sm text-slate-500">No tasks for today.</p>
+              <ClipboardList className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">No tasks for today.</p>
               <button
                 onClick={() => onNavigate("practice")}
-                className="mt-3 text-sm text-indigo-500 hover:text-indigo-600 flex items-center gap-1 mx-auto"
+                className="mt-3 text-sm text-[#2e6da4] hover:text-[#2e6da4] flex items-center gap-1 mx-auto"
               >
                 <Plus className="w-4 h-4" /> Add a task
               </button>
@@ -577,24 +577,24 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
           ) : (
             <div className="space-y-3">
               {tasks.slice(0, 6).map((task) => (
-                <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
                   <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
                     task.isCompleted ? "bg-emerald-50 border-emerald-500" : "border-gray-600"
                   }`}>
                     {task.isCompleted && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
                   </div>
-                  <span className={`text-sm flex-1 ${task.isCompleted ? "text-slate-500 line-through" : "text-slate-600"}`}>
+                  <span className={`text-sm flex-1 ${task.isCompleted ? "text-gray-500 line-through" : "text-gray-600"}`}>
                     {task.title}
                   </span>
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    task.isCompleted ? "bg-emerald-50 text-emerald-600" : "bg-indigo-50 text-indigo-500"
+                    task.isCompleted ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-[#2e6da4]"
                   }`}>
                     {task.isCompleted ? "Done" : task.category}
                   </span>
                 </div>
               ))}
               {tasks.length > 6 && (
-                <button onClick={() => onNavigate("practice")} className="text-sm text-indigo-500 hover:text-indigo-600 flex items-center gap-1">
+                <button onClick={() => onNavigate("practice")} className="text-sm text-[#2e6da4] hover:text-[#2e6da4] flex items-center gap-1">
                   View all tasks <ChevronRight className="w-4 h-4" />
                 </button>
               )}
@@ -608,7 +608,7 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
         <SectionHeading icon={Target} title="Quick Actions" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
-            { icon: Library, label: "Learning Path", desc: "Continue your structured learning pathways", color: "#6366f1", view: "learning-path" as ActiveView },
+            { icon: Library, label: "Learning Path", desc: "Continue your structured learning pathways", color: "#2e6da4", view: "learning-path" as ActiveView },
             { icon: Zap, label: "Practice", desc: "Scenarios, training log, and daily care", color: "#10b981", view: "practice" as ActiveView },
             { icon: Brain, label: "Ask AI Tutor", desc: "Get help with equine topics", color: "#a78bfa", view: "ai-tutor" as ActiveView },
             { icon: Target, label: "View Progress", desc: "Track your skill development", color: "#06b6d4", view: "progress" as ActiveView },
@@ -625,10 +625,10 @@ function OverviewView({ onNavigate }: { onNavigate: (v: ActiveView) => void }) {
                   <span style={{ color: action.color }}><ActionIcon className="w-4 h-4 sm:w-5 sm:h-5" /></span>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors">{action.label}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{action.desc}</p>
+                  <p className="text-sm font-semibold text-gray-800 group-hover:text-[#2e6da4] transition-colors">{action.label}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{action.desc}</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 mt-1 group-hover:text-slate-500 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-gray-400 shrink-0 mt-1 group-hover:text-gray-500 transition-colors" />
               </button>
             );
           })}
@@ -679,8 +679,8 @@ function VirtualHorseView() {
       <SCard>
         <div className="text-center py-4 mb-6">
           <Sparkles className="w-10 h-10 text-violet-600 mx-auto mb-3" />
-          <h3 className="text-lg font-semibold text-slate-800 mb-1">Create Your Virtual Horse</h3>
-          <p className="text-sm text-slate-500 max-w-md mx-auto">
+          <h3 className="text-lg font-semibold text-gray-800 mb-1">Create Your Virtual Horse</h3>
+          <p className="text-sm text-gray-500 max-w-md mx-auto">
             Your virtual horse helps you learn care routines, feeding, grooming, and exercise — all through safe simulation.
           </p>
         </div>
@@ -689,25 +689,25 @@ function VirtualHorseView() {
             placeholder="Horse name *"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none"
+            className="px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none"
           />
           <input
             placeholder="Breed (optional)"
             value={form.breed}
             onChange={(e) => setForm({ ...form, breed: e.target.value })}
-            className="px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none"
+            className="px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none"
           />
           <input
             placeholder="Colour (optional)"
             value={form.color}
             onChange={(e) => setForm({ ...form, color: e.target.value })}
-            className="px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none"
+            className="px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none"
           />
           <input
             placeholder="Personality (optional)"
             value={form.personality}
             onChange={(e) => setForm({ ...form, personality: e.target.value })}
-            className="px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none"
+            className="px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none"
           />
         </div>
         <div className="text-center mt-6">
@@ -721,7 +721,7 @@ function VirtualHorseView() {
                 personality: form.personality.trim() || undefined,
               })
             }
-            className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-medium disabled:opacity-50 transition-all"
+            className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-violet-600 to-[#2e6da4] hover:from-violet-700 hover:to-[#245a8a] text-white text-sm font-medium disabled:opacity-50 transition-all"
           >
             {createMut.isPending ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Create Virtual Horse"}
           </button>
@@ -746,22 +746,22 @@ function VirtualHorseView() {
             <Sparkles className="w-7 h-7 text-white" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-800">{vHorse.name}</h3>
-            <p className="text-sm text-slate-500">
+            <h3 className="text-xl font-bold text-gray-800">{vHorse.name}</h3>
+            <p className="text-sm text-gray-500">
               {[vHorse.breed, vHorse.color, vHorse.personality].filter(Boolean).join(" · ") || "Your virtual horse"}
             </p>
           </div>
           <div className="ml-auto text-right">
             <p className="text-2xl font-bold text-emerald-600">{vHorse.overallScore}</p>
-            <p className="text-xs text-slate-500">Overall Score</p>
+            <p className="text-xs text-gray-500">Overall Score</p>
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {scores.map((s) => (
-            <div key={s.label} className="rounded-lg bg-slate-50 p-3 text-center">
-              <p className="text-xs text-slate-500 mb-1">{s.label}</p>
+            <div key={s.label} className="rounded-lg bg-gray-50 p-3 text-center">
+              <p className="text-xs text-gray-500 mb-1">{s.label}</p>
               <p className="text-lg font-bold" style={{ color: s.color }}>{s.value}</p>
-              <div className="mt-1.5 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="mt-1.5 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div className="h-full rounded-full transition-all" style={{ width: `${s.value}%`, backgroundColor: s.color }} />
               </div>
             </div>
@@ -769,15 +769,15 @@ function VirtualHorseView() {
         </div>
 
         {/* Daily Task Engine toggle */}
-        <div className="mt-5 pt-4 border-t border-slate-200 flex items-center justify-between gap-4">
+        <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-slate-800 flex items-center gap-2">
+            <p className="text-sm font-medium text-gray-800 flex items-center gap-2">
               <Flame className="w-4 h-4 text-amber-600" /> Daily Care Tasks
               {taskEngineStatus?.enabled && (
                 <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 font-semibold">ON</span>
               )}
             </p>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-gray-500 mt-0.5">
               {taskEngineStatus?.enabled
                 ? "Auto-generates 3 daily care tasks each morning based on your level."
                 : "Turn on to automatically receive daily virtual horse care tasks."}
@@ -787,7 +787,7 @@ function VirtualHorseView() {
             onClick={() => toggleEngineMut.mutate()}
             disabled={toggleEngineMut.isPending}
             className={`relative shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-              taskEngineStatus?.enabled ? "bg-emerald-500" : "bg-slate-300"
+              taskEngineStatus?.enabled ? "bg-emerald-500" : "bg-gray-300"
             }`}
             aria-label="Toggle daily task engine"
           >
@@ -797,7 +797,7 @@ function VirtualHorseView() {
           </button>
         </div>
         {taskEngineStatus?.enabled && generateTasksMut.data?.generated === 0 && (
-          <p className="text-xs text-slate-400 mt-2 text-center">Today's tasks already generated. Check your Tasks view.</p>
+          <p className="text-xs text-gray-400 mt-2 text-center">Today's tasks already generated. Check your Tasks view.</p>
         )}
         {taskEngineStatus?.enabled && (generateTasksMut.data?.generated ?? 0) > 0 && (
           <p className="text-xs text-emerald-600 mt-2 text-center">✓ {generateTasksMut.data?.generated} daily tasks added to your task list.</p>
@@ -856,7 +856,7 @@ function TasksView() {
         <SectionHeading icon={ClipboardList} title="Tasks & Care Routines" />
         <button
           onClick={() => setShowAdd(!showAdd)}
-          className="text-sm text-indigo-500 hover:text-indigo-600 flex items-center gap-1"
+          className="text-sm text-[#2e6da4] hover:text-[#2e6da4] flex items-center gap-1"
         >
           <Plus className="w-4 h-4" /> Add Task
         </button>
@@ -869,12 +869,12 @@ function TasksView() {
               placeholder="Task title..."
               value={newTask.title}
               onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-              className="flex-1 px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none"
+              className="flex-1 px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none"
             />
             <select
               value={newTask.category}
               onChange={(e) => setNewTask({ ...newTask, category: e.target.value as typeof newTask.category })}
-              className="px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 text-sm focus:border-indigo-500 focus:outline-none"
+              className="px-3 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 text-sm focus:border-[#2e6da4] focus:outline-none"
             >
               <option value="care">Care</option>
               <option value="grooming">Grooming</option>
@@ -886,7 +886,7 @@ function TasksView() {
             <select
               value={newTask.frequency}
               onChange={(e) => setNewTask({ ...newTask, frequency: e.target.value as typeof newTask.frequency })}
-              className="px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 text-sm focus:border-indigo-500 focus:outline-none"
+              className="px-3 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 text-sm focus:border-[#2e6da4] focus:outline-none"
             >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
@@ -904,7 +904,7 @@ function TasksView() {
                 setNewTask({ title: "", category: "care", frequency: "daily" });
                 setShowAdd(false);
               }}
-              className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium disabled:opacity-50 shrink-0"
+              className="px-5 py-2.5 rounded-lg bg-[#2e6da4] hover:bg-[#245a8a] text-white text-sm font-medium disabled:opacity-50 shrink-0"
             >
               {createMut.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
             </button>
@@ -915,24 +915,24 @@ function TasksView() {
       {/* Pending */}
       {pending.length > 0 && (
         <SCard>
-          <p className="text-xs font-semibold uppercase tracking-wider text-indigo-500 mb-3">Pending ({pending.length})</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#2e6da4] mb-3">Pending ({pending.length})</p>
           <div className="space-y-2">
             {pending.map((task) => (
-              <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200 group">
+              <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200 group">
                 <button
                   onClick={() => completeMut.mutate({ id: task.id })}
                   className="w-6 h-6 rounded-full border-2 border-gray-600 hover:border-emerald-500 flex items-center justify-center shrink-0 transition-colors"
                 />
-                <span className="text-sm text-slate-600 flex-1">{task.title}</span>
+                <span className="text-sm text-gray-600 flex-1">{task.title}</span>
                 {isAutoTask(task) && (
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-medium border border-amber-500/20 flex items-center gap-1 shrink-0">
                     <Sparkles className="w-2.5 h-2.5" /> Daily
                   </span>
                 )}
-                <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-500 font-medium">{task.category}</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-[#2e6da4] font-medium">{task.category}</span>
                 <button
                   onClick={() => deleteMut.mutate({ id: task.id })}
-                  className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-all"
+                  className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -948,14 +948,14 @@ function TasksView() {
           <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 mb-3">Completed ({completed.length})</p>
           <div className="space-y-2">
             {completed.slice(0, 10).map((task) => (
-              <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
+              <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
                 <button
                   onClick={() => uncompleteMut.mutate({ id: task.id })}
                   className="w-6 h-6 rounded-full border-2 bg-emerald-50 border-emerald-500 flex items-center justify-center shrink-0"
                 >
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 </button>
-                <span className="text-sm text-slate-500 line-through flex-1">{task.title}</span>
+                <span className="text-sm text-gray-500 line-through flex-1">{task.title}</span>
               </div>
             ))}
           </div>
@@ -965,8 +965,8 @@ function TasksView() {
       {pending.length === 0 && completed.length === 0 && (
         <SCard>
           <div className="text-center py-8">
-            <ClipboardList className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-            <p className="text-sm text-slate-500">No tasks yet. Add your first task above.</p>
+            <ClipboardList className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">No tasks yet. Add your first task above.</p>
           </div>
         </SCard>
       )}
@@ -1041,11 +1041,11 @@ function TrainingView() {
       <div className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input placeholder="Session title *" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })}
-            className="px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none" />
+            className="px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none" />
           <input type="date" value={f.sessionDate} onChange={(e) => setF({ ...f, sessionDate: e.target.value })}
-            className="px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 text-sm focus:border-indigo-500 focus:outline-none" />
+            className="px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 text-sm focus:border-[#2e6da4] focus:outline-none" />
           <select value={f.sessionType} onChange={(e) => setF({ ...f, sessionType: e.target.value as typeof f.sessionType })}
-            className="px-3 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 text-sm focus:border-indigo-500 focus:outline-none">
+            className="px-3 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 text-sm focus:border-[#2e6da4] focus:outline-none">
             <option value="lesson">Lesson</option>
             <option value="practice">Practice</option>
             <option value="groundwork">Groundwork</option>
@@ -1053,20 +1053,20 @@ function TrainingView() {
             <option value="other">Other</option>
           </select>
           <input placeholder="Instructor (optional)" value={f.instructor} onChange={(e) => setF({ ...f, instructor: e.target.value })}
-            className="px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none" />
+            className="px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none" />
         </div>
         <textarea placeholder="What went well?" value={f.wentWell} onChange={(e) => setF({ ...f, wentWell: e.target.value })} rows={2}
-          className="w-full px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none resize-none" />
+          className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none resize-none" />
         <textarea placeholder="What needs improvement?" value={f.needsImprovement} onChange={(e) => setF({ ...f, needsImprovement: e.target.value })} rows={2}
-          className="w-full px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none resize-none" />
+          className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none resize-none" />
         <textarea placeholder="Notes (optional)" value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} rows={2}
-          className="w-full px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none resize-none" />
+          className="w-full px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none resize-none" />
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3">
-          <button onClick={onCancel} className="px-4 py-2.5 text-sm text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-50 transition-colors">Cancel</button>
+          <button onClick={onCancel} className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-800 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
           <button
             disabled={!f.title.trim() || createMut.isPending || updateMut.isPending}
             onClick={onSubmit}
-            className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium disabled:opacity-50 w-full sm:w-auto"
+            className="px-5 py-2.5 rounded-lg bg-[#2e6da4] hover:bg-[#245a8a] text-white text-sm font-medium disabled:opacity-50 w-full sm:w-auto"
           >
             {(createMut.isPending || updateMut.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : submitLabel}
           </button>
@@ -1079,7 +1079,7 @@ function TrainingView() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <SectionHeading icon={TrendingUp} title="Training Log" />
-        <button onClick={() => { setShowAdd(!showAdd); cancelEdit(); }} className="text-sm text-indigo-500 hover:text-indigo-600 flex items-center gap-1">
+        <button onClick={() => { setShowAdd(!showAdd); cancelEdit(); }} className="text-sm text-[#2e6da4] hover:text-[#2e6da4] flex items-center gap-1">
           <Plus className="w-4 h-4" /> Log Session
         </button>
       </div>
@@ -1109,8 +1109,8 @@ function TrainingView() {
       {(entries ?? []).length === 0 ? (
         <SCard>
           <div className="text-center py-8">
-            <TrendingUp className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-            <p className="text-sm text-slate-500">No training entries yet. Log your first session above.</p>
+            <TrendingUp className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">No training entries yet. Log your first session above.</p>
           </div>
         </SCard>
       ) : (
@@ -1129,21 +1129,21 @@ function TrainingView() {
               <SCard key={entry.id}>
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-800">{entry.title}</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">{formatDate(entry.sessionDate)} · {entry.sessionType}{entry.instructor ? ` · ${entry.instructor}` : ""}</p>
+                    <h4 className="text-sm font-semibold text-gray-800">{entry.title}</h4>
+                    <p className="text-xs text-gray-500 mt-0.5">{formatDate(entry.sessionDate)} · {entry.sessionType}{entry.instructor ? ` · ${entry.instructor}` : ""}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => startEdit(entry)} className="text-slate-400 hover:text-indigo-500 transition-colors">
+                    <button onClick={() => startEdit(entry)} className="text-gray-400 hover:text-[#2e6da4] transition-colors">
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
-                    <button onClick={() => deleteMut.mutate({ id: entry.id })} className="text-slate-400 hover:text-red-400 transition-colors">
+                    <button onClick={() => deleteMut.mutate({ id: entry.id })} className="text-gray-400 hover:text-red-400 transition-colors">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
                 {entry.wentWell && <p className="text-xs text-emerald-600 mb-1">✓ {entry.wentWell}</p>}
                 {entry.needsImprovement && <p className="text-xs text-amber-600 mb-1">△ {entry.needsImprovement}</p>}
-                {entry.notes && <p className="text-xs text-slate-500 mt-1">{entry.notes}</p>}
+                {entry.notes && <p className="text-xs text-gray-500 mt-1">{entry.notes}</p>}
               </SCard>
             )
           ))}
@@ -1156,13 +1156,13 @@ function TrainingView() {
 // ─── Study Hub View ───────────────────────────────────────────
 const LEVEL_COLORS: Record<string, string> = {
   beginner: "#10b981",
-  developing: "#6366f1",
+  developing: "#2e6da4",
   intermediate: "#f59e0b",
   advanced: "#ef4444",
 };
 
 const CAT_COLORS: Record<string, string> = {
-  riding: "#6366f1",
+  riding: "#2e6da4",
   care: "#10b981",
   theory: "#f59e0b",
   safety: "#ef4444",
@@ -1201,8 +1201,8 @@ function StudyHubView() {
             onClick={() => setLevelFilter(l)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
               levelFilter === l
-                ? "text-slate-800 border-transparent"
-                : "border-slate-200 text-slate-500 hover:text-slate-600 hover:border-slate-300"
+                ? "text-gray-800 border-transparent"
+                : "border-gray-200 text-gray-500 hover:text-gray-600 hover:border-gray-300"
             }`}
             style={levelFilter === l ? { backgroundColor: LEVEL_COLORS[l] ?? STUDENT_ACCENT } : {}}
           >
@@ -1214,8 +1214,8 @@ function StudyHubView() {
       {filtered.length === 0 ? (
         <SCard>
           <div className="text-center py-8">
-            <BookOpen className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-            <p className="text-sm text-slate-500">No topics at this level yet.</p>
+            <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">No topics at this level yet.</p>
           </div>
         </SCard>
       ) : (
@@ -1235,13 +1235,13 @@ function StudyHubView() {
                   <div key={topic.id}>
                     <button
                       onClick={() => setExpandedTopic(expandedTopic === topic.id ? null : topic.id)}
-                      className="w-full text-left rounded-xl border p-4 transition-all hover:border-indigo-500/30"
+                      className="w-full text-left rounded-xl border p-4 transition-all hover:border-[#2e6da4]/30"
                       style={{ backgroundColor: STUDENT_CARD, borderColor: STUDENT_BORDER }}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <h4 className="text-sm font-semibold text-slate-800 mb-1">{topic.title}</h4>
-                          <p className="text-xs text-slate-500 line-clamp-2">{topic.description}</p>
+                          <h4 className="text-sm font-semibold text-gray-800 mb-1">{topic.title}</h4>
+                          <p className="text-xs text-gray-500 line-clamp-2">{topic.description}</p>
                         </div>
                         <span
                           className="shrink-0 text-xs px-2 py-0.5 rounded-full font-medium mt-0.5"
@@ -1253,13 +1253,13 @@ function StudyHubView() {
                     </button>
                     {expandedTopic === topic.id && topic.description && (
                       <div
-                        className="mt-1 rounded-xl border p-4 text-sm text-slate-600"
+                        className="mt-1 rounded-xl border p-4 text-sm text-gray-600"
                         style={{ backgroundColor: STUDENT_CARD, borderColor: STUDENT_BORDER }}
                       >
-                        <p className="text-sm text-slate-600 leading-relaxed">{topic.description}</p>
-                        <div className="mt-3 pt-3 border-t border-slate-200">
-                          <p className="text-xs text-indigo-500 font-medium">Suggested next step</p>
-                          <p className="text-xs text-slate-500 mt-1">Use the AI Tutor to explore this topic further or ask for a quiz.</p>
+                        <p className="text-sm text-gray-600 leading-relaxed">{topic.description}</p>
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <p className="text-xs text-[#2e6da4] font-medium">Suggested next step</p>
+                          <p className="text-xs text-gray-500 mt-1">Use the AI Tutor to explore this topic further or ask for a quiz.</p>
                         </div>
                       </div>
                     )}
@@ -1332,7 +1332,7 @@ function AITutorView({ initialQuestion, onQuestionConsumed }: { initialQuestion?
       <div className="flex items-center justify-between">
         <SectionHeading icon={Brain} title="AI Tutor" />
         {usage && (
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-gray-500">
             {usage.remaining}/{usage.dailyLimit} questions left today
           </span>
         )}
@@ -1348,11 +1348,11 @@ function AITutorView({ initialQuestion, onQuestionConsumed }: { initialQuestion?
                 key={p.label}
                 onClick={() => handleAsk(p.text)}
                 disabled={askMut.isPending}
-                className="flex items-center gap-2 p-3 rounded-xl border text-left transition-all hover:border-indigo-500/40 hover:bg-indigo-50 disabled:opacity-50"
+                className="flex items-center gap-2 p-3 rounded-xl border text-left transition-all hover:border-[#2e6da4]/40 hover:bg-blue-50 disabled:opacity-50"
                 style={{ borderColor: STUDENT_BORDER, backgroundColor: STUDENT_CARD }}
               >
-                <PIcon className="w-4 h-4 text-indigo-500 shrink-0" />
-                <span className="text-xs text-slate-600 font-medium">{p.label}</span>
+                <PIcon className="w-4 h-4 text-[#2e6da4] shrink-0" />
+                <span className="text-xs text-gray-600 font-medium">{p.label}</span>
               </button>
             );
           })}
@@ -1365,16 +1365,16 @@ function AITutorView({ initialQuestion, onQuestionConsumed }: { initialQuestion?
           {history.length === 0 && (
             <div className="text-center py-8">
               <Brain className="w-10 h-10 text-violet-600 mx-auto mb-3" />
-              <p className="text-sm text-slate-500 mb-1">Ask me anything about horse care, riding, or equestrian studies.</p>
-              <p className="text-xs text-slate-400">Try a guided prompt above or type your own question.</p>
+              <p className="text-sm text-gray-500 mb-1">Ask me anything about horse care, riding, or equestrian studies.</p>
+              <p className="text-xs text-gray-400">Try a guided prompt above or type your own question.</p>
             </div>
           )}
           {history.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] rounded-xl px-4 py-3 text-sm ${
                 msg.role === "user"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-100 text-slate-600 border border-slate-200"
+                  ? "bg-[#2e6da4] text-white"
+                  : "bg-gray-100 text-gray-600 border border-gray-200"
               }`}>
                 <p className="whitespace-pre-wrap">{msg.content}</p>
               </div>
@@ -1382,8 +1382,8 @@ function AITutorView({ initialQuestion, onQuestionConsumed }: { initialQuestion?
           ))}
           {askMut.isPending && (
             <div className="flex justify-start">
-              <div className="bg-slate-100 rounded-xl px-4 py-3 border border-slate-200">
-                <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
+              <div className="bg-gray-100 rounded-xl px-4 py-3 border border-gray-200">
+                <Loader2 className="w-4 h-4 animate-spin text-[#2e6da4]" />
               </div>
             </div>
           )}
@@ -1392,7 +1392,7 @@ function AITutorView({ initialQuestion, onQuestionConsumed }: { initialQuestion?
         {history.length > 0 && (
           <button
             onClick={() => setHistory([])}
-            className="text-xs text-slate-400 hover:text-slate-500 mb-3 transition-colors"
+            className="text-xs text-gray-400 hover:text-gray-500 mb-3 transition-colors"
           >
             Clear conversation
           </button>
@@ -1405,13 +1405,13 @@ function AITutorView({ initialQuestion, onQuestionConsumed }: { initialQuestion?
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAsk()}
             placeholder="Ask a question about horses, riding, or care..."
-            className="flex-1 px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-sm focus:border-indigo-500 focus:outline-none"
+            className="flex-1 px-4 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm focus:border-[#2e6da4] focus:outline-none"
             disabled={askMut.isPending}
           />
           <button
             onClick={() => handleAsk()}
             disabled={!question.trim() || askMut.isPending}
-            className="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50 transition-colors shrink-0"
+            className="px-4 py-2.5 rounded-lg bg-[#2e6da4] hover:bg-[#245a8a] text-white disabled:opacity-50 transition-colors shrink-0"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -1424,7 +1424,7 @@ function AITutorView({ initialQuestion, onQuestionConsumed }: { initialQuestion?
 // ─── Progress View ────────────────────────────────────────────
 const LEARNER_LEVELS = [
   { id: "beginner", label: "Beginner", description: "Learning the basics of horse care and riding", color: "#10b981" },
-  { id: "developing", label: "Developing", description: "Building confidence and consistency", color: "#6366f1" },
+  { id: "developing", label: "Developing", description: "Building confidence and consistency", color: "#2e6da4" },
   { id: "intermediate", label: "Intermediate", description: "Expanding skills and independent work", color: "#f59e0b" },
   { id: "advanced", label: "Advanced", description: "Refining technique and deeper knowledge", color: "#ef4444" },
 ] as const;
@@ -1443,7 +1443,7 @@ function ProgressView() {
   const [showLevelPicker, setShowLevelPicker] = useState(false);
 
   const skillColors: Record<string, string> = {
-    riding_position: "#6366f1", aids_control: "#8b5cf6",
+    riding_position: "#2e6da4", aids_control: "#8b5cf6",
     grooming: "#10b981", feeding: "#f59e0b", tack: "#ec4899",
     safety: "#ef4444", health_awareness: "#06b6d4", behaviour: "#f97316",
   };
@@ -1457,7 +1457,7 @@ function ProgressView() {
     ready_for_next_level: "#10b981",
     needs_support: "#f59e0b",
     focus_on_safety: "#ef4444",
-    focus_on_riding: "#6366f1",
+    focus_on_riding: "#2e6da4",
     focus_on_care: "#06b6d4",
   };
   const readinessLabels: Record<string, string> = {
@@ -1469,7 +1469,7 @@ function ProgressView() {
   };
 
   const competencyStatusColors: Record<string, string> = {
-    not_assessed: "#6b7280", in_progress: "#6366f1", achieved: "#10b981", needs_support: "#f59e0b",
+    not_assessed: "#6b7280", in_progress: "#2e6da4", achieved: "#10b981", needs_support: "#f59e0b",
   };
 
   if (progressLoading || levelLoading) return <SCard><SkeletonBar className="w-full h-32" /></SCard>;
@@ -1481,28 +1481,28 @@ function ProgressView() {
       {/* Learner level card */}
       <SCard>
         <div className="flex items-center justify-between mb-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Your Learner Level</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Your Learner Level</p>
           <button
             onClick={() => setShowLevelPicker(!showLevelPicker)}
-            className="text-xs text-indigo-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+            className="text-xs text-[#2e6da4] hover:text-[#2e6da4] flex items-center gap-1 transition-colors"
           >
             <Edit2 className="w-3 h-3" /> Change
           </button>
         </div>
         <div className="flex items-center gap-3 mt-2">
           <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-slate-800 font-bold text-sm"
+            className="w-12 h-12 rounded-xl flex items-center justify-center text-gray-800 font-bold text-sm"
             style={{ backgroundColor: `${currentLevel.color}22`, border: `2px solid ${currentLevel.color}40` }}
           >
             <Star className="w-5 h-5" style={{ color: currentLevel.color }} />
           </div>
           <div>
-            <p className="text-base font-bold text-slate-800">{currentLevel.label}</p>
-            <p className="text-xs text-slate-500">{currentLevel.description}</p>
+            <p className="text-base font-bold text-gray-800">{currentLevel.label}</p>
+            <p className="text-xs text-gray-500">{currentLevel.description}</p>
           </div>
         </div>
         {showLevelPicker && (
-          <div className="mt-4 pt-4 border-t border-slate-200 grid grid-cols-2 gap-2">
+          <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 gap-2">
             {LEARNER_LEVELS.map((l) => (
               <button
                 key={l.id}
@@ -1511,12 +1511,12 @@ function ProgressView() {
                   setShowLevelPicker(false);
                 }}
                 className={`p-3 rounded-lg border text-left transition-all ${
-                  l.id === levelData?.level ? "border-transparent" : "border-slate-200 hover:border-slate-300"
+                  l.id === levelData?.level ? "border-transparent" : "border-gray-200 hover:border-gray-300"
                 }`}
                 style={l.id === levelData?.level ? { backgroundColor: `${l.color}18`, borderColor: `${l.color}40` } : {}}
               >
-                <p className="text-xs font-semibold text-slate-800">{l.label}</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">{l.description}</p>
+                <p className="text-xs font-semibold text-gray-800">{l.label}</p>
+                <p className="text-[10px] text-gray-500 mt-0.5">{l.description}</p>
               </button>
             ))}
           </div>
@@ -1527,9 +1527,9 @@ function ProgressView() {
       {(progress ?? []).length === 0 ? (
         <SCard>
           <div className="text-center py-8">
-            <Leaf className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-            <p className="text-sm text-slate-500 font-medium mb-1">Your learning journey starts here</p>
-            <p className="text-xs text-slate-500 max-w-xs mx-auto">
+            <Leaf className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500 font-medium mb-1">Your learning journey starts here</p>
+            <p className="text-xs text-gray-500 max-w-xs mx-auto">
               Complete daily care tasks, log training sessions, and work through study topics
               to build your skill scores here.
             </p>
@@ -1537,16 +1537,16 @@ function ProgressView() {
         </SCard>
       ) : (
         <SCard>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4">Skill Areas</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Skill Areas</p>
           <div className="space-y-4">
             {(progress ?? []).map((skill) => (
               <div key={skill.id}>
                 <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-sm text-slate-800 font-medium">{formatSkillName(skill.skillArea)}</span>
-                  <span className="text-xs text-slate-500">Level {skill.level} · {skill.xp} XP</span>
+                  <span className="text-sm text-gray-800 font-medium">{formatSkillName(skill.skillArea)}</span>
+                  <span className="text-xs text-gray-500">Level {skill.level} · {skill.xp} XP</span>
                 </div>
                 {/* XP bar: 100 XP per level; modulo shows progress toward next level */}
-                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -1555,7 +1555,7 @@ function ProgressView() {
                     }}
                   />
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">{skill.xp % 100 === 0 ? "Level up!" : `${100 - (skill.xp % 100)} XP to next level`}</p>
+                <p className="text-[10px] text-gray-400 mt-1">{skill.xp % 100 === 0 ? "Level up!" : `${100 - (skill.xp % 100)} XP to next level`}</p>
               </div>
             ))}
           </div>
@@ -1566,7 +1566,7 @@ function ProgressView() {
       {intelligence && (
         <SCard>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Learning Intelligence</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Learning Intelligence</p>
             {intelligence.readinessStatus && (
               <span className="text-xs px-2 py-0.5 rounded-full font-medium"
                 style={{ color: readinessColors[intelligence.readinessStatus], backgroundColor: `${readinessColors[intelligence.readinessStatus]}18` }}>
@@ -1578,11 +1578,11 @@ function ProgressView() {
           {/* Lesson completion overview */}
           <div className="mb-4">
             <div className="flex justify-between items-center mb-1">
-              <span className="text-sm text-slate-800">Overall Lessons</span>
-              <span className="text-xs text-slate-500">{intelligence.overallLessonPercent}%</span>
+              <span className="text-sm text-gray-800">Overall Lessons</span>
+              <span className="text-xs text-gray-500">{intelligence.overallLessonPercent}%</span>
             </div>
-            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full rounded-full transition-all duration-500 bg-indigo-500"
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-500 bg-blue-500"
                 style={{ width: `${intelligence.overallLessonPercent}%` }} />
             </div>
           </div>
@@ -1591,20 +1591,20 @@ function ProgressView() {
           {intelligence.pathwayProgress.map(pw => (
             <div key={pw.slug} className="mb-2">
               <div className="flex justify-between items-center mb-0.5">
-                <span className="text-xs text-slate-500 capitalize">{pw.slug.replace(/-/g, " ")}</span>
-                <span className="text-xs text-slate-400">{pw.completed}/{pw.total}</span>
+                <span className="text-xs text-gray-500 capitalize">{pw.slug.replace(/-/g, " ")}</span>
+                <span className="text-xs text-gray-400">{pw.completed}/{pw.total}</span>
               </div>
-              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${pw.percent}%`, backgroundColor: pw.percent >= 100 ? "#10b981" : "#6366f1" }} />
+                  style={{ width: `${pw.percent}%`, backgroundColor: pw.percent >= 100 ? "#10b981" : "#2e6da4" }} />
               </div>
             </div>
           ))}
 
           {/* Weak areas */}
           {intelligence.weakAreas.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-slate-200">
-              <p className="text-xs text-slate-500 mb-1">Areas to Focus</p>
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <p className="text-xs text-gray-500 mb-1">Areas to Focus</p>
               <div className="flex flex-wrap gap-1.5">
                 {intelligence.weakAreas.map(w => (
                   <span key={w} className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">{w}</span>
@@ -1615,9 +1615,9 @@ function ProgressView() {
 
           {/* Recommended next */}
           {intelligence.recommendedNextPathway && (
-            <div className="mt-3 pt-3 border-t border-slate-200">
-              <p className="text-xs text-slate-500 mb-1">Recommended Next</p>
-              <p className="text-sm text-indigo-600 capitalize">{intelligence.recommendedNextPathway.replace(/-/g, " ")}</p>
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <p className="text-xs text-gray-500 mb-1">Recommended Next</p>
+              <p className="text-sm text-[#2e6da4] capitalize">{intelligence.recommendedNextPathway.replace(/-/g, " ")}</p>
             </div>
           )}
         </SCard>
@@ -1626,11 +1626,11 @@ function ProgressView() {
       {/* ── Competencies ── */}
       {competencies && competencies.length > 0 && (
         <SCard>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Competencies</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Competencies</p>
           <div className="grid gap-2 sm:grid-cols-2">
             {competencies.map(c => (
-              <div key={c.id} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50">
-                <span className="text-xs text-slate-800">{c.competencyKey.replace(/_/g, " ")}</span>
+              <div key={c.id} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-gray-50">
+                <span className="text-xs text-gray-800">{c.competencyKey.replace(/_/g, " ")}</span>
                 <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium capitalize"
                   style={{ color: competencyStatusColors[c.status], backgroundColor: `${competencyStatusColors[c.status]}18` }}>
                   {c.status.replace(/_/g, " ")}
@@ -1638,18 +1638,18 @@ function ProgressView() {
               </div>
             ))}
           </div>
-          <div className="mt-3 pt-3 border-t border-slate-200 flex items-center gap-4">
+          <div className="mt-3 pt-3 border-t border-gray-200 flex items-center gap-4">
             <div className="text-center">
               <p className="text-lg font-bold text-emerald-600">{competencies.filter(c => c.status === "achieved").length}</p>
-              <p className="text-[10px] text-slate-500">Achieved</p>
+              <p className="text-[10px] text-gray-500">Achieved</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-indigo-500">{competencies.filter(c => c.status === "in_progress").length}</p>
-              <p className="text-[10px] text-slate-500">In Progress</p>
+              <p className="text-lg font-bold text-[#2e6da4]">{competencies.filter(c => c.status === "in_progress").length}</p>
+              <p className="text-[10px] text-gray-500">In Progress</p>
             </div>
             <div className="text-center">
               <p className="text-lg font-bold text-amber-600">{competencies.filter(c => c.status === "needs_support").length}</p>
-              <p className="text-[10px] text-slate-500">Needs Support</p>
+              <p className="text-[10px] text-gray-500">Needs Support</p>
             </div>
           </div>
         </SCard>
@@ -1658,21 +1658,21 @@ function ProgressView() {
       {/* ── Teacher Lesson Reviews ── */}
       {lessonReviewsData && lessonReviewsData.length > 0 && (
         <SCard>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Teacher Lesson Reviews</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Teacher Lesson Reviews</p>
           <div className="space-y-2">
             {lessonReviewsData.slice(0, 5).map(r => (
-              <div key={r.id} className={`p-3 rounded-lg border transition-colors ${r.isRead ? "bg-slate-50 border-slate-200" : "bg-indigo-50 border-slate-200"}`}>
+              <div key={r.id} className={`p-3 rounded-lg border transition-colors ${r.isRead ? "bg-gray-50 border-gray-200" : "bg-blue-50 border-gray-200"}`}>
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.reviewStatus === "satisfactory" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
                     {r.reviewStatus === "satisfactory" ? "Satisfactory" : "Needs Improvement"}
                   </span>
-                  <span className="text-xs text-slate-400">{r.lessonSlug}</span>
+                  <span className="text-xs text-gray-400">{r.lessonSlug}</span>
                 </div>
-                {r.feedback && <p className="text-xs text-slate-600">{r.feedback}</p>}
-                {r.recommendedNextLesson && <p className="text-xs text-indigo-500 mt-1">Next: {r.recommendedNextLesson}</p>}
+                {r.feedback && <p className="text-xs text-gray-600">{r.feedback}</p>}
+                {r.recommendedNextLesson && <p className="text-xs text-[#2e6da4] mt-1">Next: {r.recommendedNextLesson}</p>}
                 {!r.isRead && (
                   <button onClick={() => markReadMut.mutate({ reviewId: r.id })}
-                    className="text-xs text-slate-500 hover:text-slate-600 mt-1 transition-colors">
+                    className="text-xs text-gray-500 hover:text-gray-600 mt-1 transition-colors">
                     Mark as read
                   </button>
                 )}
@@ -1688,7 +1688,7 @@ function ProgressView() {
 // ─── Scenario Training View ───────────────────────────────────
 const LEVEL_DISPLAY: Record<string, { label: string; color: string }> = {
   beginner: { label: "Beginner", color: "#10b981" },
-  developing: { label: "Developing", color: "#6366f1" },
+  developing: { label: "Developing", color: "#2e6da4" },
   intermediate: { label: "Intermediate", color: "#f59e0b" },
   advanced: { label: "Advanced", color: "#ef4444" },
 };
@@ -1741,20 +1741,20 @@ function ScenarioCard({
             >
               {levelInfo.label}
             </span>
-            <span className="text-[10px] text-slate-400 font-medium">{scenario.category}</span>
+            <span className="text-[10px] text-gray-400 font-medium">{scenario.category}</span>
           </div>
-          <h3 className="text-base font-semibold text-slate-800">{scenario.title}</h3>
+          <h3 className="text-base font-semibold text-gray-800">{scenario.title}</h3>
         </div>
         {result && (
-          <button onClick={resetScenario} className="text-xs text-slate-500 hover:text-slate-600 shrink-0 transition-colors">
+          <button onClick={resetScenario} className="text-xs text-gray-500 hover:text-gray-600 shrink-0 transition-colors">
             Try again
           </button>
         )}
       </div>
 
       {/* Prompt */}
-      <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
-        <p className="text-sm text-slate-600 leading-relaxed">{scenario.prompt}</p>
+      <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
+        <p className="text-sm text-gray-600 leading-relaxed">{scenario.prompt}</p>
       </div>
 
       {/* Choices */}
@@ -1767,7 +1767,7 @@ function ScenarioCard({
 
           let borderColor = STUDENT_BORDER;
           let bgColor = "transparent";
-          let textColor = "text-slate-600";
+          let textColor = "text-gray-600";
 
           if (isRevealed) {
             if (isCorrectAnswer) {
@@ -1779,7 +1779,7 @@ function ScenarioCard({
               bgColor = "#fef2f2"; // red-50
               textColor = "text-red-700";
             } else {
-              textColor = "text-slate-500";
+              textColor = "text-gray-500";
             }
           }
 
@@ -1789,7 +1789,7 @@ function ScenarioCard({
               onClick={() => handleAnswer(choice.id)}
               disabled={!!result || checkMut.isPending}
               className={`w-full text-left rounded-lg border px-4 py-3 text-sm transition-all ${textColor} ${
-                !result ? "hover:border-indigo-500/40 hover:bg-indigo-50" : ""
+                !result ? "hover:border-[#2e6da4]/40 hover:bg-blue-50" : ""
               } disabled:cursor-not-allowed`}
               style={{ borderColor, backgroundColor: bgColor }}
             >
@@ -1809,7 +1809,7 @@ function ScenarioCard({
 
       {/* Result reveal */}
       {result && (
-        <div className="rounded-lg border border-slate-200 bg-indigo-50 p-4 space-y-3">
+        <div className="rounded-lg border border-gray-200 bg-blue-50 p-4 space-y-3">
           <div className="flex items-center gap-2">
             {result.isCorrect
               ? <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -1819,8 +1819,8 @@ function ScenarioCard({
               {result.isCorrect ? "Correct!" : "Not quite right."}
             </p>
           </div>
-          <p className="text-xs text-slate-500 leading-relaxed">{result.selectedChoice.explanation}</p>
-          <div className="pt-2 border-t border-slate-200">
+          <p className="text-xs text-gray-500 leading-relaxed">{result.selectedChoice.explanation}</p>
+          <div className="pt-2 border-t border-gray-200">
             <div className="flex items-start gap-2">
               <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-xs text-amber-200/80 leading-relaxed">{result.learningTakeaway}</p>
@@ -1860,7 +1860,7 @@ function ScenarioTrainingView() {
         </div>
       </div>
 
-      <p className="text-sm text-slate-500 -mt-2">
+      <p className="text-sm text-gray-500 -mt-2">
         3 fresh scenarios each day — matched to your level and progress. Come back tomorrow for new ones!
       </p>
 
@@ -1868,8 +1868,8 @@ function ScenarioTrainingView() {
         <SCard>
           <div className="text-center py-6">
             <Trophy className="w-8 h-8 text-amber-600 mx-auto mb-2" />
-            <p className="text-sm font-semibold text-slate-800">All done for today!</p>
-            <p className="text-xs text-slate-500 mt-1">Great work. Your daily practice will refresh tomorrow with new scenarios.</p>
+            <p className="text-sm font-semibold text-gray-800">All done for today!</p>
+            <p className="text-xs text-gray-500 mt-1">Great work. Your daily practice will refresh tomorrow with new scenarios.</p>
           </div>
         </SCard>
       )}
@@ -1877,8 +1877,8 @@ function ScenarioTrainingView() {
       {scenarios.length === 0 ? (
         <SCard>
           <div className="text-center py-8">
-            <Zap className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-            <p className="text-sm text-slate-500">No scenarios available right now.</p>
+            <Zap className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">No scenarios available right now.</p>
           </div>
         </SCard>
       ) : (
@@ -1994,7 +1994,7 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
       <div className="space-y-6">
         {/* Back button */}
         <button onClick={() => { setSelectedLesson(null); setQuizMode(false); setQuizAnswers({}); setQuizSubmitted(false); }}
-          className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors">
+          className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition-colors">
           <ChevronLeft className="w-4 h-4" /> Back to lessons
         </button>
 
@@ -2006,15 +2006,15 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${levelColors[lessonDetail.level] ?? ""}`}>
                   {lessonDetail.level}
                 </span>
-                <span className="text-xs text-slate-500">{lessonDetail.category}</span>
-                <span className="text-xs text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3" />~15 min</span>
+                <span className="text-xs text-gray-500">{lessonDetail.category}</span>
+                <span className="text-xs text-gray-400 flex items-center gap-1"><Clock className="w-3 h-3" />~15 min</span>
                 {isCompleted && <span className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Completed</span>}
               </div>
-              <h2 className="text-xl font-bold text-slate-800">{lessonDetail.title}</h2>
+              <h2 className="text-xl font-bold text-gray-800">{lessonDetail.title}</h2>
             </div>
             {!isCompleted && (
               <button onClick={handleComplete} disabled={completeMutation.isPending}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-50">
+                className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#2e6da4] hover:bg-[#245a8a] transition-colors disabled:opacity-50">
                 {completeMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Mark Complete"}
               </button>
             )}
@@ -2024,13 +2024,13 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
         {/* Objectives */}
         {objectives.length > 0 && (
           <div className="rounded-xl p-5" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
-            <h3 className="text-sm font-semibold text-indigo-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-[#2e6da4] uppercase tracking-wider mb-3 flex items-center gap-2">
               <Target className="w-4 h-4" /> Learning Objectives
             </h3>
             <ul className="space-y-2">
               {objectives.map((obj, i) => (
-                <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
-                  <ChevronRight className="w-3 h-3 text-indigo-500 mt-1 shrink-0" /> {obj}
+                <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                  <ChevronRight className="w-3 h-3 text-[#2e6da4] mt-1 shrink-0" /> {obj}
                 </li>
               ))}
             </ul>
@@ -2055,7 +2055,7 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
 
         {/* Main content */}
         <div className="rounded-xl p-5" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
-          <div className="prose prose-slate prose-sm max-w-none text-slate-600 whitespace-pre-line leading-relaxed">
+          <div className="prose prose-slate prose-sm max-w-none text-gray-600 whitespace-pre-line leading-relaxed">
             {lessonDetail.content}
           </div>
         </div>
@@ -2068,7 +2068,7 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
             </h3>
             <ul className="space-y-2">
               {keyPoints.map((kp, i) => (
-                <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
                   <CheckCircle2 className="w-3 h-3 text-emerald-600 mt-1 shrink-0" /> {kp}
                 </li>
               ))}
@@ -2092,7 +2092,7 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
             <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-2">
               <Lightbulb className="w-4 h-4" /> Practical Application
             </h3>
-            <p className="text-sm text-slate-600">{lessonDetail.practicalApplication}</p>
+            <p className="text-sm text-gray-600">{lessonDetail.practicalApplication}</p>
           </div>
         )}
 
@@ -2104,7 +2104,7 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
             </h3>
             <ul className="space-y-2">
               {commonMistakes.map((m, i) => (
-                <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
                   <XCircle className="w-3 h-3 text-rose-600 mt-1 shrink-0" /> {m}
                 </li>
               ))}
@@ -2116,11 +2116,11 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
         {checks.length > 0 && (
           <div className="rounded-xl p-5" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-indigo-500 uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-[#2e6da4] uppercase tracking-wider flex items-center gap-2">
                 <Brain className="w-4 h-4" /> Knowledge Check
               </h3>
               {!quizMode && (
-                <button onClick={() => setQuizMode(true)} className="text-xs px-3 py-1 rounded-lg bg-indigo-600/30 text-indigo-600 hover:bg-indigo-600/50 transition-colors">
+                <button onClick={() => setQuizMode(true)} className="text-xs px-3 py-1 rounded-lg bg-[#2e6da4]/30 text-[#2e6da4] hover:bg-[#2e6da4]/50 transition-colors">
                   Take Quiz
                 </button>
               )}
@@ -2129,7 +2129,7 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
               <div className="space-y-5">
                 {checks.map((q, qi) => (
                   <div key={qi} className="space-y-2">
-                    <p className="text-sm text-slate-800 font-medium">{qi + 1}. {q.question}</p>
+                    <p className="text-sm text-gray-800 font-medium">{qi + 1}. {q.question}</p>
                     <div className="grid gap-2">
                       {q.options.map((opt, oi) => {
                         const selected = quizAnswers[qi] === oi;
@@ -2141,8 +2141,8 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
                             className={`text-left text-sm px-3 py-2 rounded-lg border transition-colors ${
                               isCorrect ? "border-emerald-500 bg-emerald-50 text-emerald-700" :
                               isWrong ? "border-rose-500 bg-rose-50 text-rose-600" :
-                              selected ? "border-indigo-500 bg-indigo-50 text-indigo-600" :
-                              "border-slate-200 bg-slate-100 text-slate-400 hover:border-slate-300"
+                              selected ? "border-[#2e6da4] bg-blue-50 text-[#2e6da4]" :
+                              "border-gray-200 bg-gray-100 text-gray-400 hover:border-gray-300"
                             }`}>
                             {opt}
                           </button>
@@ -2150,18 +2150,18 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
                       })}
                     </div>
                     {quizSubmitted && (
-                      <p className="text-xs text-slate-500 mt-1 pl-2">{q.explanation}</p>
+                      <p className="text-xs text-gray-500 mt-1 pl-2">{q.explanation}</p>
                     )}
                   </div>
                 ))}
                 {!quizSubmitted ? (
                   <button onClick={() => setQuizSubmitted(true)} disabled={Object.keys(quizAnswers).length < checks.length}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-50">
+                    className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#2e6da4] hover:bg-[#245a8a] transition-colors disabled:opacity-50">
                     Submit Answers
                   </button>
                 ) : (
                   <div className="flex items-center gap-3">
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-gray-600">
                       Score: {checks.filter((q, i) => quizAnswers[i] === q.correctIndex).length}/{checks.length}
                     </p>
                     {!isCompleted && (
@@ -2174,7 +2174,7 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
                 )}
               </div>
             ) : (
-              <p className="text-sm text-slate-500">{checks.length} questions available. Take the quiz to test your knowledge.</p>
+              <p className="text-sm text-gray-500">{checks.length} questions available. Take the quiz to test your knowledge.</p>
             )}
           </div>
         )}
@@ -2185,13 +2185,13 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
             <h3 className="text-sm font-semibold text-violet-600 uppercase tracking-wider mb-3 flex items-center gap-2">
               <Brain className="w-4 h-4" /> Ask the AI Tutor
             </h3>
-            <p className="text-xs text-slate-500 mb-3">Click a question to ask the AI Tutor directly</p>
+            <p className="text-xs text-gray-500 mb-3">Click a question to ask the AI Tutor directly</p>
             <div className="grid gap-2">
               {aiPrompts.map((prompt, i) => (
                 <button
                   key={i}
                   onClick={() => onAskTutor?.(prompt)}
-                  className="text-left text-sm text-slate-500 italic flex items-start gap-2 p-2.5 rounded-lg hover:bg-violet-500/10 hover:text-violet-300 transition-colors group"
+                  className="text-left text-sm text-gray-500 italic flex items-start gap-2 p-2.5 rounded-lg hover:bg-violet-500/10 hover:text-violet-300 transition-colors group"
                 >
                   <Brain className="w-3.5 h-3.5 text-violet-600 mt-0.5 shrink-0 group-hover:text-violet-300" />
                   <span>&ldquo;{prompt}&rdquo;</span>
@@ -2208,12 +2208,12 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
             {prevLesson ? (
               <button
                 onClick={() => goToLesson(prevLesson.slug)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-800 transition-all group"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-800 transition-all group"
                 style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}
               >
                 <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
                 <div className="text-left min-w-0">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">Previous</p>
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">Previous</p>
                   <p className="text-xs truncate max-w-[140px]">{prevLesson.title}</p>
                 </div>
               </button>
@@ -2221,10 +2221,10 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
             {nextLesson ? (
               <button
                 onClick={() => goToLesson(nextLesson.slug)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all group ml-auto bg-indigo-50 border border-indigo-200 text-indigo-600"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all group ml-auto bg-blue-50 border border-[#2e6da4]/20 text-[#2e6da4]"
               >
                 <div className="text-right min-w-0">
-                  <p className="text-[10px] text-indigo-500 uppercase tracking-wider">Next Lesson</p>
+                  <p className="text-[10px] text-[#2e6da4] uppercase tracking-wider">Next Lesson</p>
                   <p className="text-xs truncate max-w-[140px]">{nextLesson.title}</p>
                 </div>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform shrink-0" />
@@ -2244,7 +2244,7 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
   if (selectedLesson && loadingDetail) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#2e6da4]" />
       </div>
     );
   }
@@ -2261,17 +2261,17 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
       {selectedPathway && pathwayObj ? (
         <div className="space-y-3">
           <button onClick={() => setSelectedPathway(null)}
-            className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors">
+            className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition-colors">
             <ChevronLeft className="w-4 h-4" /> All Pathways
           </button>
           <div className="rounded-xl p-5" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
-            <h2 className="text-lg font-bold text-slate-800">{pathwayObj.title}</h2>
-            <p className="text-sm text-slate-500 mt-1">{pathwayObj.description}</p>
+            <h2 className="text-lg font-bold text-gray-800">{pathwayObj.title}</h2>
+            <p className="text-sm text-gray-500 mt-1">{pathwayObj.description}</p>
             <div className="flex items-center gap-4 mt-3">
-              <span className="text-xs text-slate-500">{totalLessons} lessons</span>
+              <span className="text-xs text-gray-500">{totalLessons} lessons</span>
               <span className="text-xs text-emerald-600">{completedCount} completed</span>
               {totalLessons > 0 && (
-                <div className="flex-1 max-w-[200px] h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                <div className="flex-1 max-w-[200px] h-1.5 bg-gray-200 rounded-full overflow-hidden">
                   <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${(completedCount / totalLessons) * 100}%` }} />
                 </div>
               )}
@@ -2280,10 +2280,10 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
         </div>
       ) : (
         <div className="rounded-xl p-5" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
-          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Library className="w-5 h-5 text-indigo-500" /> Learning Pathways
+          <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <Library className="w-5 h-5 text-[#2e6da4]" /> Learning Pathways
           </h2>
-          <p className="text-sm text-slate-500 mt-1">Structured courses covering all areas of horse care, riding, and equestrian theory.</p>
+          <p className="text-sm text-gray-500 mt-1">Structured courses covering all areas of horse care, riding, and equestrian theory.</p>
         </div>
       )}
 
@@ -2293,8 +2293,8 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
           <button key={lvl} onClick={() => setLevelFilter(lvl)}
             className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
               levelFilter === lvl
-                ? "bg-indigo-600 text-white"
-                : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                ? "bg-[#2e6da4] text-white"
+                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
             }`}>
             {lvl === "all" ? "All Levels" : lvl.charAt(0).toUpperCase() + lvl.slice(1)}
           </button>
@@ -2304,32 +2304,32 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
       {/* Assigned lessons panel */}
       {!selectedPathway && !selectedLesson && (assignedLessons ?? []).length > 0 && (
         <div className="rounded-xl p-5" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
-          <p className="text-xs font-semibold uppercase tracking-wider text-indigo-500 mb-3 flex items-center gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#2e6da4] mb-3 flex items-center gap-2">
             <BookOpen className="w-3.5 h-3.5" /> Assigned to You
           </p>
           <div className="space-y-2">
             {(assignedLessons ?? []).map(a => (
               <div key={a.id} className={`flex items-center justify-between gap-3 p-3 rounded-lg border ${
-                a.isOverdue ? "border-rose-200 bg-rose-50" : "border-slate-200 bg-slate-50"
+                a.isOverdue ? "border-rose-200 bg-rose-50" : "border-gray-200 bg-gray-50"
               }`}>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${a.assignmentType === "lesson" ? "bg-indigo-50 text-indigo-600" : "bg-emerald-50 text-emerald-600"}`}>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${a.assignmentType === "lesson" ? "bg-blue-50 text-[#2e6da4]" : "bg-emerald-50 text-emerald-600"}`}>
                       {a.assignmentType === "lesson" ? "Lesson" : "Pathway"}
                     </span>
-                    <span className="text-sm text-slate-800 font-medium truncate">{a.lessonTitle ?? a.lessonSlug ?? a.pathwaySlug}</span>
+                    <span className="text-sm text-gray-800 font-medium truncate">{a.lessonTitle ?? a.lessonSlug ?? a.pathwaySlug}</span>
                     {a.isCompleted && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
                   </div>
                   {a.dueDate && (
-                    <p className={`text-xs mt-0.5 ${a.isOverdue ? "text-rose-600" : "text-slate-500"}`}>
+                    <p className={`text-xs mt-0.5 ${a.isOverdue ? "text-rose-600" : "text-gray-500"}`}>
                       Due {String(a.dueDate).slice(0, 10)}{a.isOverdue ? " — Overdue" : ""}
                     </p>
                   )}
-                  {a.instructions && <p className="text-xs text-slate-500 mt-0.5 italic">{a.instructions}</p>}
+                  {a.instructions && <p className="text-xs text-gray-500 mt-0.5 italic">{a.instructions}</p>}
                 </div>
                 {!a.isCompleted && a.assignmentType === "lesson" && a.lessonSlug && (
                   <button onClick={() => setSelectedLesson(a.lessonSlug!)}
-                    className="text-xs px-3 py-1 rounded-lg bg-indigo-600/30 text-indigo-600 hover:bg-indigo-600/50 shrink-0 transition-colors">
+                    className="text-xs px-3 py-1 rounded-lg bg-[#2e6da4]/30 text-[#2e6da4] hover:bg-[#2e6da4]/50 shrink-0 transition-colors">
                     Open
                   </button>
                 )}
@@ -2341,12 +2341,12 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
 
       {/* Unread lesson reviews panel */}
       {!selectedPathway && !selectedLesson && (lessonReviews ?? []).some(r => !r.isRead) && (
-        <div className="rounded-xl p-4 bg-indigo-50 border border-indigo-200">
-          <p className="text-xs font-semibold text-indigo-500 mb-2 flex items-center gap-2">
+        <div className="rounded-xl p-4 bg-blue-50 border border-[#2e6da4]/20">
+          <p className="text-xs font-semibold text-[#2e6da4] mb-2 flex items-center gap-2">
             <MessageSquare className="w-3.5 h-3.5" /> New Teacher Feedback
           </p>
           {(lessonReviews ?? []).filter(r => !r.isRead).slice(0, 3).map(r => (
-            <div key={r.id} className="text-xs text-slate-600 mb-1">
+            <div key={r.id} className="text-xs text-gray-600 mb-1">
               <span className="font-medium capitalize">{r.lessonSlug?.replace(/-/g, " ")}</span>: {r.feedback?.slice(0, 80)}
               {(r.feedback?.length ?? 0) > 80 ? "…" : ""}
             </div>
@@ -2359,7 +2359,7 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {loadingPathways ? (
             <div className="col-span-full flex justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
+              <Loader2 className="w-6 h-6 animate-spin text-[#2e6da4]" />
             </div>
           ) : (
             pathways?.map((pw) => {
@@ -2369,30 +2369,30 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
               const IconComp = PATHWAY_ICON_MAP[pw.iconName ?? ""] ?? Library;
               return (
                 <button key={pw.slug} onClick={() => setSelectedPathway(pw.slug)}
-                  className="text-left rounded-xl p-5 transition-all hover:scale-[1.01] hover:border-indigo-500/40"
+                  className="text-left rounded-xl p-5 transition-all hover:scale-[1.01] hover:border-[#2e6da4]/40"
                   style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center">
-                      <IconComp className="w-4 h-4 text-indigo-500" />
+                    <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                      <IconComp className="w-4 h-4 text-[#2e6da4]" />
                     </div>
-                    <h3 className="text-sm font-semibold text-slate-800">{pw.title}</h3>
+                    <h3 className="text-sm font-semibold text-gray-800">{pw.title}</h3>
                   </div>
-                  <p className="text-xs text-slate-500 line-clamp-2 mb-3">{pw.description}</p>
+                  <p className="text-xs text-gray-500 line-clamp-2 mb-3">{pw.description}</p>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs text-slate-500">{pwLessons.length} lessons</span>
+                    <span className="text-xs text-gray-500">{pwLessons.length} lessons</span>
                     {pwLessons.length > 0 && (
                       <>
-                        <span className="text-xs text-slate-400">·</span>
-                        <span className="text-xs text-slate-500 flex items-center gap-1"><Clock className="w-3 h-3" />{estTime}</span>
-                        <span className="text-xs text-slate-400">·</span>
+                        <span className="text-xs text-gray-400">·</span>
+                        <span className="text-xs text-gray-500 flex items-center gap-1"><Clock className="w-3 h-3" />{estTime}</span>
+                        <span className="text-xs text-gray-400">·</span>
                         <span className="text-xs text-emerald-600">{pwCompleted} done</span>
-                        <div className="flex-1 h-1 bg-slate-200 rounded-full overflow-hidden min-w-[40px]">
+                        <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden min-w-[40px]">
                           <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(pwCompleted / pwLessons.length) * 100}%` }} />
                         </div>
                       </>
                     )}
                     {pwLessons.length === 0 && (
-                      <span className="text-xs text-slate-400 italic">Coming soon</span>
+                      <span className="text-xs text-gray-400 italic">Coming soon</span>
                     )}
                   </div>
                 </button>
@@ -2407,10 +2407,10 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
         <div className="space-y-3">
           {loadingLessons ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
+              <Loader2 className="w-6 h-6 animate-spin text-[#2e6da4]" />
             </div>
           ) : filteredLessons.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 text-sm">No lessons found for this filter.</div>
+            <div className="text-center py-12 text-gray-500 text-sm">No lessons found for this filter.</div>
           ) : (
             filteredLessons.map((lesson, idx) => {
               const isComplete = completedSlugs.has(lesson.slug);
@@ -2420,26 +2420,26 @@ function LessonsView({ onAskTutor }: { onAskTutor?: (question: string) => void }
                   onClick={() => !isLocked && setSelectedLesson(lesson.slug)}
                   disabled={isLocked}
                   className={`w-full text-left rounded-xl p-4 flex items-center gap-4 transition-all ${
-                    isLocked ? "opacity-50 cursor-not-allowed" : "hover:border-indigo-500/40"
+                    isLocked ? "opacity-50 cursor-not-allowed" : "hover:border-[#2e6da4]/40"
                   }`}
                   style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                    isLocked ? "bg-slate-100" : isComplete ? "bg-emerald-50" : "bg-white"
+                    isLocked ? "bg-gray-100" : isComplete ? "bg-emerald-50" : "bg-white"
                   }`}>
-                    {isLocked ? <Lock className="w-4 h-4 text-slate-400" /> : isComplete ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <span className="text-xs text-slate-500 font-mono">{idx + 1}</span>}
+                    {isLocked ? <Lock className="w-4 h-4 text-gray-400" /> : isComplete ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <span className="text-xs text-gray-500 font-mono">{idx + 1}</span>}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className={`text-sm font-medium truncate ${isLocked ? "text-slate-500" : "text-slate-800"}`}>{lesson.title}</h4>
+                    <h4 className={`text-sm font-medium truncate ${isLocked ? "text-gray-500" : "text-gray-800"}`}>{lesson.title}</h4>
                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${levelColors[lesson.level] ?? ""}`}>
                         {lesson.level}
                       </span>
-                      <span className="text-[10px] text-slate-500">{lesson.category}</span>
-                      {isLocked && <span className="text-[10px] text-slate-400 flex items-center gap-0.5"><Lock className="w-2.5 h-2.5" />Locked</span>}
-                      {!isLocked && <span className="text-[10px] text-slate-400 flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />~15 min</span>}
+                      <span className="text-[10px] text-gray-500">{lesson.category}</span>
+                      {isLocked && <span className="text-[10px] text-gray-400 flex items-center gap-0.5"><Lock className="w-2.5 h-2.5" />Locked</span>}
+                      {!isLocked && <span className="text-[10px] text-gray-400 flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />~15 min</span>}
                     </div>
                   </div>
-                  <ArrowRight className={`w-4 h-4 shrink-0 ${isLocked ? "text-gray-700" : "text-slate-400"}`} />
+                  <ArrowRight className={`w-4 h-4 shrink-0 ${isLocked ? "text-gray-700" : "text-gray-400"}`} />
                 </button>
               );
             })
@@ -2477,8 +2477,8 @@ function PracticeView() {
               onClick={() => setTab(t.id)}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                 isActive
-                  ? "bg-indigo-50 text-indigo-600"
-                  : "text-slate-500 hover:text-slate-600 hover:bg-slate-50"
+                  ? "bg-blue-50 text-[#2e6da4]"
+                  : "text-gray-500 hover:text-gray-600 hover:bg-gray-50"
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -2531,9 +2531,9 @@ function AssignmentsView() {
       {hasNothing ? (
         <SCard>
           <div className="text-center py-10">
-            <ClipboardList className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-            <p className="text-sm font-medium text-slate-500 mb-1">No assignments yet</p>
-            <p className="text-xs text-slate-400">When your teacher assigns lessons or tasks, they will appear here.</p>
+            <ClipboardList className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+            <p className="text-sm font-medium text-gray-500 mb-1">No assignments yet</p>
+            <p className="text-xs text-gray-400">When your teacher assigns lessons or tasks, they will appear here.</p>
           </div>
         </SCard>
       ) : (
@@ -2555,18 +2555,18 @@ function AssignmentsView() {
                   return (
                     <SCard key={r.id} className="!p-4 ring-1 ring-amber-500/20">
                       <div className="flex items-start gap-3">
-                        <Award className="w-4 h-4 shrink-0 mt-0.5" style={{ color: statusColors[r.reviewStatus] ?? "#6366f1" }} />
+                        <Award className="w-4 h-4 shrink-0 mt-0.5" style={{ color: statusColors[r.reviewStatus] ?? "#2e6da4" }} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-800">{r.lessonSlug?.replace(/-/g, " ")}</p>
+                          <p className="text-sm font-medium text-gray-800">{r.lessonSlug?.replace(/-/g, " ")}</p>
                           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
-                            backgroundColor: `${statusColors[r.reviewStatus] ?? "#6366f1"}18`,
-                            color: statusColors[r.reviewStatus] ?? "#6366f1"
+                            backgroundColor: `${statusColors[r.reviewStatus] ?? "#2e6da4"}18`,
+                            color: statusColors[r.reviewStatus] ?? "#2e6da4"
                           }}>
                             {r.reviewStatus?.replace(/_/g, " ")}
                           </span>
-                          {r.feedback && <p className="text-xs text-slate-500 mt-1.5">{r.feedback}</p>}
+                          {r.feedback && <p className="text-xs text-gray-500 mt-1.5">{r.feedback}</p>}
                           {r.recommendedNextLesson && (
-                            <p className="text-xs text-indigo-500 mt-1">
+                            <p className="text-xs text-[#2e6da4] mt-1">
                               Recommended next: <span className="font-medium">{r.recommendedNextLesson.replace(/-/g, " ")}</span>
                             </p>
                           )}
@@ -2582,7 +2582,7 @@ function AssignmentsView() {
           {/* Teacher Feedback */}
           {unreadFeedback.length > 0 && (
             <section>
-              <h3 className="text-sm font-semibold text-indigo-500 flex items-center gap-2 mb-3">
+              <h3 className="text-sm font-semibold text-[#2e6da4] flex items-center gap-2 mb-3">
                 <MessageSquare className="w-4 h-4" />
                 Instructor Feedback ({unreadFeedback.length} new)
               </h3>
@@ -2590,17 +2590,17 @@ function AssignmentsView() {
                 {unreadFeedback.slice(0, 5).map(f => {
                   const style = FEEDBACK_STYLES[f.feedbackType] ?? FEEDBACK_STYLES.general;
                   return (
-                    <SCard key={f.id} className="!p-4 ring-1 ring-indigo-500/20">
+                    <SCard key={f.id} className="!p-4 ring-1 ring-[#2e6da4]/20">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: style.bg, color: style.color }}>
                             {style.label}
                           </span>
-                          <p className="text-sm text-slate-600 mt-1.5">{f.comment}</p>
+                          <p className="text-sm text-gray-600 mt-1.5">{f.comment}</p>
                         </div>
                         <button
                           onClick={() => markFeedbackReadMut.mutate({ id: f.id })}
-                          className="text-xs text-indigo-500 hover:text-indigo-600 shrink-0"
+                          className="text-xs text-[#2e6da4] hover:text-[#2e6da4] shrink-0"
                           title="Mark as read"
                         >
                           <CheckCircle2 className="w-4 h-4" />
@@ -2616,7 +2616,7 @@ function AssignmentsView() {
           {/* Assigned Lessons */}
           {pendingLessons.length > 0 && (
             <section>
-              <h3 className="text-sm font-semibold text-indigo-500 flex items-center gap-2 mb-3">
+              <h3 className="text-sm font-semibold text-[#2e6da4] flex items-center gap-2 mb-3">
                 <Library className="w-4 h-4" />
                 Assigned Lessons ({pendingLessons.length} pending)
               </h3>
@@ -2624,12 +2624,12 @@ function AssignmentsView() {
                 {pendingLessons.map(l => (
                   <SCard key={l.id} className="!p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
-                        <Library className="w-4 h-4 text-indigo-500" />
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                        <Library className="w-4 h-4 text-[#2e6da4]" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-800">{l.lessonTitle || l.lessonSlug?.replace(/-/g, " ")}</p>
-                        <p className="text-[10px] text-slate-500">
+                        <p className="text-sm font-medium text-gray-800">{l.lessonTitle || l.lessonSlug?.replace(/-/g, " ")}</p>
+                        <p className="text-[10px] text-gray-500">
                           {l.pathwaySlug?.replace(/-/g, " ")}
                           {l.dueDate ? ` · Due ${String(l.dueDate).slice(0, 10)}` : ""}
                           {l.instructions ? ` · ${l.instructions}` : ""}
@@ -2658,7 +2658,7 @@ function AssignmentsView() {
                         <ClipboardList className="w-3 h-3 text-amber-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-slate-800 font-medium">{t.title}</p>
+                        <p className="text-sm text-gray-800 font-medium">{t.title}</p>
                         <p className="text-[10px] text-amber-600/70">
                           {t.category} · {t.frequency}
                           {t.dueDate ? ` · Due ${String(t.dueDate).slice(0, 10)}` : ""}
@@ -2690,14 +2690,14 @@ function AssignmentsView() {
                   {completedLessons.slice(0, 5).map(l => (
                     <div key={l.id} className="flex items-center gap-3 p-2 rounded-lg">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span className="text-xs text-slate-500 line-through">{l.lessonTitle || l.lessonSlug?.replace(/-/g, " ")}</span>
+                      <span className="text-xs text-gray-500 line-through">{l.lessonTitle || l.lessonSlug?.replace(/-/g, " ")}</span>
                       <span className="text-[10px] text-emerald-600/70 ml-auto shrink-0">Lesson</span>
                     </div>
                   ))}
                   {completedTasks.slice(0, 5).map(t => (
                     <div key={t.id} className="flex items-center gap-3 p-2 rounded-lg">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span className="text-xs text-slate-500 line-through">{t.title}</span>
+                      <span className="text-xs text-gray-500 line-through">{t.title}</span>
                       <span className="text-[10px] text-emerald-600/70 ml-auto shrink-0">Task</span>
                     </div>
                   ))}
@@ -2730,21 +2730,21 @@ function StudentSettingsView({ onNavigate }: { onNavigate: (v: ActiveView) => vo
     <div className="space-y-6 max-w-xl">
       {/* Profile */}
       <div className="rounded-xl p-5 space-y-4" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
-        <h3 className="text-sm font-semibold text-indigo-500 uppercase tracking-wider">Profile</h3>
+        <h3 className="text-sm font-semibold text-[#2e6da4] uppercase tracking-wider">Profile</h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Display name</label>
+            <label className="block text-xs text-gray-500 mb-1">Display name</label>
             <input
-              className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 placeholder-gray-600 focus:outline-none focus:border-indigo-500/50"
+              className="w-full text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-800 placeholder-gray-600 focus:outline-none focus:border-[#2e6da4]/50"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Your name"
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-500 mb-1">Email</label>
+            <label className="block text-xs text-gray-500 mb-1">Email</label>
             <input
-              className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-500 cursor-not-allowed"
+              className="w-full text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 cursor-not-allowed"
               value={user?.email ?? ""}
               readOnly
             />
@@ -2752,7 +2752,7 @@ function StudentSettingsView({ onNavigate }: { onNavigate: (v: ActiveView) => vo
           <button
             onClick={() => updateProfileMutation.mutate({ name })}
             disabled={updateProfileMutation.isPending || !name.trim() || name === user?.name}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-40"
+            className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#2e6da4] hover:bg-[#245a8a] transition-colors disabled:opacity-40"
           >
             {updateProfileMutation.isPending ? "Saving…" : saved ? "✓ Saved" : "Save Profile"}
           </button>
@@ -2761,11 +2761,11 @@ function StudentSettingsView({ onNavigate }: { onNavigate: (v: ActiveView) => vo
 
       {/* Password */}
       <div className="rounded-xl p-5 space-y-3" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
-        <h3 className="text-sm font-semibold text-indigo-500 uppercase tracking-wider">Security</h3>
-        <p className="text-xs text-slate-500">Need to change your password? Use the account security settings.</p>
+        <h3 className="text-sm font-semibold text-[#2e6da4] uppercase tracking-wider">Security</h3>
+        <p className="text-xs text-gray-500">Need to change your password? Use the account security settings.</p>
         <a
           href="/settings#security"
-          className="inline-flex items-center gap-2 text-sm text-indigo-500 hover:text-indigo-600"
+          className="inline-flex items-center gap-2 text-sm text-[#2e6da4] hover:text-[#2e6da4]"
         >
           Open security settings <ChevronRight className="w-3.5 h-3.5" />
         </a>
@@ -2773,11 +2773,11 @@ function StudentSettingsView({ onNavigate }: { onNavigate: (v: ActiveView) => vo
 
       {/* Billing */}
       <div className="rounded-xl p-5 space-y-3" style={{ background: STUDENT_CARD, border: `1px solid ${STUDENT_BORDER}` }}>
-        <h3 className="text-sm font-semibold text-indigo-500 uppercase tracking-wider">Subscription & Billing</h3>
-        <p className="text-xs text-slate-500">Manage your student plan subscription.</p>
+        <h3 className="text-sm font-semibold text-[#2e6da4] uppercase tracking-wider">Subscription & Billing</h3>
+        <p className="text-xs text-gray-500">Manage your student plan subscription.</p>
         <a
           href="/billing"
-          className="inline-flex items-center gap-2 text-sm text-indigo-500 hover:text-indigo-600"
+          className="inline-flex items-center gap-2 text-sm text-[#2e6da4] hover:text-[#2e6da4]"
         >
           Manage billing <ChevronRight className="w-3.5 h-3.5" />
         </a>
@@ -2826,7 +2826,7 @@ export default function StudentDashboard() {
       <div className="min-h-screen relative" style={{ backgroundColor: STUDENT_BG }}>
         {/* Subtle background accents */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-indigo-100/60 blur-[120px]" />
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-blue-100/60 blur-[120px]" />
           <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] rounded-full bg-violet-100/40 blur-[100px]" />
         </div>
 
@@ -2834,14 +2834,14 @@ export default function StudentDashboard() {
           {/* ─── Header ───────────────────────────────────── */}
           <section>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2e6da4] to-violet-500 flex items-center justify-center shadow-md">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">
                   {activeView === "overview" ? `Welcome back, ${firstName}` : viewTitle[activeView]}
                 </h1>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-gray-500">
                   {activeView === "overview" ? "Student Dashboard · Your learning journey" : "Student Dashboard"}
                 </p>
               </div>
