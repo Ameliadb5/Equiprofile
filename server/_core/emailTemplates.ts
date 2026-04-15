@@ -311,6 +311,374 @@ ${headerBlock("#0f2e6b")}
 // Template registry & merge-field processing
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── SCHOOL CAMPAIGN TEMPLATE FUNCTIONS ─────────────────────────────────────
+
+function schoolTemplate1_introduction(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Introducing EquiProfile to Your School 🎓
+  </h1>
+  <p style="margin:0 0 20px;font-size:15px;color:#64748b;line-height:1.6;">
+    Hi {{firstName}},
+  </p>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.6;">
+    We're excited to introduce <strong style="color:#1e293b;">EquiProfile</strong> — a digital learning and management platform designed specifically for equestrian education.
+  </p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    EquiProfile helps riding schools deliver structured learning, track student progression, manage assignments, and communicate with parents — all from one platform.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+    <tr><td style="padding:24px;background:#f5f3ff;">
+      <h2 style="margin:0 0 16px;font-size:18px;color:#4f46e5;">What EquiProfile Offers Schools</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Structured learning pathways (Beginner → Advanced)</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Daily practice scenarios matched to student level</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ AI tutor for instant help with equine topics</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Teacher dashboard for assignments and tracking</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Progress reports for students and parents</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px 12px;text-align:center;">
+  ${ctaButton("Learn More →", "{{signupLink}}", "#4f46e5")}
+</td></tr>
+`);
+}
+
+function schoolTemplate2_partnershipPitch(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #059669 0%, #10b981 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Partner with EquiProfile 🤝
+  </h1>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Hi {{firstName}},
+  </p>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.6;">
+    We'd love to explore a partnership with your riding school. EquiProfile provides the digital infrastructure to modernise equestrian education — from lesson planning to student progression tracking.
+  </p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Our platform helps schools stand out by offering students a professional, structured learning experience that parents can see and trust.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+    <tr><td style="padding:24px;background:#ecfdf5;">
+      <h2 style="margin:0 0 16px;font-size:18px;color:#059669;">Partnership Benefits</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🏫 Professional digital learning platform for your school</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📊 Real-time progress tracking and reporting</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">👨‍🏫 Teacher tools for assignments and feedback</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📱 Mobile-friendly for students and parents</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🎯 Structured curriculum aligned to industry standards</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px 12px;text-align:center;">
+  ${ctaButton("Start Partnership Discussion →", "{{signupLink}}", "#059669")}
+</td></tr>
+`);
+}
+
+function schoolTemplate3_studentPlatformOverview(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #6366f1 0%, #818cf8 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    The Student Learning Experience 📚
+  </h1>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Hi {{firstName}},
+  </p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Here's what your students will experience on EquiProfile — a clean, structured learning platform designed to make equestrian education engaging and measurable.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+    <tr><td style="padding:24px;background:#eef2ff;">
+      <h2 style="margin:0 0 16px;font-size:18px;color:#4f46e5;">Student Dashboard Features</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📖 Structured learning pathways with clear progression</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🎯 Daily practice scenarios matched to their level</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🤖 AI tutor available 24/7 for questions</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📋 Teacher-assigned tasks and homework</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📈 Visual progress tracking and level badges</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">💬 Direct messaging with instructors</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px 12px;text-align:center;">
+  ${ctaButton("See the Platform →", "{{signupLink}}", "#6366f1")}
+</td></tr>
+`);
+}
+
+function schoolTemplate4_teacherOnboarding(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #d97706 0%, #f59e0b 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Teacher Onboarding Pack 👨‍🏫
+  </h1>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Hi {{firstName}},
+  </p>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.6;">
+    Welcome to EquiProfile's Instructor Portal. This guide will help you get started with managing students, assigning work, and tracking progress.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+    <tr><td style="padding:24px;background:#fffbeb;">
+      <h2 style="margin:0 0 16px;font-size:18px;color:#d97706;">Getting Started Checklist</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">1️⃣ Log in and complete your instructor profile</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">2️⃣ Add your students or invite them via email</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">3️⃣ Create groups for your classes</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">4️⃣ Assign lessons and tasks from the learning library</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">5️⃣ Monitor progress and provide feedback</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">6️⃣ Generate reports for students and parents</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px 12px;text-align:center;">
+  ${ctaButton("Open Instructor Portal →", "{{signupLink}}", "#d97706")}
+</td></tr>
+`);
+}
+
+function schoolTemplate5_parentInfoPack(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Parent Information Pack 👨‍👩‍👧
+  </h1>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Hi {{firstName}},
+  </p>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.6;">
+    Your child's riding school uses <strong style="color:#1e293b;">EquiProfile</strong> to deliver structured equestrian education. Here's what that means for you and your child.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+    <tr><td style="padding:24px;background:#ecfeff;">
+      <h2 style="margin:0 0 16px;font-size:18px;color:#0891b2;">What Your Child Gets</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🎓 Structured learning from beginner to advanced</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📊 Clear progress reports you can review</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🤖 AI tutor for safe, instant answers to equine questions</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📱 Mobile-friendly — learn anytime, anywhere</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🏆 Level badges and achievements to keep them motivated</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px 12px;text-align:center;">
+  ${ctaButton("Learn More About EquiProfile →", "{{signupLink}}", "#0891b2")}
+</td></tr>
+`);
+}
+
+function schoolTemplate6_trialInvitation(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Your 7-Day Free Trial Awaits 🎉
+  </h1>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Hi {{firstName}},
+  </p>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.6;">
+    We'd like to invite your school to try EquiProfile completely free for 7 days. No credit card required, no obligations — just a full-featured trial of everything we offer.
+  </p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Set up your school, add students, assign lessons, and see real progress tracking in action.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+    <tr><td style="padding:24px;background:#f5f3ff;">
+      <h2 style="margin:0 0 16px;font-size:18px;color:#7c3aed;">Your Trial Includes</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Full teacher & student dashboards</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Complete learning pathway library</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ AI tutor access for all students</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Assignment & progress tracking</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Messaging between teachers and students</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px 12px;text-align:center;">
+  ${ctaButton("Start Your Free Trial →", "{{signupLink}}", "#7c3aed")}
+  <p style="margin:8px 0 0;font-size:12px;color:#94a3b8;">No credit card needed. Cancel anytime.</p>
+</td></tr>
+`);
+}
+
+function schoolTemplate7_performanceTracking(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #dc2626 0%, #ef4444 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Track Student Performance Like Never Before 📊
+  </h1>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Hi {{firstName}},
+  </p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    EquiProfile gives your school powerful tools to track every student's learning journey — from lesson completion to competency development to overall progression.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+    <tr><td style="padding:24px;background:#fef2f2;">
+      <h2 style="margin:0 0 16px;font-size:18px;color:#dc2626;">Reporting & Analytics</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📈 Individual student progress dashboards</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🏆 Level progression tracking (Beginner → Advanced)</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📋 Assignment completion rates</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🔍 Identify weak areas and students needing support</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📄 Exportable reports for parents and inspections</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px 12px;text-align:center;">
+  ${ctaButton("See Reporting Tools →", "{{signupLink}}", "#dc2626")}
+</td></tr>
+`);
+}
+
+function schoolTemplate8_digitalUpgrade(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #0f172a 0%, #334155 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Upgrade to Digital Training 🚀
+  </h1>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Hi {{firstName}},
+  </p>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.6;">
+    Still managing student records on paper? Running lessons from memory? EquiProfile brings your school into the digital age — professionally and effortlessly.
+  </p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Schools using EquiProfile report better student engagement, clearer communication with parents, and significant time savings on administration.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+    <tr><td style="padding:24px;background:#f8fafc;">
+      <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">Why Go Digital?</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">⏱️ Save hours on admin every week</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📱 Students learn on any device, anywhere</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🤖 AI-powered learning support 24/7</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">👨‍👩‍👧 Parents can track progress in real-time</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🏆 Professional image that attracts more students</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px 12px;text-align:center;">
+  ${ctaButton("Upgrade Your School →", "{{signupLink}}", "#334155")}
+</td></tr>
+`);
+}
+
+function schoolTemplate9_stableAndLearning(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #065f46 0%, #10b981 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Stable Management + Learning = One Platform 🐴📚
+  </h1>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Hi {{firstName}},
+  </p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    EquiProfile uniquely combines stable management with structured student learning. Manage your horses and teach your students — all in one integrated platform.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+    <tr><td style="padding:24px;background:#ecfdf5;">
+      <h2 style="margin:0 0 16px;font-size:18px;color:#065f46;">The Combined Advantage</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🏠 Stable management for your yard operations</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📖 Structured learning for student education</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">🐴 Link horses to students for real-world learning</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">👨‍🏫 Teacher tools for assignments and feedback</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">📊 Unified reporting across both areas</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">💬 Messaging for staff, students, and parents</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px 12px;text-align:center;">
+  ${ctaButton("Explore the Platform →", "{{signupLink}}", "#065f46")}
+</td></tr>
+`);
+}
+
+function schoolTemplate10_followUpConversion(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Ready to Transform Your School? ✨
+  </h1>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Hi {{firstName}},
+  </p>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.6;">
+    We hope you've had a chance to explore what EquiProfile can do for your riding school. Whether you've tried the free trial or are still considering it, we wanted to follow up and answer any questions you might have.
+  </p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    Schools that partner with EquiProfile see measurable improvements in student engagement, parent satisfaction, and teaching efficiency.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+    <tr><td style="padding:24px;background:#eef2ff;">
+      <h2 style="margin:0 0 16px;font-size:18px;color:#4f46e5;">Quick Recap</h2>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Progression-based learning pathways</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Daily practice scenarios for every student</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ AI tutor for instant, safe learning support</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Teacher assignment and feedback tools</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Progress reports and school-wide analytics</td></tr>
+        <tr><td style="padding:6px 0;font-size:14px;color:#334155;">✅ Messaging between teachers, students, and parents</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px 12px;text-align:center;">
+  <p style="font-size:15px;color:#64748b;line-height:1.6;margin:0 0 8px;">
+    Start your <strong style="color:#4f46e5;">7-day free trial</strong> today — no credit card required.
+  </p>
+  ${ctaButton("Get Started Free →", "{{signupLink}}", "#4f46e5")}
+  <p style="margin:12px 0 0;font-size:13px;color:#94a3b8;">
+    Have questions? Just reply to this email — we're happy to help.
+  </p>
+</td></tr>
+`);
+}
+
 export interface CampaignTemplate {
   id: string;
   name: string;
@@ -359,6 +727,77 @@ export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
       "Flexible all-purpose template. Admin fills in subject, greeting, and body content.",
     previewColor: "#0f2e6b",
     getHtml: template5_general,
+  },
+  // ── School Campaign Templates ────────────────────────────────────────────
+  {
+    id: "school-introduction",
+    name: "School Introduction Email",
+    description: "Introduces EquiProfile to a new school — structured learning, progression tracking, teacher tools.",
+    previewColor: "#4f46e5",
+    getHtml: schoolTemplate1_introduction,
+  },
+  {
+    id: "school-partnership",
+    name: "Riding School Partnership Pitch",
+    description: "Partnership proposal highlighting professional benefits for riding schools.",
+    previewColor: "#059669",
+    getHtml: schoolTemplate2_partnershipPitch,
+  },
+  {
+    id: "school-student-overview",
+    name: "Student Learning Platform Overview",
+    description: "Showcases the student learning experience — pathways, AI tutor, practice, progress.",
+    previewColor: "#6366f1",
+    getHtml: schoolTemplate3_studentPlatformOverview,
+  },
+  {
+    id: "school-teacher-onboarding",
+    name: "Teacher Onboarding Pack",
+    description: "Step-by-step guide for teachers getting started with the instructor portal.",
+    previewColor: "#d97706",
+    getHtml: schoolTemplate4_teacherOnboarding,
+  },
+  {
+    id: "school-parent-info",
+    name: "Parent Information Pack",
+    description: "Information for parents about how their child learns on EquiProfile.",
+    previewColor: "#0891b2",
+    getHtml: schoolTemplate5_parentInfoPack,
+  },
+  {
+    id: "school-trial-invitation",
+    name: "School Trial Invitation (7-day)",
+    description: "Invites a school to try EquiProfile free for 7 days — no credit card required.",
+    previewColor: "#7c3aed",
+    getHtml: schoolTemplate6_trialInvitation,
+  },
+  {
+    id: "school-performance-tracking",
+    name: "Performance Tracking & Reporting Pitch",
+    description: "Highlights reporting, analytics, and performance tracking for schools.",
+    previewColor: "#dc2626",
+    getHtml: schoolTemplate7_performanceTracking,
+  },
+  {
+    id: "school-digital-upgrade",
+    name: "Digital Training Upgrade Pitch",
+    description: "Persuades schools to move from paper-based to digital training with EquiProfile.",
+    previewColor: "#334155",
+    getHtml: schoolTemplate8_digitalUpgrade,
+  },
+  {
+    id: "school-stable-learning",
+    name: "Stable Management + Learning Combined Pitch",
+    description: "Showcases the unique combination of stable management and student learning on one platform.",
+    previewColor: "#065f46",
+    getHtml: schoolTemplate9_stableAndLearning,
+  },
+  {
+    id: "school-followup-conversion",
+    name: "Follow-up Conversion Email",
+    description: "Follow-up email for schools that haven't converted — recap of value and gentle CTA.",
+    previewColor: "#4f46e5",
+    getHtml: schoolTemplate10_followUpConversion,
   },
 ];
 
