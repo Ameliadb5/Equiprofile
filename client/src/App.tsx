@@ -18,12 +18,24 @@ import { ProtectedRoute, StableRoute, StudentRoute, TeacherRoute } from "./compo
 import { SalesChatWidget } from "./components/SalesChatWidget";
 import { CookieConsent } from "./components/CookieConsent";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
-// Marketing Pages (Public) — kept eager for fast initial paint on public routes
-import Home from "./pages/Home";
-import Features from "./pages/Features";
-import Pricing from "./pages/Pricing";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
+import { getSiteMode } from "./hooks/useSiteContext";
+
+// Management Marketing Pages — new separated designs
+import MgmtHome from "./pages/management/Home";
+import MgmtFeatures from "./pages/management/Features";
+import MgmtPricing from "./pages/management/Pricing";
+import MgmtAbout from "./pages/management/About";
+import MgmtContact from "./pages/management/Contact";
+
+// School Marketing Pages — new separated designs
+import SchoolHome from "./pages/school/Home";
+import SchoolFeatures from "./pages/school/Features";
+import SchoolPricing from "./pages/school/Pricing";
+import SchoolAbout from "./pages/school/About";
+import SchoolContact from "./pages/school/Contact";
+
+// Legacy Marketing Pages (kept for /students, /schools routes + V2 fallback)
+import LegacyHome from "./pages/Home";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import Students from "./pages/Students";
@@ -112,10 +124,17 @@ function Router() {
   const upgradeModal = useUpgradeModal();
   const uiVersion = getUIVersion();
   const { viewMode, isAdmin } = useAdminViewMode();
+  const siteMode = getSiteMode();
 
-  // Version-aware component selection — VITE_UI_VERSION=v2 (set at deploy time)
-  // selects V2 redesigned pages; default is V1 legacy
-  const ActiveHome = uiVersion === "v2" ? HomeV2 : Home;
+  // Domain-aware marketing page selection
+  // school.equiprofile.online → School pages | equiprofile.online → Management pages
+  const ActiveHomePage = siteMode === "school" ? SchoolHome : MgmtHome;
+  const ActiveFeaturesPage = siteMode === "school" ? SchoolFeatures : MgmtFeatures;
+  const ActivePricingPage = siteMode === "school" ? SchoolPricing : MgmtPricing;
+  const ActiveAboutPage = siteMode === "school" ? SchoolAbout : MgmtAbout;
+  const ActiveContactPage = siteMode === "school" ? SchoolContact : MgmtContact;
+
+  // Version-aware dashboard selection — VITE_UI_VERSION=v2 (set at deploy time)
   const ActiveDashboard = uiVersion === "v2" ? DashboardV2 : Dashboard;
   const ActiveStableDashboard = uiVersion === "v2" ? StableDashboardV2 : StableDashboard;
 
@@ -143,12 +162,13 @@ function Router() {
       <main id="main-content">
         <Suspense fallback={<PageSpinner />}>
           <Switch>
-            {/* Marketing Pages (Public) — version-aware */}
-            <Route path="/" component={ActiveHome} />
-            <Route path="/features" component={Features} />
-            <Route path="/pricing" component={Pricing} />
-            <Route path="/about" component={About} />
-            <Route path="/contact" component={Contact} />
+            {/* Marketing Pages (Public) — domain-aware: management vs school */}
+            <Route path="/" component={ActiveHomePage} />
+            <Route path="/features" component={ActiveFeaturesPage} />
+            <Route path="/pricing" component={ActivePricingPage} />
+            <Route path="/about" component={ActiveAboutPage} />
+            <Route path="/contact" component={ActiveContactPage} />
+            {/* Legacy routes kept for backward compatibility */}
             <Route path="/students" component={Students} />
             <Route path="/schools" component={Schools} />
             <Route path="/terms" component={TermsPage} />
