@@ -492,7 +492,7 @@ function AdminContent() {
         </Card>
       </div>
 
-      {/* Main Tabs — scrollable row on small screens, no wrapping */}
+      {/* Main Tabs — grouped for clarity */}
       <Tabs defaultValue="users" className="space-y-4">
         <div className="overflow-x-auto scrollbar-hide -mx-1 px-1">
           <TabsList className="flex flex-nowrap gap-1 bg-muted/50 p-1 rounded-xl border border-border/40 w-max min-w-full">
@@ -507,7 +507,7 @@ function AdminContent() {
             </TabsTrigger>
             <TabsTrigger value="churn" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
               <Activity className="w-3.5 h-3.5" />
-              <span>Churn Risk</span>
+              <span>Churn</span>
             </TabsTrigger>
 
             <div className="w-px bg-border/60 mx-1 self-stretch" />
@@ -517,41 +517,33 @@ function AdminContent() {
               <MessageSquare className="w-3.5 h-3.5" />
               <span>Leads</span>
             </TabsTrigger>
-            <TabsTrigger value="whatsapp" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Smartphone className="w-3.5 h-3.5" />
-              <span>WhatsApp</span>
-            </TabsTrigger>
             <TabsTrigger value="campaigns" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
               <Mail className="w-3.5 h-3.5" />
               <span>Campaigns</span>
+            </TabsTrigger>
+            <TabsTrigger value="whatsapp" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>WhatsApp</span>
             </TabsTrigger>
 
             <div className="w-px bg-border/60 mx-1 self-stretch" />
 
             {/* ── System ── */}
-            <TabsTrigger value="activity" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Activity className="w-3.5 h-3.5" />
-              <span>Activity</span>
+            <TabsTrigger value="system" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
+              <Server className="w-3.5 h-3.5" />
+              <span>System</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
               <Settings className="w-3.5 h-3.5" />
               <span>Settings</span>
             </TabsTrigger>
-            <TabsTrigger value="system" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <Server className="w-3.5 h-3.5" />
-              <span>System</span>
+            <TabsTrigger value="analytics" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>Analytics</span>
             </TabsTrigger>
             <TabsTrigger value="deleted" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
               <Trash2 className="w-3.5 h-3.5" />
               <span>Deleted</span>
-            </TabsTrigger>
-
-            <div className="w-px bg-border/60 mx-1 self-stretch" />
-
-            {/* ── Analytics ── */}
-            <TabsTrigger value="analytics" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
-              <BarChart3 className="w-3.5 h-3.5" />
-              <span>Analytics</span>
             </TabsTrigger>
             <TabsTrigger value="portals" className="flex items-center gap-1.5 shrink-0 text-xs sm:text-sm">
               <Eye className="w-3.5 h-3.5" />
@@ -1190,49 +1182,6 @@ function AdminContent() {
           </Card>
         </TabsContent>
 
-        {/* Activity Tab */}
-        <TabsContent value="activity">
-          <Card>
-            <CardHeader>
-              <CardTitle>Activity Logs</CardTitle>
-              <CardDescription>
-                Recent system activity and user actions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!activityLogs || activityLogs.length === 0 ? (
-                <div className="text-center py-8">
-                  <Activity className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-                  <p className="text-muted-foreground">No activity logs yet</p>
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {activityLogs.map((log) => (
-                    <div
-                      key={log.id}
-                      className="flex items-center gap-4 p-3 rounded-lg bg-muted/30"
-                    >
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Activity className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">
-                          {log.action.replace(/_/g, " ")}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {log.entityType &&
-                            `${log.entityType} #${log.entityId} • `}
-                          {new Date(log.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         {/* Settings Tab */}
         <TabsContent value="settings">
           <div className="space-y-6">
@@ -1643,6 +1592,47 @@ function AdminContent() {
                       ✓ All document files are present on disk
                     </p>
                   )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Activity Logs (merged into System) */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Activity Logs</CardTitle>
+              <CardDescription>
+                Recent system activity and user actions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!activityLogs || activityLogs.length === 0 ? (
+                <div className="text-center py-8">
+                  <Activity className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                  <p className="text-muted-foreground">No activity logs yet</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {activityLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="flex items-center gap-4 p-3 rounded-lg bg-muted/30"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Activity className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">
+                          {log.action.replace(/_/g, " ")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {log.entityType &&
+                            `${log.entityType} #${log.entityId} • `}
+                          {new Date(log.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>
@@ -2141,83 +2131,30 @@ function AdminContent() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <Eye className="w-4 h-4 text-indigo-500" /> Portal Access
+                <Eye className="w-4 h-4 text-indigo-500" /> Quick Portal Access
               </CardTitle>
               <CardDescription>
-                As an admin you can access any portal directly. Use the shortcuts below to switch dashboards without needing a separate account.
+                Switch to any dashboard to preview the user experience.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
-                  {
-                    label: "Pro Dashboard",
-                    description: "Standard equine management dashboard for Pro users.",
-                    icon: "🐴",
-                    path: "/dashboard",
-                    color: "from-blue-500/15 to-indigo-500/15",
-                    border: "border-blue-500/20",
-                    btnColor: "bg-blue-600 hover:bg-blue-500",
-                  },
-                  {
-                    label: "Stable Dashboard",
-                    description: "Team management, stable operations, and staff coordination.",
-                    icon: "🏠",
-                    path: "/stable-dashboard",
-                    color: "from-emerald-500/15 to-teal-500/15",
-                    border: "border-emerald-500/20",
-                    btnColor: "bg-emerald-600 hover:bg-emerald-500",
-                  },
-                  {
-                    label: "Student Portal",
-                    description: "Student learning dashboard — lessons, tasks, progress.",
-                    icon: "🎓",
-                    path: "/student-dashboard",
-                    color: "from-violet-500/15 to-purple-500/15",
-                    border: "border-violet-500/20",
-                    btnColor: "bg-violet-600 hover:bg-violet-500",
-                  },
-                  {
-                    label: "Teacher Portal",
-                    description: "Instructor workspace — students, assignments, feedback.",
-                    icon: "📋",
-                    path: "/teacher-dashboard",
-                    color: "from-amber-500/15 to-orange-500/15",
-                    border: "border-amber-500/20",
-                    btnColor: "bg-amber-600 hover:bg-amber-500",
-                  },
-                  {
-                    label: "Admin Panel",
-                    description: "You are here. Full system administration.",
-                    icon: "🛡️",
-                    path: "/admin",
-                    color: "from-rose-500/15 to-red-500/15",
-                    border: "border-rose-500/20",
-                    btnColor: "bg-rose-600 hover:bg-rose-500",
-                  },
+                  { label: "Pro Dashboard", icon: "🐴", path: "/dashboard", btnColor: "bg-blue-600 hover:bg-blue-500" },
+                  { label: "Stable Dashboard", icon: "🏠", path: "/stable-dashboard", btnColor: "bg-emerald-600 hover:bg-emerald-500" },
+                  { label: "Student Portal", icon: "🎓", path: "/student-dashboard", btnColor: "bg-violet-600 hover:bg-violet-500" },
+                  { label: "Teacher Portal", icon: "📋", path: "/teacher-dashboard", btnColor: "bg-amber-600 hover:bg-amber-500" },
                 ].map((portal) => (
-                  <div
+                  <Button
                     key={portal.label}
-                    className={`rounded-xl border p-5 bg-gradient-to-br ${portal.color} ${portal.border}`}
+                    size="sm"
+                    className={`w-full text-white text-xs h-auto py-3 ${portal.btnColor}`}
+                    onClick={() => navigate(portal.path)}
                   >
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-2xl">{portal.icon}</span>
-                      <h3 className="text-sm font-semibold text-foreground">{portal.label}</h3>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-4 min-h-[32px]">{portal.description}</p>
-                    <Button
-                      size="sm"
-                      className={`w-full text-white text-xs ${portal.btnColor}`}
-                      onClick={() => navigate(portal.path)}
-                    >
-                      Open Portal
-                    </Button>
-                  </div>
+                    <span className="mr-2">{portal.icon}</span> {portal.label}
+                  </Button>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">
-                Admin account bypasses all plan restrictions — you can access every portal directly.
-              </p>
             </CardContent>
           </Card>
         </TabsContent>

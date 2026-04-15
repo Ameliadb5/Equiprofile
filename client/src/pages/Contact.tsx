@@ -75,7 +75,7 @@ export default function Contact() {
 
   return (
     <MarketingLayout>
-      <div className="min-h-screen bg-[#0a1628]">
+      <div className="min-h-screen bg-[#0b1726]">
         {/* Page Banner */}
         <PageBanner
           title="Get in Touch"
@@ -92,10 +92,10 @@ export default function Contact() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="lg:col-span-2"
             >
-              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#0f2040]/60 backdrop-blur-md">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-cyan-500/10 pointer-events-none" />
+              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#101f3a]/60 backdrop-blur-md">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#3a93b8]/10 via-purple-500/5 to-[#5b8def]/10 pointer-events-none" />
                 <div className="relative p-8">
-                  <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                  <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                     Send us a message
                   </h2>
                   <p className="text-gray-400 mb-8">
@@ -195,7 +195,7 @@ export default function Contact() {
                       <Button
                         type="submit"
                         size="lg"
-                        className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 font-semibold shadow-lg shadow-indigo-500/50 transition-all duration-300"
+                        className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 font-semibold shadow-lg shadow-[#5b8def]/50 transition-all duration-300"
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? "Sending..." : "Send Message"}
@@ -212,11 +212,11 @@ export default function Contact() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0f2040]/60 backdrop-blur-md p-6 hover:border-indigo-500/50 transition-colors duration-300 group"
+                className="relative rounded-xl overflow-hidden border border-white/10 bg-[#101f3a]/60 backdrop-blur-md p-6 hover:border-indigo-500/50 transition-colors duration-300 group"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 <div className="relative flex items-start gap-4">
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/30">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-[#3a93b8]/20 to-[#5b8def]/20 border border-indigo-500/30">
                     <Mail className="w-6 h-6 text-indigo-400" />
                   </div>
                   <div>
@@ -238,7 +238,7 @@ export default function Contact() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0f2040]/60 backdrop-blur-md p-6 hover:border-green-500/50 transition-colors duration-300 group"
+                className="relative rounded-xl overflow-hidden border border-white/10 bg-[#101f3a]/60 backdrop-blur-md p-6 hover:border-green-500/50 transition-colors duration-300 group"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 <div className="relative flex items-start gap-4">
@@ -270,11 +270,11 @@ export default function Contact() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0f2040]/60 backdrop-blur-md p-6"
+                className="relative rounded-xl overflow-hidden border border-white/10 bg-[#101f3a]/60 backdrop-blur-md p-6"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-cyan-500/20 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#3a93b8]/20 via-purple-500/10 to-[#5b8def]/20 pointer-events-none" />
                 <div className="relative">
-                  <h3 className="font-semibold mb-2 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                  <h3 className="font-semibold mb-2 bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                     Response Time
                   </h3>
                   <p className="text-sm text-gray-400">
@@ -296,7 +296,7 @@ export default function Contact() {
               className="max-w-4xl mx-auto"
             >
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 rounded-3xl blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#3a93b8]/10 to-[#5b8def]/10 rounded-3xl blur-3xl" />
                 <div className="relative backdrop-blur-md bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 text-center hover:bg-white/10 hover:border-white/20 transition-all duration-500">
                   <svg
                     className="w-12 h-12 text-indigo-400 mx-auto mb-6"

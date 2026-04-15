@@ -110,7 +110,7 @@ export default function Register() {
 
   if (checkoutRedirecting) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a1628]">
+      <div className="min-h-screen flex items-center justify-center bg-[#0b1726]">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
           <p className="text-gray-400 text-sm">Preparing checkout…</p>
@@ -260,14 +260,14 @@ export default function Register() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <Card className="bg-[#0a1628]/70 backdrop-blur-xl border border-white/10 shadow-2xl">
+              <Card className="bg-[#0b1726]/70 backdrop-blur-xl border border-white/10 shadow-2xl">
                 <CardHeader className="space-y-3 pb-2">
                   <div className="flex justify-center mb-4">
                     <div className="h-16 w-16 rounded-full bg-indigo-500/20 flex items-center justify-center">
                       <Mail className="h-8 w-8 text-indigo-400" />
                     </div>
                   </div>
-                  <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                  <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                     Check Your Email
                   </CardTitle>
                   <CardDescription className="text-center text-gray-400">
@@ -305,7 +305,7 @@ export default function Register() {
                     <span className="text-gray-400">Already verified? </span>
                     <Link
                       href="/login"
-                      className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent font-medium hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
+                      className="bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent font-medium hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
                     >
                       Sign in
                     </Link>
@@ -340,7 +340,7 @@ export default function Register() {
             </Link>
 
             {/* Dark Glass Form Card */}
-            <Card className="bg-[#0a1628]/70 backdrop-blur-xl border border-white/10 shadow-2xl">
+            <Card className="bg-[#0b1726]/70 backdrop-blur-xl border border-white/10 shadow-2xl">
               <CardHeader className="space-y-3 pb-2">
                 {/* Brand logo */}
                 <div className="flex justify-center mb-2">
@@ -353,7 +353,7 @@ export default function Register() {
                     (s) => (
                       <div
                         key={s}
-                        className={`h-1.5 w-8 rounded-full transition-colors duration-300 ${step >= s ? "bg-gradient-to-r from-indigo-500 to-cyan-500" : "bg-white/10"}`}
+                        className={`h-1.5 w-8 rounded-full transition-colors duration-300 ${step >= s ? "bg-gradient-to-r from-[#3a93b8] to-[#5b8def]" : "bg-white/10"}`}
                       />
                     ),
                   )}
@@ -367,7 +367,7 @@ export default function Register() {
                   </span>
                 </div>
 
-                <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                   Create an account
                 </CardTitle>
                 <CardDescription className="text-center text-gray-400">
@@ -440,7 +440,7 @@ export default function Register() {
 
                       <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
+                        className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-12 text-base"
                       >
                         Continue
                         <ArrowRight className="w-4 h-4 ml-2" />
@@ -486,7 +486,7 @@ export default function Register() {
                         </Button>
                         <Button
                           type="submit"
-                          className="flex-1 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
+                          className="flex-1 bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-12 text-base"
                         >
                           Continue
                           <ArrowRight className="w-4 h-4 ml-2" />
@@ -536,7 +536,7 @@ export default function Register() {
                         </Button>
                         <Button
                           type="submit"
-                          className="flex-1 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
+                          className="flex-1 bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-12 text-base"
                         >
                           Continue
                           <ArrowRight className="w-4 h-4 ml-2" />
@@ -578,7 +578,7 @@ export default function Register() {
                       <div className="flex items-start gap-2">
                         <Checkbox
                           id="terms"
-                          className="mt-1 border-white/20 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-indigo-500 data-[state=checked]:to-cyan-500"
+                          className="mt-1 border-white/20 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#3a93b8] data-[state=checked]:to-[#5b8def]"
                           checked={acceptTerms}
                           onCheckedChange={(checked) =>
                             setAcceptTerms(checked as boolean)
@@ -591,14 +591,14 @@ export default function Register() {
                           I agree to the{" "}
                           <Link
                             href="/terms"
-                            className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
+                            className="bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
                           >
                             Terms of Service
                           </Link>{" "}
                           and{" "}
                           <Link
                             href="/privacy"
-                            className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
+                            className="bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
                           >
                             Privacy Policy
                           </Link>
@@ -617,7 +617,7 @@ export default function Register() {
                         </Button>
                         <Button
                           type="submit"
-                          className="flex-1 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
+                          className="flex-1 bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-12 text-base"
                           disabled={isLoading}
                         >
                           {isLoading ? (
@@ -640,7 +640,7 @@ export default function Register() {
                     <span className="w-full border-t border-white/10" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#0a1628]/60 px-2 text-gray-400">
+                    <span className="bg-[#0b1726]/60 px-2 text-gray-400">
                       Or
                     </span>
                   </div>
@@ -653,7 +653,7 @@ export default function Register() {
                   </span>
                   <Link
                     href="/login"
-                    className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent font-medium hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
+                    className="bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent font-medium hover:from-indigo-300 hover:to-cyan-300 transition-all duration-200"
                   >
                     Sign in
                   </Link>

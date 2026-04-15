@@ -29,7 +29,7 @@ export default function Onboarding() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a1628]">
+      <div className="flex items-center justify-center min-h-screen bg-[#0b1726]">
         <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
       </div>
     );
@@ -63,7 +63,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a1628] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0b1726] flex flex-col items-center justify-center p-4">
       {/* Background glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-indigo-600/10 rounded-full blur-3xl" />
@@ -77,7 +77,7 @@ export default function Onboarding() {
       >
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 mb-4 shadow-lg shadow-indigo-500/30">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3a93b8] to-[#5b8def] mb-4 shadow-lg shadow-[#5b8def]/30">
             <span className="font-serif text-2xl font-bold text-white">E</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white font-serif mb-2">
@@ -97,7 +97,7 @@ export default function Onboarding() {
             onClick={() => setSelected("standard")}
             className={`relative group text-left rounded-2xl border-2 p-5 transition-all duration-200 focus:outline-none ${
               selected === "standard"
-                ? "border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/20"
+                ? "border-indigo-500 bg-indigo-500/10 shadow-lg shadow-[#5b8def]/20"
                 : "border-white/10 bg-white/5 hover:border-indigo-500/50 hover:bg-white/8"
             }`}
           >
@@ -214,7 +214,7 @@ export default function Onboarding() {
           disabled={!selected || saving}
           className={`w-full h-12 text-sm font-semibold transition-all ${
             selected
-              ? "bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white shadow-lg shadow-indigo-500/30"
+              ? "bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#1a5276] hover:to-[#4a7dd4] text-white shadow-lg shadow-[#5b8def]/30"
               : "bg-white/10 text-white/40 cursor-not-allowed"
           }`}
         >

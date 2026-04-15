@@ -109,7 +109,7 @@ function OnboardingWizard({
       {/* Step: Welcome */}
       {step === "welcome" && (
         <div className="text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-indigo-500/30">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#3a93b8] to-[#5b8def] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#5b8def]/30">
             <Building2 className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-white mb-3">Welcome to School Management</h2>
@@ -131,7 +131,7 @@ function OnboardingWizard({
           </div>
           <button
             onClick={() => setStep("details")}
-            className="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-semibold hover:from-indigo-700 hover:to-cyan-700 transition-all inline-flex items-center gap-2"
+            className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#2e86ab] to-[#5b8def] text-white font-semibold hover:from-[#1a5276] hover:to-[#4a7dd4] transition-all inline-flex items-center gap-2"
           >
             Get Started <ChevronRight className="w-4 h-4" />
           </button>
@@ -320,7 +320,7 @@ function OnboardingWizard({
           </p>
           <button
             onClick={onComplete}
-            className="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-semibold hover:from-indigo-700 hover:to-cyan-700 transition-all inline-flex items-center gap-2"
+            className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#2e86ab] to-[#5b8def] text-white font-semibold hover:from-[#1a5276] hover:to-[#4a7dd4] transition-all inline-flex items-center gap-2"
           >
             Go to Dashboard <ArrowRight className="w-4 h-4" />
           </button>
@@ -353,7 +353,7 @@ export default function SchoolDashboard() {
 
   if (statsLoading) {
     return (
-      <div className="min-h-screen bg-[#0a1628] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0b1726] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
       </div>
     );
@@ -364,7 +364,7 @@ export default function SchoolDashboard() {
   const students = (members ?? []).filter((m: any) => m.role === "student");
 
   return (
-    <div className="min-h-screen bg-[#0a1628]">
+    <div className="min-h-screen bg-[#0b1726]">
       {/* Header */}
       <header className="bg-[#111827] border-b border-white/[0.06] px-4 sm:px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">

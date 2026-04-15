@@ -177,7 +177,7 @@ export function OnboardingWizard({
           <div className="mb-5">
             <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-full"
+                className="h-full bg-gradient-to-r from-[#3a93b8] to-[#5b8def] rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: progressWidth }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
@@ -206,7 +206,7 @@ export function OnboardingWizard({
             {step === 0 && (
               <StepContainer key="choice">
                 <div className="text-center space-y-5">
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#3a93b8] to-[#5b8def] flex items-center justify-center shadow-lg shadow-[#5b8def]/30">
                     <Sparkles className="w-8 h-8 text-white" />
                   </div>
                   <div className="space-y-2">
@@ -223,7 +223,7 @@ export function OnboardingWizard({
                   <div className="space-y-3 pt-1">
                     <Button
                       onClick={handleStartSetup}
-                      className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-12 text-base"
+                      className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-12 text-base"
                     >
                       <Sparkles className="w-4 h-4 mr-2" />
                       Help me set things up
@@ -249,7 +249,7 @@ export function OnboardingWizard({
             {step === 1 && (
               <StepContainer key="welcome">
                 <div className="text-center space-y-4">
-                  <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center">
+                  <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#3a93b8] to-[#5b8def] flex items-center justify-center">
                     <Sparkles className="w-7 h-7 text-white" />
                   </div>
                   <div className="space-y-2">
@@ -280,7 +280,7 @@ export function OnboardingWizard({
 
                   <Button
                     onClick={() => goToStep(2)}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-11 text-sm"
+                    className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-11 text-sm"
                   >
                     Get started
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -377,7 +377,7 @@ export function OnboardingWizard({
                   <Button
                     onClick={handleAddHorse}
                     disabled={saving}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-11 text-sm"
+                    className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-11 text-sm"
                   >
                     {saving ? (
                       <>
@@ -430,7 +430,7 @@ export function OnboardingWizard({
                       className="group p-4 rounded-xl border-2 border-white/10 bg-white/5 hover:bg-white/10 hover:border-indigo-500/50 transition-all duration-200 text-left disabled:opacity-50"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#3a93b8] to-[#5b8def] flex items-center justify-center shrink-0">
                           <User className="w-5 h-5 text-white" />
                         </div>
                         <div>
@@ -564,7 +564,7 @@ export function OnboardingWizard({
 
                   <Button
                     onClick={() => goToStep(5)}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white border-0 shadow-lg shadow-indigo-500/20 h-11 text-sm"
+                    className="w-full bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#3a93b8] hover:to-[#5b8def] text-white border-0 shadow-lg shadow-[#5b8def]/20 h-11 text-sm"
                   >
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />

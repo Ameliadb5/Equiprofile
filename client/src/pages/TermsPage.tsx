@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default function TermsPage() {
   return (
     <MarketingLayout>
-      <div className="min-h-screen bg-[#0a1628]">
+      <div className="min-h-screen bg-[#0b1726]">
         <PageBanner
           title="Terms of Service"
           subtitle="Legal terms and conditions for using EquiProfile"
@@ -16,7 +16,7 @@ export default function TermsPage() {
           <div className="max-w-4xl mx-auto">
             {/* Header with Last Updated */}
             <div className="mb-12 text-center">
-              <h2 className="text-2xl md:text-3xl font-bold font-serif mb-4 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+              <h2 className="text-2xl md:text-3xl font-bold font-serif mb-4 bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                 EquiProfile Terms of Service
               </h2>
               <p className="text-gray-400">
@@ -32,7 +32,7 @@ export default function TermsPage() {
                     1. Acceptance of Terms
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     By accessing and using EquiProfile ("the Service"), you
                     accept and agree to be bound by the terms and provision of
@@ -48,7 +48,7 @@ export default function TermsPage() {
                     2. Description of Service
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     EquiProfile provides a comprehensive horse management
                     platform that includes features for:
@@ -82,7 +82,7 @@ export default function TermsPage() {
                     3. User Accounts and Account Responsibilities
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     To use certain features of the Service, you must register
                     for an account. When you register, you agree to:
@@ -126,7 +126,7 @@ export default function TermsPage() {
                     4. Subscriptions, Billing & Payment Terms
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <h4 className="text-white mt-4 mb-2 font-semibold">
                     Trial Period
                   </h4>
@@ -212,7 +212,7 @@ export default function TermsPage() {
                     5. User Content and Data
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     You retain all rights to the data and content you upload to
                     the Service. By using the Service, you grant us:
@@ -239,7 +239,7 @@ export default function TermsPage() {
                     6. Acceptable Use Policy
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     You agree not to use the Service to:
                   </p>
@@ -306,7 +306,7 @@ export default function TermsPage() {
                     7. Intellectual Property
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     The Service and its original content, features, and
                     functionality are owned by EquiProfile and are protected by
@@ -322,7 +322,7 @@ export default function TermsPage() {
                     8. Disclaimer of Warranties
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT
                     WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
@@ -368,7 +368,7 @@ export default function TermsPage() {
                     9. Limitation of Liability
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="font-semibold">
                     Subject to the provisions below, to the fullest extent
                     permitted by English law:
@@ -418,7 +418,7 @@ export default function TermsPage() {
                 <CardHeader>
                   <CardTitle className="text-white">10. Termination</CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <h4 className="text-white mt-4 mb-2 font-semibold">
                     Termination by You
                   </h4>
@@ -499,7 +499,7 @@ export default function TermsPage() {
                     11. Changes to Terms
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     We reserve the right to modify these terms at any time. We
                     will notify users of any material changes via email or
@@ -515,7 +515,7 @@ export default function TermsPage() {
                     12. Governing Law and Jurisdiction
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     These Terms shall be governed by and construed in accordance
                     with the laws of England and Wales. Any disputes arising
@@ -532,7 +532,7 @@ export default function TermsPage() {
                     13. Weather &amp; Riding Guidance
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     EquiProfile provides weather data and AI-generated riding
                     recommendations as a convenience feature to assist with
@@ -579,7 +579,7 @@ export default function TermsPage() {
                     14. Contact Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     If you have any questions about these Terms of Service,
                     please contact us at:

@@ -14,7 +14,7 @@ const fadeInUpVariants = {
 export default function Features() {
   return (
     <MarketingLayout>
-      <div className="min-h-screen bg-[#0a1628] text-white">
+      <div className="min-h-screen bg-[#0b1726] text-white">
         {/* Page Banner */}
         <PageBanner
           title="Powerful Features for Modern Horse Management"
@@ -37,7 +37,7 @@ export default function Features() {
                 viewport={{ once: true, margin: "-100px" }}
                 variants={fadeInUpVariants}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className={`py-16 ${index % 2 === 1 ? "bg-[#0f2040]/60" : ""}`}
+                className={`py-16 ${index % 2 === 1 ? "bg-[#101f3a]/60" : ""}`}
               >
                 <div className="container mx-auto px-4">
                   <div
@@ -53,7 +53,7 @@ export default function Features() {
                         <Icon className="w-5 h-5" />
                       </div>
 
-                      <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4 bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                      <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4 bg-gradient-to-r from-[#5b8def] via-purple-400 to-[#7dd3c0] bg-clip-text text-transparent">
                         {section.title}
                       </h2>
                       <p className="text-lg text-gray-300 mb-8">
@@ -76,7 +76,7 @@ export default function Features() {
                         <Link href="/pricing">
                           <Button
                             size="lg"
-                            className="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white group"
+                            className="bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#1a5276] hover:to-[#4a7dd4] text-white group"
                           >
                             Get Started
                             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -106,7 +106,7 @@ export default function Features() {
         </div>
 
         {/* CTA Section */}
-        <section className="py-24 bg-gradient-to-b from-[#0a1628] to-[#0f2040]">
+        <section className="py-24 bg-gradient-to-b from-[#0b1726] to-[#101f3a]">
           <div className="container mx-auto px-4">
             <motion.div
               initial="hidden"
@@ -119,7 +119,7 @@ export default function Features() {
               <h2 className="text-4xl md:text-5xl font-bold font-serif mb-6 text-white">
                 Ready to Transform Your
                 <br />
-                <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#5b8def] via-purple-400 to-[#7dd3c0] bg-clip-text text-transparent">
                   Horse Management & Learning?
                 </span>
               </h2>
@@ -131,7 +131,7 @@ export default function Features() {
                 <Link href="/register">
                   <Button
                     size="lg"
-                    className="text-lg px-10 py-6 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white group"
+                    className="text-lg px-10 py-6 bg-gradient-to-r from-[#2e86ab] to-[#5b8def] hover:from-[#1a5276] hover:to-[#4a7dd4] text-white group"
                   >
                     Start Free Trial
                     <ArrowRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />

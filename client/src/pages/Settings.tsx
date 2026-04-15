@@ -626,7 +626,7 @@ export default function Settings() {
                         </div>
                         <Button
                           onClick={pwa.install}
-                          className="bg-gradient-to-r from-indigo-600 to-cyan-600 text-white border-0"
+                          className="bg-gradient-to-r from-[#2e86ab] to-[#5b8def] text-white border-0"
                         >
                           <Download className="w-4 h-4 mr-2" />
                           Install Now
@@ -734,7 +734,7 @@ export default function Settings() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex items-start gap-4 p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3a93b8] to-[#5b8def] flex items-center justify-center shrink-0 mt-0.5">
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1 space-y-1">

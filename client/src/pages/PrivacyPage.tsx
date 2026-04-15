@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default function PrivacyPage() {
   return (
     <MarketingLayout>
-      <div className="min-h-screen bg-[#0a1628]">
+      <div className="min-h-screen bg-[#0b1726]">
         <PageBanner
           title="Privacy Policy"
           subtitle="How we collect, use, and protect your personal information"
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
           <div className="max-w-4xl mx-auto">
             {/* Header with Last Updated */}
             <div className="mb-12 text-center">
-              <h2 className="text-2xl md:text-3xl font-bold font-serif mb-4 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+              <h2 className="text-2xl md:text-3xl font-bold font-serif mb-4 bg-gradient-to-r from-[#5b8def] to-[#7dd3c0] bg-clip-text text-transparent">
                 EquiProfile Privacy Policy
               </h2>
               <p className="text-gray-400">
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
                     1. Introduction & Data Protection Overview
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     EquiProfile ("we", "our", or "us") is committed to
                     protecting your privacy and ensuring the security of your
@@ -92,7 +92,7 @@ export default function PrivacyPage() {
                     2. Information We Collect
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <h4 className="text-white mt-4 mb-2 font-semibold">
                     Personal Information
                   </h4>
@@ -145,7 +145,7 @@ export default function PrivacyPage() {
                     3. How We Use Your Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     We use the information we collect to:
                   </p>
@@ -181,7 +181,7 @@ export default function PrivacyPage() {
                     4. Information Sharing and Disclosure
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     We do not sell your personal information. We may share your
                     information in the following circumstances:
@@ -214,7 +214,7 @@ export default function PrivacyPage() {
                 <CardHeader>
                   <CardTitle className="text-white">5. Data Security</CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     We implement appropriate technical and organizational
                     measures to protect your personal information, including:
@@ -246,7 +246,7 @@ export default function PrivacyPage() {
                     6. Data Retention
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     We retain your personal information for as long as necessary
                     to provide the Service and comply with legal obligations.
@@ -262,7 +262,7 @@ export default function PrivacyPage() {
                     7. Your Data Protection Rights (UK GDPR)
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     Under the UK GDPR, you have the following rights regarding
                     your personal data:
@@ -393,7 +393,7 @@ export default function PrivacyPage() {
                     8. Cookies Policy
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <h4 className="text-white mt-4 mb-2 font-semibold">
                     What Are Cookies?
                   </h4>
@@ -508,7 +508,7 @@ export default function PrivacyPage() {
                     9. Children's Privacy
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     The Service is not intended for children under 13 years of
                     age. We do not knowingly collect personal information from
@@ -525,7 +525,7 @@ export default function PrivacyPage() {
                     10. International Data Transfers
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     Your information may be transferred to and processed in
                     countries other than your country of residence. These
@@ -541,7 +541,7 @@ export default function PrivacyPage() {
                     11. Changes to This Privacy Policy
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     We may update this Privacy Policy from time to time. We will
                     notify you of any material changes by email or through a
@@ -555,7 +555,7 @@ export default function PrivacyPage() {
                 <CardHeader>
                   <CardTitle className="text-white">12. Contact Us</CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     If you have questions or concerns about this Privacy Policy,
                     wish to exercise your data protection rights, or need to
@@ -610,7 +610,7 @@ export default function PrivacyPage() {
                     13. UK GDPR Compliance & Legal Basis for Processing
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="prose prose-invert max-w-none">
+                <CardContent className="prose prose-slate max-w-none">
                   <p className="text-gray-300">
                     We comply with the UK General Data Protection Regulation (UK
                     GDPR) and the Data Protection Act 2018. This Privacy Policy

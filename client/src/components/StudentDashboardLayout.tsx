@@ -85,25 +85,25 @@ function SidebarNav({
   return (
     <div className="flex flex-col h-full">
       {/* Brand */}
-      <div className="flex items-center gap-2.5 px-4 py-4 border-b border-indigo-500/20">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shrink-0">
+      <div className="flex items-center gap-2.5 px-4 py-4 border-b border-slate-200">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shrink-0 shadow-sm">
           <GraduationCap className="w-4 h-4 text-white" />
         </div>
         <div className="min-w-0">
-          <span className="text-sm font-bold text-white tracking-tight truncate block">
+          <span className="text-sm font-bold text-slate-800 tracking-tight truncate block">
             EquiProfile
           </span>
-          <span className="text-[10px] text-indigo-400 font-medium uppercase tracking-wider">
+          <span className="text-[10px] text-indigo-500 font-medium uppercase tracking-wider">
             Student
           </span>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="ml-auto w-7 h-7 flex items-center justify-center rounded-md hover:bg-white/10 transition-colors"
+            className="ml-auto w-7 h-7 flex items-center justify-center rounded-md hover:bg-slate-100 transition-colors"
             aria-label="Close menu"
           >
-            <X className="w-4 h-4 text-gray-400" />
+            <X className="w-4 h-4 text-slate-400" />
           </button>
         )}
       </div>
@@ -121,66 +121,66 @@ function SidebarNav({
               }}
               className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-0.5 text-sm font-medium transition-all text-left ${
                 isActive
-                  ? "bg-indigo-500/20 text-indigo-300"
-                  : "text-gray-400 hover:bg-white/[0.06] hover:text-gray-200"
+                  ? "bg-indigo-50 text-indigo-700"
+                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
               }`}
             >
               <item.icon
-                className={`w-4 h-4 shrink-0 ${isActive ? "text-indigo-400" : "text-gray-500"}`}
+                className={`w-4 h-4 shrink-0 ${isActive ? "text-indigo-500" : "text-slate-400"}`}
               />
               <span>{item.label}</span>
               {isActive && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0" />
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
               )}
             </button>
           );
         })}
 
         {/* Divider + account links */}
-        <div className="mt-3 pt-3 border-t border-white/[0.06]">
+        <div className="mt-3 pt-3 border-t border-slate-200">
           <button
             onClick={() => { onNavigate("settings"); onClose?.(); }}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-0.5 text-sm font-medium text-gray-400 hover:bg-white/[0.06] hover:text-gray-200 transition-all text-left"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-0.5 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all text-left"
           >
-            <Settings className="w-4 h-4 shrink-0 text-gray-500" />
+            <Settings className="w-4 h-4 shrink-0 text-slate-400" />
             <span>Settings</span>
           </button>
           <button
             onClick={() => { setLocation("/billing"); onClose?.(); }}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-0.5 text-sm font-medium text-gray-400 hover:bg-white/[0.06] hover:text-gray-200 transition-all text-left"
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-0.5 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all text-left"
           >
-            <DollarSign className="w-4 h-4 shrink-0 text-gray-500" />
+            <DollarSign className="w-4 h-4 shrink-0 text-slate-400" />
             <span>Billing</span>
           </button>
         </div>
       </nav>
 
       {/* User footer */}
-      <div className="p-3 border-t border-indigo-500/20">
+      <div className="p-3 border-t border-slate-200">
         <div className="flex items-center justify-between gap-2 mb-2 px-1">
           <ThemeToggle />
         </div>
-        <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-white/[0.04] transition-colors group">
-          <Avatar className="h-8 w-8 border border-indigo-500/30 shrink-0">
+        <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-slate-50 transition-colors group">
+          <Avatar className="h-8 w-8 border border-slate-200 shrink-0">
             <AvatarImage src={user?.profileImageUrl ?? undefined} alt={user?.name ?? ""} />
-            <AvatarFallback className="text-xs font-medium bg-indigo-900 text-indigo-200">
+            <AvatarFallback className="text-xs font-medium bg-indigo-50 text-indigo-600">
               {user?.name?.charAt(0).toUpperCase() ?? "S"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-gray-200 truncate leading-none">
+            <p className="text-xs font-medium text-slate-700 truncate leading-none">
               {user?.name || "Student"}
             </p>
-            <p className="text-[10px] text-gray-500 truncate mt-0.5">
+            <p className="text-[10px] text-slate-400 truncate mt-0.5">
               {user?.email || ""}
             </p>
           </div>
           <button
             onClick={logout}
-            className="opacity-0 group-hover:opacity-100 w-7 h-7 flex items-center justify-center rounded-md hover:bg-white/10 transition-all"
+            className="opacity-0 group-hover:opacity-100 w-7 h-7 flex items-center justify-center rounded-md hover:bg-slate-100 transition-all"
             aria-label="Sign out"
           >
-            <LogOut className="w-3.5 h-3.5 text-gray-400" />
+            <LogOut className="w-3.5 h-3.5 text-slate-400" />
           </button>
         </div>
       </div>
@@ -195,15 +195,15 @@ function AdminViewIndicator() {
   const { exitViewMode } = useAdminViewMode();
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border-b border-indigo-500/20 shrink-0">
-      <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0" />
-      <span className="text-xs font-semibold text-indigo-300">
+    <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border-b border-indigo-200 shrink-0">
+      <ShieldCheck className="w-4 h-4 text-indigo-500 shrink-0" />
+      <span className="text-xs font-semibold text-indigo-600">
         Admin Preview — Student Portal
       </span>
       <div className="flex-1" />
       <button
         onClick={() => { exitViewMode(); setLocation("/admin"); }}
-        className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-indigo-500/15 text-indigo-300 hover:bg-indigo-500/25 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-indigo-100 text-indigo-600 hover:bg-indigo-200 transition-colors"
       >
         <ShieldCheck className="w-3.5 h-3.5" />
         Back to Admin
@@ -238,9 +238,9 @@ export default function StudentDashboardLayout({
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0c1222]">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
       {/* ── Desktop sidebar ─────────────────────────────────────────────── */}
-      <aside className="hidden md:flex md:flex-col md:w-56 shrink-0 border-r border-indigo-500/20 bg-[#0c1222]">
+      <aside className="hidden md:flex md:flex-col md:w-56 shrink-0 border-r border-slate-200 bg-white">
         <SidebarNav activeView={activeView} onNavigate={onNavigate} />
       </aside>
 
@@ -250,11 +250,11 @@ export default function StudentDashboardLayout({
           className="fixed inset-0 z-40 md:hidden"
           onClick={() => setMobileOpen(false)}
         >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
         </div>
       )}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0c1222] border-r border-indigo-500/20 flex flex-col transform transition-transform duration-200 ease-in-out md:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col transform transition-transform duration-200 ease-in-out md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -276,20 +276,20 @@ export default function StudentDashboardLayout({
         )}
 
         {/* Topbar */}
-        <header className="flex items-center justify-between h-14 px-4 shrink-0 border-b border-indigo-500/10 bg-[#0c1222]/80 backdrop-blur-md">
+        <header className="flex items-center justify-between h-14 px-4 shrink-0 border-b border-slate-200 bg-white/80 backdrop-blur-md">
           {/* Mobile hamburger */}
           <button
-            className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/[0.06] transition-colors"
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors"
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
           >
-            <Menu className="w-5 h-5 text-gray-400" />
+            <Menu className="w-5 h-5 text-slate-500" />
           </button>
 
           {/* Page title */}
           <div className="flex items-center gap-2 md:ml-0 ml-2">
-            <GraduationCap className="w-4 h-4 text-indigo-400 hidden md:block" />
-            <span className="text-sm font-semibold text-gray-200">
+            <GraduationCap className="w-4 h-4 text-indigo-500 hidden md:block" />
+            <span className="text-sm font-semibold text-slate-700">
               {viewLabels[activeView]}
             </span>
           </div>
