@@ -31,7 +31,6 @@ import {
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { useAdminViewMode } from "@/contexts/AdminViewContext";
 
@@ -86,13 +85,11 @@ function SidebarNav({
   onClose?: () => void;
 }) {
   const { user, logout } = useAuth();
-  const logoutMut = trpc.auth.logout.useMutation();
   const [, setLocation] = useLocation();
 
   const handleLogout = async () => {
-    await logoutMut.mutateAsync();
-    logout();
-    setLocation("/login");
+    // logout() from useAuth handles the API call, cache clear, and redirect.
+    await logout();
   };
 
   const initials = user?.name

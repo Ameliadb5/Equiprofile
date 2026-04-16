@@ -72,7 +72,6 @@ function SidebarNav({
 }) {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
-  const logoutMut = trpc.auth.logout.useMutation();
   const { data: subscriptionStatus } = trpc.billing.getStatus.useQuery(
     undefined,
     { staleTime: 5 * 60 * 1000 },
@@ -80,9 +79,8 @@ function SidebarNav({
   const isSchoolManaged = (subscriptionStatus as any)?.schoolId != null;
 
   const handleLogout = async () => {
-    await logoutMut.mutateAsync();
-    logout();
-    setLocation("/login");
+    // logout() from useAuth handles the API call, cache clear, and redirect.
+    await logout();
   };
 
   return (

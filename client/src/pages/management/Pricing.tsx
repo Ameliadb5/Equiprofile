@@ -99,7 +99,7 @@ const plans = [
     id: "enterprise",
     name: "Enterprise",
     icon: Crown,
-    description: "Bespoke solutions for large operations and riding schools.",
+    description: "Bespoke solutions for large yards and professional operations.",
     price: "Custom",
     period: "",
     popular: false,
