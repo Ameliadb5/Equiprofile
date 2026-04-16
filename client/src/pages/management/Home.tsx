@@ -214,7 +214,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="mt-8 text-xs text-white/35 tracking-wide"
+              className="mt-8 text-xs text-white/55 tracking-wide"
             >
               7-day free trial · No credit card required · Cancel anytime
             </motion.p>
@@ -299,7 +299,7 @@ export default function Home() {
         <section className="bg-[#0f1d2e] py-16 overflow-hidden">
           <div className="container mx-auto px-4 mb-10">
             <AnimatedSection className="text-center">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#c5a55a]/70">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#c5a55a]/90">
                 Built for professionals
               </p>
               <p className="mt-2 text-2xl md:text-3xl font-bold font-serif text-white">
@@ -456,7 +456,7 @@ export default function Home() {
 
           <div className="relative z-10 container mx-auto px-4 text-center">
             <AnimatedSection>
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#c5a55a]/70 mb-4">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#c5a55a]/90 mb-4">
                 Start today
               </p>
               <h2 className="text-3xl md:text-5xl font-bold font-serif text-white max-w-3xl mx-auto leading-tight">
@@ -486,7 +486,7 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
-              <p className="mt-8 text-xs text-white/30">
+              <p className="mt-8 text-xs text-white/55">
                 Join trainers, owners and yard managers already using EquiProfile
               </p>
             </AnimatedSection>
