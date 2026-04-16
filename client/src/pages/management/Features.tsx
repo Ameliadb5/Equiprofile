@@ -61,6 +61,7 @@ const majorFeatures = [
     description:
       "Log vet visits, vaccinations, farrier appointments and medications in a secure, searchable timeline. Set reminders so nothing falls through the cracks and share records instantly with your veterinary team.",
     image: "/images/hero/image2.jpg",
+    imagePosition: "object-center",
   },
   {
     icon: Dumbbell,
@@ -69,6 +70,7 @@ const majorFeatures = [
     description:
       "Record sessions by discipline, duration and intensity. Attach notes, photos or videos and visualise trends over weeks and months. Perfect for trainers coordinating across multiple riders and horses.",
     image: "/images/hero/image4.jpg",
+    imagePosition: "object-center",
   },
   {
     icon: Salad,
@@ -77,6 +79,7 @@ const majorFeatures = [
     description:
       "Create detailed feed charts per horse, log daily supplements and adjust diets as seasons change. Our built-in calculator helps you balance energy intake against workload with clarity.",
     image: "/images/gallery/10.jpg",
+    imagePosition: "object-center",
   },
   {
     icon: FileText,
@@ -85,6 +88,7 @@ const majorFeatures = [
     description:
       "Upload and organise every important document — horse passports, competition entries, insurance policies, livery contracts. Access them on any device, even offline at remote yards.",
     image: "/images/gallery/12.jpg",
+    imagePosition: "object-center",
   },
   {
     icon: CloudSun,
@@ -93,6 +97,7 @@ const majorFeatures = [
     description:
       "Hyper-local forecasts matched to your yard's location give you real-time insights on temperature, rainfall and footing conditions so you can schedule rides and turnout intelligently.",
     image: "/images/hero/image6.jpg",
+    imagePosition: "object-center",
   },
   {
     icon: BarChart3,
@@ -101,6 +106,7 @@ const majorFeatures = [
     description:
       "Beautiful dashboards summarise health trends, training progress and costs across your entire string. Export PDF reports for owners, sponsors or insurance providers in one click.",
     image: "/images/gallery/15.jpg",
+    imagePosition: "object-center",
   },
   {
     icon: CalendarDays,
@@ -109,6 +115,7 @@ const majorFeatures = [
     description:
       "Unify vet calls, farrier visits, competitions, lessons and rest days in a shared team calendar. Colour-coded views per horse keep even the busiest yards running smoothly.",
     image: "/images/gallery/18.jpg",
+    imagePosition: "object-center",
   },
   {
     icon: Building2,
@@ -117,6 +124,7 @@ const majorFeatures = [
     description:
       "Manage stables, paddock rotations, livery clients and invoicing from a single dashboard. Role-based access means grooms, managers and owners see exactly what they need.",
     image: "/images/gallery/19.jpg",
+    imagePosition: "object-top",
   },
 ];
 
@@ -181,15 +189,15 @@ export default function Features() {
                     isEven ? "" : "lg:[direction:rtl]"
                   }`}
                 >
-                  {/* Image */}
+                  {/* Image — bordered container prevents awkward crops */}
                   <AnimatedSection className="lg:[direction:ltr]">
-                    <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
+                    <div className="relative rounded-2xl overflow-hidden shadow-2xl group border border-[#0f1d2e]/10">
                       <img
                         src={feature.image}
                         alt={feature.title}
-                        className="w-full h-[320px] md:h-[420px] object-cover transition-transform duration-700 group-hover:scale-105"
+                        className={`w-full h-[320px] md:h-[420px] object-cover ${feature.imagePosition} transition-transform duration-700 group-hover:scale-105`}
                       />
-                      <div className="absolute inset-0 ring-1 ring-inset ring-[#0f1d2e]/10 rounded-2xl" />
+                      <div className="absolute inset-0 ring-1 ring-inset ring-[#0f1d2e]/10 rounded-2xl pointer-events-none" />
                     </div>
                   </AnimatedSection>
 
