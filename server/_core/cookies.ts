@@ -1,4 +1,5 @@
 import type { CookieOptions, Request } from "express";
+import { ENV } from "./env";
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
 
@@ -44,5 +45,8 @@ export function getSessionCookieOptions(
     path: "/",
     sameSite: "lax",
     secure: isSecureRequest(req),
+    // Mirror the domain used when setting the cookie so clearCookie works for
+    // domain-scoped cookies (e.g. `.equiprofile.online` on VPS production).
+    ...(ENV.cookieDomain ? { domain: ENV.cookieDomain } : {}),
   };
 }
