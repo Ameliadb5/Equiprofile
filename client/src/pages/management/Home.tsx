@@ -55,10 +55,10 @@ function AnimatedSection({
 /* ------------------------------------------------------------------ */
 
 const platformStats: { icon: LucideIcon; value: string; label: string; sub: string }[] = [
-  { icon: Zap, value: "7-day", label: "Free Trial", sub: "no credit card needed" },
-  { icon: ShieldCheck, value: "Equestrian-Built", label: "Platform", sub: "built by equestrians" },
-  { icon: MapPin, value: "All sizes", label: "Yards Supported", sub: "solo owner to full stable" },
-  { icon: Users, value: "Multi-horse", label: "Management", sub: "Pro & Stable plans" },
+  { icon: HeartPulse, value: "Complete", label: "Health Records", sub: "vets, farriers & medications" },
+  { icon: ShieldCheck, value: "Military-Grade", label: "Data Security", sub: "encrypted end-to-end" },
+  { icon: MapPin, value: "Any Yard", label: "Any Scale", sub: "solo owner to full stable" },
+  { icon: Zap, value: "7-Day", label: "Free Trial", sub: "no credit card required" },
 ];
 
 const features = [
@@ -282,7 +282,7 @@ export default function Home() {
           </div>
 
           {/* Gradient fade to next section — progressive dark → mid → light to avoid harsh flash */}
-          <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-b from-transparent via-[#0d1a2e]/80 to-[#f8f9fb]" />
+          <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-b from-transparent via-[#162d4a]/40 to-[#f8f9fb]" />
         </section>
 
         {/* ==================== FEATURES GRID ==================== */}
@@ -295,7 +295,7 @@ export default function Home() {
               <h2 className="text-3xl md:text-[42px] font-bold font-serif text-[#0f1d2e] leading-tight">
                 Everything you need,
                 <br />
-                <span className="text-[#2e6da4]">nothing you don't</span>
+                <span className="text-[#1a7a6d]">nothing you don't</span>
               </h2>
               <p className="mt-5 text-[#0f1d2e]/55 text-lg max-w-xl mx-auto">
                 Purpose-built modules designed by equestrians, for equestrians — covering every aspect of modern horse management.
@@ -343,7 +343,7 @@ export default function Home() {
         </section>
 
         {/* ================== SHOWCASE GRID ================== */}
-        <section className="bg-[#0f1d2e] py-20 md:py-28 overflow-hidden">
+        <section className="bg-[#1e3a5f] py-20 md:py-28 overflow-hidden">
           <div className="container mx-auto px-4">
             <AnimatedSection className="text-center max-w-3xl mx-auto mb-12">
               <p className="text-xs font-bold tracking-[0.2em] uppercase text-[#c5a55a] mb-3">
@@ -387,7 +387,7 @@ export default function Home() {
         </section>
 
         {/* ================== WHY EQUIPROFILE ================== */}
-        <section className="bg-[#0f1d2e] py-20 md:py-28 overflow-hidden border-t border-white/[0.04]">
+        <section className="bg-[#1e3a5f] py-20 md:py-28 overflow-hidden border-t border-white/[0.04]">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
               <AnimatedSection>
@@ -510,7 +510,7 @@ export default function Home() {
         {/* ===================== CTA BANNER ===================== */}
         <section className="relative py-28 md:py-36 overflow-hidden">
           {/* Background layers */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#070f1c] via-[#0f1d2e] to-[#091524]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0f2238] via-[#1e3a5f] to-[#11253e]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_50%,_rgba(46,109,164,0.15)_0%,_transparent_70%)] pointer-events-none" />
 
           {/* Subtle dot grid pattern */}

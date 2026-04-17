@@ -221,8 +221,8 @@ export default function Pricing() {
         {/* ======================== HERO ======================== */}
         <section className="relative min-h-[460px] md:min-h-[520px] flex items-center overflow-hidden">
           <img
-            src="/images/hero/image4.jpg"
-            alt="Horses in a stable yard"
+            src="/images/hero/image3.jpg"
+            alt="Horse and rider at a stable"
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#070f1c]/70 via-[#0f1d2e]/62 to-[#0f1d2e]/82" />
@@ -248,7 +248,7 @@ export default function Pricing() {
             </motion.div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#f8f9fb] via-[#f8f9fb]/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent via-transparent to-[#f8f9fb]" />
         </section>
 
         {/* ===================== PRICING CARDS ===================== */}
@@ -530,7 +530,7 @@ export default function Pricing() {
 
         {/* ===================== CTA BANNER ===================== */}
         <section className="relative py-28 md:py-36 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#070f1c] via-[#0f1d2e] to-[#091524]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0f2238] via-[#1e3a5f] to-[#11253e]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_50%,_rgba(197,165,90,0.08)_0%,_transparent_70%)] pointer-events-none" />
           <div
             className="absolute inset-0 pointer-events-none opacity-[0.03]"

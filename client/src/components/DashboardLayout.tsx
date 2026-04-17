@@ -531,7 +531,7 @@ function DashboardLayoutContent({
         />
       </div>
 
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         {isMobile && (
           <div className="flex border-b border-white/5 h-14 items-center justify-between bg-background/90 px-2 backdrop-blur-md sticky top-0 z-40" style={{ paddingTop: 'var(--safe-area-top, 0px)' }}>
             <div className="flex items-center gap-2">

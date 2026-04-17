@@ -35,8 +35,8 @@ export function ManagementNavbar() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-[#0f1d2e]/98 backdrop-blur-xl shadow-lg shadow-black/10 border-b border-white/[0.06]"
-          : "bg-gradient-to-b from-[#0f1d2e]/95 to-[#0f1d2e]/80 backdrop-blur-md"
+          ? "bg-[#1e3a5f]/98 backdrop-blur-xl shadow-lg shadow-black/10 border-b border-white/[0.06]"
+          : "bg-gradient-to-b from-[#1e3a5f]/95 to-[#1e3a5f]/80 backdrop-blur-md"
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6">
@@ -76,7 +76,7 @@ export function ManagementNavbar() {
                   {isActive && (
                     <motion.div
                       layoutId="mgmt-nav-indicator"
-                      className="absolute bottom-0 left-3 right-3 h-[2px] bg-gradient-to-r from-[#4a9eca] to-[#2e6da4] rounded-full"
+                      className="absolute bottom-0 left-3 right-3 h-[2px] bg-gradient-to-r from-emerald-400 to-[#3b82f6] rounded-full"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -139,7 +139,7 @@ export function ManagementNavbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25 }}
-            className="lg:hidden bg-[#0f1d2e] border-t border-white/[0.06] overflow-hidden"
+            className="lg:hidden bg-[#1e3a5f] border-t border-white/[0.06] overflow-hidden"
           >
             <div className="container mx-auto px-4 py-4 flex flex-col gap-1">
               {navLinks.map((link) => (

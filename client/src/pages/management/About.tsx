@@ -147,7 +147,7 @@ export default function About() {
             </motion.div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#f8f9fb] via-[#f8f9fb]/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent via-transparent to-[#f8f9fb]" />
         </section>
 
         {/* ====================== MISSION ====================== */}
@@ -244,7 +244,7 @@ export default function About() {
         </section>
 
         {/* ==================== ORIGIN STORY ==================== */}
-        <section className="relative bg-[#0f1d2e] py-24 md:py-32 overflow-hidden">
+        <section className="relative bg-[#1e3a5f] py-24 md:py-32 overflow-hidden">
           {/* Gradual entry from white sections above */}
           <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
           <div className="container mx-auto px-4">
@@ -278,7 +278,7 @@ export default function About() {
                   <h3 className="text-xl font-bold font-serif text-white mb-2">
                     {item.title}
                   </h3>
-                  <p className="text-white/45 leading-relaxed text-[15px]">
+                  <p className="text-white/60 leading-relaxed text-[15px]">
                     {item.description}
                   </p>
                 </AnimatedSection>
@@ -289,7 +289,7 @@ export default function About() {
 
         {/* ===================== CTA BANNER ===================== */}
         <section className="relative py-28 md:py-36 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#070f1c] via-[#0f1d2e] to-[#091524]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0f2238] via-[#1e3a5f] to-[#11253e]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_50%,_rgba(26,122,109,0.12)_0%,_transparent_70%)] pointer-events-none" />
           <div
             className="absolute inset-0 pointer-events-none opacity-[0.03]"

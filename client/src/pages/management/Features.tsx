@@ -168,7 +168,7 @@ export default function Features() {
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] font-bold font-serif text-white leading-tight max-w-5xl mx-auto">
                 Everything You Need to
                 <br />
-                <span className="bg-gradient-to-r from-[#4a9eca] via-[#2e6da4] to-[#1a7a6d] bg-clip-text text-transparent">
+                <span className="text-[#c5a55a]">
                   Manage Your Horses
                 </span>
               </h1>
@@ -178,7 +178,7 @@ export default function Features() {
             </motion.div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-[#0d1422]/60 to-[#f8f9fb]" />
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent via-[#0a1628]/30 to-[#f8f9fb]" />
         </section>
 
         {/* =============== ALTERNATING FEATURE SECTIONS =============== */}
@@ -234,7 +234,7 @@ export default function Features() {
         })}
 
         {/* ================ SEE ALL FEATURES GRID ================ */}
-        <section className="bg-[#070f1c] py-20 md:py-28">
+        <section className="bg-[#1a3050] py-20 md:py-28">
           <div className="container mx-auto px-4">
             <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
               <div className="inline-flex items-center gap-2 bg-[#c5a55a]/10 border border-[#c5a55a]/20 rounded-full px-4 py-1.5 text-xs font-bold text-[#c5a55a] tracking-widest uppercase mb-4">
@@ -267,7 +267,7 @@ export default function Features() {
 
         {/* ===================== CTA SECTION ===================== */}
         <section className="relative py-28 md:py-36 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#070f1c] via-[#0f1d2e] to-[#091524]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0f2238] via-[#1e3a5f] to-[#11253e]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_50%,_rgba(46,109,164,0.14)_0%,_transparent_70%)] pointer-events-none" />
           <div
             className="absolute inset-0 pointer-events-none opacity-[0.03]"

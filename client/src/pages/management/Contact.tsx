@@ -333,7 +333,7 @@ export default function Contact() {
                 </div>
 
                 {/* Contact details */}
-                <div className="bg-gradient-to-br from-[#0f1d2e] to-[#143456] rounded-2xl p-7 text-white">
+                <div className="bg-gradient-to-br from-[#1e3a5f] to-[#1e4d8c] rounded-2xl p-7 text-white">
                   <h3 className="font-serif text-lg font-bold mb-6">
                     Other Ways to Reach Us
                   </h3>
@@ -404,7 +404,7 @@ export default function Contact() {
 
         {/* ===================== CTA BANNER ===================== */}
         <section className="relative py-24 md:py-32 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#070f1c] via-[#0f1d2e] to-[#091524]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0f2238] via-[#1e3a5f] to-[#11253e]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_50%,_rgba(197,165,90,0.08)_0%,_transparent_70%)] pointer-events-none" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-px bg-gradient-to-r from-transparent via-[#c5a55a]/50 to-transparent" />
           <div className="relative z-10 container mx-auto px-4 text-center">
