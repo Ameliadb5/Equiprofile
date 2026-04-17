@@ -1664,7 +1664,7 @@ function TrainingTemplatesContent() {
                 }`}
               >
                 {cat.label}
-                <span className={`ml-1.5 text-[10px] ${activeCategory === cat.key ? "text-blue-200" : "text-gray-400"}`}>{count}</span>
+                <span className={`ml-1.5 text-[10px] ${activeCategory === cat.key ? "text-white/75" : "text-gray-500 dark:text-gray-400"}`}>{count}</span>
               </button>
             );
           })}
