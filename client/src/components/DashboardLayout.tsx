@@ -670,7 +670,7 @@ function DashboardLayoutContent({
                       // - stableOverride replaces the path/label for stable users
                       // - Legacy label-based filter retained for Breeding/Lessons
                       const items = group.items
-                        .filter((item: any) => {
+                        .filter((item) => {
                           if (
                             (item.stableOnly || item.label === "Breeding" || item.label === "Lessons") &&
                             !isStablePlan &&
@@ -679,7 +679,7 @@ function DashboardLayoutContent({
                             return false;
                           return true;
                         })
-                        .map((item: any) => ({
+                        .map((item) => ({
                           ...item,
                           // Stable plan users see /stable-reports instead of /reports
                           path: isStablePlan && item.stableOverride ? item.stableOverride : item.path,
@@ -692,7 +692,7 @@ function DashboardLayoutContent({
                             {group.label}
                           </p>
                           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                            {items.map((item: any) => {
+                            {items.map((item) => {
                               const Icon = item.icon;
                               const isActive = location === item.path;
                               return (
