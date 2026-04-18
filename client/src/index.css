@@ -705,32 +705,32 @@
     );
   }
 
-  /* Hero fade into #f8f9fb light section */
+  /* Hero fade into #f8f9fb light section — smooth 3-stop gradient */
   .mgmt-hero-fade {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 10rem; /* h-40 */
+    height: 14rem; /* h-56 — taller for a gradual, non-harsh transition */
     background-image: linear-gradient(
       to bottom,
       transparent,
-      transparent,
+      color-mix(in srgb, var(--ep-section-light) 50%, transparent),
       var(--ep-section-light)
     );
   }
 
-  /* Hero fade into #f0f4f8 alt light section (Contact page) */
+  /* Hero fade into #f0f4f8 alt light section (Contact page) — smooth 3-stop */
   .mgmt-hero-fade-alt {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 7rem; /* h-28 */
+    height: 9rem; /* h-36 — taller than previous h-28 */
     background-image: linear-gradient(
       to bottom,
       transparent,
-      color-mix(in srgb, var(--ep-section-alt) 50%, transparent),
+      color-mix(in srgb, var(--ep-section-alt) 60%, transparent),
       var(--ep-section-alt)
     );
   }

@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ManagementLayout } from "@/components/management/ManagementLayout";
-import { mgmtHeroFadeAlt } from "@/styles/managementTheme";
+import { MgmtHero } from "@/components/management/MgmtHero";
 import { toast } from "sonner";
 import {
   Mail,
@@ -138,49 +138,22 @@ export default function Contact() {
       <div className="min-h-screen">
 
         {/* ======================== HERO ======================== */}
-        <section className="relative min-h-[420px] flex items-center overflow-hidden">
-          <img
-            src="/images/aboutus.jpg"
-            alt="Equestrian team at the yard"
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          />
-          <div className="mgmt-hero-overlay" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(197,165,90,0.07)_0%,_transparent_60%)] pointer-events-none" />
-
-          <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-28 pb-16">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm font-medium mb-6"
-            >
-              <Send className="w-4 h-4" />
-              Get in Touch
-            </motion.span>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6"
-            >
-              We'd love to{" "}
+        <MgmtHero
+          imageSrc="/images/aboutus.jpg"
+          imageAlt="Equestrian team at the yard"
+          eyebrow="Get in Touch"
+          eyebrowVariant="glass"
+          EyebrowIcon={Send}
+          title={
+            <>
+              We&apos;d love to{" "}
               <span className="text-[#c5a55a]">hear from you</span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed"
-            >
-              Have a question, need a demo, or just want to say hello? Fill in
-              the form and we'll be in touch quickly.
-            </motion.p>
-          </div>
-
-          <div className={mgmtHeroFadeAlt} />
-        </section>
+            </>
+          }
+          subtitle="Have a question, need a demo, or just want to say hello? Fill in the form and we'll be in touch quickly."
+          minHeight="min-h-[420px]"
+          fadeVariant="alt-light"
+        />
 
         {/* ================= FORM + SIDEBAR ================= */}
         <section className="py-24 bg-[#f0f4f8]">

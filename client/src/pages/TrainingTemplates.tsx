@@ -1,3 +1,22 @@
+/**
+ * TrainingTemplates — User-facing horse training plan templates.
+ *
+ * SINGLE SOURCE OF TRUTH: User horse training templates.
+ *
+ * ⚠️  SYSTEM SEPARATION — READ BEFORE EDITING
+ * ---------------------------------------------
+ * This file manages HORSE TRAINING PLAN templates only:
+ *   - Pre-designed exercise/workout schedules for horses
+ *   - Users apply these templates to their horses' training logs
+ *   - Route: /training-templates (protected, authenticated users)
+ *
+ * This is NOT the admin email campaign system. For email campaigns:
+ *   client/src/pages/AdminCampaigns.tsx  (admin-only, inside Admin panel)
+ *   server/_core/emailTemplates.ts       (HTML email template definitions)
+ *
+ * The PREDESIGNED_TEMPLATES constant below is also mirrored (read-only)
+ * in Admin.tsx so administrators can browse the training content.
+ */
 import { useState } from "react";
 import { useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";

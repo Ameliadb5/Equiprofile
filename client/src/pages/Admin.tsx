@@ -101,9 +101,29 @@ const AdminCampaigns = lazy(() => import("./AdminCampaigns"));
 const AdminAnalytics = lazy(() => import("./AdminAnalytics"));
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Admin-visible training template catalogue
-   These mirror the PREDESIGNED_TEMPLATES in TrainingTemplates.tsx so the
-   admin can browse, review and validate platform content.
+   Admin-visible HORSE TRAINING template catalogue (READ-ONLY view)
+   ─────────────────────────────────────────────────────────────────────────
+   ⚠️  TEMPLATE SYSTEM SEPARATION — READ THIS BEFORE EDITING
+   -----------------------------------------------------------
+   There are TWO completely separate template systems in this codebase:
+
+   1. HORSE TRAINING TEMPLATES (user-facing)
+      File:    client/src/pages/TrainingTemplates.tsx
+      Route:   /training-templates  (protected, for authenticated users)
+      Purpose: Pre-built equine workout/exercise plan templates that users
+               apply to their horses' training schedules.
+
+   2. EMAIL / MARKETING CAMPAIGN TEMPLATES (admin-only)
+      File:    client/src/pages/AdminCampaigns.tsx
+      Section: Admin panel → "Campaigns" tab
+      Purpose: Branded HTML email templates used to send marketing campaigns
+               to leads, trial users, paid users, and schools.
+      Server:  server/_core/emailTemplates.ts
+
+   The READ-ONLY catalogue below (lines ~109 onwards) mirrors the
+   PREDESIGNED_TEMPLATES from TrainingTemplates.tsx so the admin can
+   browse and validate horse training content. It is NOT related to
+   AdminCampaigns.tsx email templates.
    ────────────────────────────────────────────────────────────────────────── */
 
 type TemplateCategory = "foundation" | "fitness" | "warmup" | "rehabilitation" | "development" | "competition" | "conditioning";

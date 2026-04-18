@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ManagementLayout } from "@/components/management/ManagementLayout";
 import { MgmtCTASection } from "@/components/management/MgmtCTASection";
+import { MgmtHero } from "@/components/management/MgmtHero";
 import { DEFAULT_PRICING, FREE_TRIAL_DAYS } from "@shared/pricing";
 import {
   ArrowRight,
@@ -220,37 +221,16 @@ export default function Pricing() {
     <ManagementLayout>
       <div className="min-h-screen">
         {/* ======================== HERO ======================== */}
-        <section className="relative min-h-[460px] md:min-h-[520px] flex items-center overflow-hidden">
-          <img
-            src="/images/price3.jpg"
-            alt="Premium equestrian training facility"
-            className="absolute inset-0 w-full h-full object-cover object-top"
-          />
-          <div className="mgmt-hero-overlay" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(26,122,109,0.18)_0%,_transparent_60%)] pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(46,109,164,0.12)_0%,_transparent_60%)] pointer-events-none" />
-
-          <div className="relative z-10 container mx-auto px-4 pt-32 pb-20 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className="inline-flex items-center gap-2 bg-[#c5a55a]/10 border border-[#c5a55a]/20 rounded-full px-4 py-1.5 text-sm font-bold text-[#c5a55a] tracking-widest uppercase mb-5">
-                Pricing
-              </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] font-bold font-serif text-white leading-tight max-w-4xl mx-auto">
-                Simple, Transparent Pricing
-              </h1>
-              <p className="mt-6 text-lg md:text-xl text-white/65 max-w-2xl mx-auto leading-relaxed">
-                Choose the plan that fits your yard. Every plan includes a{" "}
-                {FREE_TRIAL_DAYS}-day free trial — no credit card required.
-              </p>
-            </motion.div>
-          </div>
-
-          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent via-transparent to-[#f8f9fb]" />
-        </section>
+        <MgmtHero
+          imageSrc="/images/price3.jpg"
+          imageAlt="Premium equestrian training facility"
+          imageObjectPosition="top"
+          eyebrow="Pricing"
+          title="Simple, Transparent Pricing"
+          subtitle={`Choose the plan that fits your yard. Every plan includes a ${FREE_TRIAL_DAYS}-day free trial — no credit card required.`}
+          minHeight="min-h-[460px] md:min-h-[520px]"
+          fadeVariant="light"
+        />
 
         {/* ===================== PRICING CARDS ===================== */}
         <section className="bg-[#f8f9fb] py-16 md:py-24">

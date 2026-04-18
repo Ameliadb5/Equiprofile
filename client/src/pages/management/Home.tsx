@@ -154,7 +154,18 @@ export default function Home() {
     <ManagementLayout>
       <div className="min-h-screen">
 
-        {/* ======================== HERO ======================== */}
+        {/*
+          ======================== HERO ========================
+          NOTE: The Home page intentionally keeps its own full-screen hero.
+          It is NOT refactored to use MgmtHero because it is fundamentally
+          different from the inner pages:
+            - Full 96vh height (vs 460-580px for inner pages)
+            - Animated eyebrow pill with live indicator (vs gold badge)
+            - Very large title (80px) with gradient text animation
+            - Dual CTA buttons + trust strip
+            - Fades into a dark stats section (not a light section)
+          Inner pages (Features, Pricing, About, Contact) use MgmtHero.
+        */}
         <section className="relative min-h-[96vh] flex items-center overflow-hidden">
           <img
             src="/images/hero/image1.jpg"

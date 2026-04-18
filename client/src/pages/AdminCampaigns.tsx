@@ -1,3 +1,22 @@
+/**
+ * AdminCampaigns — Email / marketing campaign management tool.
+ *
+ * SINGLE SOURCE OF TRUTH: Admin email campaign system.
+ *
+ * ⚠️  SYSTEM SEPARATION — READ BEFORE EDITING
+ * ---------------------------------------------
+ * This file manages EMAIL / MARKETING CAMPAIGNS only:
+ *   - Branded HTML email templates (server/_core/emailTemplates.ts)
+ *   - Campaign creation, scheduling, and segment targeting
+ *   - Marketing contacts management
+ *   - Drip-sequence launching
+ *
+ * This is NOT the horse training template system. For horse training plans:
+ *   client/src/pages/TrainingTemplates.tsx  (user-facing, /training-templates)
+ *   Admin read-only view of training templates → Admin.tsx (templates section)
+ *
+ * This component is lazy-loaded from Admin.tsx → "campaigns" section.
+ */
 import { useState, useRef, useCallback } from "react";
 import {
   Card,
@@ -14,7 +33,9 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -457,32 +478,84 @@ export default function AdminCampaigns() {
               <Skeleton className="h-12 w-full" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {templates.data?.map((tpl) => (
-                <div
-                  key={tpl.id}
-                  className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ background: tpl.previewColor }}
-                    />
-                    <h4 className="font-medium text-sm">{tpl.name}</h4>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    {tpl.description}
+            <div className="space-y-6">
+              {/* Management Platform Templates */}
+              {templates.data?.filter((t) => !t.id.startsWith("school-")).length ? (
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-[#2e6da4]" />
+                    Management Platform
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => handlePreview(tpl.id)}
-                  >
-                    <Eye className="w-3 h-3 mr-1" /> Preview
-                  </Button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {templates.data
+                      ?.filter((t) => !t.id.startsWith("school-"))
+                      .map((tpl) => (
+                        <div
+                          key={tpl.id}
+                          className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <div
+                              className="w-3 h-3 rounded-full shrink-0"
+                              style={{ background: tpl.previewColor }}
+                            />
+                            <h4 className="font-medium text-sm leading-snug">{tpl.name}</h4>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            {tpl.description}
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => handlePreview(tpl.id)}
+                          >
+                            <Eye className="w-3 h-3 mr-1" /> Preview
+                          </Button>
+                        </div>
+                      ))}
+                  </div>
                 </div>
-              ))}
+              ) : null}
+
+              {/* School / Academy Templates */}
+              {templates.data?.filter((t) => t.id.startsWith("school-")).length ? (
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2 pt-2 border-t border-border">
+                    <span className="inline-block w-2 h-2 rounded-full bg-[#1a7a6d]" />
+                    School / Academy
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {templates.data
+                      ?.filter((t) => t.id.startsWith("school-"))
+                      .map((tpl) => (
+                        <div
+                          key={tpl.id}
+                          className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <div
+                              className="w-3 h-3 rounded-full shrink-0"
+                              style={{ background: tpl.previewColor }}
+                            />
+                            <h4 className="font-medium text-sm leading-snug">{tpl.name}</h4>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            {tpl.description}
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => handlePreview(tpl.id)}
+                          >
+                            <Eye className="w-3 h-3 mr-1" /> Preview
+                          </Button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           )}
         </CardContent>
@@ -713,11 +786,34 @@ export default function AdminCampaigns() {
                     <SelectValue placeholder="Select template" />
                   </SelectTrigger>
                   <SelectContent>
-                    {templates.data?.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
-                        {t.name}
-                      </SelectItem>
-                    ))}
+                    {/* Management platform templates */}
+                    <SelectGroup>
+                      <SelectLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 py-1.5">
+                        Management Platform
+                      </SelectLabel>
+                      {templates.data
+                        ?.filter((t) => !t.id.startsWith("school-"))
+                        .map((t) => (
+                          <SelectItem key={t.id} value={t.id}>
+                            {t.name}
+                          </SelectItem>
+                        ))}
+                    </SelectGroup>
+                    {/* School / academy templates */}
+                    {templates.data?.some((t) => t.id.startsWith("school-")) && (
+                      <SelectGroup>
+                        <SelectLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 py-1.5 mt-1 border-t border-border pt-2">
+                          School / Academy
+                        </SelectLabel>
+                        {templates.data
+                          ?.filter((t) => t.id.startsWith("school-"))
+                          .map((t) => (
+                            <SelectItem key={t.id} value={t.id}>
+                              {t.name}
+                            </SelectItem>
+                          ))}
+                      </SelectGroup>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

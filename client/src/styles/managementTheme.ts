@@ -19,6 +19,16 @@ import type { CSSProperties } from "react";
  * class strings exported below are written as full literals so the scanner
  * includes them in the CSS bundle.  Do NOT build class names by string
  * concatenation — write them out in full.
+ *
+ * HERO SYSTEM — SINGLE SOURCE OF TRUTH
+ * --------------------------------------
+ * Inner-page heroes (Features, Pricing, About, Contact) use the shared
+ * MgmtHero component:
+ *   client/src/components/management/MgmtHero.tsx
+ *
+ * The Home page deliberately keeps its own full-screen hero (96vh with CTAs).
+ * mgmtHeroFade / mgmtHeroFadeAlt below are kept for backward compatibility
+ * but future pages should use MgmtHero instead of these exports directly.
  */
 
 // ── Colour hex values ────────────────────────────────────────────────────────
@@ -62,16 +72,22 @@ export const mgmtHeroOverlay =
 /**
  * Hero fade into the light section (#f8f9fb).
  * Place as the last child of the hero section (absolute positioned).
+ *
+ * Updated to use a 3-stop gradient for a smooth, non-harsh transition.
+ * MgmtHero component uses this same gradient inline — change both together.
  */
 export const mgmtHeroFade =
-  "absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent via-transparent to-[#f8f9fb]";
+  "absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-b from-transparent via-[#f8f9fb]/50 to-[#f8f9fb]";
 
 /**
  * Hero fade into the alt light section (#f0f4f8) — Contact page.
  * Place as the last child of the hero section (absolute positioned).
+ *
+ * Updated to use a taller, smoother 3-stop gradient.
+ * MgmtHero component uses this same gradient inline — change both together.
  */
 export const mgmtHeroFadeAlt =
-  "absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-b from-transparent via-[#f0f4f8]/50 to-[#f0f4f8]";
+  "absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-b from-transparent via-[#f0f4f8]/60 to-[#f0f4f8]";
 
 /** Subtle dot-grid pattern used inside CTA sections */
 export const mgmtDotPattern: CSSProperties = {
