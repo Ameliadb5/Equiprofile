@@ -57,7 +57,7 @@ function AnimatedSection({
 
 const platformStats: { icon: LucideIcon; value: string; label: string; sub: string }[] = [
   { icon: HeartPulse, value: "Complete", label: "Health Records", sub: "vets, farriers & medications" },
-  { icon: ShieldCheck, value: "Military-Grade", label: "Data Security", sub: "encrypted end-to-end" },
+  { icon: ShieldCheck, value: "Encrypted", label: "Secure Storage", sub: "your data, always protected" },
   { icon: MapPin, value: "Any Yard", label: "Any Scale", sub: "solo owner to full stable" },
   { icon: Zap, value: "7-Day", label: "Free Trial", sub: "no credit card required" },
 ];
@@ -154,7 +154,18 @@ export default function Home() {
     <ManagementLayout>
       <div className="min-h-screen">
 
-        {/* ======================== HERO ======================== */}
+        {/*
+          ======================== HERO ========================
+          NOTE: The Home page intentionally keeps its own full-screen hero.
+          It is NOT refactored to use MgmtHero because it is fundamentally
+          different from the inner pages:
+            - Full 96vh height (vs 460-580px for inner pages)
+            - Animated eyebrow pill with live indicator (vs gold badge)
+            - Very large title (80px) with gradient text animation
+            - Dual CTA buttons + trust strip
+            - Fades into a dark stats section (not a light section)
+          Inner pages (Features, Pricing, About, Contact) use MgmtHero.
+        */}
         <section className="relative min-h-[96vh] flex items-center overflow-hidden">
           <img
             src="/images/hero/image1.jpg"

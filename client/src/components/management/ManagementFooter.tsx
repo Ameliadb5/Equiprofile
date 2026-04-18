@@ -7,10 +7,11 @@ import { Link } from "wouter";
 import { Mail, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function ManagementFooter() {
+export function ManagementFooter({ hidePreFooterCta = false }: { hidePreFooterCta?: boolean }) {
   return (
     <footer className="relative bg-[#162d4a] text-gray-300 overflow-hidden">
-      {/* Pre-footer CTA strip */}
+      {/* Pre-footer CTA strip — hidden on pages where the form/content IS the conversion action (e.g. Contact) */}
+      {!hidePreFooterCta && (
       <div className="relative border-b border-white/[0.06] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[#1e3a5f] via-[#223f68] to-[#1e3a5f]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_100%_at_50%_0%,_rgba(197,165,90,0.06)_0%,_transparent_100%)]" />
@@ -36,6 +37,7 @@ export function ManagementFooter() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Subtle top gradient line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#2e6da4]/30 to-transparent" />

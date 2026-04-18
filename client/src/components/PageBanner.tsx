@@ -12,7 +12,20 @@ interface PageBannerProps {
 /**
  * PageBanner Component
  *
- * A reusable banner component for marketing pages.
+ * A reusable banner component for SECONDARY pages only.
+ *
+ * ⚠️  NOT FOR MANAGEMENT MARKETING PAGES
+ * ----------------------------------------
+ * This component is NOT used by the management marketing pages
+ * (Home, Features, Pricing, About, Contact).  Those pages use the
+ * shared MgmtHero component:
+ *   client/src/components/management/MgmtHero.tsx
+ *
+ * PageBanner is intentionally used by:
+ *   - client/src/pages/TermsPage.tsx
+ *   - client/src/pages/PrivacyPage.tsx
+ *   - client/src/pages/Schools.tsx
+ *
  * Features:
  * - Responsive design with proper image scaling
  * - Proper heights: 420-520px desktop, 280-360px mobile

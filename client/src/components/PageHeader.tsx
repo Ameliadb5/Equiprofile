@@ -1,9 +1,19 @@
 /**
- * PageHeader — Shared page-level heading component.
+ * PageHeader — Shared page-level heading component for the DASHBOARD APP.
  *
- * Renders `<h1>` + optional subtitle. In V2 mode a small brand accent
- * overline is prepended, giving every inner feature page the V2 premium
- * look beyond what DashboardLayout already provides.
+ * ⚠️  NOT FOR MANAGEMENT MARKETING PAGES
+ * ----------------------------------------
+ * This component is NOT a banner or hero for the public marketing site.
+ * It renders the inner-app `<h1>` + optional subtitle visible to
+ * authenticated users inside their dashboard.
+ *
+ * For public marketing page heroes (Features, Pricing, About, Contact),
+ * use MgmtHero:
+ *   client/src/components/management/MgmtHero.tsx
+ *
+ * In V2 mode a small brand accent overline is prepended, giving every inner
+ * feature page the V2 premium look beyond what DashboardLayout already
+ * provides.
  */
 
 import { isV2 } from "@/config/uiVersion";

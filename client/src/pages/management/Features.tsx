@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { ManagementLayout } from "@/components/management/ManagementLayout";
 import { MgmtCTASection } from "@/components/management/MgmtCTASection";
-import { mgmtHeroFade } from "@/styles/managementTheme";
+import { MgmtHero } from "@/components/management/MgmtHero";
 import {
   HeartPulse,
   Dumbbell,
@@ -145,40 +145,21 @@ export default function Features() {
     <ManagementLayout>
       <div className="min-h-screen">
         {/* ======================== HERO ======================== */}
-        <section className="relative min-h-[500px] md:min-h-[560px] flex items-center overflow-hidden">
-          <img
-            src="/images/hero/image2.jpg"
-            alt="Training session with horse"
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          />
-          <div className="mgmt-hero-overlay" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(46,109,164,0.22)_0%,_transparent_60%)] pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(26,122,109,0.12)_0%,_transparent_60%)] pointer-events-none" />
-
-          <div className="relative z-10 container mx-auto px-4 pt-32 pb-20 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className="inline-flex items-center gap-2 bg-[#c5a55a]/10 border border-[#c5a55a]/20 rounded-full px-4 py-1.5 text-sm font-bold text-[#c5a55a] tracking-widest uppercase mb-5">
-                Features
-              </div>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] font-bold font-serif text-white leading-tight max-w-5xl mx-auto">
-                Everything You Need to
-                <br />
-                <span className="text-[#c5a55a]">
-                  Manage Your Horses
-                </span>
-              </h1>
-              <p className="mt-6 text-lg md:text-xl text-white/55 max-w-2xl mx-auto leading-relaxed">
-                Powerful, interconnected modules covering health, training, nutrition, documents, weather, stable management and more — all in one premium platform.
-              </p>
-            </motion.div>
-          </div>
-
-          <div className={mgmtHeroFade} />
-        </section>
+        <MgmtHero
+          imageSrc="/images/hero/image2.jpg"
+          imageAlt="Training session with horse"
+          eyebrow="Features"
+          title={
+            <>
+              Everything You Need to
+              <br />
+              <span className="text-[#c5a55a]">Manage Your Horses</span>
+            </>
+          }
+          subtitle="Powerful, interconnected modules covering health, training, nutrition, documents, weather, stable management and more — all in one premium platform."
+          minHeight="min-h-[500px] md:min-h-[560px]"
+          fadeVariant="light"
+        />
 
         {/* =============== ALTERNATING FEATURE SECTIONS =============== */}
         {majorFeatures.map((feature, index) => {
@@ -240,10 +221,10 @@ export default function Features() {
                 And More
               </div>
               <h2 className="text-3xl md:text-4xl font-bold font-serif text-white">
-                Plus dozens of thoughtful extras
+                More tools built for the yard
               </h2>
               <p className="mt-4 text-white/40 text-lg">
-                Little details that add up to a delightful experience.
+                Purpose-built extras that cover every corner of your operation.
               </p>
             </AnimatedSection>
 
