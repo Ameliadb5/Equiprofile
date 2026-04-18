@@ -76,7 +76,7 @@ export function ManagementNavbar() {
                   {isActive && (
                     <motion.div
                       layoutId="mgmt-nav-indicator"
-                      className="absolute bottom-0 left-3 right-3 h-[2px] bg-gradient-to-r from-emerald-400 to-[#3b82f6] rounded-full"
+                      className="absolute bottom-0 left-3 right-3 h-[2px] bg-gradient-to-r from-[#1a7a6d] to-[#2e6da4] rounded-full"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}

@@ -233,7 +233,7 @@ export default function Features() {
         })}
 
         {/* ================ SEE ALL FEATURES GRID ================ */}
-        <section className="bg-[#1a3050] py-20 md:py-28">
+        <section className="mgmt-dark-section py-20 md:py-28">
           <div className="container mx-auto px-4">
             <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
               <div className="inline-flex items-center gap-2 bg-[#c5a55a]/10 border border-[#c5a55a]/20 rounded-full px-4 py-1.5 text-xs font-bold text-[#c5a55a] tracking-widest uppercase mb-4">
