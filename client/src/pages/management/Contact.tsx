@@ -146,7 +146,7 @@ export default function Contact() {
           EyebrowIcon={Send}
           title={
             <>
-              We&apos;d love to{" "}
+              We'd love to{" "}
               <span className="text-[#c5a55a]">hear from you</span>
             </>
           }
