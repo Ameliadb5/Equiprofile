@@ -20,9 +20,10 @@
  *
  * FADE QUALITY GUARANTEE
  * ----------------------
- * Both fade variants use a smooth 3-stop gradient (transparent → 50% mid
- * → solid) over a tall div, eliminating the harsh colour cutoff that
- * occurred when pages used `via-transparent` or a short h-40 fade.
+ * Both fade variants use a smooth 3-stop gradient (transparent → low-opacity
+ * mid → solid) over a tall div, eliminating the harsh colour cutoff.
+ * "light"     : h-64, via 35%
+ * "alt-light" : h-36, via 50%
  *
  * STYLING SOURCE OF TRUTH
  * -----------------------

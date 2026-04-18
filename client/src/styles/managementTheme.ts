@@ -87,7 +87,7 @@ export const mgmtHeroFade =
  * MgmtHero component uses this same gradient inline — change both together.
  */
 export const mgmtHeroFadeAlt =
-  "absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-b from-transparent via-[#f0f4f8]/60 to-[#f0f4f8]";
+  "absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-b from-transparent via-[#f0f4f8]/50 to-[#f0f4f8]";
 
 /** Subtle dot-grid pattern used inside CTA sections */
 export const mgmtDotPattern: CSSProperties = {
