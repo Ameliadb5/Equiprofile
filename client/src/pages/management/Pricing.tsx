@@ -3,6 +3,7 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ManagementLayout } from "@/components/management/ManagementLayout";
+import { MgmtCTASection } from "@/components/management/MgmtCTASection";
 import { DEFAULT_PRICING, FREE_TRIAL_DAYS } from "@shared/pricing";
 import {
   ArrowRight,
@@ -221,11 +222,11 @@ export default function Pricing() {
         {/* ======================== HERO ======================== */}
         <section className="relative min-h-[460px] md:min-h-[520px] flex items-center overflow-hidden">
           <img
-            src="/images/hero/image4.jpg"
-            alt="Horses in a stable yard"
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            src="/images/price3.jpg"
+            alt="Premium equestrian training facility"
+            className="absolute inset-0 w-full h-full object-cover object-top"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#070f1c]/70 via-[#0f1d2e]/62 to-[#0f1d2e]/82" />
+          <div className="mgmt-hero-overlay" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(26,122,109,0.18)_0%,_transparent_60%)] pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(46,109,164,0.12)_0%,_transparent_60%)] pointer-events-none" />
 
@@ -248,7 +249,7 @@ export default function Pricing() {
             </motion.div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#f8f9fb] via-[#f8f9fb]/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent via-transparent to-[#f8f9fb]" />
         </section>
 
         {/* ===================== PRICING CARDS ===================== */}
@@ -529,65 +530,18 @@ export default function Pricing() {
         </section>
 
         {/* ===================== CTA BANNER ===================== */}
-        <section className="relative py-28 md:py-36 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#070f1c] via-[#0f1d2e] to-[#091524]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_50%,_rgba(197,165,90,0.08)_0%,_transparent_70%)] pointer-events-none" />
-          <div
-            className="absolute inset-0 pointer-events-none opacity-[0.03]"
-            style={{
-              backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)",
-              backgroundSize: "28px 28px",
-            }}
-          />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-px bg-gradient-to-r from-transparent via-[#c5a55a]/50 to-transparent" />
-
-          <div className="relative z-10 container mx-auto px-4 text-center">
-            <AnimatedSection>
-              <p className="text-xs font-bold tracking-[0.2em] uppercase text-[#c5a55a] mb-5">
-                Start today
-              </p>
-              <h2 className="text-4xl md:text-5xl font-bold font-serif text-white max-w-3xl mx-auto leading-tight">
-                Start your free trial today
-              </h2>
-              <p className="mt-5 text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
-                No credit card. No commitment. Just {FREE_TRIAL_DAYS} days of
-                full access to see why equestrians love EquiProfile.
-              </p>
-              <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/register">
-                  <Button
-                    size="lg"
-                    className="bg-[#c5a55a] hover:bg-[#d4b468] text-[#0f1d2e] font-bold px-12 h-12 text-base rounded-full shadow-2xl shadow-[#c5a55a]/25 border-0 transition-all duration-200 hover:-translate-y-0.5 group"
-                  >
-                    Get Started Free
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                  </Button>
-                </Link>
-                <Link href="/contact">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-white/15 text-white hover:bg-white/[0.07] hover:border-white/25 px-10 h-12 text-base rounded-full transition-all duration-200"
-                  >
-                    Talk to Sales
-                  </Button>
-                </Link>
-              </div>
-              <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
-                {[
-                  "No credit card required",
-                  "Cancel anytime",
-                  "Full access during trial",
-                ].map((item) => (
-                  <span key={item} className="text-xs text-white/35 flex items-center gap-1.5">
-                    <Check className="w-3 h-3 text-[#c5a55a]/60" />
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </AnimatedSection>
-          </div>
-        </section>
+        <MgmtCTASection
+          eyebrow="Start today"
+          heading="Start your free trial today"
+          body={`No credit card. No commitment. Just ${FREE_TRIAL_DAYS} days of full access to see why equestrians love EquiProfile.`}
+          primaryCta={{ label: "Get Started Free", href: "/register" }}
+          secondaryCta={{ label: "Talk to Sales", href: "/contact" }}
+          trustItems={[
+            "No credit card required",
+            "Cancel anytime",
+            "Full access during trial",
+          ]}
+        />
       </div>
     </ManagementLayout>
   );
