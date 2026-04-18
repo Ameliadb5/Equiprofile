@@ -134,13 +134,13 @@ export default function Contact() {
     "w-full rounded-xl border border-gray-200 bg-[#f0f4f8] px-4 py-3 text-[#0f1d2e] placeholder:text-[#0f1d2e]/30 outline-none transition-all focus:border-[#2e6da4] focus:ring-2 focus:ring-[#2e6da4]/20 text-sm";
 
   return (
-    <ManagementLayout>
+    <ManagementLayout hidePreFooterCta>
       <div className="min-h-screen">
 
         {/* ======================== HERO ======================== */}
         <MgmtHero
-          imageSrc="/images/aboutus.jpg"
-          imageAlt="Equestrian team at the yard"
+          imageSrc="/images/hero/image3.jpg"
+          imageAlt="Horse and rider at the yard"
           eyebrow="Get in Touch"
           eyebrowVariant="glass"
           EyebrowIcon={Send}

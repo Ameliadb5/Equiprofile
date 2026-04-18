@@ -42,9 +42,9 @@ import { type LucideIcon } from "lucide-react";
 // "alt-light" fades into the alt light section (#f0f4f8) — Contact page
 const FADE_CLASS = {
   light:
-    "absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-b from-transparent via-[#f8f9fb]/50 to-[#f8f9fb]",
+    "absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-b from-transparent via-[#f8f9fb]/35 to-[#f8f9fb]",
   "alt-light":
-    "absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-b from-transparent via-[#f0f4f8]/60 to-[#f0f4f8]",
+    "absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-b from-transparent via-[#f0f4f8]/50 to-[#f0f4f8]",
 } as const;
 
 // ── Object-position map ────────────────────────────────────────────────────────

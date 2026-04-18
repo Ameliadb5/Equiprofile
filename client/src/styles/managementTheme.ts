@@ -77,7 +77,7 @@ export const mgmtHeroOverlay =
  * MgmtHero component uses this same gradient inline — change both together.
  */
 export const mgmtHeroFade =
-  "absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-b from-transparent via-[#f8f9fb]/50 to-[#f8f9fb]";
+  "absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-b from-transparent via-[#f8f9fb]/35 to-[#f8f9fb]";
 
 /**
  * Hero fade into the alt light section (#f0f4f8) — Contact page.

@@ -699,9 +699,9 @@
     inset: 0;
     background-image: linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--ep-dark-bg-deep) 70%, transparent),
-      color-mix(in srgb, var(--ep-dark-bg) 60%, transparent),
-      color-mix(in srgb, var(--ep-dark-bg-alt) 80%, transparent)
+      color-mix(in srgb, var(--ep-dark-bg-deep) 55%, transparent),
+      color-mix(in srgb, var(--ep-dark-bg) 45%, transparent),
+      color-mix(in srgb, var(--ep-dark-bg-alt) 65%, transparent)
     );
   }
 
@@ -711,11 +711,11 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 14rem; /* h-56 — taller for a gradual, non-harsh transition */
+    height: 16rem; /* h-64 — taller for a softer, premium transition */
     background-image: linear-gradient(
       to bottom,
       transparent,
-      color-mix(in srgb, var(--ep-section-light) 50%, transparent),
+      color-mix(in srgb, var(--ep-section-light) 35%, transparent),
       var(--ep-section-light)
     );
   }

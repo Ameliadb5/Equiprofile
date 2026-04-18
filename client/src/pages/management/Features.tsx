@@ -221,10 +221,10 @@ export default function Features() {
                 And More
               </div>
               <h2 className="text-3xl md:text-4xl font-bold font-serif text-white">
-                Plus dozens of thoughtful extras
+                More tools built for the yard
               </h2>
               <p className="mt-4 text-white/40 text-lg">
-                Little details that add up to a delightful experience.
+                Purpose-built extras that cover every corner of your operation.
               </p>
             </AnimatedSection>
 

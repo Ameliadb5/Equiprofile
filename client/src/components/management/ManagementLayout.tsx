@@ -8,14 +8,17 @@ import { PageTransition } from "@/components/PageTransition";
 
 interface ManagementLayoutProps {
   children: ReactNode;
+  /** Pass true on pages where the body content IS the conversion action (e.g. Contact),
+   *  so the footer pre-CTA strip is hidden to avoid a double CTA feeling. */
+  hidePreFooterCta?: boolean;
 }
 
-export function ManagementLayout({ children }: ManagementLayoutProps) {
+export function ManagementLayout({ children, hidePreFooterCta }: ManagementLayoutProps) {
   return (
     <>
       <ManagementNavbar />
       <PageTransition>{children}</PageTransition>
-      <ManagementFooter />
+      <ManagementFooter hidePreFooterCta={hidePreFooterCta} />
     </>
   );
 }

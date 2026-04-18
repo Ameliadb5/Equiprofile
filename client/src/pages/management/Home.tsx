@@ -57,7 +57,7 @@ function AnimatedSection({
 
 const platformStats: { icon: LucideIcon; value: string; label: string; sub: string }[] = [
   { icon: HeartPulse, value: "Complete", label: "Health Records", sub: "vets, farriers & medications" },
-  { icon: ShieldCheck, value: "Military-Grade", label: "Data Security", sub: "encrypted end-to-end" },
+  { icon: ShieldCheck, value: "Encrypted", label: "Secure Storage", sub: "your data, always protected" },
   { icon: MapPin, value: "Any Yard", label: "Any Scale", sub: "solo owner to full stable" },
   { icon: Zap, value: "7-Day", label: "Free Trial", sub: "no credit card required" },
 ];
