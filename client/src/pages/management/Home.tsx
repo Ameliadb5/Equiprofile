@@ -151,7 +151,7 @@ const testimonials = [
 
 export default function Home() {
   return (
-    <ManagementLayout>
+    <ManagementLayout hidePreFooterCta>
       <div className="min-h-screen">
 
         {/*

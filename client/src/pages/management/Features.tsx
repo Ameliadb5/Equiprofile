@@ -142,7 +142,7 @@ const extraFeatures = [
 
 export default function Features() {
   return (
-    <ManagementLayout>
+    <ManagementLayout hidePreFooterCta>
       <div className="min-h-screen">
         {/* ======================== HERO ======================== */}
         <MgmtHero
