@@ -56,6 +56,7 @@ import {
   Trash2,
   Search,
   Download,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRealtimeModule } from "@/hooks/useRealtime";
@@ -80,6 +81,8 @@ function TrainingContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [viewingSession, setViewingSession] = useState<any>(null);
   const [deletingSessionId, setDeletingSessionId] = useState<number | null>(null);
   const [editingSession, setEditingSession] = useState<{ id: number } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -207,6 +210,11 @@ function TrainingContent() {
       goals: formData.goals || undefined,
       notes: formData.notes || undefined,
     });
+  };
+
+  const handleView = (session: any) => {
+    setViewingSession(session);
+    setIsViewDialogOpen(true);
   };
 
   const handleEdit = (session: {
@@ -536,6 +544,15 @@ function TrainingContent() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
+                            onClick={() => handleView(session)}
+                            title="View details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
                             onClick={() => handleEdit(session)}
                           >
                             <Pencil className="w-4 h-4" />
@@ -630,6 +647,15 @@ function TrainingContent() {
                           </Badge>
                         )}
                         <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleView(session)}
+                            title="View details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -754,6 +780,82 @@ function TrainingContent() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* View Session Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Training Session Details</DialogTitle>
+            <DialogDescription>Read-only view of this session</DialogDescription>
+          </DialogHeader>
+          {viewingSession && (
+            <div className="space-y-3 py-2 max-h-[70vh] overflow-y-auto text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="font-medium text-muted-foreground">Type</p>
+                  <p className="capitalize">{viewingSession.sessionType?.replace("_", " ")}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-muted-foreground">Date</p>
+                  <p>{viewingSession.sessionDate ? new Date(viewingSession.sessionDate).toLocaleDateString("en-GB") : "—"}</p>
+                </div>
+                {viewingSession.startTime && (
+                  <div>
+                    <p className="font-medium text-muted-foreground">Start Time</p>
+                    <p>{viewingSession.startTime}</p>
+                  </div>
+                )}
+                {viewingSession.duration && (
+                  <div>
+                    <p className="font-medium text-muted-foreground">Duration</p>
+                    <p>{viewingSession.duration} min</p>
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium text-muted-foreground">Status</p>
+                  <p>{viewingSession.isCompleted ? "Completed" : "Scheduled"}</p>
+                </div>
+                {viewingSession.performance && (
+                  <div>
+                    <p className="font-medium text-muted-foreground">Performance</p>
+                    <p className="capitalize">{viewingSession.performance}</p>
+                  </div>
+                )}
+                {viewingSession.trainer && (
+                  <div>
+                    <p className="font-medium text-muted-foreground">Trainer</p>
+                    <p>{viewingSession.trainer}</p>
+                  </div>
+                )}
+                {viewingSession.location && (
+                  <div>
+                    <p className="font-medium text-muted-foreground">Location</p>
+                    <p>{viewingSession.location}</p>
+                  </div>
+                )}
+              </div>
+              {viewingSession.goals && (
+                <div>
+                  <p className="font-medium text-muted-foreground">Goals</p>
+                  <p className="mt-1 whitespace-pre-wrap">{viewingSession.goals}</p>
+                </div>
+              )}
+              {viewingSession.notes && (
+                <div>
+                  <p className="font-medium text-muted-foreground">Notes</p>
+                  <p className="mt-1 whitespace-pre-wrap">{viewingSession.notes}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>Close</Button>
+            <Button onClick={() => { setIsViewDialogOpen(false); if (viewingSession) handleEdit(viewingSession); }}>
+              <Pencil className="w-4 h-4 mr-2" />Edit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>

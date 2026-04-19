@@ -20,6 +20,7 @@ const SITE_URL = "https://equiprofile.online";
 // Shared styles & layout wrapper
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** Wraps all email HTML in the standard EquiProfile outer envelope. */
 function wrapEmail(body: string, bgColor = "#f4f6f9"): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -30,24 +31,34 @@ function wrapEmail(body: string, bgColor = "#f4f6f9"): string {
 </head>
 <body style="margin:0;padding:0;background:${bgColor};font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${bgColor};">
-<tr><td align="center" style="padding:24px 16px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+<tr><td align="center" style="padding:28px 16px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.08);">
 ${body}
 </table>
-<!-- Footer -->
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;margin-top:16px;">
-<tr><td align="center" style="padding:16px;color:#9ca3af;font-size:12px;line-height:1.5;">
-<p style="margin:0;">EquiProfile — Professional Horse Management</p>
-<p style="margin:4px 0 0 0;"><a href="${SITE_URL}" style="color:#6366f1;text-decoration:none;">equiprofile.online</a></p>
-<p style="margin:8px 0 0 0;">{{currentDate}}</p>
-<p style="margin:8px 0 0 0;font-size:11px;color:#b0b8c4;">
-You received this email because you subscribed to EquiProfile marketing communications or were contacted as a business.<br/>
-<a href="{{unsubscribeLink}}" style="color:#6366f1;text-decoration:underline;">Unsubscribe instantly</a> from future marketing emails.<br/>
-<a href="${SITE_URL}/privacy" style="color:#6366f1;text-decoration:underline;">Privacy Policy</a>
+<!-- Consistent EquiProfile footer -->
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;margin-top:20px;">
+<tr><td style="padding:0 0 4px 0;text-align:center;">
+  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 0 auto;">
+    <tr>
+      <td style="width:40px;height:1px;background:#e2e8f0;"></td>
+      <td style="padding:0 12px;font-size:11px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;">EquiProfile</td>
+      <td style="width:40px;height:1px;background:#e2e8f0;"></td>
+    </tr>
+  </table>
+</td></tr>
+<tr><td align="center" style="padding:12px 16px 4px;color:#9ca3af;font-size:12px;line-height:1.6;">
+<p style="margin:0;font-weight:600;color:#64748b;">EquiProfile — Professional Horse Management</p>
+<p style="margin:4px 0 0 0;"><a href="${SITE_URL}" style="color:#2e6da4;text-decoration:none;">equiprofile.online</a></p>
+<p style="margin:6px 0 0 0;">{{currentDate}}</p>
+</td></tr>
+<tr><td align="center" style="padding:6px 16px 16px;font-size:11px;color:#b0b8c4;line-height:1.5;">
+<p style="margin:0;">
+You received this email because you subscribed to EquiProfile communications or were contacted as a business.<br/>
+<a href="{{unsubscribeLink}}" style="color:#2e6da4;text-decoration:underline;">Unsubscribe</a> &nbsp;|&nbsp;
+<a href="${SITE_URL}/privacy" style="color:#2e6da4;text-decoration:underline;">Privacy Policy</a>
 </p>
-<p style="margin:8px 0 0 0;font-size:10px;color:#c5cdd8;">
-EquiProfile, Amarktai Network Ltd. All rights reserved.<br/>
-This is a marketing email. If you no longer wish to receive these, click unsubscribe above.
+<p style="margin:6px 0 0 0;font-size:10px;color:#c5cdd8;">
+Amarktai Network Ltd. All rights reserved.
 </p>
 </td></tr>
 </table>
@@ -57,21 +68,49 @@ This is a marketing email. If you no longer wish to receive these, click unsubsc
 </html>`;
 }
 
+/**
+ * Standard EquiProfile email letterhead.
+ * accent = the header background colour or gradient.
+ * All templates MUST use this function for consistent branding.
+ */
 function headerBlock(accent: string): string {
-  return `<tr><td style="background:${accent};padding:32px 40px;text-align:center;">
-<img src="${LOGO_URL}" alt="EquiProfile" width="140" style="display:block;margin:0 auto 12px auto;max-width:140px;height:auto;"/>
-<p style="margin:0;color:#ffffff;font-size:13px;letter-spacing:1px;text-transform:uppercase;">Professional Horse Management</p>
-</td></tr>`;
+  return `<tr>
+<td style="background:${accent};padding:36px 40px 28px;text-align:center;">
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+  <tr>
+    <td style="padding-right:10px;vertical-align:middle;">
+      <img src="${LOGO_URL}" alt="EquiProfile" width="36" height="36" style="display:block;border-radius:6px;width:36px;height:36px;"/>
+    </td>
+    <td style="vertical-align:middle;">
+      <span style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.3px;">EquiProfile</span>
+    </td>
+  </tr>
+</table>
+<p style="margin:10px 0 0;color:rgba(255,255,255,0.80);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;">Professional Horse Management</p>
+</td>
+</tr>`;
 }
 
+/** Branded call-to-action button. color should be a solid hex. */
 function ctaButton(text: string, url: string, color: string): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px auto;">
-<tr><td style="border-radius:8px;background:${color};">
-<a href="${url}" target="_blank" style="display:inline-block;padding:14px 36px;color:#ffffff;font-size:16px;font-weight:600;text-decoration:none;border-radius:8px;">
+<tr><td style="border-radius:8px;background:${color};box-shadow:0 2px 8px ${color}44;">
+<a href="${url}" target="_blank" style="display:inline-block;padding:14px 40px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:8px;letter-spacing:0.2px;">
 ${text}
 </a>
 </td></tr>
 </table>`;
+}
+
+/**
+ * A styled bullet-point row — replaces emoji checkmarks with clean HTML.
+ * Use inside a <table> for email-safe layout.
+ */
+function bulletRow(text: string, color = "#2e6da4"): string {
+  return `<tr>
+<td style="padding:5px 0;vertical-align:top;width:18px;font-size:14px;color:${color};font-weight:700;">&#8250;</td>
+<td style="padding:5px 0;font-size:14px;color:#334155;line-height:1.5;">${text}</td>
+</tr>`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -80,10 +119,10 @@ ${text}
 
 function template1_healthTracking(): string {
   return wrapEmail(`
-${headerBlock("linear-gradient(135deg, #0f2e6b 0%, #3b82f6 100%)")}
+${headerBlock("linear-gradient(135deg, #0f2e6b 0%, #2e6da4 100%)")}
 <tr><td style="padding:40px 40px 0;">
   <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
-    Hi {{firstName}} 👋
+    Hi {{firstName}},
   </h1>
   <p style="margin:0 0 20px;font-size:16px;color:#64748b;line-height:1.6;">
     Did you know EquiProfile gives you a <strong style="color:#1e293b;">complete health dashboard</strong> for every horse?
@@ -92,35 +131,23 @@ ${headerBlock("linear-gradient(135deg, #0f2e6b 0%, #3b82f6 100%)")}
 <tr><td style="padding:0 40px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
     <tr><td style="padding:24px;background:#f0f7ff;">
-      <h2 style="margin:0 0 16px;font-size:18px;color:#0f2e6b;">🩺 Health Records at a Glance</h2>
+      <h2 style="margin:0 0 16px;font-size:18px;color:#0f2e6b;font-weight:600;">Health Records at a Glance</h2>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        <tr>
-          <td style="padding:6px 0;font-size:14px;color:#334155;">✅ Vaccinations & reminders</td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0;font-size:14px;color:#334155;">✅ Dental care tracking</td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0;font-size:14px;color:#334155;">✅ Hoof care & farrier logs</td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0;font-size:14px;color:#334155;">✅ Deworming schedules</td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0;font-size:14px;color:#334155;">✅ X-ray records & documents</td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0;font-size:14px;color:#334155;">✅ Treatment history & notes</td>
-        </tr>
+        ${bulletRow("Vaccinations and upcoming reminders")}
+        ${bulletRow("Dental care records and next check dates")}
+        ${bulletRow("Farrier visits and hoof care logs")}
+        ${bulletRow("Deworming schedules and product records")}
+        ${bulletRow("X-ray records and uploaded documents")}
+        ${bulletRow("Full treatment history and vet notes")}
       </table>
     </td></tr>
   </table>
 </td></tr>
 <tr><td style="padding:24px 40px 12px;text-align:center;">
   <p style="font-size:15px;color:#64748b;line-height:1.6;margin:0 0 8px;">
-    Start your <strong style="color:#3b82f6;">7-day free trial</strong> — no credit card required.
+    Start your <strong style="color:#2e6da4;">7-day free trial</strong> — no credit card required.
   </p>
-  ${ctaButton("Start Free Trial →", "{{signupLink}}", "#3b82f6")}
+  ${ctaButton("Start Free Trial", "{{signupLink}}", "#2e6da4")}
 </td></tr>
 <tr><td style="padding:0 40px 32px;text-align:center;">
   <p style="margin:0;font-size:13px;color:#94a3b8;">No credit card needed. Cancel anytime.</p>
@@ -137,7 +164,7 @@ function template2_trainingPerformance(): string {
 ${headerBlock("#1a1a2e")}
 <tr><td style="padding:40px 40px 0;">
   <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
-    Level Up Your Training, {{firstName}} 🏇
+    Level Up Your Training, {{firstName}}
   </h1>
   <p style="margin:0 0 20px;font-size:16px;color:#64748b;line-height:1.6;">
     Track every session, monitor performance trends, and optimise your horse's progress with EquiProfile.
@@ -147,33 +174,29 @@ ${headerBlock("#1a1a2e")}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr>
       <td style="width:50%;padding:8px;vertical-align:top;">
-        <div style="background:#faf5ff;border-radius:10px;padding:20px;text-align:center;min-height:120px;">
-          <div style="font-size:28px;margin-bottom:8px;">📊</div>
-          <h3 style="margin:0 0 6px;font-size:14px;color:#7c3aed;font-weight:600;">Session Logs</h3>
-          <p style="margin:0;font-size:13px;color:#64748b;">Log duration, type, intensity, and notes</p>
+        <div style="background:#faf5ff;border-radius:10px;padding:20px;border-top:3px solid #7c3aed;">
+          <h3 style="margin:0 0 6px;font-size:14px;color:#7c3aed;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Session Logs</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.5;">Duration, type, intensity, and trainer notes — all in one place.</p>
         </div>
       </td>
       <td style="width:50%;padding:8px;vertical-align:top;">
-        <div style="background:#f0fdf4;border-radius:10px;padding:20px;text-align:center;min-height:120px;">
-          <div style="font-size:28px;margin-bottom:8px;">🎯</div>
-          <h3 style="margin:0 0 6px;font-size:14px;color:#16a34a;font-weight:600;">Performance</h3>
-          <p style="margin:0;font-size:13px;color:#64748b;">Rate and track improvement over time</p>
+        <div style="background:#f0fdf4;border-radius:10px;padding:20px;border-top:3px solid #16a34a;">
+          <h3 style="margin:0 0 6px;font-size:14px;color:#16a34a;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Performance</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.5;">Rate sessions and track measurable improvement over weeks and months.</p>
         </div>
       </td>
     </tr>
     <tr>
       <td style="width:50%;padding:8px;vertical-align:top;">
-        <div style="background:#fff7ed;border-radius:10px;padding:20px;text-align:center;min-height:120px;">
-          <div style="font-size:28px;margin-bottom:8px;">📅</div>
-          <h3 style="margin:0 0 6px;font-size:14px;color:#ea580c;font-weight:600;">Scheduling</h3>
-          <p style="margin:0;font-size:13px;color:#64748b;">Plan sessions with calendar integration</p>
+        <div style="background:#fff7ed;border-radius:10px;padding:20px;border-top:3px solid #ea580c;">
+          <h3 style="margin:0 0 6px;font-size:14px;color:#ea580c;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Scheduling</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.5;">Plan sessions with integrated calendar and automated reminders.</p>
         </div>
       </td>
       <td style="width:50%;padding:8px;vertical-align:top;">
-        <div style="background:#eff6ff;border-radius:10px;padding:20px;text-align:center;min-height:120px;">
-          <div style="font-size:28px;margin-bottom:8px;">🤖</div>
-          <h3 style="margin:0 0 6px;font-size:14px;color:#2563eb;font-weight:600;">AI Insights</h3>
-          <p style="margin:0;font-size:13px;color:#64748b;">Get AI-powered training recommendations</p>
+        <div style="background:#eff6ff;border-radius:10px;padding:20px;border-top:3px solid #2563eb;">
+          <h3 style="margin:0 0 6px;font-size:14px;color:#2563eb;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">AI Insights</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.5;">AI-powered training recommendations tailored to your horse.</p>
         </div>
       </td>
     </tr>
@@ -183,7 +206,7 @@ ${headerBlock("#1a1a2e")}
   <p style="font-size:15px;color:#64748b;line-height:1.6;margin:0 0 8px;">
     Try it free for <strong style="color:#7c3aed;">7 days</strong> — no credit card required.
   </p>
-  ${ctaButton("Start Training Smarter →", "{{signupLink}}", "#7c3aed")}
+  ${ctaButton("Start Training Smarter", "{{signupLink}}", "#7c3aed")}
 </td></tr>
 <tr><td style="padding:0 40px 32px;text-align:center;">
   <p style="margin:0;font-size:13px;color:#94a3b8;">Join hundreds of equestrians managing their horses professionally.</p>
@@ -200,7 +223,7 @@ function template3_stableManagement(): string {
 ${headerBlock("linear-gradient(135deg, #065f46 0%, #10b981 100%)")}
 <tr><td style="padding:40px 40px 0;">
   <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
-    Run Your Yard Like a Pro, {{firstName}} 🏠
+    Run Your Yard Like a Pro, {{firstName}}
   </h1>
   <p style="margin:0 0 20px;font-size:16px;color:#64748b;line-height:1.6;">
     EquiProfile's Stable Plan gives yard owners and managers everything they need to run a professional operation.
@@ -208,24 +231,27 @@ ${headerBlock("linear-gradient(135deg, #065f46 0%, #10b981 100%)")}
 </td></tr>
 <tr><td style="padding:0 40px;">
   <div style="background:#ecfdf5;border-left:4px solid #10b981;border-radius:0 10px 10px 0;padding:24px;margin-bottom:16px;">
-    <h2 style="margin:0 0 12px;font-size:18px;color:#065f46;">What You Get</h2>
-    <p style="margin:4px 0;font-size:14px;color:#334155;">🐴 <strong>Multi-horse management</strong> across all clients</p>
-    <p style="margin:4px 0;font-size:14px;color:#334155;">👥 <strong>Staff & role management</strong> — assign tasks and permissions</p>
-    <p style="margin:4px 0;font-size:14px;color:#334155;">📋 <strong>Client portal</strong> — owners see their horse's progress</p>
-    <p style="margin:4px 0;font-size:14px;color:#334155;">📆 <strong>Yard calendar</strong> — appointments, farrier visits, events</p>
-    <p style="margin:4px 0;font-size:14px;color:#334155;">💬 <strong>Messaging</strong> — communicate with staff and owners</p>
-    <p style="margin:4px 0;font-size:14px;color:#334155;">📄 <strong>Reports & exports</strong> — PDF and CSV for everything</p>
+    <h2 style="margin:0 0 14px;font-size:18px;color:#065f46;font-weight:600;">What You Get</h2>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      ${bulletRow("<strong>Multi-horse management</strong> across all clients and liveries", "#10b981")}
+      ${bulletRow("<strong>Staff and role management</strong> — assign tasks and permissions", "#10b981")}
+      ${bulletRow("<strong>Client portal</strong> — owners see their horse's daily progress", "#10b981")}
+      ${bulletRow("<strong>Yard calendar</strong> — appointments, farrier visits, and events", "#10b981")}
+      ${bulletRow("<strong>Messaging</strong> — communicate with staff and owners", "#10b981")}
+      ${bulletRow("<strong>Reports and exports</strong> — PDF and CSV for everything", "#10b981")}
+    </table>
   </div>
 </td></tr>
 <tr><td style="padding:16px 40px;text-align:center;">
-  ${ctaButton("Try Stable Plan Free →", "{{signupLink}}", "#10b981")}
+  ${ctaButton("Try Stable Plan Free", "{{signupLink}}", "#10b981")}
   <p style="margin:8px 0 0;font-size:13px;color:#94a3b8;">7-day free trial. No credit card. No strings.</p>
 </td></tr>
 <tr><td style="padding:0 40px 32px;">
-  <div style="background:#f0fdf4;border-radius:8px;padding:16px;text-align:center;">
-    <p style="margin:0;font-size:14px;color:#065f46;font-weight:600;">
-      "EquiProfile transformed how we run our yard." — Stable Owner
+  <div style="background:#f0fdf4;border-radius:8px;padding:16px;text-align:center;border:1px solid #d1fae5;">
+    <p style="margin:0;font-size:14px;color:#065f46;font-weight:600;line-height:1.5;">
+      "EquiProfile transformed how we run our yard."
     </p>
+    <p style="margin:4px 0 0;font-size:12px;color:#6b7280;">— Verified Stable Owner</p>
   </div>
 </td></tr>
 `, "#f0fdf4");
@@ -687,6 +713,141 @@ export interface CampaignTemplate {
   getHtml: () => string;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ACADEMY MARKETING TEMPLATES
+// ─────────────────────────────────────────────────────────────────────────────
+
+function academyTemplate1_competitionPrep(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #92400e 0%, #d97706 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Is Your Academy Ready for Competition Season?
+  </h1>
+  <p style="margin:0 0 8px;font-size:15px;color:#475569;line-height:1.6;">Hi {{firstName}},</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    As competition season approaches, the academies and schools that arrive best prepared are the ones with organised, data-backed preparation. EquiProfile gives your academy the tools to enter every competition with confidence.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <div style="background:#fffbeb;border-radius:10px;padding:24px;border:1px solid #fde68a;margin-bottom:16px;">
+    <h2 style="margin:0 0 14px;font-size:17px;color:#92400e;font-weight:600;">Competition Preparation Features</h2>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      ${bulletRow("<strong>Competition log</strong> — record entries, classes, scores, and placements", "#d97706")}
+      ${bulletRow("<strong>Pre-competition training plans</strong> — structured 4-week prep programmes", "#d97706")}
+      ${bulletRow("<strong>Horse fitness tracking</strong> — ensure horses peak at the right time", "#d97706")}
+      ${bulletRow("<strong>Analytics dashboard</strong> — compare performance across students and horses", "#d97706")}
+      ${bulletRow("<strong>Exportable reports</strong> — professional PDF results summaries for parents", "#d97706")}
+    </table>
+  </div>
+  <div style="background:#fef3c7;border-radius:8px;padding:16px;border-left:4px solid #f59e0b;">
+    <p style="margin:0;font-size:14px;color:#92400e;line-height:1.6;">
+      <strong>Training Templates Included:</strong> Our 4-week competition preparation programme guides riders through fitness, sharpening, and competition-week routines — step by step.
+    </p>
+  </div>
+</td></tr>
+<tr><td style="padding:24px 40px;text-align:center;">
+  ${ctaButton("Explore Competition Tools", "{{signupLink}}", "#d97706")}
+  <p style="margin:8px 0 0;font-size:13px;color:#94a3b8;">Start your 7-day free trial — no credit card required.</p>
+</td></tr>
+`);
+}
+
+function academyTemplate2_safetyWelfare(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    Welfare First. Every Horse. Every Day.
+  </h1>
+  <p style="margin:0 0 8px;font-size:15px;color:#475569;line-height:1.6;">Hi {{firstName}},</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    For equestrian academies, welfare compliance and horse health documentation is not optional — it's foundational. EquiProfile makes it straightforward, organised, and audit-ready.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="width:50%;padding:6px;vertical-align:top;">
+        <div style="background:#fff1f2;border-radius:10px;padding:18px;border-top:3px solid #dc2626;">
+          <h3 style="margin:0 0 8px;font-size:13px;color:#dc2626;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Health Monitoring</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.5;">Full health records per horse — vaccinations, dental, farrier, medications, and vet visits, all in one place.</p>
+        </div>
+      </td>
+      <td style="width:50%;padding:6px;vertical-align:top;">
+        <div style="background:#fef2f2;border-radius:10px;padding:18px;border-top:3px solid #ef4444;">
+          <h3 style="margin:0 0 8px;font-size:13px;color:#dc2626;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Incident Logging</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.5;">Log incidents, near-misses, and welfare concerns with dates, notes, and follow-up actions recorded safely.</p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:6px;vertical-align:top;">
+        <div style="background:#fff7ed;border-radius:10px;padding:18px;border-top:3px solid #f97316;">
+          <h3 style="margin:0 0 8px;font-size:13px;color:#c2410c;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Audit Readiness</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.5;">All records are exportable as professional PDFs. Ready for BHS, riding club, or insurance inspections.</p>
+        </div>
+      </td>
+      <td style="padding:6px;vertical-align:top;">
+        <div style="background:#fef9c3;border-radius:10px;padding:18px;border-top:3px solid #ca8a04;">
+          <h3 style="margin:0 0 8px;font-size:13px;color:#92400e;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Document Storage</h3>
+          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.5;">Store passports, insurance documents, vet certificates, and more — linked directly to each horse.</p>
+        </div>
+      </td>
+    </tr>
+  </table>
+</td></tr>
+<tr><td style="padding:24px 40px;text-align:center;">
+  ${ctaButton("See How It Works", "{{signupLink}}", "#dc2626")}
+  <p style="margin:8px 0 0;font-size:13px;color:#94a3b8;">7-day free trial — no credit card required.</p>
+</td></tr>
+`, "#fef2f2");
+}
+
+function academyTemplate3_seasonalEnrolment(): string {
+  return wrapEmail(`
+${headerBlock("linear-gradient(135deg, #134e4a 0%, #0f766e 100%)")}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 8px;font-size:26px;color:#1e293b;font-weight:700;">
+    New Term. New Students. New Possibilities.
+  </h1>
+  <p style="margin:0 0 8px;font-size:15px;color:#475569;line-height:1.6;">Hi {{firstName}},</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.6;">
+    The new season is the perfect time to upgrade how your academy manages student enrolments, progress tracking, and communications. With EquiProfile, your team spends less time on admin and more time in the saddle.
+  </p>
+</td></tr>
+<tr><td style="padding:0 40px;">
+  <div style="background:#f0fdfa;border-radius:10px;padding:24px;border:1px solid #99f6e4;margin-bottom:16px;">
+    <h2 style="margin:0 0 14px;font-size:17px;color:#134e4a;font-weight:600;">Why Academies Switch to EquiProfile</h2>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      ${bulletRow("Streamlined student onboarding — digital profiles from day one", "#0f766e")}
+      ${bulletRow("Structured learning pathways mapped to student ability levels", "#0f766e")}
+      ${bulletRow("Automatic progress reports for parents — no manual writing required", "#0f766e")}
+      ${bulletRow("Appointment scheduling for lessons, assessments, and competitions", "#0f766e")}
+      ${bulletRow("One platform for all students, horses, and instructors", "#0f766e")}
+    </table>
+  </div>
+  <div style="background:#ecfdf5;border-radius:8px;padding:16px;border-left:4px solid #10b981;">
+    <p style="margin:0;font-size:14px;color:#134e4a;line-height:1.6;">
+      <strong>This term's offer:</strong> Start your 7-day free trial and we'll help you migrate your existing student records at no charge.
+    </p>
+  </div>
+</td></tr>
+<tr><td style="padding:24px 40px;text-align:center;">
+  ${ctaButton("Enrol Your Academy — Free Trial", "{{signupLink}}", "#0f766e")}
+  <p style="margin:8px 0 0;font-size:13px;color:#94a3b8;">No credit card. Cancel anytime. Full features included.</p>
+</td></tr>
+<tr><td style="padding:0 40px 32px;">
+  <div style="background:#f0fdfa;border-radius:8px;padding:16px;text-align:center;border:1px solid #99f6e4;">
+    <p style="margin:0;font-size:14px;color:#134e4a;font-weight:600;line-height:1.5;">
+      "Our admin time dropped by 40% in the first month."
+    </p>
+    <p style="margin:4px 0 0;font-size:12px;color:#6b7280;">— Academy Principal</p>
+  </div>
+</td></tr>
+`, "#f0fdfa");
+}
+
 export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
   {
     id: "health-tracking",
@@ -798,6 +959,28 @@ export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
     description: "Follow-up email for schools that haven't converted — recap of value and gentle CTA.",
     previewColor: "#4f46e5",
     getHtml: schoolTemplate10_followUpConversion,
+  },
+  // ── Academy Marketing Campaign Templates ─────────────────────────────────
+  {
+    id: "academy-competition-prep",
+    name: "Academy Competition Preparation",
+    description: "Academy-focused email promoting EquiProfile's competition tracking, preparation tools, and analytics for schools entering competitions.",
+    previewColor: "#b45309",
+    getHtml: academyTemplate1_competitionPrep,
+  },
+  {
+    id: "academy-safety-welfare",
+    name: "Academy Safety & Welfare Messaging",
+    description: "Positions EquiProfile as a welfare-first platform — health monitoring, vet records, incident logging, and rider safety tools for academies.",
+    previewColor: "#dc2626",
+    getHtml: academyTemplate2_safetyWelfare,
+  },
+  {
+    id: "academy-seasonal-enrolment",
+    name: "Academy Seasonal Enrolment Drive",
+    description: "Seasonal marketing email to encourage new student enrolments — perfect for beginning-of-term or show-season campaigns.",
+    previewColor: "#0f766e",
+    getHtml: academyTemplate3_seasonalEnrolment,
   },
 ];
 
