@@ -161,9 +161,9 @@ export default function Home() {
         */}
         <section className="relative min-h-[96vh] flex items-center overflow-hidden">
           <img
-            src="/images/management/landing2.jpg"
-            alt="Horses in a field at sunset"
-            className="absolute inset-0 w-full h-full object-cover object-[50%_65%] md:object-[50%_70%]"
+            src="/images/management/bones64-stable-1683924_1280.jpg"
+            alt="Horse stable corridor with rows of wooden stalls"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
           {/* Deep layered overlay — school-aligned dark palette */}
           <div className="mgmt-hero-overlay" />
@@ -350,8 +350,8 @@ export default function Home() {
               <AnimatedSection>
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 group">
                   <img
-                    src="/images/management/landing-page.jpg"
-                    alt="Horses in a stable yard"
+                    src="/images/management/bones64-stable-1683924_1280.jpg"
+                    alt="Horse stable corridor with rows of wooden stalls"
                     loading="lazy"
                     className="w-full h-[380px] md:h-[500px] object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   />
