@@ -27,6 +27,15 @@ import {
   Navigation,
 } from "lucide-react";
 
+// Activity recommendation thresholds
+const TEMP_HOT = 28;       // °C — above this is considered hot for equestrian activity
+const TEMP_COLD = 8;       // °C — below this is considered cold; extended warm-up required
+const WIND_MODERATE = 20;  // km/h — moderate wind; may distract horses
+const WIND_HIGH = 35;      // km/h — high wind; outdoor jumping not recommended
+const PRECIP_LIGHT = 2;    // mm — light rain; ground begins to get wet
+const PRECIP_HEAVY = 5;    // mm — heavy rain; outdoor jumping not recommended
+const HUMIDITY_HIGH = 80;  // % — high humidity; horses sweat heavily
+
 function WeatherContent() {
   const [detectingLocation, setDetectingLocation] = useState(false);
   const utils = trpc.useUtils();
@@ -134,12 +143,12 @@ function WeatherContent() {
     // When conditions are unsafe (e.g. night-time, extreme weather), ALL outdoor
     // activities are not recommended — override individual checks.
     const isUnsafe = level === "unsafe";
-    const isHot = temperature >= 28;
-    const isCold = temperature <= 8;
-    const isWindy = windSpeed >= 20;
-    const isVeryWindy = windSpeed >= 35;
-    const isRaining = precipitation > 2;
-    const isHighHumidity = humidity >= 80;
+    const isHot = temperature >= TEMP_HOT;
+    const isCold = temperature <= TEMP_COLD;
+    const isWindy = windSpeed >= WIND_MODERATE;
+    const isVeryWindy = windSpeed >= WIND_HIGH;
+    const isRaining = precipitation > PRECIP_LIGHT;
+    const isHighHumidity = humidity >= HUMIDITY_HIGH;
 
     const recs: Array<{
       activity: string;
@@ -215,7 +224,7 @@ function WeatherContent() {
         duration: "30–45 minutes",
         icon: <Dumbbell className="w-4 h-4 text-green-600 dark:text-green-400" />,
       });
-    } else if (isVeryWindy || precipitation > 5) {
+    } else if (isVeryWindy || precipitation > PRECIP_HEAVY) {
       recs.push({
         activity: "Jumping / Grid Work",
         advice: isVeryWindy

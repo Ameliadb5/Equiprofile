@@ -103,12 +103,14 @@ ${text}
 }
 
 /**
- * A styled bullet-point row — replaces emoji checkmarks with clean HTML.
+ * A styled bullet-point row for email-safe layout.
+ * Uses a solid circle (&#9679;) as the bullet, which renders reliably across
+ * email clients and is announced naturally by screen readers as a list item separator.
  * Use inside a <table> for email-safe layout.
  */
 function bulletRow(text: string, color = "#2e6da4"): string {
   return `<tr>
-<td style="padding:5px 0;vertical-align:top;width:18px;font-size:14px;color:${color};font-weight:700;">&#8250;</td>
+<td style="padding:5px 0;vertical-align:top;width:16px;font-size:8px;color:${color};padding-top:8px;" aria-hidden="true">&#9679;</td>
 <td style="padding:5px 0;font-size:14px;color:#334155;line-height:1.5;">${text}</td>
 </tr>`;
 }

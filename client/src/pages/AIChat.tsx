@@ -345,8 +345,12 @@ export default function AIChat() {
         toast.error("Microphone access denied. Please allow microphone permission in your browser settings and try again.");
       } else if (event.error === "network") {
         toast.error("Network error during voice recognition. Please check your connection.");
+      } else if (event.error === "audio-capture") {
+        toast.error("No microphone detected. Please connect a microphone and try again.");
+      } else if (event.error === "service-not-allowed") {
+        toast.error("Voice recognition is not supported in this browser. Try Chrome or Edge.");
       } else if (event.error !== "no-speech" && event.error !== "aborted") {
-        toast.error(`Voice recognition error: ${event.error}. Please try again.`);
+        toast.error("Voice recognition failed. Please try again.");
       }
     };
 

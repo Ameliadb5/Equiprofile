@@ -4362,7 +4362,9 @@ Format your response as JSON with keys: recommendation, explanation, precautions
             eq(marketingContacts.email, email),
             eq(marketingContacts.status, "unsubscribed"),
           ))
-          .catch(() => {});
+          .catch((err) => {
+            console.error("Failed to reactivate marketing contact:", err);
+          });
         return { success: true, message: "Email removed from suppression list" };
       }),
 

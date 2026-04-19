@@ -69,6 +69,19 @@ const PIE_COLORS = [
   "#22c55e", "#f59e0b", "#ef4444", "#64748b",
 ];
 
+/** Format a tooltip entry value based on the data series name. */
+function formatTooltipValue(entry: any): string {
+  if (typeof entry.value !== "number") return String(entry.value ?? "");
+  const name: string = entry.name ?? "";
+  if (name.includes("£") || name.toLowerCase().includes("cost") || name.toLowerCase().includes("prize")) {
+    return `£${entry.value.toFixed(2)}`;
+  }
+  if (name.toLowerCase().includes("hour") || name.toLowerCase().includes("duration")) {
+    return `${entry.value.toFixed(1)}h`;
+  }
+  return String(entry.value);
+}
+
 // Custom tooltip with cleaner design
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
@@ -79,13 +92,7 @@ function CustomTooltip({ active, payload, label }: any) {
         <div key={i} className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: entry.color || entry.fill }} />
           <span className="text-muted-foreground">{entry.name}:</span>
-          <span className="font-medium text-foreground">
-            {typeof entry.value === "number" && entry.name?.includes("£")
-              ? `£${entry.value.toFixed(2)}`
-              : typeof entry.value === "number" && (entry.name?.includes("Hours") || entry.name?.includes("hour"))
-              ? `${entry.value.toFixed(1)}h`
-              : entry.value}
-          </span>
+          <span className="font-medium text-foreground">{formatTooltipValue(entry)}</span>
         </div>
       ))}
     </div>
