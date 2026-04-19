@@ -1088,10 +1088,20 @@ async function startServer() {
     // Content-Disposition header.
     const forceDownload = req.query.download === "1";
     if (forceDownload) {
-      const originalName = path.basename(fileKey).replace(/^[^-]+-/, ""); // strip nanoid prefix
+      const rawName = path.basename(fileKey).replace(/^[^-]+-/, ""); // strip nanoid prefix
+      // Fallback to the full basename if stripping leaves an empty string
+      const originalName = rawName || path.basename(fileKey);
+      // Use RFC 5987 percent-encoding for the filename* parameter so that
+      // any Unicode or special characters (including quotes and backslashes)
+      // are transmitted safely without header-injection risk.
+      const encoded = encodeURIComponent(originalName);
+      // Also provide a plain ASCII fallback for older clients by replacing
+      // non-ASCII chars — this must NOT use backslash-quoting which is
+      // incomplete for backslash characters themselves.
+      const asciiFallback = originalName.replace(/[^\w\s.\-]/g, "_");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="${originalName.replace(/"/g, '\\"')}"`,
+        `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encoded}`,
       );
     }
 
