@@ -27,14 +27,27 @@ import {
   Navigation,
 } from "lucide-react";
 
-// Activity recommendation thresholds
-const TEMP_HOT = 28;       // °C — above this is considered hot for equestrian activity
-const TEMP_COLD = 8;       // °C — below this is considered cold; extended warm-up required
-const WIND_MODERATE = 20;  // km/h — moderate wind; may distract horses
-const WIND_HIGH = 35;      // km/h — high wind; outdoor jumping not recommended
-const PRECIP_LIGHT = 2;    // mm — light rain; ground begins to get wet
-const PRECIP_HEAVY = 5;    // mm — heavy rain; outdoor jumping not recommended
-const HUMIDITY_HIGH = 80;  // % — high humidity; horses sweat heavily
+/**
+ * Activity recommendation thresholds for equestrian safety.
+ *
+ * These values represent practical boundaries used to classify weather conditions
+ * as suitable, marginal, or unsafe for different equestrian activities.
+ * Sourced from BHS guidelines and standard equestrian best practices.
+ */
+/** Temperature above which heat stress risk becomes significant for horse and rider (°C) */
+const TEMP_HOT = 28;
+/** Temperature below which extended warm-up is essential to prevent muscle injury (°C) */
+const TEMP_COLD = 8;
+/** Wind speed at which horses may become distracted or spooky outdoors (km/h) */
+const WIND_MODERATE = 20;
+/** Wind speed above which outdoor jumping is not recommended due to safety risk (km/h) */
+const WIND_HIGH = 35;
+/** Precipitation above which ground conditions begin to deteriorate (mm) */
+const PRECIP_LIGHT = 2;
+/** Precipitation above which outdoor jumping is not recommended due to slip risk (mm) */
+const PRECIP_HEAVY = 5;
+/** Humidity above which horses sweat heavily and fatigue faster (%) */
+const HUMIDITY_HIGH = 80;
 
 function WeatherContent() {
   const [detectingLocation, setDetectingLocation] = useState(false);

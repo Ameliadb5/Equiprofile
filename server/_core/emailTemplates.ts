@@ -104,8 +104,10 @@ ${text}
 
 /**
  * A styled bullet-point row for email-safe layout.
- * Uses a solid circle (&#9679;) as the bullet, which renders reliably across
- * email clients and is announced naturally by screen readers as a list item separator.
+ * The solid circle (&#9679;) is purely decorative — it is hidden from screen readers
+ * via aria-hidden so that the text content remains the primary accessible information.
+ * Note: HTML email clients have limited accessibility support; this table-based layout
+ * is the industry-standard approach for email-safe list items.
  * Use inside a <table> for email-safe layout.
  */
 function bulletRow(text: string, color = "#2e6da4"): string {

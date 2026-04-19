@@ -69,7 +69,15 @@ const PIE_COLORS = [
   "#22c55e", "#f59e0b", "#ef4444", "#64748b",
 ];
 
-/** Format a tooltip entry value based on the data series name. */
+/**
+ * Format a tooltip entry value based on the data series name.
+ *
+ * Note: Recharts does not provide a built-in typed format hint mechanism, so we
+ * use series name matching as a pragmatic approach. Series names follow a consistent
+ * naming convention: names containing "£", "cost", or "prize" format as currency;
+ * names containing "hour" or "duration" format as hours.
+ * If series names change, update the conditions in this function accordingly.
+ */
 function formatTooltipValue(entry: any): string {
   if (typeof entry.value !== "number") return String(entry.value ?? "");
   const name: string = entry.name ?? "";

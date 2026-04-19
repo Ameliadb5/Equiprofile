@@ -46,6 +46,18 @@ import { PageHeader } from "@/components/PageHeader";
 const CHAT_SESSION_KEY = "equiprofile_ai_chat_session";
 const AI_DISCLAIMER_KEY = "equiprofile_ai_disclaimer_accepted";
 
+/**
+ * Maps Web Speech API SpeechRecognitionErrorCode values to user-friendly messages.
+ * https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognitionErrorEvent/error
+ */
+const SPEECH_ERROR_MESSAGES: Record<string, string> = {
+  "not-allowed": "Microphone access denied. Please allow microphone permission in your browser settings and try again.",
+  "permission-denied": "Microphone access denied. Please allow microphone permission in your browser settings and try again.",
+  "network": "Network error during voice recognition. Please check your connection.",
+  "audio-capture": "No microphone detected. Please connect a microphone and try again.",
+  "service-not-allowed": "Voice recognition is not supported in this browser. Try Chrome or Edge.",
+};
+
 /** Build the system prompt with today's date. */
 function buildSystemMessage(): Message {
   return {
@@ -341,14 +353,9 @@ export default function AIChat() {
     recognition.onerror = (event: any) => {
       console.error("Speech recognition error:", event.error);
       setIsListening(false);
-      if (event.error === "not-allowed" || event.error === "permission-denied") {
-        toast.error("Microphone access denied. Please allow microphone permission in your browser settings and try again.");
-      } else if (event.error === "network") {
-        toast.error("Network error during voice recognition. Please check your connection.");
-      } else if (event.error === "audio-capture") {
-        toast.error("No microphone detected. Please connect a microphone and try again.");
-      } else if (event.error === "service-not-allowed") {
-        toast.error("Voice recognition is not supported in this browser. Try Chrome or Edge.");
+      const message = SPEECH_ERROR_MESSAGES[event.error as string];
+      if (message) {
+        toast.error(message);
       } else if (event.error !== "no-speech" && event.error !== "aborted") {
         toast.error("Voice recognition failed. Please try again.");
       }
