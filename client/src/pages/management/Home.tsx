@@ -163,7 +163,7 @@ export default function Home() {
           <img
             src="/images/management/landing2.jpg"
             alt="Horses in a field at sunset"
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="absolute inset-0 w-full h-full object-cover object-[50%_65%] md:object-[50%_70%]"
           />
           {/* Deep layered overlay — school-aligned dark palette */}
           <div className="mgmt-hero-overlay" />
