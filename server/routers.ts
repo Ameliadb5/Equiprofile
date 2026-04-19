@@ -99,6 +99,9 @@ import {
   mapRowToContact,
   getTodayDateString,
   DEFAULT_DAILY_LIMIT,
+  MANAGEMENT_DAILY_LIMIT,
+  ACADEMY_DAILY_LIMIT,
+  isWeekday,
   DEFAULT_FOLLOWUP_SCHEDULE,
   getScheduledDate,
   PRIORITY_COUNTRIES,
@@ -3727,6 +3730,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         name: t.name,
         description: t.description,
         previewColor: t.previewColor,
+        category: t.category,
       }));
     }),
 
@@ -3962,6 +3966,14 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           throw new TRPCError({ code: "BAD_REQUEST", message: "Campaign already sent" });
         if (campaign.status === "sending")
           throw new TRPCError({ code: "BAD_REQUEST", message: "Campaign is currently sending" });
+
+        // ── WEEKDAY-ONLY CHECK ──
+        if (!isWeekday()) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Campaign sending is restricted to weekdays (Monday–Friday) to protect deliverability. Please try again on a weekday.",
+          });
+        }
 
         // ── DAILY LIMIT CHECK ──
         const today = getTodayDateString();

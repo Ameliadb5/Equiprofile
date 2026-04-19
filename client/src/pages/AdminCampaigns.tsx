@@ -91,6 +91,10 @@ import {
   ShieldCheck,
   MapPin,
   BarChart3,
+  CalendarDays,
+  Building2,
+  GraduationCap,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -139,6 +143,8 @@ export default function AdminCampaigns() {
   const [createOpen, setCreateOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [confirmSendId, setConfirmSendId] = useState<number | null>(null);
+  // campaign type drives which template subset is shown
+  const [campaignCategory, setCampaignCategory] = useState<"management" | "academy_school" | "">("");
   const [newCampaign, setNewCampaign] = useState({
     name: "",
     subject: "",
@@ -148,7 +154,7 @@ export default function AdminCampaigns() {
     firstName: "",
     targetCountry: "",
     targetType: "",
-    dailyLimit: 50,
+    dailyLimit: 30,
   });
 
   // Queries
@@ -162,6 +168,7 @@ export default function AdminCampaigns() {
     onSuccess: () => {
       toast.success("Campaign created");
       setCreateOpen(false);
+      setCampaignCategory("");
       setNewCampaign({
         name: "",
         subject: "",
@@ -171,7 +178,7 @@ export default function AdminCampaigns() {
         firstName: "",
         targetCountry: "",
         targetType: "",
-        dailyLimit: 50,
+        dailyLimit: 30,
       });
       utils.admin.getCampaigns.invalidate();
     },
@@ -467,7 +474,7 @@ export default function AdminCampaigns() {
               Email Templates
             </CardTitle>
             <CardDescription>
-              Professional branded templates ready to use
+              Professional branded templates — one standard EquiProfile letterhead
             </CardDescription>
           </div>
         </CardHeader>
@@ -479,29 +486,29 @@ export default function AdminCampaigns() {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Management Platform Templates */}
-              {templates.data?.filter((t) => !t.id.startsWith("school-")).length ? (
+              {/* Management / Stable / Yard / Owner Templates */}
+              {templates.data?.filter((t) => t.category === "management").length ? (
                 <div>
                   <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <span className="inline-block w-2 h-2 rounded-full bg-[#2e6da4]" />
-                    Management Platform
+                    <Building2 className="w-3.5 h-3.5 text-[#2e6da4]" />
+                    Management · Stable · Yard · Owner
+                    <Badge variant="secondary" className="text-[10px] ml-auto">{templates.data?.filter((t) => t.category === "management").length} templates</Badge>
                   </p>
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {templates.data
-                      ?.filter((t) => !t.id.startsWith("school-"))
+                      ?.filter((t) => t.category === "management")
                       .map((tpl) => (
                         <div
                           key={tpl.id}
-                          className="border rounded-lg p-4 hover:shadow-md transition-shadow flex flex-col"
+                          className="border rounded-xl p-4 hover:shadow-md hover:border-[#2e6da4]/40 transition-all flex flex-col bg-white dark:bg-[#0f1a2e]/40"
                         >
                           <div className="flex items-center gap-2 mb-2">
-                            <div
-                              className="w-3 h-3 rounded-full shrink-0"
-                              style={{ background: tpl.previewColor }}
-                            />
-                            <h4 className="font-medium text-sm leading-snug">{tpl.name}</h4>
+                            <div className="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center" style={{ background: "#0c1e3c" }}>
+                              <Building2 className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <h4 className="font-semibold text-sm leading-snug">{tpl.name}</h4>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-3 flex-1">
+                          <p className="text-xs text-muted-foreground mb-3 flex-1 leading-relaxed">
                             {tpl.description}
                           </p>
                           <div className="flex gap-2 mt-auto">
@@ -516,8 +523,9 @@ export default function AdminCampaigns() {
                             <Button
                               variant="default"
                               size="sm"
-                              className="flex-1"
+                              className="flex-1 bg-[#2e6da4] hover:bg-[#1a5ca0]"
                               onClick={() => {
+                                setCampaignCategory("management");
                                 setNewCampaign((p) => ({ ...p, templateId: tpl.id }));
                                 setCreateOpen(true);
                               }}
@@ -531,29 +539,31 @@ export default function AdminCampaigns() {
                 </div>
               ) : null}
 
-              {/* School / Academy Templates */}
-              {templates.data?.filter((t) => t.id.startsWith("school-")).length ? (
+              {/* Academy / School / Education Templates */}
+              {templates.data?.filter((t) => t.category === "academy_school").length ? (
                 <div>
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2 pt-2 border-t border-border">
-                    <span className="inline-block w-2 h-2 rounded-full bg-[#1a7a6d]" />
-                    School / Academy
-                  </p>
+                  <div className="pt-2 border-t border-border mb-3">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                      <GraduationCap className="w-3.5 h-3.5 text-[#1a5ca0]" />
+                      Academy · Riding School · Education
+                      <Badge variant="secondary" className="text-[10px] ml-auto">{templates.data?.filter((t) => t.category === "academy_school").length} templates</Badge>
+                    </p>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {templates.data
-                      ?.filter((t) => t.id.startsWith("school-"))
+                      ?.filter((t) => t.category === "academy_school")
                       .map((tpl) => (
                         <div
                           key={tpl.id}
-                          className="border rounded-lg p-4 hover:shadow-md transition-shadow flex flex-col"
+                          className="border rounded-xl p-4 hover:shadow-md hover:border-[#1a5ca0]/40 transition-all flex flex-col bg-white dark:bg-[#0f1a2e]/40"
                         >
                           <div className="flex items-center gap-2 mb-2">
-                            <div
-                              className="w-3 h-3 rounded-full shrink-0"
-                              style={{ background: tpl.previewColor }}
-                            />
-                            <h4 className="font-medium text-sm leading-snug">{tpl.name}</h4>
+                            <div className="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center" style={{ background: "#163563" }}>
+                              <GraduationCap className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <h4 className="font-semibold text-sm leading-snug">{tpl.name}</h4>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-3 flex-1">
+                          <p className="text-xs text-muted-foreground mb-3 flex-1 leading-relaxed">
                             {tpl.description}
                           </p>
                           <div className="flex gap-2 mt-auto">
@@ -568,8 +578,9 @@ export default function AdminCampaigns() {
                             <Button
                               variant="default"
                               size="sm"
-                              className="flex-1"
+                              className="flex-1 bg-[#163563] hover:bg-[#0c1e3c]"
                               onClick={() => {
+                                setCampaignCategory("academy_school");
                                 setNewCampaign((p) => ({ ...p, templateId: tpl.id }));
                                 setCreateOpen(true);
                               }}
@@ -586,6 +597,32 @@ export default function AdminCampaigns() {
           )}
         </CardContent>
       </Card>
+
+      {/* Sending Policy Banner */}
+      <div className="rounded-xl border border-[#2e6da4]/30 bg-[#f0f6ff] dark:bg-[#0c1e3c]/30 p-4 flex flex-wrap gap-4 items-start">
+        <Info className="w-4 h-4 text-[#2e6da4] shrink-0 mt-0.5" />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-[#0c1e3c] dark:text-blue-200 mb-1">Campaign Sending Policy</p>
+          <div className="flex flex-wrap gap-x-6 gap-y-1">
+            <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <CalendarDays className="w-3 h-3 text-[#2e6da4]" />
+              <strong>Weekdays only</strong> — Mon–Fri, never weekends
+            </span>
+            <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <Building2 className="w-3 h-3 text-[#2e6da4]" />
+              Max <strong>15 management</strong> emails/day
+            </span>
+            <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <GraduationCap className="w-3 h-3 text-[#1a5ca0]" />
+              Max <strong>15 academy/school</strong> emails/day
+            </span>
+            <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <ShieldCheck className="w-3 h-3 text-green-600" />
+              30 total per day · suppression list enforced
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Create Campaign */}
       <Card>
@@ -762,17 +799,55 @@ export default function AdminCampaigns() {
       </Card>
 
       {/* Create Campaign Dialog */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+      <Dialog open={createOpen} onOpenChange={(v) => { setCreateOpen(v); if (!v) setCampaignCategory(""); }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Campaign</DialogTitle>
             <DialogDescription>
-              Set up your email campaign details
+              Set up your email campaign — select a type, template, audience, and daily limit
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
+
+            {/* Step 1: Campaign Type */}
             <div className="space-y-2">
-              <Label htmlFor="campaign-name">Campaign Name</Label>
+              <Label className="flex items-center gap-1.5">Campaign Type <span className="text-destructive">*</span></Label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCampaignCategory("management");
+                    if (newCampaign.templateId) {
+                      const tpl = templates.data?.find((t) => t.id === newCampaign.templateId);
+                      if (tpl && tpl.category !== "management") setNewCampaign((p) => ({ ...p, templateId: "" }));
+                    }
+                  }}
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 text-sm font-medium transition-all cursor-pointer ${campaignCategory === "management" ? "border-[#2e6da4] bg-[#f0f6ff] dark:bg-[#0c1e3c]/50" : "border-border hover:border-[#2e6da4]/40"}`}
+                >
+                  <Building2 className={`w-5 h-5 ${campaignCategory === "management" ? "text-[#2e6da4]" : "text-muted-foreground"}`} />
+                  <span>Management</span>
+                  <span className="text-[10px] text-muted-foreground font-normal">Stable · Yard · Owner</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCampaignCategory("academy_school");
+                    if (newCampaign.templateId) {
+                      const tpl = templates.data?.find((t) => t.id === newCampaign.templateId);
+                      if (tpl && tpl.category !== "academy_school") setNewCampaign((p) => ({ ...p, templateId: "" }));
+                    }
+                  }}
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 text-sm font-medium transition-all cursor-pointer ${campaignCategory === "academy_school" ? "border-[#163563] bg-[#f0f4ff] dark:bg-[#0c1e3c]/50" : "border-border hover:border-[#163563]/40"}`}
+                >
+                  <GraduationCap className={`w-5 h-5 ${campaignCategory === "academy_school" ? "text-[#163563]" : "text-muted-foreground"}`} />
+                  <span>Academy / School</span>
+                  <span className="text-[10px] text-muted-foreground font-normal">Riding School · Education</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="campaign-name">Campaign Name <span className="text-destructive">*</span></Label>
               <Input
                 id="campaign-name"
                 placeholder="e.g., Spring Health Tracking Promo"
@@ -786,7 +861,7 @@ export default function AdminCampaigns() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="campaign-subject">Email Subject</Label>
+              <Label htmlFor="campaign-subject">Email Subject <span className="text-destructive">*</span></Label>
               <Input
                 id="campaign-subject"
                 placeholder="e.g., Track your horse's health like never before"
@@ -801,7 +876,7 @@ export default function AdminCampaigns() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Template</Label>
+                <Label>Template <span className="text-destructive">*</span></Label>
                 <Select
                   value={newCampaign.templateId}
                   onValueChange={(v) =>
@@ -809,42 +884,56 @@ export default function AdminCampaigns() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select template" />
+                    <SelectValue placeholder={campaignCategory ? "Select template" : "Select type first"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {/* Management platform templates */}
-                    <SelectGroup>
-                      <SelectLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 py-1.5">
-                        Management Platform
-                      </SelectLabel>
-                      {templates.data
-                        ?.filter((t) => !t.id.startsWith("school-"))
-                        .map((t) => (
-                          <SelectItem key={t.id} value={t.id}>
-                            <span className="flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: t.previewColor }} />
-                              {t.name}
-                            </span>
-                          </SelectItem>
-                        ))}
-                    </SelectGroup>
-                    {/* School / academy templates */}
-                    {templates.data?.some((t) => t.id.startsWith("school-")) && (
+                    {/* Show templates filtered by the selected campaign category */}
+                    {campaignCategory === "management" && (
                       <SelectGroup>
-                        <SelectLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 py-1.5 mt-1 border-t border-border pt-2">
-                          School / Academy
+                        <SelectLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 py-1.5 flex items-center gap-1.5">
+                          <Building2 className="w-3 h-3" /> Management Platform
                         </SelectLabel>
                         {templates.data
-                          ?.filter((t) => t.id.startsWith("school-"))
+                          ?.filter((t) => t.category === "management")
                           .map((t) => (
                             <SelectItem key={t.id} value={t.id}>
-                              <span className="flex items-center gap-2">
-                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: t.previewColor }} />
-                                {t.name}
-                              </span>
+                              {t.name}
                             </SelectItem>
                           ))}
                       </SelectGroup>
+                    )}
+                    {campaignCategory === "academy_school" && (
+                      <SelectGroup>
+                        <SelectLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 py-1.5 flex items-center gap-1.5">
+                          <GraduationCap className="w-3 h-3" /> Academy / School
+                        </SelectLabel>
+                        {templates.data
+                          ?.filter((t) => t.category === "academy_school")
+                          .map((t) => (
+                            <SelectItem key={t.id} value={t.id}>
+                              {t.name}
+                            </SelectItem>
+                          ))}
+                      </SelectGroup>
+                    )}
+                    {/* Fallback: show all if no type selected */}
+                    {!campaignCategory && (
+                      <>
+                        <SelectGroup>
+                          <SelectLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 py-1.5">Management Platform</SelectLabel>
+                          {templates.data?.filter((t) => t.category === "management").map((t) => (
+                            <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                          ))}
+                        </SelectGroup>
+                        {templates.data?.some((t) => t.category === "academy_school") && (
+                          <SelectGroup>
+                            <SelectLabel className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 py-1.5 mt-1 border-t border-border pt-2">Academy / School</SelectLabel>
+                            {templates.data?.filter((t) => t.category === "academy_school").map((t) => (
+                              <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                        )}
+                      </>
                     )}
                   </SelectContent>
                 </Select>
@@ -951,29 +1040,41 @@ export default function AdminCampaigns() {
                   onChange={(e) =>
                     setNewCampaign((p) => ({
                       ...p,
-                      dailyLimit: Math.max(1, Math.min(500, parseInt(e.target.value) || 50)),
+                      dailyLimit: Math.max(1, Math.min(500, parseInt(e.target.value) || 30)),
                     }))
                   }
                 />
+                <p className="text-[10px] text-muted-foreground">
+                  Recommended: ≤15 per type/day. Total daily max: 30.
+                </p>
               </div>
+            </div>
+
+            {/* Weekday-only notice */}
+            <div className="flex items-center gap-2 rounded-lg border border-[#2e6da4]/20 bg-[#f0f6ff] dark:bg-[#0c1e3c]/30 px-3 py-2">
+              <CalendarDays className="w-3.5 h-3.5 text-[#2e6da4] shrink-0" />
+              <p className="text-xs text-muted-foreground">
+                <strong>Weekdays only.</strong> Campaign sending is restricted to Mon–Fri to protect deliverability.
+              </p>
             </div>
 
             {/* Inline template preview card — shown immediately after selection */}
             {newCampaign.templateId && (() => {
               const selected = templates.data?.find((t) => t.id === newCampaign.templateId);
               return selected ? (
-                <div className="flex items-start gap-3 rounded-lg border bg-muted/40 p-3">
-                  <div
-                    className="mt-0.5 h-8 w-8 shrink-0 rounded"
-                    style={{ background: selected.previewColor }}
-                  />
+                <div className="flex items-start gap-3 rounded-xl border border-[#2e6da4]/30 bg-[#f0f6ff] dark:bg-[#0c1e3c]/30 p-3">
+                  <div className="mt-0.5 h-9 w-9 shrink-0 rounded-lg flex items-center justify-center" style={{ background: "#0c1e3c" }}>
+                    {selected.category === "academy_school"
+                      ? <GraduationCap className="w-4 h-4 text-white" />
+                      : <Building2 className="w-4 h-4 text-white" />}
+                  </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium leading-snug">{selected.name}</p>
+                    <p className="text-sm font-semibold leading-snug">{selected.name}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">{selected.description}</p>
                     <Button
                       variant="link"
                       size="sm"
-                      className="mt-1 h-auto p-0 text-xs"
+                      className="mt-1 h-auto p-0 text-xs text-[#2e6da4]"
                       onClick={() => handlePreview(selected.id)}
                     >
                       <Eye className="mr-1 w-3 h-3" /> Full preview →
@@ -1086,8 +1187,8 @@ export default function AdminCampaigns() {
             <AlertDialogTitle>Send Campaign?</AlertDialogTitle>
             <AlertDialogDescription>
               This will send the campaign to all recipients in the selected
-              segment. This action cannot be undone. Are you sure you want
-              to proceed?
+              segment, up to the configured daily limit. Sending is restricted
+              to weekdays (Mon–Fri). This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1139,10 +1240,11 @@ function SequenceTemplatesSection() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          📧 Ready-to-Run Campaign Sequences
+          <Mail className="w-5 h-5" />
+          Ready-to-Run Campaign Sequences
         </CardTitle>
         <CardDescription>
-          Pre-built 4-step drip sequences. Launch creates a campaign + follow-up steps (Day 1 → 3 → 6 → 10).
+          Pre-built 4-step drip sequences — Initial → Day 3 → Day 6 → Day 10. Sends weekdays only, 30/day total.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -1151,7 +1253,7 @@ function SequenceTemplatesSection() {
         ) : (
           <div className="space-y-4">
             {seqTemplates.data?.map((tpl) => (
-              <div key={tpl.id} className="border rounded-lg p-4">
+              <div key={tpl.id} className="border rounded-xl p-4 hover:shadow-sm transition-all">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-sm">{tpl.name}</h4>

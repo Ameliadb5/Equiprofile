@@ -334,7 +334,24 @@ export function getTodayDateString(): string {
   return new Date().toISOString().split("T")[0];
 }
 
-export const DEFAULT_DAILY_LIMIT = 50;
+/**
+ * Total default daily send limit across all campaign types.
+ * Split: 15 management + 15 academy/school = 30 total.
+ */
+export const DEFAULT_DAILY_LIMIT = 30;
+/** Default daily limit for management/stable/owner campaigns. */
+export const MANAGEMENT_DAILY_LIMIT = 15;
+/** Default daily limit for academy/school campaigns. */
+export const ACADEMY_DAILY_LIMIT = 15;
+
+/**
+ * Returns true if the given date (defaults to now) is a weekday (Mon–Fri).
+ * Used to enforce weekday-only campaign sending policy.
+ */
+export function isWeekday(date?: Date): boolean {
+  const day = (date ?? new Date()).getDay(); // 0=Sun, 6=Sat
+  return day >= 1 && day <= 5;
+}
 
 // ─── Follow-up schedule (default) ────────────────────────────
 export const DEFAULT_FOLLOWUP_SCHEDULE = [
