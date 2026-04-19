@@ -5,6 +5,9 @@ import {
   Activity,
   DollarSign,
   Download,
+  Heart,
+  Dumbbell,
+  Target,
 } from "lucide-react";
 import {
   Card,
@@ -20,6 +23,7 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import {
   LineChart,
@@ -40,14 +44,65 @@ import { downloadCSV } from "@/lib/csvDownload";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 
-const COLORS = [
-  "#0088FE",
-  "#00C49F",
-  "#FFBB28",
-  "#FF8042",
-  "#8884D8",
-  "#82CA9D",
+// Premium, brand-aligned colour palette
+const CHART_COLORS = {
+  primary: "#2e6da4",
+  secondary: "#1a7a6d",
+  accent: "#c5a55a",
+  muted: "#64748b",
+  success: "#22c55e",
+  warning: "#f59e0b",
+  danger: "#ef4444",
+  purple: "#7c3aed",
+};
+
+const PERFORMANCE_COLORS: Record<string, string> = {
+  EXCELLENT: "#22c55e",
+  GOOD: "#2e6da4",
+  AVERAGE: "#f59e0b",
+  POOR: "#ef4444",
+  NOT_RATED: "#94a3b8",
+};
+
+const PIE_COLORS = [
+  "#2e6da4", "#1a7a6d", "#c5a55a", "#7c3aed",
+  "#22c55e", "#f59e0b", "#ef4444", "#64748b",
 ];
+
+// Custom tooltip with cleaner design
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-background border border-border rounded-lg shadow-lg px-3 py-2 text-sm min-w-[130px]">
+      {label && <p className="font-semibold text-foreground mb-1">{label}</p>}
+      {payload.map((entry: any, i: number) => (
+        <div key={i} className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: entry.color || entry.fill }} />
+          <span className="text-muted-foreground">{entry.name}:</span>
+          <span className="font-medium text-foreground">
+            {typeof entry.value === "number" && entry.name?.includes("£")
+              ? `£${entry.value.toFixed(2)}`
+              : typeof entry.value === "number" && (entry.name?.includes("Hours") || entry.name?.includes("hour"))
+              ? `${entry.value.toFixed(1)}h`
+              : entry.value}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EmptyChart({ icon: Icon, message, hint }: { icon: any; message: string; hint?: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-14 text-center">
+      <div className="rounded-full bg-muted p-4 mb-4">
+        <Icon className="h-8 w-8 text-muted-foreground" />
+      </div>
+      <p className="text-muted-foreground font-medium">{message}</p>
+      {hint && <p className="text-sm text-muted-foreground mt-1 max-w-xs">{hint}</p>}
+    </div>
+  );
+}
 
 export default function AnalyticsPage() {
   const { data: trainingSessions } = trpc.training.listAll.useQuery();
@@ -68,7 +123,7 @@ export default function AnalyticsPage() {
       return acc;
     }, {}) || {};
 
-  const trainingChartData = Object.values(trainingByMonth).slice(-6);
+  const trainingChartData = Object.values(trainingByMonth).slice(-6) as any[];
 
   // Performance ratings distribution
   const performanceData =
@@ -83,8 +138,26 @@ export default function AnalyticsPage() {
     ([name, value]) => ({
       name: name.replace("_", " ").toUpperCase(),
       value,
+      fill: PERFORMANCE_COLORS[name.toUpperCase()] || CHART_COLORS.muted,
     }),
   );
+
+  // Session types distribution
+  const sessionTypeData =
+    trainingSessions?.reduce((acc: any, session: any) => {
+      const type = session.sessionType || "other";
+      if (!acc[type]) acc[type] = 0;
+      acc[type] += 1;
+      return acc;
+    }, {}) || {};
+
+  const sessionTypeChartData = Object.entries(sessionTypeData)
+    .map(([name, value]) => ({
+      name: name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      count: value,
+    }))
+    .sort((a: any, b: any) => b.count - a.count)
+    .slice(0, 8);
 
   // Competition placements
   const placementData =
@@ -134,7 +207,21 @@ export default function AnalyticsPage() {
       return acc;
     }, {}) || {};
 
-  const healthCostData = Object.values(healthByMonth).slice(-6);
+  const healthCostData = Object.values(healthByMonth).slice(-6) as any[];
+
+  // Health record types breakdown
+  const healthTypeData =
+    healthRecords?.reduce((acc: any, record: any) => {
+      const type = record.recordType || "other";
+      if (!acc[type]) acc[type] = 0;
+      acc[type] += 1;
+      return acc;
+    }, {}) || {};
+
+  const healthTypePieData = Object.entries(healthTypeData).map(([name, value]) => ({
+    name: name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    value,
+  }));
 
   const totalSessions = trainingSessions?.length || 0;
   // duration is stored in minutes — divide by 60 to get hours
@@ -149,6 +236,11 @@ export default function AnalyticsPage() {
     totalSessions > 0
       ? Math.round((completedSessions / totalSessions) * 100)
       : 0;
+  const avgSessionDuration = totalSessions > 0 ? Math.round((totalHours * 60) / totalSessions) : 0;
+
+  const totalHealthCost = healthRecords?.reduce((sum: number, r: any) => sum + (r.cost || 0), 0) || 0;
+  const totalCompetitions = competitions?.length || 0;
+  const firstPlaces = competitions?.filter((c: any) => c.placement === "1st" || c.placement === "1").length || 0;
 
   return (
     <DashboardLayout>
@@ -170,13 +262,12 @@ export default function AnalyticsPage() {
             <TabsTrigger value="comparison">Comparison</TabsTrigger>
           </TabsList>
 
+          {/* ── Training Tab ──────────────────────────────────────────── */}
           <TabsContent value="training" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Total Sessions
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Total Sessions</CardTitle>
                   <Activity className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -187,25 +278,30 @@ export default function AnalyticsPage() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Training Hours
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Training Hours</CardTitle>
                   <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {Math.round(totalHours)}h
-                  </div>
+                  <div className="text-2xl font-bold">{Math.round(totalHours)}h</div>
                   <p className="text-xs text-muted-foreground">Total logged</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Completion Rate
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Avg Session</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{avgSessionDuration}m</div>
+                  <p className="text-xs text-muted-foreground">Average duration</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+                  <Target className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{completionRate}%</div>
@@ -214,293 +310,318 @@ export default function AnalyticsPage() {
                   </p>
                 </CardContent>
               </Card>
+            </div>
 
+            <div className="grid gap-4 lg:grid-cols-2">
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Avg/Month
-                  </CardTitle>
-                  <Activity className="h-4 w-4 text-muted-foreground" />
+                <CardHeader>
+                  <CardTitle>Monthly Training Volume</CardTitle>
+                  <CardDescription>Hours logged per month (last 6 months)</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {trainingChartData.length > 0
-                      ? Math.round(totalSessions / trainingChartData.length)
-                      : 0}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Sessions per month
-                  </p>
+                  {trainingChartData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={trainingChartData} margin={{ top: 5, right: 10, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                        <XAxis dataKey="month" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} unit="h" />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="hours" fill={CHART_COLORS.primary} name="Training Hours" radius={[4, 4, 0, 0]} maxBarSize={48} />
+                        <Bar dataKey="sessions" fill={CHART_COLORS.secondary} name="Sessions" radius={[4, 4, 0, 0]} maxBarSize={48} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <EmptyChart icon={BarChart3} message="No training data yet" hint="Log training sessions to see your monthly volume here." />
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sessions by Type</CardTitle>
+                  <CardDescription>Breakdown of training activities</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {sessionTypeChartData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={sessionTypeChartData} layout="vertical" margin={{ top: 5, right: 10, bottom: 5, left: 60 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                        <XAxis type="number" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                        <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} width={55} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="count" name="Sessions" radius={[0, 4, 4, 0]} maxBarSize={24}>
+                          {sessionTypeChartData.map((_: any, index: number) => (
+                            <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <EmptyChart icon={Dumbbell} message="No session types recorded" hint="Session type breakdowns will appear here as you log training." />
+                  )}
                 </CardContent>
               </Card>
             </div>
 
             <Card>
               <CardHeader>
-                <CardTitle>Training Hours per Month</CardTitle>
-                <CardDescription>
-                  Training volume over the last 6 months
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {trainingChartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={trainingChartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar
-                        dataKey="hours"
-                        fill="#8884d8"
-                        name="Training Hours"
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <BarChart3 className="h-16 w-16 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">
-                      No training data available
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Distribution</CardTitle>
-                <CardDescription>
-                  Breakdown of training session ratings
-                </CardDescription>
+                <CardTitle>Performance Rating Distribution</CardTitle>
+                <CardDescription>How training sessions have been rated over time</CardDescription>
               </CardHeader>
               <CardContent>
                 {performancePieData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={performancePieData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={(entry) => `${entry.name}: ${entry.value}`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {performancePieData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <TrendingUp className="h-16 w-16 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">
-                      No performance ratings yet
-                    </p>
+                  <div className="flex flex-col lg:flex-row items-center gap-6">
+                    <ResponsiveContainer width="100%" height={260}>
+                      <PieChart>
+                        <Pie
+                          data={performancePieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={100}
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {performancePieData.map((entry: any, index: number) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill || PIE_COLORS[index % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend iconType="circle" iconSize={10} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                      {performancePieData.map((entry: any, i: number) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-full shrink-0" style={{ background: entry.fill }} />
+                          <span className="text-sm text-muted-foreground">{entry.name}</span>
+                          <Badge variant="secondary" className="text-xs">{entry.value as number}</Badge>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                ) : (
+                  <EmptyChart icon={TrendingUp} message="No performance ratings yet" hint="Rate your training sessions to see the distribution here." />
                 )}
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* ── Performance Tab ───────────────────────────────────────── */}
           <TabsContent value="performance" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Competitions
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Competitions</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {competitions?.length || 0}
-                  </div>
+                  <div className="text-2xl font-bold">{totalCompetitions}</div>
                   <p className="text-xs text-muted-foreground">Total entries</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Top Placements
-                  </CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium">1st Place Finishes</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-[#c5a55a]" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {competitions?.filter(
-                      (c: any) => c.placement === "1st" || c.placement === "1",
-                    ).length || 0}
-                  </div>
+                  <div className="text-2xl font-bold">{firstPlaces}</div>
                   <p className="text-xs text-muted-foreground">
-                    First place finishes
+                    {totalCompetitions > 0 ? `${Math.round((firstPlaces / totalCompetitions) * 100)}% win rate` : "No entries yet"}
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Winnings
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Prize Winnings</CardTitle>
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    £
-                    {competitions?.reduce(
-                      (sum: number, c: any) => sum + (c.winnings || 0),
-                      0,
-                    ) || 0}
+                    £{competitions?.reduce((sum: number, c: any) => sum + (c.winnings || 0), 0) || 0}
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Total prize money
-                  </p>
+                  <p className="text-xs text-muted-foreground">Total prize money</p>
                 </CardContent>
               </Card>
             </div>
 
             <Card>
               <CardHeader>
-                <CardTitle>Competition Placements</CardTitle>
-                <CardDescription>
-                  Distribution of competition results
-                </CardDescription>
+                <CardTitle>Competition Placement Breakdown</CardTitle>
+                <CardDescription>Distribution of results across all competitions entered</CardDescription>
               </CardHeader>
               <CardContent>
                 {placementPieData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={placementPieData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={(entry) => `${entry.name}: ${entry.value}`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {placementPieData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <TrendingUp className="h-16 w-16 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">
-                      No competition data available
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Log competition results to track performance
-                    </p>
+                  <div className="flex flex-col lg:flex-row items-center gap-6">
+                    <ResponsiveContainer width="100%" height={280}>
+                      <PieChart>
+                        <Pie
+                          data={placementPieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={65}
+                          outerRadius={105}
+                          paddingAngle={3}
+                          dataKey="value"
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          labelLine={false}
+                        >
+                          {placementPieData.map((_: any, index: number) => (
+                            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend iconType="circle" iconSize={10} />
+                      </PieChart>
+                    </ResponsiveContainer>
                   </div>
+                ) : (
+                  <EmptyChart icon={TrendingUp} message="No competition results yet" hint="Log competition results to track your performance here." />
                 )}
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* ── Health Tab ────────────────────────────────────────────── */}
           <TabsContent value="health" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Health Costs Over Time</CardTitle>
-                <CardDescription>
-                  Monthly health and veterinary expenses
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {healthCostData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={healthCostData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip formatter={(value) => `£${value}`} />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="cost"
-                        stroke="#82ca9d"
-                        name="Health Costs (£)"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <Activity className="h-16 w-16 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">
-                      No health cost data available
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Add health records with costs to track expenses
-                    </p>
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Health Records</CardTitle>
+                  <Heart className="h-4 w-4 text-rose-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{healthRecords?.length || 0}</div>
+                  <p className="text-xs text-muted-foreground">All time</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Health Spend</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">£{Math.round(totalHealthCost)}</div>
+                  <p className="text-xs text-muted-foreground">Across all records</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Avg Cost/Record</CardTitle>
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    £{healthRecords?.length ? Math.round(totalHealthCost / healthRecords.length) : 0}
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  <p className="text-xs text-muted-foreground">Per health record</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Monthly Health Costs</CardTitle>
+                  <CardDescription>Veterinary and health expenses over time</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {healthCostData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={260}>
+                      <LineChart data={healthCostData} margin={{ top: 5, right: 10, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                        <XAxis dataKey="month" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                        <Tooltip content={<CustomTooltip />} formatter={(v: any) => `£${v}`} />
+                        <Legend iconType="circle" iconSize={10} />
+                        <Line
+                          type="monotone"
+                          dataKey="cost"
+                          stroke={CHART_COLORS.danger}
+                          strokeWidth={2.5}
+                          dot={{ r: 4, fill: CHART_COLORS.danger, strokeWidth: 0 }}
+                          activeDot={{ r: 6 }}
+                          name="Health Costs (£)"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="count"
+                          stroke={CHART_COLORS.secondary}
+                          strokeWidth={2}
+                          strokeDasharray="5 5"
+                          dot={{ r: 3, fill: CHART_COLORS.secondary, strokeWidth: 0 }}
+                          name="Records"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <EmptyChart icon={Activity} message="No health cost data yet" hint="Add health records with costs to see your spending trends." />
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Record Types</CardTitle>
+                  <CardDescription>Breakdown of health record categories</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {healthTypePieData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={260}>
+                      <PieChart>
+                        <Pie
+                          data={healthTypePieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={55}
+                          outerRadius={95}
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {healthTypePieData.map((_: any, index: number) => (
+                            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend iconType="circle" iconSize={10} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <EmptyChart icon={Heart} message="No health records yet" hint="Add health records to see the type breakdown." />
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
+          {/* ── Comparison Tab ────────────────────────────────────────── */}
           <TabsContent value="comparison" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Per-Horse Activity Comparison</CardTitle>
                 <CardDescription>
-                  Compare training, competitions, and health records across all
-                  horses
+                  Training sessions, competitions, and health records across all horses
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {horseComparisonData.length > 0 ? (
                   <ResponsiveContainer width="100%" height={400}>
-                    <BarChart data={horseComparisonData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar
-                        dataKey="training"
-                        fill="#8884d8"
-                        name="Training Sessions"
-                      />
-                      <Bar
-                        dataKey="competitions"
-                        fill="#82ca9d"
-                        name="Competitions"
-                      />
-                      <Bar
-                        dataKey="health"
-                        fill="#ffc658"
-                        name="Health Records"
-                      />
+                    <BarChart data={horseComparisonData} margin={{ top: 5, right: 10, bottom: 5, left: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                      <XAxis dataKey="name" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend iconType="circle" iconSize={10} />
+                      <Bar dataKey="training" fill={CHART_COLORS.primary} name="Training Sessions" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                      <Bar dataKey="competitions" fill={CHART_COLORS.accent} name="Competitions" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                      <Bar dataKey="health" fill={CHART_COLORS.danger} name="Health Records" radius={[4, 4, 0, 0]} maxBarSize={40} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <BarChart3 className="h-16 w-16 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">
-                      No horses to compare
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Add horses and log activities to see comparisons
-                    </p>
-                  </div>
+                  <EmptyChart icon={BarChart3} message="No horses to compare" hint="Add horses and log activities to see comparisons here." />
                 )}
               </CardContent>
             </Card>
