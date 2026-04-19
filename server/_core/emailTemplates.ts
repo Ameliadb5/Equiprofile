@@ -70,23 +70,25 @@ Amarktai Network Ltd. All rights reserved.
 
 /**
  * Standard EquiProfile email letterhead.
- * accent = the header background colour or gradient.
- * All templates MUST use this function for consistent branding.
+ * Uses ONE consistent brand header for all templates — single navy gradient,
+ * larger logo, premium typography. The accent parameter is retained for
+ * backwards compatibility but is no longer used.
  */
-function headerBlock(accent: string): string {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function headerBlock(_accent?: string): string {
   return `<tr>
-<td style="background:${accent};padding:36px 40px 28px;text-align:center;">
+<td style="background:linear-gradient(135deg, #0c1e3c 0%, #163563 45%, #2e6da4 100%);padding:40px 40px 32px;text-align:center;">
 <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
   <tr>
-    <td style="padding-right:10px;vertical-align:middle;">
-      <img src="${LOGO_URL}" alt="EquiProfile" width="36" height="36" style="display:block;border-radius:6px;width:36px;height:36px;"/>
+    <td style="padding-right:14px;vertical-align:middle;">
+      <img src="${LOGO_URL}" alt="EquiProfile" width="54" height="54" style="display:block;border-radius:12px;width:54px;height:54px;border:2px solid rgba(255,255,255,0.18);"/>
     </td>
-    <td style="vertical-align:middle;">
-      <span style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.3px;">EquiProfile</span>
+    <td style="vertical-align:middle;text-align:left;">
+      <span style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1;">EquiProfile</span>
+      <p style="margin:3px 0 0;color:rgba(255,255,255,0.65);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;">Professional Horse Management</p>
     </td>
   </tr>
 </table>
-<p style="margin:10px 0 0;color:rgba(255,255,255,0.80);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;">Professional Horse Management</p>
 </td>
 </tr>`;
 }
@@ -714,8 +716,18 @@ export interface CampaignTemplate {
   name: string;
   description: string;
   previewColor: string;
+  /** management = stable/yard/owner campaigns; academy_school = education/riding-school campaigns */
+  category: "management" | "academy_school";
   getHtml: () => string;
 }
+
+// ─── Daily sending policy defaults ──────────────────────────────────────────
+/** Total maximum emails per day across all campaign types. */
+export const CAMPAIGN_DAILY_TOTAL_LIMIT = 30;
+/** Maximum management-type sends per day. */
+export const CAMPAIGN_DAILY_MANAGEMENT_LIMIT = 15;
+/** Maximum academy/school-type sends per day. */
+export const CAMPAIGN_DAILY_ACADEMY_LIMIT = 15;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ACADEMY MARKETING TEMPLATES
@@ -853,12 +865,14 @@ ${headerBlock("linear-gradient(135deg, #134e4a 0%, #0f766e 100%)")}
 }
 
 export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
+  // ── Management / Stable / Yard / Owner Campaign Templates ────────────────
   {
     id: "health-tracking",
     name: "Health Tracking Spotlight",
     description:
       "Promotes comprehensive health tracking features — vaccinations, dental, hoof care, and more.",
-    previewColor: "#3b82f6",
+    previewColor: "#2e6da4",
+    category: "management",
     getHtml: template1_healthTracking,
   },
   {
@@ -866,7 +880,8 @@ export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
     name: "Training & Performance",
     description:
       "Highlights training logs, performance tracking, scheduling, and AI insights.",
-    previewColor: "#7c3aed",
+    previewColor: "#2e6da4",
+    category: "management",
     getHtml: template2_trainingPerformance,
   },
   {
@@ -874,7 +889,8 @@ export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
     name: "Stable Management",
     description:
       "Showcases the Stable Plan — multi-horse, staff, client portal, messaging.",
-    previewColor: "#10b981",
+    previewColor: "#2e6da4",
+    category: "management",
     getHtml: template3_stableManagement,
   },
   {
@@ -882,7 +898,8 @@ export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
     name: "AI Assistant & Weather",
     description:
       "Promotes the AI chat assistant and smart weather-based riding analysis.",
-    previewColor: "#4f46e5",
+    previewColor: "#2e6da4",
+    category: "management",
     getHtml: template4_aiAndWeather,
   },
   {
@@ -890,100 +907,113 @@ export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
     name: "General Campaign",
     description:
       "Flexible all-purpose template. Admin fills in subject, greeting, and body content.",
-    previewColor: "#0f2e6b",
+    previewColor: "#2e6da4",
+    category: "management",
     getHtml: template5_general,
   },
-  // ── School Campaign Templates ────────────────────────────────────────────
+  // ── Academy / School / Education Campaign Templates ───────────────────────
   {
     id: "school-introduction",
     name: "School Introduction Email",
     description: "Introduces EquiProfile to a new school — structured learning, progression tracking, teacher tools.",
-    previewColor: "#4f46e5",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: schoolTemplate1_introduction,
   },
   {
     id: "school-partnership",
     name: "Riding School Partnership Pitch",
     description: "Partnership proposal highlighting professional benefits for riding schools.",
-    previewColor: "#059669",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: schoolTemplate2_partnershipPitch,
   },
   {
     id: "school-student-overview",
     name: "Student Learning Platform Overview",
     description: "Showcases the student learning experience — pathways, AI tutor, practice, progress.",
-    previewColor: "#6366f1",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: schoolTemplate3_studentPlatformOverview,
   },
   {
     id: "school-teacher-onboarding",
     name: "Teacher Onboarding Pack",
     description: "Step-by-step guide for teachers getting started with the instructor portal.",
-    previewColor: "#d97706",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: schoolTemplate4_teacherOnboarding,
   },
   {
     id: "school-parent-info",
     name: "Parent Information Pack",
     description: "Information for parents about how their child learns on EquiProfile.",
-    previewColor: "#0891b2",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: schoolTemplate5_parentInfoPack,
   },
   {
     id: "school-trial-invitation",
     name: "School Trial Invitation (7-day)",
     description: "Invites a school to try EquiProfile free for 7 days — no credit card required.",
-    previewColor: "#7c3aed",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: schoolTemplate6_trialInvitation,
   },
   {
     id: "school-performance-tracking",
     name: "Performance Tracking & Reporting Pitch",
     description: "Highlights reporting, analytics, and performance tracking for schools.",
-    previewColor: "#dc2626",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: schoolTemplate7_performanceTracking,
   },
   {
     id: "school-digital-upgrade",
     name: "Digital Training Upgrade Pitch",
     description: "Persuades schools to move from paper-based to digital training with EquiProfile.",
-    previewColor: "#334155",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: schoolTemplate8_digitalUpgrade,
   },
   {
     id: "school-stable-learning",
     name: "Stable Management + Learning Combined Pitch",
     description: "Showcases the unique combination of stable management and student learning on one platform.",
-    previewColor: "#065f46",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: schoolTemplate9_stableAndLearning,
   },
   {
     id: "school-followup-conversion",
     name: "Follow-up Conversion Email",
     description: "Follow-up email for schools that haven't converted — recap of value and gentle CTA.",
-    previewColor: "#4f46e5",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: schoolTemplate10_followUpConversion,
   },
-  // ── Academy Marketing Campaign Templates ─────────────────────────────────
   {
     id: "academy-competition-prep",
     name: "Academy Competition Preparation",
     description: "Academy-focused email promoting EquiProfile's competition tracking, preparation tools, and analytics for schools entering competitions.",
-    previewColor: "#b45309",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: academyTemplate1_competitionPrep,
   },
   {
     id: "academy-safety-welfare",
     name: "Academy Safety & Welfare Messaging",
     description: "Positions EquiProfile as a welfare-first platform — health monitoring, vet records, incident logging, and rider safety tools for academies.",
-    previewColor: "#dc2626",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: academyTemplate2_safetyWelfare,
   },
   {
     id: "academy-seasonal-enrolment",
     name: "Academy Seasonal Enrolment Drive",
     description: "Seasonal marketing email to encourage new student enrolments — perfect for beginning-of-term or show-season campaigns.",
-    previewColor: "#0f766e",
+    previewColor: "#1a5ca0",
+    category: "academy_school",
     getHtml: academyTemplate3_seasonalEnrolment,
   },
 ];
