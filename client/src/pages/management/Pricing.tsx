@@ -218,7 +218,7 @@ export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
 
   return (
-    <ManagementLayout>
+    <ManagementLayout hidePreFooterCta>
       <div className="min-h-screen">
         {/* ======================== HERO ======================== */}
         <MgmtHero

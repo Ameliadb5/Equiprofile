@@ -113,7 +113,7 @@ const missionPoints = [
 
 export default function About() {
   return (
-    <ManagementLayout>
+    <ManagementLayout hidePreFooterCta>
       <div className="min-h-screen">
         {/* ======================== HERO ======================== */}
         <MgmtHero

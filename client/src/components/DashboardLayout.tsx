@@ -30,6 +30,7 @@ import {
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useAdminToggle } from "@/hooks/useAdminToggle";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 import {
   LayoutDashboard,
@@ -309,6 +310,7 @@ function DashboardLayoutContent({
   const { isAdminVisible } = useAdminToggle();
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const { viewMode, exitViewMode, isViewingAs, isAdmin: isAdminView } = useAdminViewMode();
+  const isOnline = useOnlineStatus();
 
   // Check admin unlock status — available to any authenticated user
   const { data: adminStatus } = trpc.adminUnlock.getStatus.useQuery(undefined, {
@@ -329,10 +331,16 @@ function DashboardLayoutContent({
   // Determine which dashboard view is active for users with both dashboards
   const isOnStablePages = location.startsWith("/stable");
 
-  // Plan-aware nav and bottom nav
-  const activeNavItems = bothDashboardsUnlocked
-    ? (isOnStablePages ? stableNavItems : menuItems)
-    : (isStablePlan ? stableNavItems : menuItems);
+  // Plan-aware nav and bottom nav.
+  // When an admin is previewing a specific dashboard via AdminViewContext, honour
+  // their viewMode so the nav reflects the simulated user type.
+  const activeNavItems = (() => {
+    if (isAdmin && viewMode === "stable") return stableNavItems;
+    if (isAdmin && (viewMode === "pro" || viewMode === "student" || viewMode === "teacher")) return menuItems;
+    return bothDashboardsUnlocked
+      ? (isOnStablePages ? stableNavItems : menuItems)
+      : (isStablePlan ? stableNavItems : menuItems);
+  })();
   const bottomNavItems = bothDashboardsUnlocked
     ? (isOnStablePages ? stableBottomNavItems : standardBottomNavItems)
     : (isStablePlan ? stableBottomNavItems : standardBottomNavItems);
@@ -493,12 +501,19 @@ function DashboardLayoutContent({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar className="h-9 w-9 border shrink-0">
-                    <AvatarImage src={user?.profileImageUrl ?? undefined} alt={user?.name ?? ""} />
-                    <AvatarFallback className="text-xs font-medium">
-                      {user?.name?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative shrink-0">
+                    <Avatar className="h-9 w-9 border">
+                      <AvatarImage src={user?.profileImageUrl ?? undefined} alt={user?.name ?? ""} />
+                      <AvatarFallback className="text-xs font-medium">
+                        {user?.name?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {/* Online / offline indicator dot */}
+                    <span
+                      title={isOnline ? "Online" : "Offline"}
+                      className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-background ${isOnline ? "bg-green-500" : "bg-gray-400"}`}
+                    />
+                  </div>
                   <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
                     <p className="text-sm font-medium truncate leading-none">
                       {user?.name || "-"}
@@ -534,11 +549,11 @@ function DashboardLayoutContent({
       <SidebarInset className="min-w-0">
         {isMobile && (
           <div className="flex border-b border-white/5 h-14 items-center justify-between bg-background/90 px-2 backdrop-blur-md sticky top-0 z-40" style={{ paddingTop: 'var(--safe-area-top, 0px)' }}>
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="tracking-tight text-foreground">
+            <div className="flex items-center gap-2 min-w-0">
+              <SidebarTrigger className="h-11 w-11 rounded-lg bg-background shrink-0" />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex flex-col gap-1 min-w-0">
+                  <span className="tracking-tight text-foreground truncate">
                     {activeMenuItem?.label ?? "Menu"}
                   </span>
                 </div>
@@ -549,12 +564,19 @@ function DashboardLayoutContent({
               <ThemeToggle />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar className="h-7 w-7 border ml-1 cursor-pointer">
-                    <AvatarImage src={user?.profileImageUrl ?? undefined} alt={user?.name ?? ""} />
-                    <AvatarFallback className="text-[10px] font-medium">
-                      {user?.name?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative cursor-pointer ml-1">
+                    <Avatar className="h-7 w-7 border">
+                      <AvatarImage src={user?.profileImageUrl ?? undefined} alt={user?.name ?? ""} />
+                      <AvatarFallback className="text-[10px] font-medium">
+                        {user?.name?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {/* Online / offline indicator dot */}
+                    <span
+                      title={isOnline ? "Online" : "Offline"}
+                      className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border-2 border-background ${isOnline ? "bg-green-500" : "bg-gray-400"}`}
+                    />
+                  </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <div className="px-2 py-1.5 border-b mb-1">
