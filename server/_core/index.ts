@@ -1081,6 +1081,20 @@ async function startServer() {
       return res.status(404).json({ error: "File not found" });
     }
 
+    // When ?download=1 is present, force the browser to download the file
+    // rather than displaying it inline.  The HTML <a download> attribute is
+    // sufficient for same-origin images and PDFs on most browsers, but for
+    // Word/Excel files the attribute is ignored and the browser relies on the
+    // Content-Disposition header.
+    const forceDownload = req.query.download === "1";
+    if (forceDownload) {
+      const originalName = path.basename(fileKey).replace(/^[^-]+-/, ""); // strip nanoid prefix
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${originalName.replace(/"/g, '\\"')}"`,
+      );
+    }
+
     res.sendFile(filePath);
   });
   // Any request that starts with /api/ and has NOT been handled by a route
