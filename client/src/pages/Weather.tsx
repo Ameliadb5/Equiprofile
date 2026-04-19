@@ -27,6 +27,28 @@ import {
   Navigation,
 } from "lucide-react";
 
+/**
+ * Activity recommendation thresholds for equestrian safety.
+ *
+ * These values represent practical boundaries used to classify weather conditions
+ * as suitable, marginal, or unsafe for different equestrian activities.
+ * Sourced from BHS guidelines and standard equestrian best practices.
+ */
+/** Temperature above which heat stress risk becomes significant for horse and rider (°C) */
+const TEMP_HOT = 28;
+/** Temperature below which extended warm-up is essential to prevent muscle injury (°C) */
+const TEMP_COLD = 8;
+/** Wind speed at which horses may become distracted or spooky outdoors (km/h) */
+const WIND_MODERATE = 20;
+/** Wind speed above which outdoor jumping is not recommended due to safety risk (km/h) */
+const WIND_HIGH = 35;
+/** Precipitation above which ground conditions begin to deteriorate (mm) */
+const PRECIP_LIGHT = 2;
+/** Precipitation above which outdoor jumping is not recommended due to slip risk (mm) */
+const PRECIP_HEAVY = 5;
+/** Humidity above which horses sweat heavily and fatigue faster (%) */
+const HUMIDITY_HIGH = 80;
+
 function WeatherContent() {
   const [detectingLocation, setDetectingLocation] = useState(false);
   const utils = trpc.useUtils();
@@ -128,12 +150,18 @@ function WeatherContent() {
 
   const getTrainingRecommendations = (weather: typeof currentWeather) => {
     if (!weather) return [];
-    const { temperature, windSpeed, precipitation } = weather.weather;
+    const { temperature, windSpeed, precipitation, humidity } = weather.weather;
     const level = weather.advice.level;
 
     // When conditions are unsafe (e.g. night-time, extreme weather), ALL outdoor
     // activities are not recommended — override individual checks.
     const isUnsafe = level === "unsafe";
+    const isHot = temperature >= TEMP_HOT;
+    const isCold = temperature <= TEMP_COLD;
+    const isWindy = windSpeed >= WIND_MODERATE;
+    const isVeryWindy = windSpeed >= WIND_HIGH;
+    const isRaining = precipitation > PRECIP_LIGHT;
+    const isHighHumidity = humidity >= HUMIDITY_HIGH;
 
     const recs: Array<{
       activity: string;
@@ -143,154 +171,171 @@ function WeatherContent() {
       icon: React.ReactNode;
     }> = [];
 
-    // Flatwork / Dressage
+    // ── Flatwork / Dressage ───────────────────────────────────────────────────
     if (isUnsafe) {
       recs.push({
         activity: "Flatwork / Dressage",
-        advice:
-          "Outdoor schooling is not recommended in current conditions. Use an indoor arena only, or rest your horse until conditions improve.",
+        advice: "Outdoor schooling is not recommended. Use a covered arena or rest your horse until conditions improve.",
         suitable: false,
         icon: <Target className="w-4 h-4 text-red-500 dark:text-red-400" />,
       });
-    } else if (level === "excellent" || level === "good") {
+    } else if (level === "excellent") {
       recs.push({
         activity: "Flatwork / Dressage",
-        advice:
-          "Great conditions for focused flatwork. Ideal for schooling lateral work, transitions, and collection exercises.",
+        advice: `Ideal conditions for precision work — ${temperature}°C with ${windSpeed} km/h wind. Focus on lateral movements, collection, and test preparation. Horse will be relaxed and responsive.`,
         suitable: true,
-        duration: "45-60 minutes",
+        duration: "45–60 minutes",
+        icon: <Target className="w-4 h-4 text-green-600 dark:text-green-400" />,
+      });
+    } else if (level === "good") {
+      recs.push({
+        activity: "Flatwork / Dressage",
+        advice: isHot
+          ? `Good for flatwork — warm at ${temperature}°C so keep the session focused and efficient. Ensure fresh water is available. Avoid prolonged collection work.`
+          : isCold
+          ? `Good for flatwork — extend your warm-up to 15 min in ${temperature}°C conditions. Back muscles need longer to loosen. Reduce canter work until horse is supple.`
+          : isWindy
+          ? `Workable for flatwork but ${windSpeed} km/h wind may distract your horse. Allow 5–10 min for settling before asking for precise movements.`
+          : `Good conditions for flatwork at ${temperature}°C. Good day for transitions, rhythm work, and lateral exercises.`,
+        suitable: true,
+        duration: isHot ? "30–45 minutes" : "40–55 minutes",
         icon: <Target className="w-4 h-4 text-green-600 dark:text-green-400" />,
       });
     } else if (level === "fair") {
       recs.push({
         activity: "Flatwork / Dressage",
-        advice:
-          "Conditions are workable but allow extra warm-up time. Shorten the session if the horse becomes tense.",
+        advice: isRaining
+          ? `Manageable in a covered arena. If riding outdoors in ${precipitation} mm rain, keep the session short and monitor footing carefully.`
+          : `Conditions are workable at ${temperature}°C. Allow extra warm-up time and shorten the session if your horse becomes tense or fatigued.`,
         suitable: true,
-        duration: "30-40 minutes",
+        duration: "25–35 minutes",
         icon: <Target className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
       });
     } else {
       recs.push({
         activity: "Flatwork / Dressage",
-        advice:
-          "Consider indoor arena work only. If riding outdoors, keep it very short and focus on walk work.",
+        advice: `Poor conditions for outdoor schooling. Move to a covered arena if available. Keep walk work only — do not ask for collection or extended work in these conditions.`,
         suitable: false,
-        duration: "15-20 minutes max",
+        duration: "15 minutes max (walk only)",
         icon: <Target className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
       });
     }
 
-    // Jumping
+    // ── Jumping / Grid Work ───────────────────────────────────────────────────
     if (isUnsafe) {
       recs.push({
         activity: "Jumping / Grid Work",
-        advice:
-          "Jumping is not recommended in current conditions. Wait for safe daylight conditions with good footing before jumping.",
+        advice: "Jumping is not recommended. Wait for safe daylight conditions with good, dry footing before any fence work.",
         suitable: false,
-        icon: (
-          <Dumbbell className="w-4 h-4 text-red-500 dark:text-red-400" />
-        ),
+        icon: <Dumbbell className="w-4 h-4 text-red-500 dark:text-red-400" />,
       });
     } else if (level === "excellent") {
       recs.push({
         activity: "Jumping / Grid Work",
-        advice:
-          "Perfect conditions for jumping. Good footing and calm air make this ideal for gymnastic exercises.",
+        advice: `Excellent jumping conditions — ${temperature}°C with minimal wind. Good footing and calm air are ideal for grids and course work. Great day for introducing new exercises.`,
         suitable: true,
-        duration: "30-45 minutes",
-        icon: (
-          <Dumbbell className="w-4 h-4 text-green-600 dark:text-green-400" />
-        ),
+        duration: "30–45 minutes",
+        icon: <Dumbbell className="w-4 h-4 text-green-600 dark:text-green-400" />,
       });
-    } else if (windSpeed > 25 || precipitation > 2) {
+    } else if (isVeryWindy || precipitation > PRECIP_HEAVY) {
       recs.push({
         activity: "Jumping / Grid Work",
-        advice:
-          "Not recommended — wind or wet ground increases risk of slips and refusals. Switch to ground poles or flatwork.",
+        advice: isVeryWindy
+          ? `Not recommended — ${windSpeed} km/h wind significantly increases spooking risk around fences. Switch to groundwork or flatwork.`
+          : `Not recommended — ${precipitation} mm rain creates wet ground around fence bases. Slip risk on takeoff and landing. Use ground poles only if outdoor arena.`,
         suitable: false,
-        icon: (
-          <Dumbbell className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-        ),
+        icon: <Dumbbell className="w-4 h-4 text-red-500 dark:text-red-400" />,
+      });
+    } else if (isRaining || isWindy) {
+      recs.push({
+        activity: "Jumping / Grid Work",
+        advice: isRaining
+          ? `Caution — ground is wet (${precipitation} mm). Lower fence heights to reduce slip risk on landing. Focus on ground poles and simple crosses if outdoors.`
+          : `Caution — ${windSpeed} km/h wind may cause fences to clatter or your horse to startle. Keep heights low and allow more warm-up time.`,
+        suitable: false,
+        duration: "20 minutes max if proceeding",
+        icon: <Dumbbell className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
       });
     } else {
       recs.push({
         activity: "Jumping / Grid Work",
-        advice:
-          "Possible with caution. Lower jump heights and avoid technical combinations in current conditions.",
+        advice: isHot
+          ? `Possible in ${temperature}°C but keep jumping work short — heat increases fatigue and loss of form. Stick to grid work rather than full courses.`
+          : `Good conditions for jumping work. ${temperature}°C and moderate wind — check footing before starting and warm up on flat first.`,
         suitable: true,
-        duration: "20-30 minutes",
-        icon: (
-          <Dumbbell className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-        ),
+        duration: isHot ? "20–25 minutes" : "25–35 minutes",
+        icon: <Dumbbell className="w-4 h-4 text-green-600 dark:text-green-400" />,
       });
     }
 
-    // Hacking / Trail
+    // ── Hacking / Trail Ride ──────────────────────────────────────────────────
     if (isUnsafe) {
       recs.push({
         activity: "Hacking / Trail Ride",
-        advice:
-          "Hacking outdoors is not safe in current conditions. Stay in the arena or rest your horse.",
+        advice: "Hacking outdoors is not safe in current conditions. Stay in the arena or rest your horse.",
         suitable: false,
-        icon: (
-          <CloudSun className="w-4 h-4 text-red-500 dark:text-red-400" />
-        ),
+        icon: <CloudSun className="w-4 h-4 text-red-500 dark:text-red-400" />,
       });
-    } else if (level === "excellent" || level === "good") {
+    } else if (level === "excellent") {
       recs.push({
         activity: "Hacking / Trail Ride",
-        advice:
-          "Lovely weather for a hack. Roads and trails should be in good condition. Enjoy the ride!",
+        advice: `Perfect day for a hack — ${temperature}°C and calm at ${windSpeed} km/h. Roads and trails should be in excellent condition. Ideal for a longer conditioning or relaxation ride.`,
         suitable: true,
-        duration: "60-90 minutes",
-        icon: (
-          <CloudSun className="w-4 h-4 text-green-600 dark:text-green-400" />
-        ),
+        duration: "60–90 minutes",
+        icon: <CloudSun className="w-4 h-4 text-green-600 dark:text-green-400" />,
       });
-    } else if (windSpeed > 30) {
+    } else if (isVeryWindy) {
       recs.push({
         activity: "Hacking / Trail Ride",
-        advice:
-          "High winds make hacking risky — flying debris and road noise can spook horses. Stay in the arena.",
+        advice: `Not recommended — ${windSpeed} km/h wind on open roads dramatically increases spooking risk. Flying debris and sudden gusts can cause dangerous reactions. Stay in the arena.`,
         suitable: false,
-        icon: (
-          <CloudSun className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-        ),
+        icon: <CloudSun className="w-4 h-4 text-red-500 dark:text-red-400" />,
+      });
+    } else if (level === "good") {
+      recs.push({
+        activity: "Hacking / Trail Ride",
+        advice: isHot
+          ? `Good for a hack but at ${temperature}°C avoid midday sun. Ride early morning or evening and ensure water is available on longer routes.`
+          : isCold
+          ? `Good for a hack at ${temperature}°C — wrap up and allow extra warm-up on the road. Avoid trotting on cold, hard ground until muscles are loose.`
+          : `Good conditions for a hack. ${temperature}°C with ${windSpeed} km/h wind — a pleasant, safe day for trail work or road riding.`,
+        suitable: true,
+        duration: isHot ? "45–60 minutes (cooler time of day)" : "60–75 minutes",
+        icon: <CloudSun className="w-4 h-4 text-green-600 dark:text-green-400" />,
       });
     } else {
       recs.push({
         activity: "Hacking / Trail Ride",
-        advice:
-          "Possible but stick to familiar routes. Wear hi-vis and avoid waterlogged paths.",
+        advice: isRaining
+          ? `Possible on familiar routes but ${precipitation} mm rain means wet tracks — avoid waterlogged paths and steep ground. Wear hi-vis.`
+          : `Possible with care. Stick to familiar, flat routes. Avoid high-traffic roads in wind. Keep the hack short.`,
         suitable: true,
-        duration: "30-45 minutes",
-        icon: (
-          <CloudSun className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-        ),
+        duration: "25–40 minutes",
+        icon: <CloudSun className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
       });
     }
 
-    // Lunging / Groundwork
+    // ── Lunging / Groundwork ──────────────────────────────────────────────────
     if (isUnsafe) {
       recs.push({
         activity: "Lunging / Groundwork",
-        advice:
-          "Outdoor lunging is not recommended in current conditions. In-hand groundwork in a covered school is a safe alternative.",
+        advice: "Outdoor lunging is not recommended. In-hand groundwork in a covered school is a safe alternative until conditions improve.",
         suitable: false,
         icon: <Shield className="w-4 h-4 text-red-500 dark:text-red-400" />,
       });
     } else {
+      const lungingAdvice = isCold
+        ? `Good option in ${temperature}°C — lunging warms up muscles safely before ridden work. Increase trotting gradually. Avoid extended canter until horse is warm.`
+        : isHot
+        ? `Keep lunging short in ${temperature}°C heat — 15–20 min maximum. Focus on walk and trot only. Provide water before and after.`
+        : isHighHumidity
+        ? `Manageable but ${humidity}% humidity means your horse will sweat heavily. Monitor breathing rate and keep work periods short.`
+        : `Good conditions for groundwork — ${temperature}°C and ${windSpeed} km/h wind. Use lunging to improve balance and responsiveness, or introduce new exercises with lower risk.`;
       recs.push({
         activity: "Lunging / Groundwork",
-        advice:
-          temperature < 5
-            ? "Groundwork is a good option in cold weather — lunging helps warm up muscles safely before ridden work."
-            : temperature > 30
-              ? "Keep lunging sessions short in the heat. Focus on walk and trot, avoid extended canter work."
-              : "Good conditions for groundwork. Use lunging to improve balance and obedience before riding.",
+        advice: lungingAdvice,
         suitable: true,
-        duration: temperature > 30 ? "15-20 minutes" : "20-30 minutes",
+        duration: isHot ? "15–20 minutes" : "20–30 minutes",
         icon: <Shield className="w-4 h-4 text-green-600 dark:text-green-400" />,
       });
     }

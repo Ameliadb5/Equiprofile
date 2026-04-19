@@ -54,6 +54,7 @@ import {
   Trash2,
   Search,
   Download,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { downloadCSV } from "@/lib/csvDownload";
@@ -72,6 +73,8 @@ const recordTypes = [
 function HealthContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [viewingRecord, setViewingRecord] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [editFormData, setEditFormData] = useState({
@@ -164,6 +167,11 @@ function HealthContent() {
 
   const handleDelete = (id: number) => {
     deleteMutation.mutate({ id });
+  };
+
+  const handleView = (record: any) => {
+    setViewingRecord(record);
+    setIsViewDialogOpen(true);
   };
 
   const handleEdit = (record: any) => {
@@ -557,6 +565,14 @@ function HealthContent() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => handleView(record)}
+                        title="View details"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleEdit(record)}
                       >
                         <Pencil className="w-4 h-4" />
@@ -601,6 +617,78 @@ function HealthContent() {
           )}
         </CardContent>
       </Card>
+
+      {/* View Record Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Health Record Details</DialogTitle>
+            <DialogDescription>
+              Read-only view of this health record
+            </DialogDescription>
+          </DialogHeader>
+          {viewingRecord && (
+            <div className="space-y-3 py-2 max-h-[70vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="font-medium text-muted-foreground">Type</p>
+                  <p className="capitalize">{viewingRecord.recordType?.replace("_", " ")}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-muted-foreground">Title</p>
+                  <p>{viewingRecord.title}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-muted-foreground">Record Date</p>
+                  <p>{viewingRecord.recordDate ? new Date(viewingRecord.recordDate).toLocaleDateString("en-GB") : "—"}</p>
+                </div>
+                {viewingRecord.nextDueDate && (
+                  <div>
+                    <p className="font-medium text-muted-foreground">Next Due</p>
+                    <p>{new Date(viewingRecord.nextDueDate).toLocaleDateString("en-GB")}</p>
+                  </div>
+                )}
+                {viewingRecord.vetName && (
+                  <div>
+                    <p className="font-medium text-muted-foreground">Vet / Professional</p>
+                    <p>{viewingRecord.vetName}</p>
+                  </div>
+                )}
+                {viewingRecord.vetPhone && (
+                  <div>
+                    <p className="font-medium text-muted-foreground">Contact</p>
+                    <p>{viewingRecord.vetPhone}</p>
+                  </div>
+                )}
+                {viewingRecord.cost != null && (
+                  <div>
+                    <p className="font-medium text-muted-foreground">Cost</p>
+                    <p>£{viewingRecord.cost}</p>
+                  </div>
+                )}
+              </div>
+              {viewingRecord.description && (
+                <div>
+                  <p className="font-medium text-muted-foreground text-sm">Description</p>
+                  <p className="text-sm mt-1 whitespace-pre-wrap">{viewingRecord.description}</p>
+                </div>
+              )}
+              {viewingRecord.notes && (
+                <div>
+                  <p className="font-medium text-muted-foreground text-sm">Notes</p>
+                  <p className="text-sm mt-1 whitespace-pre-wrap">{viewingRecord.notes}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>Close</Button>
+            <Button onClick={() => { setIsViewDialogOpen(false); if (viewingRecord) handleEdit(viewingRecord); }}>
+              <Pencil className="w-4 h-4 mr-2" />Edit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Record Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

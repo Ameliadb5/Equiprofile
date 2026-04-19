@@ -31,6 +31,16 @@ import {
   RotateCcw,
   Sparkles,
   Tag,
+  Mic,
+  Brain,
+  CloudSun,
+  BarChart3,
+  FileUp,
+  Calendar,
+  Dumbbell,
+  Heart,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
@@ -749,11 +759,11 @@ export default function Settings() {
                     Help & Setup
                   </CardTitle>
                   <CardDescription>
-                    Restart the guided setup, get orientated, or revisit key
-                    features
+                    Guides, tips, and quick links to help you get the most out of EquiProfile
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Guided Setup */}
                   <div className="flex items-start gap-4 p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3a93b8] to-[#5b8def] flex items-center justify-center shrink-0 mt-0.5">
                       <Sparkles className="w-5 h-5 text-white" />
@@ -761,9 +771,7 @@ export default function Settings() {
                     <div className="flex-1 space-y-1">
                       <p className="font-semibold text-sm">Guided Setup</p>
                       <p className="text-sm text-muted-foreground">
-                        Walk through adding your first horse, choosing your
-                        experience, and discovering the key areas of the
-                        dashboard.
+                        Walk through adding your first horse, choosing your experience, and discovering the key areas of the dashboard.
                       </p>
                     </div>
                   </div>
@@ -783,6 +791,7 @@ export default function Settings() {
 
                   <Separator />
 
+                  {/* Quick Links */}
                   <div className="space-y-3">
                     <h3 className="text-sm font-semibold">Quick links</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
@@ -793,6 +802,8 @@ export default function Settings() {
                         { label: "Documents", path: "/documents" },
                         { label: "Calendar", path: "/calendar" },
                         { label: "Dashboard", path: "/dashboard" },
+                        { label: "Analytics", path: "/analytics" },
+                        { label: "AI Assistant", path: "/ai-chat" },
                       ].map(({ label, path }) => (
                         <a
                           key={path}
@@ -808,41 +819,119 @@ export default function Settings() {
 
                   <Separator />
 
-                  {/* Tags Help */}
+                  {/* Feature Guides */}
                   <div className="space-y-3">
-                    <h3 className="text-sm font-semibold flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-primary" />
-                      Using Tags
-                    </h3>
-                    <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3 text-sm text-muted-foreground">
-                      <p>
-                        <strong className="text-foreground">What are tags?</strong> Tags are
-                        coloured labels you can attach to horses to group and categorise them
-                        however suits your yard.
-                      </p>
-                      <p>
-                        <strong className="text-foreground">Why use them?</strong> Tags make it
-                        easy to filter your horse list at a glance — for example, showing only
-                        horses currently in training, or those owned by a specific client.
-                      </p>
-                      <p>
-                        <strong className="text-foreground">How to use them:</strong>
-                      </p>
-                      <ul className="list-disc list-inside space-y-1 ml-1">
-                        <li>Go to <strong>Tags</strong> in the sidebar to create and manage tags</li>
-                        <li>Open any horse profile and add tags from the horse detail page</li>
-                        <li>On the Horses list, click a tag chip to filter by that tag instantly</li>
-                      </ul>
-                      <p>
-                        <strong className="text-foreground">Examples:</strong>{" "}
-                        <span className="inline-flex flex-wrap gap-1">
-                          {["In Training", "For Sale", "Competition Horse", "Retired", "Client: Smith"].map((t) => (
-                            <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">
-                              <Tag className="w-2.5 h-2.5" />{t}
-                            </span>
-                          ))}
-                        </span>
-                      </p>
+                    <h3 className="text-sm font-semibold">Platform Feature Guides</h3>
+                    <div className="space-y-3">
+
+                      {/* AI Chat guide */}
+                      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 text-sm">
+                        <div className="flex items-center gap-2 font-semibold text-foreground">
+                          <Brain className="w-4 h-4 text-indigo-500" />
+                          AI Assistant
+                        </div>
+                        <p className="text-muted-foreground">Your built-in AI assistant can answer questions about horse care, help you navigate the platform, and suggest training ideas.</p>
+                        <ul className="list-disc list-inside space-y-1 ml-1 text-muted-foreground">
+                          <li>Ask anything about horse management, feeding, health, or training</li>
+                          <li>Use <strong className="text-foreground">Voice Notes</strong> to dictate notes from the stable using your microphone</li>
+                          <li>AI guidance is informational — always consult a vet for health decisions</li>
+                          <li>Chat history is saved during your session; clear it from the AI Chat page</li>
+                        </ul>
+                      </div>
+
+                      {/* Voice Notes guide */}
+                      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 text-sm">
+                        <div className="flex items-center gap-2 font-semibold text-foreground">
+                          <Mic className="w-4 h-4 text-rose-500" />
+                          Voice Notes
+                        </div>
+                        <p className="text-muted-foreground">Record notes hands-free from the stable or arena. Your speech is transcribed automatically.</p>
+                        <ul className="list-disc list-inside space-y-1 ml-1 text-muted-foreground">
+                          <li>Go to <strong className="text-foreground">AI Chat → Voice Notes tab</strong></li>
+                          <li>Press the microphone button — your browser will ask for microphone permission</li>
+                          <li>Speak clearly; the transcription appears in real time</li>
+                          <li>Press stop when finished, then save your note</li>
+                          <li><strong className="text-foreground">Note:</strong> Voice recognition works best in Chrome, Edge, or Safari. Firefox may not support it.</li>
+                        </ul>
+                      </div>
+
+                      {/* Weather guide */}
+                      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 text-sm">
+                        <div className="flex items-center gap-2 font-semibold text-foreground">
+                          <CloudSun className="w-4 h-4 text-sky-500" />
+                          Weather & Riding Conditions
+                        </div>
+                        <p className="text-muted-foreground">Live weather data with intelligent recommendations on whether conditions are suitable for specific equestrian activities.</p>
+                        <ul className="list-disc list-inside space-y-1 ml-1 text-muted-foreground">
+                          <li>Set your location in <strong className="text-foreground">Settings → Location</strong> for accurate local weather</li>
+                          <li>Recommendations cover hacking, arena work, jumping, competition prep, and groundwork</li>
+                          <li>Warnings are shown for extreme heat, high wind, lightning risk, or heavy rain</li>
+                          <li>The 7-day forecast helps you plan your weekly training schedule</li>
+                        </ul>
+                      </div>
+
+                      {/* Analytics guide */}
+                      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 text-sm">
+                        <div className="flex items-center gap-2 font-semibold text-foreground">
+                          <BarChart3 className="w-4 h-4 text-emerald-500" />
+                          Analytics
+                        </div>
+                        <p className="text-muted-foreground">Visualise your horses' training progress, health spending, and competition results with clear charts and trend data.</p>
+                        <ul className="list-disc list-inside space-y-1 ml-1 text-muted-foreground">
+                          <li><strong className="text-foreground">Training tab:</strong> Monthly volume, session types, and performance ratings</li>
+                          <li><strong className="text-foreground">Performance tab:</strong> Competition placements and prize winnings</li>
+                          <li><strong className="text-foreground">Health tab:</strong> Monthly vet costs and health record categories</li>
+                          <li><strong className="text-foreground">Comparison tab:</strong> Side-by-side activity comparison across all horses</li>
+                          <li>Data updates automatically as you log records across the platform</li>
+                        </ul>
+                      </div>
+
+                      {/* Documents / Uploads guide */}
+                      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 text-sm">
+                        <div className="flex items-center gap-2 font-semibold text-foreground">
+                          <FileUp className="w-4 h-4 text-blue-500" />
+                          Documents & File Uploads
+                        </div>
+                        <p className="text-muted-foreground">Upload, organise, and retrieve any file related to your horses — passports, vet records, competition certificates, photos, and more.</p>
+                        <ul className="list-disc list-inside space-y-1 ml-1 text-muted-foreground">
+                          <li>Supported formats: <strong className="text-foreground">JPEG, PNG, WebP, HEIC, PDF, Word, Excel, CSV, TXT</strong></li>
+                          <li>Maximum file size: <strong className="text-foreground">10 MB</strong> per upload</li>
+                          <li>iPhone photos (HEIC format) are automatically converted to JPEG</li>
+                          <li>You can attach documents to a specific horse or keep them as general yard documents</li>
+                          <li>Use the category selector (Health, Passport, Insurance, Gallery, etc.) to keep documents organised</li>
+                        </ul>
+                      </div>
+
+                      {/* Training Templates guide */}
+                      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 text-sm">
+                        <div className="flex items-center gap-2 font-semibold text-foreground">
+                          <Dumbbell className="w-4 h-4 text-violet-500" />
+                          Training Templates
+                        </div>
+                        <p className="text-muted-foreground">Pre-designed training programmes to give structure to your horse's work. Choose from flatwork, jumping, conditioning, dressage, young horse development, and competition prep plans.</p>
+                        <ul className="list-disc list-inside space-y-1 ml-1 text-muted-foreground">
+                          <li>Browse templates under <strong className="text-foreground">Training → Training Templates</strong></li>
+                          <li>Apply a template to start a structured programme for any horse</li>
+                          <li>Each template includes warmup, main work, cooldown, and safety notes per week</li>
+                          <li>Create your own custom templates and share them with the community</li>
+                        </ul>
+                      </div>
+
+                      {/* Tags guide */}
+                      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 text-sm">
+                        <div className="flex items-center gap-2 font-semibold text-foreground">
+                          <Tag className="w-4 h-4 text-primary" />
+                          Using Tags
+                        </div>
+                        <p className="text-muted-foreground">Tags are coloured labels you can attach to horses to group and categorise them however suits your yard.</p>
+                        <ul className="list-disc list-inside space-y-1 ml-1 text-muted-foreground">
+                          <li>Go to <strong className="text-foreground">Tags</strong> in the sidebar to create and manage tags</li>
+                          <li>Open any horse profile and add tags from the horse detail page</li>
+                          <li>On the Horses list, click a tag chip to filter by that tag instantly</li>
+                          <li>Examples: <em>In Training, For Sale, Competition Horse, Retired, Client: Smith</em></li>
+                        </ul>
+                      </div>
+
                     </div>
                   </div>
                 </CardContent>
