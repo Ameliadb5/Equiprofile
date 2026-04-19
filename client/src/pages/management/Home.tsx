@@ -161,9 +161,9 @@ export default function Home() {
         */}
         <section className="relative min-h-[96vh] flex items-center overflow-hidden">
           <img
-            src="/images/management/landing2.jpg"
-            alt="Horses in a field at sunset"
-            className="absolute inset-0 w-full h-full object-cover object-[50%_65%] md:object-[50%_70%]"
+            src="/images/management/landing-page.jpg"
+            alt="Premium horse stable interior with elegant stalls"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
           {/* Deep layered overlay — school-aligned dark palette */}
           <div className="mgmt-hero-overlay" />
