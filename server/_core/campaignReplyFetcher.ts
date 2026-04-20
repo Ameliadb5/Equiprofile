@@ -20,6 +20,7 @@
 import { ImapFlow, type FetchMessageObject } from "imapflow";
 import { getRuntimeConfig } from "../dynamicConfig";
 import { getDb } from "../db";
+import { nanoid } from "nanoid";
 
 async function getImapCredentials(): Promise<{
   host: string;
@@ -99,11 +100,12 @@ export async function fetchCampaignReplies(limit = 50): Promise<number> {
       for (const uid of batch) {
         try {
           // Fetch headers and snippet without marking seen
+          // Note: imapflow fetchOne(seq, query) — uid: true in the query means use UID addressing
           const msgResult: FetchMessageObject | false = await client.fetchOne(String(uid), {
             uid: true,
             envelope: true,
             bodyParts: ["TEXT"],
-          }, { uid: true });
+          });
 
           // fetchOne returns false if the message no longer exists
           if (!msgResult) continue;
@@ -111,7 +113,7 @@ export async function fetchCampaignReplies(limit = 50): Promise<number> {
 
           if (!msg.envelope) continue;
 
-          const messageId = (msg.envelope as { messageId?: string }).messageId || `uid-${uid}-${Date.now()}`;
+          const messageId = (msg.envelope as { messageId?: string }).messageId || `uid-${uid}-${nanoid(12)}`;
           const envelope = msg.envelope as {
             from?: Array<{ address?: string; name?: string }>;
             subject?: string;

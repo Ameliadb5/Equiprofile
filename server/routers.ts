@@ -4349,17 +4349,17 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
         // If stopSequence — pause all pending sequence steps for this contact's campaigns
         if (input.stopSequence && reply.fromEmail) {
-          const affectedRecipients = await dbConn.select({ campaignId: emailCampaignRecipients.campaignId })
+          const affectedRecipients = await dbConn.selectDistinct({ campaignId: emailCampaignRecipients.campaignId })
             .from(emailCampaignRecipients)
             .where(eq(emailCampaignRecipients.email, reply.fromEmail.toLowerCase()));
           const campaignIdSet = new Set<number>();
           affectedRecipients.forEach(r => campaignIdSet.add(r.campaignId));
           const campaignIds = Array.from(campaignIdSet);
-          for (const cId of campaignIds) {
+          if (campaignIds.length > 0) {
             await dbConn.update(campaignSequences)
               .set({ status: "skipped" })
               .where(and(
-                eq(campaignSequences.campaignId, cId),
+                inArray(campaignSequences.campaignId, campaignIds),
                 eq(campaignSequences.status, "pending"),
               )).catch(() => {});
           }
