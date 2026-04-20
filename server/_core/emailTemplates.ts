@@ -724,10 +724,10 @@ export interface CampaignTemplate {
 }
 
 // ─── Daily sending policy defaults ──────────────────────────────────────────
-/** Total maximum emails per day across all campaign types. */
-export const CAMPAIGN_DAILY_TOTAL_LIMIT = 30;
-/** Maximum management-type sends per day. */
-export const CAMPAIGN_DAILY_MANAGEMENT_LIMIT = 15;
+/** Total maximum emails per day across all campaign types (hard mailbox cap). */
+export const CAMPAIGN_DAILY_TOTAL_LIMIT = 40;
+/** Maximum new outreach sends per day across all management campaigns. */
+export const CAMPAIGN_DAILY_MANAGEMENT_LIMIT = 25;
 /** Maximum academy/school-type sends per day. */
 export const CAMPAIGN_DAILY_ACADEMY_LIMIT = 15;
 

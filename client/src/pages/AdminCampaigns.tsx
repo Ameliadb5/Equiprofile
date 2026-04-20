@@ -154,7 +154,7 @@ export default function AdminCampaigns() {
     firstName: "",
     targetCountry: "",
     targetType: "",
-    dailyLimit: 30,
+    dailyLimit: 25,
   });
 
   // Queries
@@ -178,7 +178,7 @@ export default function AdminCampaigns() {
         firstName: "",
         targetCountry: "",
         targetType: "",
-        dailyLimit: 30,
+        dailyLimit: 25,
       });
       utils.admin.getCampaigns.invalidate();
     },
@@ -606,19 +606,19 @@ export default function AdminCampaigns() {
           <div className="flex flex-wrap gap-x-6 gap-y-1">
             <span className="text-xs text-muted-foreground flex items-center gap-1.5">
               <CalendarDays className="w-3 h-3 text-[#2e6da4]" />
-              <strong>Weekdays only</strong> — Mon–Fri, never weekends
+              <strong>Weekdays only</strong> — Mon–Fri, 08:00–18:00 UTC
             </span>
             <span className="text-xs text-muted-foreground flex items-center gap-1.5">
               <Building2 className="w-3 h-3 text-[#2e6da4]" />
-              Max <strong>15 management</strong> emails/day
+              Max <strong>25 new outreach</strong> emails/day
             </span>
             <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <GraduationCap className="w-3 h-3 text-[#1a5ca0]" />
-              Max <strong>15 academy/school</strong> emails/day
+              <Send className="w-3 h-3 text-[#2e6da4]" />
+              Max <strong>5 per send window</strong> (staggered delivery)
             </span>
             <span className="text-xs text-muted-foreground flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-green-600" />
-              30 total per day · suppression list enforced
+              40 total/day hard cap · suppression + dedup enforced
             </span>
           </div>
         </div>
@@ -1035,17 +1035,17 @@ export default function AdminCampaigns() {
                   id="daily-limit"
                   type="number"
                   min={1}
-                  max={500}
+                  max={25}
                   value={newCampaign.dailyLimit}
                   onChange={(e) =>
                     setNewCampaign((p) => ({
                       ...p,
-                      dailyLimit: Math.max(1, Math.min(500, parseInt(e.target.value) || 30)),
+                      dailyLimit: Math.max(1, Math.min(25, parseInt(e.target.value) || 25)),
                     }))
                   }
                 />
                 <p className="text-[10px] text-muted-foreground">
-                  Recommended: ≤15 per type/day. Total daily max: 30.
+                  Max 25 new outreach/day. Total mailbox cap: 40/day.
                 </p>
               </div>
             </div>
@@ -1789,7 +1789,7 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [parsed, setParsed] = useState<ParsedImport | null>(null);
   const [mapping, setMapping] = useState<Record<string, string>>({});
-  const [importResult, setImportResult] = useState<{ imported: number; skipped: number; invalid: number; total: number } | null>(null);
+  const [importResult, setImportResult] = useState<{ imported: number; skipped: number; invalid: number; rejected: number; total: number } | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -1808,7 +1808,11 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
   const importMutation = trpc.admin.importMarketingContacts.useMutation({
     onSuccess: (data) => {
       setImportResult(data);
-      toast.success(`Imported ${data.imported} contacts (${data.skipped} skipped, ${data.invalid} invalid)`);
+      const parts = [`${data.imported} imported`];
+      if (data.skipped > 0) parts.push(`${data.skipped} already in DB`);
+      if (data.invalid > 0) parts.push(`${data.invalid} invalid`);
+      if (data.rejected > 0) parts.push(`${data.rejected} rejected (compliance)`);
+      toast.success(parts.join(" · "));
       utils.admin.getMarketingContacts.invalidate();
       utils.admin.getSegmentCounts.invalidate();
     },
@@ -1927,7 +1931,7 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
         {importResult ? (
           /* Import Result Summary */
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               <Card>
                 <CardContent className="pt-4 pb-4 text-center">
                   <p className="text-sm text-muted-foreground">Imported</p>
@@ -1938,17 +1942,26 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
                 <CardContent className="pt-4 pb-4 text-center">
                   <p className="text-sm text-muted-foreground">Skipped</p>
                   <p className="text-2xl font-bold text-yellow-600">{importResult.skipped}</p>
+                  <p className="text-[10px] text-muted-foreground">already in DB / suppressed</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-4 text-center">
+                  <p className="text-sm text-muted-foreground">Rejected</p>
+                  <p className="text-2xl font-bold text-orange-600">{importResult.rejected}</p>
+                  <p className="text-[10px] text-muted-foreground">compliance / B2B freemail</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-4 pb-4 text-center">
                   <p className="text-sm text-muted-foreground">Invalid</p>
                   <p className="text-2xl font-bold text-red-600">{importResult.invalid}</p>
+                  <p className="text-[10px] text-muted-foreground">bad email format</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-4 pb-4 text-center">
-                  <p className="text-sm text-muted-foreground">Total</p>
+                  <p className="text-sm text-muted-foreground">Total Rows</p>
                   <p className="text-2xl font-bold">{importResult.total}</p>
                 </CardContent>
               </Card>

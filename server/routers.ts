@@ -101,7 +101,11 @@ import {
   DEFAULT_DAILY_LIMIT,
   MANAGEMENT_DAILY_LIMIT,
   ACADEMY_DAILY_LIMIT,
+  NEW_OUTREACH_DAILY_CAP,
+  TOTAL_MAILBOX_DAILY_CAP,
+  NEW_OUTREACH_PER_WINDOW,
   isWeekday,
+  isWithinSendHours,
   DEFAULT_FOLLOWUP_SCHEDULE,
   getScheduledDate,
   PRIORITY_COUNTRIES,
@@ -3975,9 +3979,49 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           });
         }
 
-        // ── DAILY LIMIT CHECK ──
+        // ── SEND-HOURS CHECK (08:00–17:59 UTC) ──
+        if (!isWithinSendHours()) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Campaign sending is only permitted between 08:00 and 18:00 UTC to protect deliverability. Please try again during business hours.",
+          });
+        }
+
+        // ── GLOBAL MAILBOX CAP CHECK ──
+        // Count ALL new outreach sends today across every campaign
         const today = getTodayDateString();
-        const dailyLimit = campaign.dailyLimit || DEFAULT_DAILY_LIMIT;
+        const [globalLogResult] = await dbConn
+          .select({ total: sql<number>`COALESCE(SUM(${campaignSendLog.sendCount}), 0)` })
+          .from(campaignSendLog)
+          .where(eq(campaignSendLog.sendDate, today));
+        const globalOutreachSentToday = Number(globalLogResult?.total ?? 0);
+
+        // Count follow-up sends today
+        const [followupResult] = await dbConn
+          .select({ total: sql<number>`COALESCE(COUNT(*), 0)` })
+          .from(campaignSequenceRecipients)
+          .where(and(
+            eq(campaignSequenceRecipients.status, "sent"),
+            sql`DATE(${campaignSequenceRecipients.sentAt}) = ${today}`,
+          ));
+        const globalFollowupSentToday = Number(followupResult?.total ?? 0);
+        const globalTotalSentToday = globalOutreachSentToday + globalFollowupSentToday;
+
+        if (globalTotalSentToday >= TOTAL_MAILBOX_DAILY_CAP) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Total mailbox cap of ${TOTAL_MAILBOX_DAILY_CAP} emails/day reached. All sends are deferred to tomorrow.`,
+          });
+        }
+        if (globalOutreachSentToday >= NEW_OUTREACH_DAILY_CAP) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `New outreach cap of ${NEW_OUTREACH_DAILY_CAP} emails/day reached. Follow-up sends may still proceed; new outreach resumes tomorrow.`,
+          });
+        }
+
+        // ── PER-CAMPAIGN DAILY LIMIT CHECK ──
+        const dailyLimit = Math.min(campaign.dailyLimit || DEFAULT_DAILY_LIMIT, NEW_OUTREACH_DAILY_CAP);
         // Check how many we've already sent today for this campaign
         const [todayLog] = await dbConn
           .select({ sendCount: campaignSendLog.sendCount })
@@ -4074,8 +4118,11 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           return true;
         });
 
-        // ── ENFORCE DAILY LIMIT ── only send up to remainingToday
-        const recipientsToSend = uniqueRecipients.slice(0, remainingToday);
+        // ── ENFORCE DAILY LIMIT + GLOBAL CAP + STAGGER WINDOW ──
+        // Cap: min(per-campaign remaining, global mailbox remaining, per-window stagger limit)
+        const globalMailboxRemaining = Math.max(0, TOTAL_MAILBOX_DAILY_CAP - globalTotalSentToday);
+        const sendLimit = Math.min(remainingToday, globalMailboxRemaining, NEW_OUTREACH_PER_WINDOW);
+        const recipientsToSend = uniqueRecipients.slice(0, sendLimit);
         const recipientsDeferred = uniqueRecipients.length - recipientsToSend.length;
 
         // Update recipient count
@@ -4598,8 +4645,50 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         if (!step) throw new TRPCError({ code: "NOT_FOUND" });
         if (step.status === "sent") throw new TRPCError({ code: "BAD_REQUEST", message: "Step already sent" });
 
+        // ── WEEKDAY-ONLY CHECK (follow-ups also weekday-only) ──
+        if (!isWeekday()) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Follow-up sending is restricted to weekdays (Monday–Friday). Please try again on a weekday.",
+          });
+        }
+
+        // ── SEND-HOURS CHECK ──
+        if (!isWithinSendHours()) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Follow-up sending is only permitted between 08:00 and 18:00 UTC. Please try again during business hours.",
+          });
+        }
+
+        // ── GLOBAL MAILBOX CAP CHECK ──
+        const today = getTodayDateString();
+        const [globalLogResult] = await dbConn
+          .select({ total: sql<number>`COALESCE(SUM(${campaignSendLog.sendCount}), 0)` })
+          .from(campaignSendLog)
+          .where(eq(campaignSendLog.sendDate, today));
+        const globalOutreachSentToday = Number(globalLogResult?.total ?? 0);
+
+        const [followupResult] = await dbConn
+          .select({ total: sql<number>`COALESCE(COUNT(*), 0)` })
+          .from(campaignSequenceRecipients)
+          .where(and(
+            eq(campaignSequenceRecipients.status, "sent"),
+            sql`DATE(${campaignSequenceRecipients.sentAt}) = ${today}`,
+          ));
+        const globalFollowupSentToday = Number(followupResult?.total ?? 0);
+        const globalTotalSentToday = globalOutreachSentToday + globalFollowupSentToday;
+
+        const followupRemaining = Math.max(0, TOTAL_MAILBOX_DAILY_CAP - globalTotalSentToday);
+        if (followupRemaining === 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Daily mailbox cap of ${TOTAL_MAILBOX_DAILY_CAP} emails reached. Follow-up sends will resume tomorrow.`,
+          });
+        }
+
         // Get original campaign recipients who were successfully sent
-        const recipients = await dbConn.select().from(emailCampaignRecipients)
+        const allRecipients = await dbConn.select().from(emailCampaignRecipients)
           .where(and(
             eq(emailCampaignRecipients.campaignId, step.campaignId),
             eq(emailCampaignRecipients.status, "sent"),
@@ -4614,21 +4703,29 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           .where(or(eq(marketingContacts.status, "unsubscribed"), eq(marketingContacts.status, "bounced")));
         for (const b of mcBounced) suppressedSet.add(b.email.toLowerCase());
 
+        // Partition recipients: skipped vs eligible
+        const eligibleRecipients = allRecipients.filter(r => !suppressedSet.has(r.email.toLowerCase()));
+
+        // Cap eligible recipients to remaining daily capacity
+        const recipients = eligibleRecipients.slice(0, followupRemaining);
+        const deferredCount = eligibleRecipients.length - recipients.length;
+
+        // Insert skipped records for suppressed addresses
+        for (const r of allRecipients.filter(r => suppressedSet.has(r.email.toLowerCase()))) {
+          await dbConn.insert(campaignSequenceRecipients).values({
+            sequenceId: input.sequenceId,
+            campaignId: step.campaignId,
+            email: r.email,
+            status: "skipped",
+          });
+        }
+
         let sentCount = 0;
         let failedCount = 0;
         const currentDate = formatDateGB();
         const BASE_URL = process.env.BASE_URL || "https://equiprofile.online";
 
         for (const recipient of recipients) {
-          if (suppressedSet.has(recipient.email.toLowerCase())) {
-            await dbConn.insert(campaignSequenceRecipients).values({
-              sequenceId: input.sequenceId,
-              campaignId: step.campaignId,
-              email: recipient.email,
-              status: "skipped",
-            });
-            continue;
-          }
           try {
             // Build unsubscribe link from marketing contact token
             const [mc] = await dbConn.select().from(marketingContacts)
@@ -4664,10 +4761,10 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         }
 
         await dbConn.update(campaignSequences)
-          .set({ status: "sent", sentAt: new Date(), sentCount, failedCount })
+          .set({ status: deferredCount > 0 ? "sent" : "sent", sentAt: new Date(), sentCount, failedCount })
           .where(eq(campaignSequences.id, input.sequenceId));
 
-        return { sentCount, failedCount, total: recipients.length };
+        return { sentCount, failedCount, total: allRecipients.length, deferred: deferredCount };
       }),
 
     // ──────────────────────────────────────────────────────────

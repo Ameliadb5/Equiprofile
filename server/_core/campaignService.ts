@@ -334,15 +334,40 @@ export function getTodayDateString(): string {
   return new Date().toISOString().split("T")[0];
 }
 
+// ─── Campaign sending policy ─────────────────────────────────
 /**
- * Total default daily send limit across all campaign types.
- * Split: 15 management + 15 academy/school = 30 total.
+ * Single-mailbox hard daily cap across ALL send types (new outreach + follow-ups).
+ * This is the absolute ceiling for the sending mailbox per calendar day.
  */
-export const DEFAULT_DAILY_LIMIT = 30;
-/** Default daily limit for management/stable/owner campaigns. */
-export const MANAGEMENT_DAILY_LIMIT = 15;
-/** Default daily limit for academy/school campaigns. */
+export const TOTAL_MAILBOX_DAILY_CAP = 40;
+
+/**
+ * Maximum new outreach emails per day across all campaigns combined.
+ * Follow-ups may use remaining capacity: TOTAL_MAILBOX_DAILY_CAP - new outreach sent today.
+ */
+export const NEW_OUTREACH_DAILY_CAP = 25;
+
+/**
+ * Maximum new outreach sends per single trigger (stagger window bucket).
+ * With five natural send windows per day and a 25-email cap, each trigger
+ * sends ≤ 5 emails. This distributes sends through the day without
+ * requiring a background scheduler.
+ */
+export const NEW_OUTREACH_PER_WINDOW = 5;
+
+/**
+ * Default per-campaign daily limit used at campaign creation.
+ * Set to NEW_OUTREACH_DAILY_CAP for single-mailbox safety.
+ */
+export const DEFAULT_DAILY_LIMIT = 25;
+
+/** Backwards-compat alias — now equal to NEW_OUTREACH_DAILY_CAP. */
+export const MANAGEMENT_DAILY_LIMIT = 25;
+/** Retained for backwards-compat. Academy campaign daily limit. */
 export const ACADEMY_DAILY_LIMIT = 15;
+
+/** UTC hour range for campaign sends: 08:00–17:59 UTC. */
+export const SEND_HOURS_UTC = { start: 8, end: 18 } as const;
 
 /**
  * Returns true if the given date (defaults to now) is a weekday (Mon–Fri).
@@ -351,6 +376,15 @@ export const ACADEMY_DAILY_LIMIT = 15;
 export function isWeekday(date?: Date): boolean {
   const day = (date ?? new Date()).getDay(); // 0=Sun, 6=Sat
   return day >= 1 && day <= 5;
+}
+
+/**
+ * Returns true if the current UTC time is within the permitted send window
+ * (08:00–17:59 UTC). Prevents off-hours blasts that hurt deliverability.
+ */
+export function isWithinSendHours(date?: Date): boolean {
+  const h = (date ?? new Date()).getUTCHours();
+  return h >= SEND_HOURS_UTC.start && h < SEND_HOURS_UTC.end;
 }
 
 // ─── Follow-up schedule (default) ────────────────────────────
