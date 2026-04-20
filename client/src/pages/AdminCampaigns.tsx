@@ -30,6 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -1436,6 +1437,12 @@ function MarketingContactsSection() {
   const [page, setPage] = useState(0);
   const pageSize = 50;
 
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  // Confirm-delete modal
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleteMode, setBulkDeleteMode] = useState<"selected" | "filtered">("selected");
+
   const utils = trpc.useUtils();
   const segments = trpc.admin.getSegmentCounts.useQuery();
 
@@ -1445,6 +1452,15 @@ function MarketingContactsSection() {
     contactType: filterType || undefined,
     limit: pageSize,
     offset: page * pageSize,
+  });
+
+  // Total count for current filter — re-use a large limit to get total for display
+  const filteredTotal = trpc.admin.getMarketingContacts.useQuery({
+    search: searchQuery || undefined,
+    country: filterCountry || undefined,
+    contactType: filterType || undefined,
+    limit: 10000,
+    offset: 0,
   });
 
   const unsubscribes = trpc.admin.getUnsubscribes.useQuery();
@@ -1469,9 +1485,89 @@ function MarketingContactsSection() {
     onError: (e) => toast.error(e.message),
   });
 
+  const bulkDeleteMutation = trpc.admin.bulkDeleteMarketingContacts.useMutation({
+    onSuccess: (result) => {
+      toast.success(`Deleted ${result.deleted} contact${result.deleted !== 1 ? "s" : ""}`);
+      setSelectedIds(new Set());
+      setBulkDeleteOpen(false);
+      utils.admin.getMarketingContacts.invalidate();
+      utils.admin.getSegmentCounts.invalidate();
+    },
+    onError: (e) => {
+      toast.error(`Bulk delete failed: ${e.message}`);
+      setBulkDeleteOpen(false);
+    },
+  });
+
   const hasMore = (contacts.data?.length ?? 0) >= pageSize;
   const countryOptions = segments.data?.byCountry ?? [];
   const typeOptions = segments.data?.byType ?? [];
+
+  // Current page IDs
+  const pageIds = contacts.data?.map((c) => c.id) ?? [];
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+  const somePageSelected = pageIds.some((id) => selectedIds.has(id));
+
+  function toggleSelectAll() {
+    if (allPageSelected) {
+      // Deselect all on page
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        pageIds.forEach((id) => next.delete(id));
+        return next;
+      });
+    } else {
+      // Select all on page
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        pageIds.forEach((id) => next.add(id));
+        return next;
+      });
+    }
+  }
+
+  function toggleRow(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function openBulkDeleteSelected() {
+    if (selectedIds.size === 0) return;
+    setBulkDeleteMode("selected");
+    setBulkDeleteOpen(true);
+  }
+
+  function openBulkDeleteFiltered() {
+    setBulkDeleteMode("filtered");
+    setBulkDeleteOpen(true);
+  }
+
+  function confirmBulkDelete() {
+    if (bulkDeleteMode === "selected") {
+      bulkDeleteMutation.mutate({ mode: "ids", ids: Array.from(selectedIds) });
+    } else {
+      // Filter-based delete — at least one criterion must be set
+      if (!searchQuery && !filterCountry && !filterType) {
+        toast.error("Set at least one filter before using 'Delete all matching'");
+        setBulkDeleteOpen(false);
+        return;
+      }
+      bulkDeleteMutation.mutate({
+        mode: "filter",
+        search: searchQuery || undefined,
+        country: filterCountry || undefined,
+        contactType: filterType || undefined,
+      });
+    }
+  }
+
+  const hasActiveFilter = !!(searchQuery || filterCountry || filterType);
+  const filteredCount = filteredTotal.data?.length ?? 0;
+  const deleteTargetCount = bulkDeleteMode === "selected" ? selectedIds.size : filteredCount;
 
   return (
     <>
@@ -1487,7 +1583,29 @@ function MarketingContactsSection() {
               Manage external leads and outreach contacts (UK GDPR compliant)
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            {selectedIds.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={openBulkDeleteSelected}
+                className="gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete {selectedIds.size} selected
+              </Button>
+            )}
+            {hasActiveFilter && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={openBulkDeleteFiltered}
+                className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete all matching ({filteredCount})
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
               <Upload className="w-4 h-4 mr-1" />
               Import
@@ -1511,6 +1629,7 @@ function MarketingContactsSection() {
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
                     setPage(0);
+                    setSelectedIds(new Set());
                   }}
                 />
               </div>
@@ -1520,6 +1639,7 @@ function MarketingContactsSection() {
               onValueChange={(v) => {
                 setFilterCountry(v === "__all__" ? "" : v);
                 setPage(0);
+                setSelectedIds(new Set());
               }}
             >
               <SelectTrigger className="w-[160px]">
@@ -1539,6 +1659,7 @@ function MarketingContactsSection() {
               onValueChange={(v) => {
                 setFilterType(v === "__all__" ? "" : v);
                 setPage(0);
+                setSelectedIds(new Set());
               }}
             >
               <SelectTrigger className="w-[160px]">
@@ -1554,6 +1675,30 @@ function MarketingContactsSection() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Selection status bar */}
+          {(selectedIds.size > 0 || hasActiveFilter) && (
+            <div className="flex flex-wrap items-center gap-3 mb-3 px-3 py-2 rounded-lg bg-muted/50 text-xs">
+              {selectedIds.size > 0 && (
+                <span className="font-medium text-[#0c1e3c] dark:text-blue-200">
+                  {selectedIds.size} selected
+                </span>
+              )}
+              {hasActiveFilter && (
+                <span className="text-muted-foreground">
+                  {filteredCount} match current filter
+                </span>
+              )}
+              {selectedIds.size > 0 && (
+                <button
+                  className="text-muted-foreground hover:text-foreground underline"
+                  onClick={() => setSelectedIds(new Set())}
+                >
+                  Clear selection
+                </button>
+              )}
+            </div>
+          )}
 
           {contacts.isLoading ? (
             <div className="space-y-2">
@@ -1572,6 +1717,14 @@ function MarketingContactsSection() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={allPageSelected}
+                          data-state={somePageSelected && !allPageSelected ? "indeterminate" : undefined}
+                          onCheckedChange={toggleSelectAll}
+                          aria-label="Select all on page"
+                        />
+                      </TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Business</TableHead>
@@ -1584,7 +1737,17 @@ function MarketingContactsSection() {
                   </TableHeader>
                   <TableBody>
                     {contacts.data.map((contact) => (
-                      <TableRow key={contact.id}>
+                      <TableRow
+                        key={contact.id}
+                        className={selectedIds.has(contact.id) ? "bg-muted/40" : undefined}
+                      >
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedIds.has(contact.id)}
+                            onCheckedChange={() => toggleRow(contact.id)}
+                            aria-label={`Select ${contact.email}`}
+                          />
+                        </TableCell>
                         <TableCell className="text-xs">{contact.email}</TableCell>
                         <TableCell className="text-xs">{contact.name || "—"}</TableCell>
                         <TableCell className="text-xs">{contact.businessName || "—"}</TableCell>
@@ -1622,6 +1785,9 @@ function MarketingContactsSection() {
               <div className="flex items-center justify-between mt-4">
                 <p className="text-sm text-muted-foreground">
                   Page {page + 1} · Showing {contacts.data.length} contacts
+                  {hasActiveFilter && filteredCount > 0 && (
+                    <span className="ml-1">of {filteredCount} matching</span>
+                  )}
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -1734,6 +1900,51 @@ function MarketingContactsSection() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5" />
+              Confirm bulk delete
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>
+                  You are about to permanently delete{" "}
+                  <strong className="text-foreground">{deleteTargetCount} contact{deleteTargetCount !== 1 ? "s" : ""}</strong>.
+                </p>
+                {bulkDeleteMode === "filtered" && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 space-y-0.5">
+                    <p className="font-semibold">Active filters:</p>
+                    {searchQuery && <p>Search: "{searchQuery}"</p>}
+                    {filterCountry && <p>Country: {filterCountry}</p>}
+                    {filterType && <p>Type: {filterType}</p>}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  This action cannot be undone. All selected contacts will be removed from the marketing database.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={bulkDeleteMutation.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmBulkDelete}
+              disabled={bulkDeleteMutation.isPending || deleteTargetCount === 0}
+            >
+              {bulkDeleteMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Deleting…</>
+              ) : (
+                `Delete ${deleteTargetCount} contact${deleteTargetCount !== 1 ? "s" : ""}`
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* File Import Dialog */}
       <FileImportDialog open={importOpen} onOpenChange={setImportOpen} />

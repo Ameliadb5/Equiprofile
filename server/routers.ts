@@ -4831,6 +4831,91 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
+    /**
+     * Bulk delete marketing contacts.
+     *
+     * Mode A — by IDs: deletes exactly the contacts whose IDs are provided.
+     * Mode B — by filter: deletes all contacts matching the supplied filter
+     *   criteria (search, country, contactType, status). At least one filter
+     *   field must be non-empty to prevent a catastrophic "delete everything"
+     *   call without an explicit opt-in.
+     *
+     * Both modes require admin access (adminUnlockedProcedure).
+     */
+    bulkDeleteMarketingContacts: adminUnlockedProcedure
+      .input(
+        z.discriminatedUnion("mode", [
+          // Mode A — explicit list of IDs
+          z.object({
+            mode: z.literal("ids"),
+            ids: z.array(z.number()).min(1).max(1000),
+          }),
+          // Mode B — filter-based (must supply at least one criterion)
+          z.object({
+            mode: z.literal("filter"),
+            search: z.string().optional(),
+            country: z.string().optional(),
+            contactType: z.string().optional(),
+            status: z.enum(["active", "unsubscribed", "bounced", "all"]).optional(),
+          }),
+        ]),
+      )
+      .mutation(async ({ input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        if (input.mode === "ids") {
+          await dbConn
+            .delete(marketingContacts)
+            .where(inArray(marketingContacts.id, input.ids));
+          return { deleted: input.ids.length };
+        }
+
+        // Mode B — build filter conditions; must have at least one
+        const { search, country, contactType, status } = input;
+        if (!search && !country && !contactType && !status) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Provide at least one filter criterion for filter-based bulk delete",
+          });
+        }
+
+        const conditions: ReturnType<typeof eq>[] = [];
+        if (status && status !== "all") {
+          conditions.push(eq(marketingContacts.status, status));
+        }
+        if (contactType) {
+          conditions.push(eq(marketingContacts.contactType, contactType));
+        }
+        if (country) {
+          conditions.push(eq(marketingContacts.country, country));
+        }
+        if (search) {
+          conditions.push(
+            or(
+              sql`${marketingContacts.email} LIKE ${"%" + search + "%"}`,
+              sql`${marketingContacts.name} LIKE ${"%" + search + "%"}`,
+              sql`${marketingContacts.businessName} LIKE ${"%" + search + "%"}`,
+            )! as ReturnType<typeof eq>,
+          );
+        }
+
+        // Count first so we can return an accurate deleted count
+        const [countRow] = await dbConn
+          .select({ n: sql<number>`COUNT(*)` })
+          .from(marketingContacts)
+          .where(and(...conditions));
+        const toDelete = Number(countRow?.n ?? 0);
+
+        if (toDelete === 0) return { deleted: 0 };
+
+        await dbConn
+          .delete(marketingContacts)
+          .where(and(...conditions));
+
+        return { deleted: toDelete };
+      }),
+
     // ──────────────────────────────────────────────────────────
     // Suppression / Unsubscribe management
     // ──────────────────────────────────────────────────────────
