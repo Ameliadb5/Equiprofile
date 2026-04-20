@@ -209,8 +209,8 @@ function DocumentsContent() {
         msg.toLowerCase().includes("parse") ||
         msg.toLowerCase().includes("unexpected token")
       ) {
-        toast.error("Upload failed. The file may be too large for the server — please keep files under 10 MB and try again.");
-      } else if (msg.toLowerCase().includes("file size") || msg.toLowerCase().includes("10mb") || msg.toLowerCase().includes("limit")) {
+        toast.error("Upload failed. The file may be too large for the server - please keep files under 10 MB and try again.");
+      } else if (msg.toLowerCase().includes("file size") || msg.toLowerCase().includes("10 mb") || msg.toLowerCase().includes("10mb") || msg.toLowerCase().includes("limit")) {
         toast.error(msg);
       } else {
         toast.error(msg || "Document upload failed. Please try again.");
