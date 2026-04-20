@@ -675,7 +675,12 @@ export function startReminderScheduler() {
   // Schedule 5 send windows per weekday (1-5 = Mon–Fri)
   for (const w of SEND_WINDOWS) {
     const cronExpr = `${w.minute} ${w.hour} * * 1-5`;
-    cron.schedule(cronExpr, () => processOutreachWindow(w.label));
+    const label = w.label;
+    cron.schedule(cronExpr, () => {
+      processOutreachWindow(label).catch((err) =>
+        console.error(`[CampaignOutreach] Unhandled error in window ${label}:`, err),
+      );
+    });
   }
   console.log("[CampaignOutreach] Scheduled 5 automated outreach windows:", SEND_WINDOWS.map(w => w.label).join(", "));
 

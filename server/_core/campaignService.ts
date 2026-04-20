@@ -388,6 +388,12 @@ export function isWithinSendHours(date?: Date): boolean {
 }
 
 // ─── Follow-up schedule (default) ────────────────────────────
+// Day 0: initial send (same day campaign is launched)
+// Day 3: first follow-up (3 days later)
+// Day 6: second follow-up / proof/trust nudge
+// Day 10: final gentle nudge
+// This 0/3/6/10 cadence gives adequate space between touchpoints without
+// going beyond ~2 weeks total, keeping the sequence within a tight conversion window.
 export const DEFAULT_FOLLOWUP_SCHEDULE = [
   { stepNumber: 1, delayDays: 0, label: "Initial Send" },
   { stepNumber: 2, delayDays: 3, label: "Follow-up 1 (Day 3)" },
