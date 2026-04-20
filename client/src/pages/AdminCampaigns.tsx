@@ -30,6 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -95,8 +96,144 @@ import {
   Building2,
   GraduationCap,
   Info,
+  TrendingUp,
+  Zap,
+  Timer,
 } from "lucide-react";
 import { toast } from "sonner";
+
+// ─── Campaign Operations Panel ───────────────────────────────────────────────
+/**
+ * Live mailbox status panel — shows today's outreach counts, follow-up counts,
+ * remaining capacity, queued campaigns, and the next automated send window.
+ */
+function CampaignOperationsPanel() {
+  const { data, isLoading, refetch } = trpc.admin.getCampaignMailboxStatus.useQuery(undefined, {
+    refetchInterval: 60_000, // refresh every 60 s
+  });
+
+  const now = new Date();
+  const nowUTC = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC`;
+
+  const newPct = data ? Math.round((data.newOutreachSentToday / data.newOutreachCap) * 100) : 0;
+  const totalPct = data ? Math.round((data.totalSentToday / data.totalCap) * 100) : 0;
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Zap className="w-4 h-4 text-[#2e6da4]" />
+            Campaign Engine — Today's Status
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">{nowUTC}</span>
+            <Button size="sm" variant="ghost" onClick={() => refetch()} className="h-7 px-2 text-xs">
+              Refresh
+            </Button>
+          </div>
+        </div>
+        <CardDescription>
+          Live view of today's send activity, remaining capacity, and automated queue
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}
+          </div>
+        ) : data ? (
+          <div className="space-y-4">
+            {/* Status indicators */}
+            <div className="flex flex-wrap gap-2">
+              <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${data.isWeekday ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"}`}>
+                {data.isWeekday ? "✓ Weekday — sends active" : "✗ Weekend — sends paused"}
+              </span>
+              <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${data.isWithinSendHours ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"}`}>
+                {data.isWithinSendHours ? "✓ Within send hours" : "○ Outside send hours"}
+              </span>
+            </div>
+
+            {/* Metrics grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* New outreach */}
+              <div className="rounded-xl border border-[#2e6da4]/20 bg-[#f0f6ff] dark:bg-[#0c1e3c]/30 p-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">New Outreach</p>
+                <p className="text-2xl font-bold text-[#2e6da4]">{data.newOutreachSentToday}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">of {data.newOutreachCap} today</p>
+                <div className="mt-1.5 h-1.5 rounded-full bg-[#2e6da4]/15 overflow-hidden">
+                  <div className="h-full rounded-full bg-[#2e6da4] transition-all" style={{ width: `${Math.min(100, newPct)}%` }} />
+                </div>
+              </div>
+
+              {/* Follow-ups */}
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-700/30 p-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Follow-ups</p>
+                <p className="text-2xl font-bold text-emerald-600">{data.followupsSentToday}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">auto-sequenced today</p>
+              </div>
+
+              {/* Total sent */}
+              <div className="rounded-xl border border-slate-200 dark:border-slate-700/40 bg-slate-50 dark:bg-slate-800/30 p-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Total Sent</p>
+                <p className="text-2xl font-bold">{data.totalSentToday}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">of {data.totalCap} cap</p>
+                <div className="mt-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${totalPct >= 90 ? "bg-red-500" : totalPct >= 70 ? "bg-amber-500" : "bg-emerald-500"}`}
+                    style={{ width: `${Math.min(100, totalPct)}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Remaining capacity */}
+              <div className="rounded-xl border border-slate-200 dark:border-slate-700/40 bg-slate-50 dark:bg-slate-800/30 p-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Remaining Today</p>
+                <p className={`text-2xl font-bold ${data.totalRemaining === 0 ? "text-red-500" : data.totalRemaining <= 5 ? "text-amber-500" : "text-slate-700 dark:text-slate-200"}`}>
+                  {data.totalRemaining}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {data.newOutreachRemaining} outreach + {Math.max(0, data.totalRemaining - data.newOutreachRemaining)} followup
+                </p>
+              </div>
+            </div>
+
+            {/* Queue + next window row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Queued */}
+              <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700/30 px-4 py-3">
+                <Timer className="w-5 h-5 text-amber-600 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                    {data.queuedForNextWindow} queued
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {data.pausedCampaignsCount} paused campaign{data.pausedCampaignsCount !== 1 ? "s" : ""} · up to {data.perWindowLimit}/window
+                  </p>
+                </div>
+              </div>
+
+              {/* Next window */}
+              <div className="flex items-center gap-3 rounded-xl border border-[#2e6da4]/20 bg-[#f0f6ff] dark:bg-[#0c1e3c]/30 px-4 py-3">
+                <TrendingUp className="w-5 h-5 text-[#2e6da4] shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-[#0c1e3c] dark:text-blue-200">
+                    Next window: {data.nextSendWindow}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Windows: {data.sendWindows.join(" · ")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground py-4 text-center">Unable to load status</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 // ─── Status Badge Helper ─────────────────────────────────────────────────────
 
@@ -154,7 +291,7 @@ export default function AdminCampaigns() {
     firstName: "",
     targetCountry: "",
     targetType: "",
-    dailyLimit: 30,
+    dailyLimit: 25,
   });
 
   // Queries
@@ -178,7 +315,7 @@ export default function AdminCampaigns() {
         firstName: "",
         targetCountry: "",
         targetType: "",
-        dailyLimit: 30,
+        dailyLimit: 25,
       });
       utils.admin.getCampaigns.invalidate();
     },
@@ -413,58 +550,6 @@ export default function AdminCampaigns() {
         </div>
       )}
 
-      {/* Email Sending Safety / DNS Readiness */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <ShieldCheck className="w-4 h-4 text-blue-600" />
-            Email Sending Readiness
-          </CardTitle>
-          <CardDescription>
-            Ensure DNS and email provider are properly configured before sending campaigns
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              {
-                name: "SPF Record",
-                hint: "TXT record authorizing your SMTP server to send on behalf of your domain.",
-                doc: "v=spf1 include:_spf.google.com ~all",
-              },
-              {
-                name: "DKIM Signing",
-                hint: "Cryptographic signature added by your email provider to authenticate messages.",
-                doc: "Configure via your SMTP/email provider settings.",
-              },
-              {
-                name: "DMARC Policy",
-                hint: "Policy record that tells receiving servers how to handle unauthenticated emails.",
-                doc: 'v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com',
-              },
-              {
-                name: "SMTP Provider",
-                hint: "Ensure SMTP_HOST, SMTP_USER, and SMTP_PASS are configured in your environment.",
-                doc: "SMTP credentials must be set in .env before sending.",
-              },
-            ].map((item) => (
-              <div key={item.name} className="border rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <Mail className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-sm font-medium">{item.name}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mb-1">{item.hint}</p>
-                <code className="text-[10px] text-blue-600 break-all">{item.doc}</code>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            ⚠️ Campaigns will attempt to send via your configured SMTP provider. Ensure DNS records are verified
-            and your sending domain has good reputation before launching campaigns to avoid deliverability issues.
-          </p>
-        </CardContent>
-      </Card>
-
       {/* Templates */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -606,23 +691,26 @@ export default function AdminCampaigns() {
           <div className="flex flex-wrap gap-x-6 gap-y-1">
             <span className="text-xs text-muted-foreground flex items-center gap-1.5">
               <CalendarDays className="w-3 h-3 text-[#2e6da4]" />
-              <strong>Weekdays only</strong> — Mon–Fri, never weekends
+              <strong>Weekdays only</strong> — Mon–Fri, 08:00–18:00 UTC
             </span>
             <span className="text-xs text-muted-foreground flex items-center gap-1.5">
               <Building2 className="w-3 h-3 text-[#2e6da4]" />
-              Max <strong>15 management</strong> emails/day
+              Max <strong>25 new outreach</strong> emails/day
             </span>
             <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <GraduationCap className="w-3 h-3 text-[#1a5ca0]" />
-              Max <strong>15 academy/school</strong> emails/day
+              <Send className="w-3 h-3 text-[#2e6da4]" />
+              <strong>5 per window</strong> · auto-staggered at 08:30 / 10:30 / 12:30 / 14:30 / 16:30 UTC
             </span>
             <span className="text-xs text-muted-foreground flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-green-600" />
-              30 total per day · suppression list enforced
+              40 total/day hard cap · suppression + dedup enforced
             </span>
           </div>
         </div>
       </div>
+
+      {/* Campaign Operations Panel */}
+      <CampaignOperationsPanel />
 
       {/* Create Campaign */}
       <Card>
@@ -1035,17 +1123,17 @@ export default function AdminCampaigns() {
                   id="daily-limit"
                   type="number"
                   min={1}
-                  max={500}
+                  max={25}
                   value={newCampaign.dailyLimit}
                   onChange={(e) =>
                     setNewCampaign((p) => ({
                       ...p,
-                      dailyLimit: Math.max(1, Math.min(500, parseInt(e.target.value) || 30)),
+                      dailyLimit: Math.max(1, Math.min(25, parseInt(e.target.value) || 25)),
                     }))
                   }
                 />
                 <p className="text-[10px] text-muted-foreground">
-                  Recommended: ≤15 per type/day. Total daily max: 30.
+                  Max 25 new outreach/day. Total mailbox cap: 40/day.
                 </p>
               </div>
             </div>
@@ -1214,6 +1302,25 @@ export default function AdminCampaigns() {
 
       {/* Marketing Contacts Section */}
       <MarketingContactsSection />
+
+      {/* Campaign Assignment Preview */}
+      <CampaignAssignmentPreview />
+
+      {/* Replies Inbox */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="w-5 h-5" />
+            Replies Inbox
+          </CardTitle>
+          <CardDescription>
+            Incoming replies to campaign emails — polled automatically every 15 minutes on weekdays
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RepliesInboxSection />
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -1330,6 +1437,12 @@ function MarketingContactsSection() {
   const [page, setPage] = useState(0);
   const pageSize = 50;
 
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  // Confirm-delete modal
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleteMode, setBulkDeleteMode] = useState<"selected" | "filtered">("selected");
+
   const utils = trpc.useUtils();
   const segments = trpc.admin.getSegmentCounts.useQuery();
 
@@ -1339,6 +1452,15 @@ function MarketingContactsSection() {
     contactType: filterType || undefined,
     limit: pageSize,
     offset: page * pageSize,
+  });
+
+  // Total count for current filter — re-use a large limit to get total for display
+  const filteredTotal = trpc.admin.getMarketingContacts.useQuery({
+    search: searchQuery || undefined,
+    country: filterCountry || undefined,
+    contactType: filterType || undefined,
+    limit: 10000,
+    offset: 0,
   });
 
   const unsubscribes = trpc.admin.getUnsubscribes.useQuery();
@@ -1363,9 +1485,89 @@ function MarketingContactsSection() {
     onError: (e) => toast.error(e.message),
   });
 
+  const bulkDeleteMutation = trpc.admin.bulkDeleteMarketingContacts.useMutation({
+    onSuccess: (result) => {
+      toast.success(`Deleted ${result.deleted} contact${result.deleted !== 1 ? "s" : ""}`);
+      setSelectedIds(new Set());
+      setBulkDeleteOpen(false);
+      utils.admin.getMarketingContacts.invalidate();
+      utils.admin.getSegmentCounts.invalidate();
+    },
+    onError: (e) => {
+      toast.error(`Bulk delete failed: ${e.message}`);
+      setBulkDeleteOpen(false);
+    },
+  });
+
   const hasMore = (contacts.data?.length ?? 0) >= pageSize;
   const countryOptions = segments.data?.byCountry ?? [];
   const typeOptions = segments.data?.byType ?? [];
+
+  // Current page IDs
+  const pageIds = contacts.data?.map((c) => c.id) ?? [];
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+  const somePageSelected = pageIds.some((id) => selectedIds.has(id));
+
+  function toggleSelectAll() {
+    if (allPageSelected) {
+      // Deselect all on page
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        pageIds.forEach((id) => next.delete(id));
+        return next;
+      });
+    } else {
+      // Select all on page
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        pageIds.forEach((id) => next.add(id));
+        return next;
+      });
+    }
+  }
+
+  function toggleRow(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function openBulkDeleteSelected() {
+    if (selectedIds.size === 0) return;
+    setBulkDeleteMode("selected");
+    setBulkDeleteOpen(true);
+  }
+
+  function openBulkDeleteFiltered() {
+    setBulkDeleteMode("filtered");
+    setBulkDeleteOpen(true);
+  }
+
+  function confirmBulkDelete() {
+    if (bulkDeleteMode === "selected") {
+      bulkDeleteMutation.mutate({ mode: "ids", ids: Array.from(selectedIds) });
+    } else {
+      // Filter-based delete — at least one criterion must be set
+      if (!searchQuery && !filterCountry && !filterType) {
+        toast.error("Set at least one filter before using 'Delete all matching'");
+        setBulkDeleteOpen(false);
+        return;
+      }
+      bulkDeleteMutation.mutate({
+        mode: "filter",
+        search: searchQuery || undefined,
+        country: filterCountry || undefined,
+        contactType: filterType || undefined,
+      });
+    }
+  }
+
+  const hasActiveFilter = !!(searchQuery || filterCountry || filterType);
+  const filteredCount = filteredTotal.data?.length ?? 0;
+  const deleteTargetCount = bulkDeleteMode === "selected" ? selectedIds.size : filteredCount;
 
   return (
     <>
@@ -1381,7 +1583,29 @@ function MarketingContactsSection() {
               Manage external leads and outreach contacts (UK GDPR compliant)
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            {selectedIds.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={openBulkDeleteSelected}
+                className="gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete {selectedIds.size} selected
+              </Button>
+            )}
+            {hasActiveFilter && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={openBulkDeleteFiltered}
+                className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete all matching ({filteredCount})
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
               <Upload className="w-4 h-4 mr-1" />
               Import
@@ -1405,6 +1629,7 @@ function MarketingContactsSection() {
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
                     setPage(0);
+                    setSelectedIds(new Set());
                   }}
                 />
               </div>
@@ -1414,6 +1639,7 @@ function MarketingContactsSection() {
               onValueChange={(v) => {
                 setFilterCountry(v === "__all__" ? "" : v);
                 setPage(0);
+                setSelectedIds(new Set());
               }}
             >
               <SelectTrigger className="w-[160px]">
@@ -1433,6 +1659,7 @@ function MarketingContactsSection() {
               onValueChange={(v) => {
                 setFilterType(v === "__all__" ? "" : v);
                 setPage(0);
+                setSelectedIds(new Set());
               }}
             >
               <SelectTrigger className="w-[160px]">
@@ -1448,6 +1675,30 @@ function MarketingContactsSection() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Selection status bar */}
+          {(selectedIds.size > 0 || hasActiveFilter) && (
+            <div className="flex flex-wrap items-center gap-3 mb-3 px-3 py-2 rounded-lg bg-muted/50 text-xs">
+              {selectedIds.size > 0 && (
+                <span className="font-medium text-[#0c1e3c] dark:text-blue-200">
+                  {selectedIds.size} selected
+                </span>
+              )}
+              {hasActiveFilter && (
+                <span className="text-muted-foreground">
+                  {filteredCount} match current filter
+                </span>
+              )}
+              {selectedIds.size > 0 && (
+                <button
+                  className="text-muted-foreground hover:text-foreground underline"
+                  onClick={() => setSelectedIds(new Set())}
+                >
+                  Clear selection
+                </button>
+              )}
+            </div>
+          )}
 
           {contacts.isLoading ? (
             <div className="space-y-2">
@@ -1466,6 +1717,14 @@ function MarketingContactsSection() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={allPageSelected}
+                          data-state={somePageSelected && !allPageSelected ? "indeterminate" : undefined}
+                          onCheckedChange={toggleSelectAll}
+                          aria-label="Select all on page"
+                        />
+                      </TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Business</TableHead>
@@ -1478,7 +1737,17 @@ function MarketingContactsSection() {
                   </TableHeader>
                   <TableBody>
                     {contacts.data.map((contact) => (
-                      <TableRow key={contact.id}>
+                      <TableRow
+                        key={contact.id}
+                        className={selectedIds.has(contact.id) ? "bg-muted/40" : undefined}
+                      >
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedIds.has(contact.id)}
+                            onCheckedChange={() => toggleRow(contact.id)}
+                            aria-label={`Select ${contact.email}`}
+                          />
+                        </TableCell>
                         <TableCell className="text-xs">{contact.email}</TableCell>
                         <TableCell className="text-xs">{contact.name || "—"}</TableCell>
                         <TableCell className="text-xs">{contact.businessName || "—"}</TableCell>
@@ -1516,6 +1785,9 @@ function MarketingContactsSection() {
               <div className="flex items-center justify-between mt-4">
                 <p className="text-sm text-muted-foreground">
                   Page {page + 1} · Showing {contacts.data.length} contacts
+                  {hasActiveFilter && filteredCount > 0 && (
+                    <span className="ml-1">of {filteredCount} matching</span>
+                  )}
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -1628,6 +1900,51 @@ function MarketingContactsSection() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5" />
+              Confirm bulk delete
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>
+                  You are about to permanently delete{" "}
+                  <strong className="text-foreground">{deleteTargetCount} contact{deleteTargetCount !== 1 ? "s" : ""}</strong>.
+                </p>
+                {bulkDeleteMode === "filtered" && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 space-y-0.5">
+                    <p className="font-semibold">Active filters:</p>
+                    {searchQuery && <p>Search: "{searchQuery}"</p>}
+                    {filterCountry && <p>Country: {filterCountry}</p>}
+                    {filterType && <p>Type: {filterType}</p>}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  This action cannot be undone. All selected contacts will be removed from the marketing database.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={bulkDeleteMutation.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmBulkDelete}
+              disabled={bulkDeleteMutation.isPending || deleteTargetCount === 0}
+            >
+              {bulkDeleteMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Deleting…</>
+              ) : (
+                `Delete ${deleteTargetCount} contact${deleteTargetCount !== 1 ? "s" : ""}`
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* File Import Dialog */}
       <FileImportDialog open={importOpen} onOpenChange={setImportOpen} />
@@ -1785,11 +2102,227 @@ type ParsedImport = {
 
 const MAPPING_FIELDS = ["email", "name", "businessName", "contactType", "region", "country", "organizationName", "leadFocus"] as const;
 
+// ─── Campaign Replies Inbox ──────────────────────────────────────────────────
+
+const REPLY_STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  new: { label: "New", color: "bg-blue-100 text-blue-700" },
+  read: { label: "Read", color: "bg-slate-100 text-slate-600" },
+  interested: { label: "Interested", color: "bg-emerald-100 text-emerald-700" },
+  not_interested: { label: "Not Interested", color: "bg-slate-100 text-slate-500" },
+  follow_up: { label: "Follow Up", color: "bg-amber-100 text-amber-700" },
+  converted: { label: "Converted", color: "bg-green-100 text-green-700" },
+  do_not_contact: { label: "Do Not Contact", color: "bg-red-100 text-red-600" },
+};
+
+function RepliesInboxSection() {
+  const [statusFilter, setStatusFilter] = useState<"all" | "new" | "read" | "interested" | "not_interested" | "follow_up" | "converted" | "do_not_contact">("all");
+  const utils = trpc.useUtils();
+
+  const { data, isLoading, refetch } = trpc.admin.getCampaignReplies.useQuery(
+    { status: statusFilter, limit: 50, offset: 0 },
+    { refetchInterval: 120_000 },
+  );
+
+  const fetchMutation = trpc.admin.triggerReplyFetch.useMutation({
+    onSuccess: (result) => {
+      toast.success(`Fetched ${result.fetched} new reply(s) from mailbox`);
+      refetch();
+    },
+    onError: (err) => toast.error(`Fetch failed: ${err.message}`),
+  });
+
+  const statusMutation = trpc.admin.updateReplyStatus.useMutation({
+    onSuccess: () => {
+      utils.admin.getCampaignReplies.invalidate();
+      toast.success("Reply status updated");
+    },
+    onError: (err) => toast.error(`Update failed: ${err.message}`),
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All replies</SelectItem>
+            {Object.entries(REPLY_STATUS_LABELS).map(([k, v]) => (
+              <SelectItem key={k} value={k}>{v.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => fetchMutation.mutate()}
+          disabled={fetchMutation.isPending}
+          className="gap-1.5"
+        >
+          {fetchMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+          Check Mailbox
+        </Button>
+        <span className="text-xs text-muted-foreground ml-auto">
+          {data?.total ?? 0} reply(s) total
+        </span>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-2">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}
+        </div>
+      ) : !data?.replies.length ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <Mail className="w-10 h-10 mx-auto mb-3 opacity-20" />
+          <p className="text-sm">No replies found</p>
+          <p className="text-xs mt-1">The mailbox poller runs every 15 minutes on weekdays, or click "Check Mailbox" above.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {data.replies.map((reply) => {
+            const statusInfo = REPLY_STATUS_LABELS[reply.status] ?? REPLY_STATUS_LABELS.new;
+            return (
+              <div key={reply.id} className="border rounded-xl p-4 bg-white dark:bg-[#0f1a2e]/40 hover:shadow-sm transition-shadow">
+                <div className="flex flex-wrap items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <span className="text-sm font-semibold text-[#0c1e3c] dark:text-blue-100 truncate">
+                        {reply.fromName || reply.fromEmail}
+                      </span>
+                      {reply.fromName && (
+                        <span className="text-xs text-muted-foreground truncate">{reply.fromEmail}</span>
+                      )}
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ${statusInfo.color}`}>
+                        {statusInfo.label}
+                      </span>
+                    </div>
+                    <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 truncate">
+                      {reply.subject || "(no subject)"}
+                    </p>
+                    {reply.snippet && (
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                        {reply.snippet}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {new Date(reply.receivedAt).toLocaleString()}
+                      {reply.matchedCampaignId && (
+                        <span className="ml-2 text-[#2e6da4]">Campaign #{reply.matchedCampaignId}</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-1.5 shrink-0">
+                    <Select
+                      value={reply.status}
+                      onValueChange={(v) =>
+                        statusMutation.mutate({ replyId: reply.id, status: v as "new" | "read" | "interested" | "not_interested" | "follow_up" | "converted" | "do_not_contact" })
+                      }
+                    >
+                      <SelectTrigger className="h-7 text-xs w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(REPLY_STATUS_LABELS).map(([k, v]) => (
+                          <SelectItem key={k} value={k} className="text-xs">{v.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {!reply.sequenceStopped && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                        onClick={() => statusMutation.mutate({ replyId: reply.id, status: reply.status as "new" | "read" | "interested" | "not_interested" | "follow_up" | "converted" | "do_not_contact", stopSequence: true })}
+                        disabled={statusMutation.isPending}
+                      >
+                        Stop Sequence
+                      </Button>
+                    )}
+                    {reply.sequenceStopped && (
+                      <span className="text-[10px] text-orange-500 font-medium text-center">Sequence stopped</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Campaign Assignment Preview ─────────────────────────────────────────────
+
+function CampaignAssignmentPreview() {
+  const { data, isLoading, refetch } = trpc.admin.getCampaignAssignmentPreview.useQuery(undefined, {
+    refetchInterval: 300_000,
+  });
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Users className="w-4 h-4 text-[#2e6da4]" />
+            Contact Assignment Preview
+          </CardTitle>
+          <Button size="sm" variant="ghost" onClick={() => refetch()} className="h-7 px-2 text-xs">
+            Refresh
+          </Button>
+        </div>
+        <CardDescription>
+          How your marketing contacts would be distributed across campaign families
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)}
+          </div>
+        ) : data ? (
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="rounded-xl border border-[#2e6da4]/20 bg-[#f0f6ff] dark:bg-[#0c1e3c]/30 p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Management</p>
+              <p className="text-2xl font-bold text-[#2e6da4]">{data.management}</p>
+              <p className="text-[10px] text-muted-foreground">eligible leads</p>
+            </div>
+            <div className="rounded-xl border border-[#163563]/20 bg-[#eff6ff] dark:bg-[#0c1e3c]/30 p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Academy</p>
+              <p className="text-2xl font-bold text-[#163563]">{data.academy}</p>
+              <p className="text-[10px] text-muted-foreground">eligible leads</p>
+            </div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Already Sent</p>
+              <p className="text-2xl font-bold text-amber-600">{data.alreadySent}</p>
+              <p className="text-[10px] text-muted-foreground">contacts</p>
+            </div>
+            <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Blocked</p>
+              <p className="text-2xl font-bold text-red-500">{data.blocked}</p>
+              <p className="text-[10px] text-muted-foreground">suppressed/invalid</p>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-800/30 p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Total</p>
+              <p className="text-2xl font-bold">{data.total}</p>
+              <p className="text-[10px] text-muted-foreground">contacts</p>
+            </div>
+          </div>
+        ) : null}
+        <p className="text-xs text-muted-foreground mt-3">
+          Academy types: school, college, academy, student, teacher, instructor. All others → Management family.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
 function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [parsed, setParsed] = useState<ParsedImport | null>(null);
   const [mapping, setMapping] = useState<Record<string, string>>({});
-  const [importResult, setImportResult] = useState<{ imported: number; skipped: number; invalid: number; total: number } | null>(null);
+  const [importResult, setImportResult] = useState<{ imported: number; skipped: number; invalid: number; rejected: number; total: number } | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -1808,7 +2341,11 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
   const importMutation = trpc.admin.importMarketingContacts.useMutation({
     onSuccess: (data) => {
       setImportResult(data);
-      toast.success(`Imported ${data.imported} contacts (${data.skipped} skipped, ${data.invalid} invalid)`);
+      const parts = [`${data.imported} imported`];
+      if (data.skipped > 0) parts.push(`${data.skipped} already in DB`);
+      if (data.invalid > 0) parts.push(`${data.invalid} invalid`);
+      if (data.rejected > 0) parts.push(`${data.rejected} rejected (compliance)`);
+      toast.success(parts.join(" · "));
       utils.admin.getMarketingContacts.invalidate();
       utils.admin.getSegmentCounts.invalidate();
     },
@@ -1862,9 +2399,20 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
       return;
     }
 
+    // Client-side deduplication — dedupe by email (case-insensitive) before sending
+    const seenEmails = new Set<string>();
+    let clientDuplicates = 0;
+
     for (const row of parsed.allRows) {
       const email = row[reverseMap.email]?.trim();
       if (!email || !email.includes("@")) continue;
+
+      const emailLower = email.toLowerCase();
+      if (seenEmails.has(emailLower)) {
+        clientDuplicates++;
+        continue;
+      }
+      seenEmails.add(emailLower);
 
       contacts.push({
         email,
@@ -1881,6 +2429,10 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
     if (contacts.length === 0) {
       toast.error("No valid contacts found with the current mapping");
       return;
+    }
+
+    if (clientDuplicates > 0) {
+      toast.info(`Removed ${clientDuplicates} duplicate email${clientDuplicates > 1 ? "s" : ""} from the file before importing.`);
     }
 
     importMutation.mutate({ contacts, source: "file_import" });
@@ -1912,7 +2464,7 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
         {importResult ? (
           /* Import Result Summary */
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               <Card>
                 <CardContent className="pt-4 pb-4 text-center">
                   <p className="text-sm text-muted-foreground">Imported</p>
@@ -1923,17 +2475,26 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
                 <CardContent className="pt-4 pb-4 text-center">
                   <p className="text-sm text-muted-foreground">Skipped</p>
                   <p className="text-2xl font-bold text-yellow-600">{importResult.skipped}</p>
+                  <p className="text-[10px] text-muted-foreground">already in DB, bounced, or unsubscribed</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4 pb-4 text-center">
+                  <p className="text-sm text-muted-foreground">Rejected</p>
+                  <p className="text-2xl font-bold text-orange-600">{importResult.rejected}</p>
+                  <p className="text-[10px] text-muted-foreground">compliance / B2B freemail</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-4 pb-4 text-center">
                   <p className="text-sm text-muted-foreground">Invalid</p>
                   <p className="text-2xl font-bold text-red-600">{importResult.invalid}</p>
+                  <p className="text-[10px] text-muted-foreground">bad email format</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-4 pb-4 text-center">
-                  <p className="text-sm text-muted-foreground">Total</p>
+                  <p className="text-sm text-muted-foreground">Total Rows</p>
                   <p className="text-2xl font-bold">{importResult.total}</p>
                 </CardContent>
               </Card>

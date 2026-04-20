@@ -70,6 +70,7 @@ import {
   campaignSequences,
   campaignSequenceRecipients,
   campaignSendLog,
+  campaignReplies,
   vaccinations,
   dewormings,
   treatments,
@@ -101,7 +102,13 @@ import {
   DEFAULT_DAILY_LIMIT,
   MANAGEMENT_DAILY_LIMIT,
   ACADEMY_DAILY_LIMIT,
+  NEW_OUTREACH_DAILY_CAP,
+  TOTAL_MAILBOX_DAILY_CAP,
+  NEW_OUTREACH_PER_WINDOW,
+  SEND_WINDOWS,
+  getNextSendWindow,
   isWeekday,
+  isWithinSendHours,
   DEFAULT_FOLLOWUP_SCHEDULE,
   getScheduledDate,
   PRIORITY_COUNTRIES,
@@ -3975,9 +3982,49 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           });
         }
 
-        // ── DAILY LIMIT CHECK ──
+        // ── SEND-HOURS CHECK (08:00–17:59 UTC) ──
+        if (!isWithinSendHours()) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Campaign sending is only permitted between 08:00 and 18:00 UTC to protect deliverability. Please try again during business hours.",
+          });
+        }
+
+        // ── GLOBAL MAILBOX CAP CHECK ──
+        // Count ALL new outreach sends today across every campaign
         const today = getTodayDateString();
-        const dailyLimit = campaign.dailyLimit || DEFAULT_DAILY_LIMIT;
+        const [globalLogResult] = await dbConn
+          .select({ total: sql<number>`COALESCE(SUM(${campaignSendLog.sendCount}), 0)` })
+          .from(campaignSendLog)
+          .where(eq(campaignSendLog.sendDate, today));
+        const globalOutreachSentToday = Number(globalLogResult?.total ?? 0);
+
+        // Count follow-up sends today
+        const [followupResult] = await dbConn
+          .select({ total: sql<number>`COALESCE(COUNT(*), 0)` })
+          .from(campaignSequenceRecipients)
+          .where(and(
+            eq(campaignSequenceRecipients.status, "sent"),
+            sql`DATE(${campaignSequenceRecipients.sentAt}) = ${today}`,
+          ));
+        const globalFollowupSentToday = Number(followupResult?.total ?? 0);
+        const globalTotalSentToday = globalOutreachSentToday + globalFollowupSentToday;
+
+        if (globalTotalSentToday >= TOTAL_MAILBOX_DAILY_CAP) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Total mailbox cap of ${TOTAL_MAILBOX_DAILY_CAP} emails/day reached. All sends are deferred to tomorrow.`,
+          });
+        }
+        if (globalOutreachSentToday >= NEW_OUTREACH_DAILY_CAP) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `New outreach cap of ${NEW_OUTREACH_DAILY_CAP} emails/day reached. Follow-up sends may still proceed; new outreach resumes tomorrow.`,
+          });
+        }
+
+        // ── PER-CAMPAIGN DAILY LIMIT CHECK ──
+        const dailyLimit = Math.min(campaign.dailyLimit || DEFAULT_DAILY_LIMIT, NEW_OUTREACH_DAILY_CAP);
         // Check how many we've already sent today for this campaign
         const [todayLog] = await dbConn
           .select({ sendCount: campaignSendLog.sendCount })
@@ -4074,8 +4121,11 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           return true;
         });
 
-        // ── ENFORCE DAILY LIMIT ── only send up to remainingToday
-        const recipientsToSend = uniqueRecipients.slice(0, remainingToday);
+        // ── ENFORCE DAILY LIMIT + GLOBAL CAP + STAGGER WINDOW ──
+        // Cap: min(per-campaign remaining, global mailbox remaining, per-window stagger limit)
+        const globalMailboxRemaining = Math.max(0, TOTAL_MAILBOX_DAILY_CAP - globalTotalSentToday);
+        const sendLimit = Math.min(remainingToday, globalMailboxRemaining, NEW_OUTREACH_PER_WINDOW);
+        const recipientsToSend = uniqueRecipients.slice(0, sendLimit);
         const recipientsDeferred = uniqueRecipients.length - recipientsToSend.length;
 
         // Update recipient count
@@ -4222,6 +4272,164 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
+    // ── Campaign Replies Inbox ─────────────────────────────────────────────
+
+    getCampaignReplies: adminUnlockedProcedure
+      .input(z.object({
+        status: z.enum(["all", "new", "read", "interested", "not_interested", "follow_up", "converted", "do_not_contact"]).optional(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) return { replies: [], total: 0 };
+
+        const conditions: ReturnType<typeof eq>[] = [];
+        if (input.status && input.status !== "all") {
+          conditions.push(eq(campaignReplies.status, input.status));
+        }
+
+        const { desc } = await import("drizzle-orm");
+        const rows = await dbConn
+          .select()
+          .from(campaignReplies)
+          .where(conditions.length ? and(...conditions) : undefined)
+          .orderBy(desc(campaignReplies.receivedAt))
+          .limit(input.limit)
+          .offset(input.offset);
+
+        const [countResult] = await dbConn
+          .select({ total: sql<number>`COUNT(*)` })
+          .from(campaignReplies)
+          .where(conditions.length ? and(...conditions) : undefined);
+
+        return { replies: rows, total: Number(countResult?.total ?? 0) };
+      }),
+
+    updateReplyStatus: adminUnlockedProcedure
+      .input(z.object({
+        replyId: z.number(),
+        status: z.enum(["new", "read", "interested", "not_interested", "follow_up", "converted", "do_not_contact"]),
+        notes: z.string().max(500).optional(),
+        stopSequence: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        const [reply] = await dbConn.select().from(campaignReplies)
+          .where(eq(campaignReplies.id, input.replyId));
+        if (!reply) throw new TRPCError({ code: "NOT_FOUND" });
+
+        await dbConn.update(campaignReplies)
+          .set({
+            status: input.status,
+            notes: input.notes ?? reply.notes,
+            sequenceStopped: input.stopSequence ?? reply.sequenceStopped,
+          })
+          .where(eq(campaignReplies.id, input.replyId));
+
+        // If do_not_contact — add to suppression list
+        if (input.status === "do_not_contact" && reply.fromEmail) {
+          await dbConn.insert(emailUnsubscribes)
+            .values({
+              email: reply.fromEmail.toLowerCase(),
+              token: nanoid(32),
+              reason: "Marked do-not-contact from replies inbox",
+              source: "admin",
+              unsubscribedAt: new Date(),
+            })
+            .onDuplicateKeyUpdate({ set: { source: "admin" } });
+          // Also update marketing contact status
+          await dbConn.update(marketingContacts)
+            .set({ status: "unsubscribed" })
+            .where(eq(marketingContacts.email, reply.fromEmail.toLowerCase()))
+            .catch(() => {});
+        }
+
+        // If stopSequence — pause all pending sequence steps for this contact's campaigns
+        if (input.stopSequence && reply.fromEmail) {
+          const affectedRecipients = await dbConn.selectDistinct({ campaignId: emailCampaignRecipients.campaignId })
+            .from(emailCampaignRecipients)
+            .where(eq(emailCampaignRecipients.email, reply.fromEmail.toLowerCase()));
+          const campaignIdSet = new Set<number>();
+          affectedRecipients.forEach(r => campaignIdSet.add(r.campaignId));
+          const campaignIds = Array.from(campaignIdSet);
+          if (campaignIds.length > 0) {
+            await dbConn.update(campaignSequences)
+              .set({ status: "skipped" })
+              .where(and(
+                inArray(campaignSequences.campaignId, campaignIds),
+                eq(campaignSequences.status, "pending"),
+              )).catch(() => {});
+          }
+        }
+
+        return { success: true };
+      }),
+
+    triggerReplyFetch: adminUnlockedProcedure.mutation(async () => {
+      try {
+        const { fetchCampaignReplies } = await import("./_core/campaignReplyFetcher");
+        const count = await fetchCampaignReplies(50);
+        return { fetched: count };
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: err instanceof Error ? err.message : "Failed to fetch replies",
+        });
+      }
+    }),
+
+    // ── Auto Campaign Assignment ───────────────────────────────────────────
+    /**
+     * Inspect marketing contacts and return a preview of how they would be
+     * assigned to campaign families (management vs academy).
+     * No sends are triggered — purely an analysis/reporting endpoint.
+     */
+    getCampaignAssignmentPreview: adminUnlockedProcedure.query(async () => {
+      const dbConn = await getDb();
+      if (!dbConn) return { management: 0, academy: 0, blocked: 0, alreadySent: 0, total: 0 };
+
+      const contacts = await dbConn.select().from(marketingContacts);
+      const suppressions = await dbConn.select({ email: emailUnsubscribes.email }).from(emailUnsubscribes);
+      const suppressedSet = new Set(suppressions.map(s => s.email.toLowerCase()));
+
+      const alreadySentEmails = await dbConn
+        .select({ email: emailCampaignRecipients.email })
+        .from(emailCampaignRecipients)
+        .where(eq(emailCampaignRecipients.status, "sent"));
+      const alreadySentSet = new Set(alreadySentEmails.map(r => r.email.toLowerCase()));
+
+      // Types that map to academy/school family
+      const academyTypes = new Set(["school", "college", "academy", "student", "teacher", "instructor"]);
+
+      let management = 0;
+      let academy = 0;
+      let blocked = 0;
+      let alreadySent = 0;
+
+      for (const c of contacts) {
+        const email = c.email?.toLowerCase() || "";
+        if (!email || !email.includes("@")) { blocked++; continue; }
+        if (c.status !== "active" || suppressedSet.has(email)) { blocked++; continue; }
+        if (alreadySentSet.has(email)) { alreadySent++; continue; }
+        if (academyTypes.has(c.contactType || "")) {
+          academy++;
+        } else {
+          management++;
+        }
+      }
+
+      return {
+        management,
+        academy,
+        blocked,
+        alreadySent,
+        total: contacts.length,
+      };
+    }),
+
     pauseCampaign: adminUnlockedProcedure
       .input(z.object({ campaignId: z.number() }))
       .mutation(async ({ input }) => {
@@ -4265,6 +4473,87 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         const sentToday = log?.sendCount || 0;
         return { sentToday, dailyLimit, remaining: Math.max(0, dailyLimit - sentToday) };
       }),
+
+    /**
+     * getCampaignMailboxStatus — single source of truth for today's send activity.
+     * Powers the Admin Campaign Operations Panel.
+     */
+    getCampaignMailboxStatus: adminUnlockedProcedure.query(async () => {
+      const dbConn = await getDb();
+      if (!dbConn) {
+        const nextWindow = getNextSendWindow();
+        return {
+          newOutreachSentToday: 0,
+          followupsSentToday: 0,
+          totalSentToday: 0,
+          newOutreachCap: NEW_OUTREACH_DAILY_CAP,
+          totalCap: TOTAL_MAILBOX_DAILY_CAP,
+          perWindowLimit: NEW_OUTREACH_PER_WINDOW,
+          newOutreachRemaining: NEW_OUTREACH_DAILY_CAP,
+          totalRemaining: TOTAL_MAILBOX_DAILY_CAP,
+          queuedForNextWindow: 0,
+          pausedCampaignsCount: 0,
+          nextSendWindow: nextWindow ?? "Next weekday 08:30 UTC",
+          isWeekday: isWeekday(),
+          isWithinSendHours: isWithinSendHours(),
+          sendWindows: SEND_WINDOWS.map(w => w.label),
+        };
+      }
+
+      const today = getTodayDateString();
+
+      // New outreach sent today (sum across all campaigns)
+      const [outreachResult] = await dbConn
+        .select({ total: sql<number>`COALESCE(SUM(${campaignSendLog.sendCount}), 0)` })
+        .from(campaignSendLog)
+        .where(eq(campaignSendLog.sendDate, today));
+      const newOutreachSentToday = Number(outreachResult?.total ?? 0);
+
+      // Follow-ups sent today
+      const [followupResult] = await dbConn
+        .select({ total: sql<number>`COALESCE(COUNT(*), 0)` })
+        .from(campaignSequenceRecipients)
+        .where(and(
+          eq(campaignSequenceRecipients.status, "sent"),
+          sql`DATE(${campaignSequenceRecipients.sentAt}) = ${today}`,
+        ));
+      const followupsSentToday = Number(followupResult?.total ?? 0);
+      const totalSentToday = newOutreachSentToday + followupsSentToday;
+
+      // Paused campaigns (have remaining recipients to send)
+      const pausedCampaigns = await dbConn
+        .select({
+          id: emailCampaigns.id,
+          recipientCount: emailCampaigns.recipientCount,
+          sentCount: emailCampaigns.sentCount,
+        })
+        .from(emailCampaigns)
+        .where(eq(emailCampaigns.status, "paused"));
+
+      const queuedForNextWindow = pausedCampaigns.reduce(
+        (acc, c) => acc + Math.max(0, (c.recipientCount || 0) - (c.sentCount || 0)),
+        0,
+      );
+
+      const nextWindow = getNextSendWindow();
+
+      return {
+        newOutreachSentToday,
+        followupsSentToday,
+        totalSentToday,
+        newOutreachCap: NEW_OUTREACH_DAILY_CAP,
+        totalCap: TOTAL_MAILBOX_DAILY_CAP,
+        perWindowLimit: NEW_OUTREACH_PER_WINDOW,
+        newOutreachRemaining: Math.max(0, NEW_OUTREACH_DAILY_CAP - newOutreachSentToday),
+        totalRemaining: Math.max(0, TOTAL_MAILBOX_DAILY_CAP - totalSentToday),
+        queuedForNextWindow,
+        pausedCampaignsCount: pausedCampaigns.length,
+        nextSendWindow: nextWindow ?? "Next weekday 08:30 UTC",
+        isWeekday: isWeekday(),
+        isWithinSendHours: isWithinSendHours(),
+        sendWindows: SEND_WINDOWS.map(w => w.label),
+      };
+    }),
 
     parseImportFile: adminUnlockedProcedure
       .input(z.object({
@@ -4542,6 +4831,91 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         return { success: true };
       }),
 
+    /**
+     * Bulk delete marketing contacts.
+     *
+     * Mode A — by IDs: deletes exactly the contacts whose IDs are provided.
+     * Mode B — by filter: deletes all contacts matching the supplied filter
+     *   criteria (search, country, contactType, status). At least one filter
+     *   field must be non-empty to prevent a catastrophic "delete everything"
+     *   call without an explicit opt-in.
+     *
+     * Both modes require admin access (adminUnlockedProcedure).
+     */
+    bulkDeleteMarketingContacts: adminUnlockedProcedure
+      .input(
+        z.discriminatedUnion("mode", [
+          // Mode A — explicit list of IDs
+          z.object({
+            mode: z.literal("ids"),
+            ids: z.array(z.number()).min(1).max(1000),
+          }),
+          // Mode B — filter-based (must supply at least one criterion)
+          z.object({
+            mode: z.literal("filter"),
+            search: z.string().optional(),
+            country: z.string().optional(),
+            contactType: z.string().optional(),
+            status: z.enum(["active", "unsubscribed", "bounced", "all"]).optional(),
+          }),
+        ]),
+      )
+      .mutation(async ({ input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        if (input.mode === "ids") {
+          await dbConn
+            .delete(marketingContacts)
+            .where(inArray(marketingContacts.id, input.ids));
+          return { deleted: input.ids.length };
+        }
+
+        // Mode B — build filter conditions; must have at least one
+        const { search, country, contactType, status } = input;
+        if (!search && !country && !contactType && !status) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Provide at least one filter criterion for filter-based bulk delete",
+          });
+        }
+
+        const conditions: ReturnType<typeof eq>[] = [];
+        if (status && status !== "all") {
+          conditions.push(eq(marketingContacts.status, status));
+        }
+        if (contactType) {
+          conditions.push(eq(marketingContacts.contactType, contactType));
+        }
+        if (country) {
+          conditions.push(eq(marketingContacts.country, country));
+        }
+        if (search) {
+          conditions.push(
+            or(
+              sql`${marketingContacts.email} LIKE ${"%" + search + "%"}`,
+              sql`${marketingContacts.name} LIKE ${"%" + search + "%"}`,
+              sql`${marketingContacts.businessName} LIKE ${"%" + search + "%"}`,
+            )! as ReturnType<typeof eq>,
+          );
+        }
+
+        // Count first so we can return an accurate deleted count
+        const [countRow] = await dbConn
+          .select({ n: sql<number>`COUNT(*)` })
+          .from(marketingContacts)
+          .where(and(...conditions));
+        const toDelete = Number(countRow?.n ?? 0);
+
+        if (toDelete === 0) return { deleted: 0 };
+
+        await dbConn
+          .delete(marketingContacts)
+          .where(and(...conditions));
+
+        return { deleted: toDelete };
+      }),
+
     // ──────────────────────────────────────────────────────────
     // Suppression / Unsubscribe management
     // ──────────────────────────────────────────────────────────
@@ -4598,8 +4972,50 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         if (!step) throw new TRPCError({ code: "NOT_FOUND" });
         if (step.status === "sent") throw new TRPCError({ code: "BAD_REQUEST", message: "Step already sent" });
 
+        // ── WEEKDAY-ONLY CHECK (follow-ups also weekday-only) ──
+        if (!isWeekday()) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Follow-up sending is restricted to weekdays (Monday–Friday). Please try again on a weekday.",
+          });
+        }
+
+        // ── SEND-HOURS CHECK ──
+        if (!isWithinSendHours()) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Follow-up sending is only permitted between 08:00 and 18:00 UTC. Please try again during business hours.",
+          });
+        }
+
+        // ── GLOBAL MAILBOX CAP CHECK ──
+        const today = getTodayDateString();
+        const [globalLogResult] = await dbConn
+          .select({ total: sql<number>`COALESCE(SUM(${campaignSendLog.sendCount}), 0)` })
+          .from(campaignSendLog)
+          .where(eq(campaignSendLog.sendDate, today));
+        const globalOutreachSentToday = Number(globalLogResult?.total ?? 0);
+
+        const [followupResult] = await dbConn
+          .select({ total: sql<number>`COALESCE(COUNT(*), 0)` })
+          .from(campaignSequenceRecipients)
+          .where(and(
+            eq(campaignSequenceRecipients.status, "sent"),
+            sql`DATE(${campaignSequenceRecipients.sentAt}) = ${today}`,
+          ));
+        const globalFollowupSentToday = Number(followupResult?.total ?? 0);
+        const globalTotalSentToday = globalOutreachSentToday + globalFollowupSentToday;
+
+        const followupRemaining = Math.max(0, TOTAL_MAILBOX_DAILY_CAP - globalTotalSentToday);
+        if (followupRemaining === 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Daily mailbox cap of ${TOTAL_MAILBOX_DAILY_CAP} emails reached. Follow-up sends will resume tomorrow.`,
+          });
+        }
+
         // Get original campaign recipients who were successfully sent
-        const recipients = await dbConn.select().from(emailCampaignRecipients)
+        const allRecipients = await dbConn.select().from(emailCampaignRecipients)
           .where(and(
             eq(emailCampaignRecipients.campaignId, step.campaignId),
             eq(emailCampaignRecipients.status, "sent"),
@@ -4614,21 +5030,29 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           .where(or(eq(marketingContacts.status, "unsubscribed"), eq(marketingContacts.status, "bounced")));
         for (const b of mcBounced) suppressedSet.add(b.email.toLowerCase());
 
+        // Partition recipients: skipped vs eligible
+        const eligibleRecipients = allRecipients.filter(r => !suppressedSet.has(r.email.toLowerCase()));
+
+        // Cap eligible recipients to remaining daily capacity
+        const recipients = eligibleRecipients.slice(0, followupRemaining);
+        const deferredCount = eligibleRecipients.length - recipients.length;
+
+        // Insert skipped records for suppressed addresses
+        for (const r of allRecipients.filter(r => suppressedSet.has(r.email.toLowerCase()))) {
+          await dbConn.insert(campaignSequenceRecipients).values({
+            sequenceId: input.sequenceId,
+            campaignId: step.campaignId,
+            email: r.email,
+            status: "skipped",
+          });
+        }
+
         let sentCount = 0;
         let failedCount = 0;
         const currentDate = formatDateGB();
         const BASE_URL = process.env.BASE_URL || "https://equiprofile.online";
 
         for (const recipient of recipients) {
-          if (suppressedSet.has(recipient.email.toLowerCase())) {
-            await dbConn.insert(campaignSequenceRecipients).values({
-              sequenceId: input.sequenceId,
-              campaignId: step.campaignId,
-              email: recipient.email,
-              status: "skipped",
-            });
-            continue;
-          }
           try {
             // Build unsubscribe link from marketing contact token
             const [mc] = await dbConn.select().from(marketingContacts)
@@ -4667,7 +5091,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           .set({ status: "sent", sentAt: new Date(), sentCount, failedCount })
           .where(eq(campaignSequences.id, input.sequenceId));
 
-        return { sentCount, failedCount, total: recipients.length };
+        return { sentCount, failedCount, total: allRecipients.length, deferred: deferredCount };
       }),
 
     // ──────────────────────────────────────────────────────────

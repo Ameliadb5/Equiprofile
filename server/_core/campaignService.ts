@@ -334,15 +334,40 @@ export function getTodayDateString(): string {
   return new Date().toISOString().split("T")[0];
 }
 
+// ─── Campaign sending policy ─────────────────────────────────
 /**
- * Total default daily send limit across all campaign types.
- * Split: 15 management + 15 academy/school = 30 total.
+ * Single-mailbox hard daily cap across ALL send types (new outreach + follow-ups).
+ * This is the absolute ceiling for the sending mailbox per calendar day.
  */
-export const DEFAULT_DAILY_LIMIT = 30;
-/** Default daily limit for management/stable/owner campaigns. */
-export const MANAGEMENT_DAILY_LIMIT = 15;
-/** Default daily limit for academy/school campaigns. */
+export const TOTAL_MAILBOX_DAILY_CAP = 40;
+
+/**
+ * Maximum new outreach emails per day across all campaigns combined.
+ * Follow-ups may use remaining capacity: TOTAL_MAILBOX_DAILY_CAP - new outreach sent today.
+ */
+export const NEW_OUTREACH_DAILY_CAP = 25;
+
+/**
+ * Maximum new outreach sends per single trigger (stagger window bucket).
+ * With five natural send windows per day and a 25-email cap, each trigger
+ * sends ≤ 5 emails. This distributes sends through the day without
+ * requiring a background scheduler.
+ */
+export const NEW_OUTREACH_PER_WINDOW = 5;
+
+/**
+ * Default per-campaign daily limit used at campaign creation.
+ * Set to NEW_OUTREACH_DAILY_CAP for single-mailbox safety.
+ */
+export const DEFAULT_DAILY_LIMIT = 25;
+
+/** Backwards-compat alias — now equal to NEW_OUTREACH_DAILY_CAP. */
+export const MANAGEMENT_DAILY_LIMIT = 25;
+/** Retained for backwards-compat. Academy campaign daily limit. */
 export const ACADEMY_DAILY_LIMIT = 15;
+
+/** UTC hour range for campaign sends: 08:00–17:59 UTC. */
+export const SEND_HOURS_UTC = { start: 8, end: 18 } as const;
 
 /**
  * Returns true if the given date (defaults to now) is a weekday (Mon–Fri).
@@ -353,13 +378,54 @@ export function isWeekday(date?: Date): boolean {
   return day >= 1 && day <= 5;
 }
 
+/**
+ * Returns true if the current UTC time is within the permitted send window
+ * (08:00–17:59 UTC). Prevents off-hours blasts that hurt deliverability.
+ */
+export function isWithinSendHours(date?: Date): boolean {
+  const h = (date ?? new Date()).getUTCHours();
+  return h >= SEND_HOURS_UTC.start && h < SEND_HOURS_UTC.end;
+}
+
 // ─── Follow-up schedule (default) ────────────────────────────
+// Day 0: initial send (same day campaign is launched)
+// Day 3: first follow-up (3 days later)
+// Day 6: second follow-up / proof/trust nudge
+// Day 10: final gentle nudge
+// This 0/3/6/10 cadence gives adequate space between touchpoints without
+// going beyond ~2 weeks total, keeping the sequence within a tight conversion window.
 export const DEFAULT_FOLLOWUP_SCHEDULE = [
   { stepNumber: 1, delayDays: 0, label: "Initial Send" },
-  { stepNumber: 2, delayDays: 3, label: "Follow-up 1" },
-  { stepNumber: 3, delayDays: 7, label: "Follow-up 2" },
-  { stepNumber: 4, delayDays: 14, label: "Follow-up 3 (Final)" },
+  { stepNumber: 2, delayDays: 3, label: "Follow-up 1 (Day 3)" },
+  { stepNumber: 3, delayDays: 6, label: "Follow-up 2 (Day 6)" },
+  { stepNumber: 4, delayDays: 10, label: "Final Nudge (Day 10)" },
 ];
+
+/**
+ * Staggered send windows for new outreach — UTC.
+ * Five windows per weekday, each allowing up to NEW_OUTREACH_PER_WINDOW sends.
+ * Total across all windows: 5 × 5 = 25 = NEW_OUTREACH_DAILY_CAP.
+ */
+export const SEND_WINDOWS: Array<{ hour: number; minute: number; label: string }> = [
+  { hour: 8, minute: 30, label: "08:30 UTC" },
+  { hour: 10, minute: 30, label: "10:30 UTC" },
+  { hour: 12, minute: 30, label: "12:30 UTC" },
+  { hour: 14, minute: 30, label: "14:30 UTC" },
+  { hour: 16, minute: 30, label: "16:30 UTC" },
+];
+
+/**
+ * Returns the next upcoming send window label for today (UTC), or null if all
+ * windows have passed (meaning next window is tomorrow's 08:30 UTC).
+ */
+export function getNextSendWindow(now: Date = new Date()): string | null {
+  const currentMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+  for (const w of SEND_WINDOWS) {
+    const windowMinutes = w.hour * 60 + w.minute;
+    if (windowMinutes > currentMinutes) return w.label;
+  }
+  return null; // all windows passed — next is tomorrow 08:30 UTC
+}
 
 export function getScheduledDate(initialDate: Date, delayDays: number): string {
   const d = new Date(initialDate);
