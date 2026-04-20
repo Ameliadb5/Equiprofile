@@ -207,9 +207,9 @@ const moreModuleGroups = [
     label: "Stable & People",
     iconBg: "bg-gradient-to-br from-cyan-500 to-teal-600",
     items: [
-      { icon: Home, label: "Stable Management", path: "/stable" },
+      { icon: Home, label: "Stable Management", path: "/stable", stableOnly: true },
       { icon: Wrench, label: "Stable Setup", path: "/stable-setup", stableOnly: true },
-      { icon: UserCog, label: "Staff", path: "/staff" },
+      { icon: UserCog, label: "Staff", path: "/staff", stableOnly: true },
       { icon: Users, label: "Client Portal", path: "/client-portal", stableOnly: true },
       { icon: BarChart3, label: "Stable Reports", path: "/stable-reports", stableOnly: true },
       { icon: MessageSquare, label: "Messages", path: "/messages" },
