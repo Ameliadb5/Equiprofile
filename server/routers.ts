@@ -70,6 +70,7 @@ import {
   campaignSequences,
   campaignSequenceRecipients,
   campaignSendLog,
+  campaignReplies,
   vaccinations,
   dewormings,
   treatments,
@@ -4270,6 +4271,164 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
         return { success: true };
       }),
+
+    // ── Campaign Replies Inbox ─────────────────────────────────────────────
+
+    getCampaignReplies: adminUnlockedProcedure
+      .input(z.object({
+        status: z.enum(["all", "new", "read", "interested", "not_interested", "follow_up", "converted", "do_not_contact"]).optional(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) return { replies: [], total: 0 };
+
+        const conditions: ReturnType<typeof eq>[] = [];
+        if (input.status && input.status !== "all") {
+          conditions.push(eq(campaignReplies.status, input.status));
+        }
+
+        const { desc } = await import("drizzle-orm");
+        const rows = await dbConn
+          .select()
+          .from(campaignReplies)
+          .where(conditions.length ? and(...conditions) : undefined)
+          .orderBy(desc(campaignReplies.receivedAt))
+          .limit(input.limit)
+          .offset(input.offset);
+
+        const [countResult] = await dbConn
+          .select({ total: sql<number>`COUNT(*)` })
+          .from(campaignReplies)
+          .where(conditions.length ? and(...conditions) : undefined);
+
+        return { replies: rows, total: Number(countResult?.total ?? 0) };
+      }),
+
+    updateReplyStatus: adminUnlockedProcedure
+      .input(z.object({
+        replyId: z.number(),
+        status: z.enum(["new", "read", "interested", "not_interested", "follow_up", "converted", "do_not_contact"]),
+        notes: z.string().max(500).optional(),
+        stopSequence: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const dbConn = await getDb();
+        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        const [reply] = await dbConn.select().from(campaignReplies)
+          .where(eq(campaignReplies.id, input.replyId));
+        if (!reply) throw new TRPCError({ code: "NOT_FOUND" });
+
+        await dbConn.update(campaignReplies)
+          .set({
+            status: input.status,
+            notes: input.notes ?? reply.notes,
+            sequenceStopped: input.stopSequence ?? reply.sequenceStopped,
+          })
+          .where(eq(campaignReplies.id, input.replyId));
+
+        // If do_not_contact — add to suppression list
+        if (input.status === "do_not_contact" && reply.fromEmail) {
+          await dbConn.insert(emailUnsubscribes)
+            .values({
+              email: reply.fromEmail.toLowerCase(),
+              token: nanoid(32),
+              reason: "Marked do-not-contact from replies inbox",
+              source: "admin",
+              unsubscribedAt: new Date(),
+            })
+            .onDuplicateKeyUpdate({ set: { source: "admin" } });
+          // Also update marketing contact status
+          await dbConn.update(marketingContacts)
+            .set({ status: "unsubscribed" })
+            .where(eq(marketingContacts.email, reply.fromEmail.toLowerCase()))
+            .catch(() => {});
+        }
+
+        // If stopSequence — pause all pending sequence steps for this contact's campaigns
+        if (input.stopSequence && reply.fromEmail) {
+          const affectedRecipients = await dbConn.select({ campaignId: emailCampaignRecipients.campaignId })
+            .from(emailCampaignRecipients)
+            .where(eq(emailCampaignRecipients.email, reply.fromEmail.toLowerCase()));
+          const campaignIdSet = new Set<number>();
+          affectedRecipients.forEach(r => campaignIdSet.add(r.campaignId));
+          const campaignIds = Array.from(campaignIdSet);
+          for (const cId of campaignIds) {
+            await dbConn.update(campaignSequences)
+              .set({ status: "skipped" })
+              .where(and(
+                eq(campaignSequences.campaignId, cId),
+                eq(campaignSequences.status, "pending"),
+              )).catch(() => {});
+          }
+        }
+
+        return { success: true };
+      }),
+
+    triggerReplyFetch: adminUnlockedProcedure.mutation(async () => {
+      try {
+        const { fetchCampaignReplies } = await import("./_core/campaignReplyFetcher");
+        const count = await fetchCampaignReplies(50);
+        return { fetched: count };
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: err instanceof Error ? err.message : "Failed to fetch replies",
+        });
+      }
+    }),
+
+    // ── Auto Campaign Assignment ───────────────────────────────────────────
+    /**
+     * Inspect marketing contacts and return a preview of how they would be
+     * assigned to campaign families (management vs academy).
+     * No sends are triggered — purely an analysis/reporting endpoint.
+     */
+    getCampaignAssignmentPreview: adminUnlockedProcedure.query(async () => {
+      const dbConn = await getDb();
+      if (!dbConn) return { management: 0, academy: 0, blocked: 0, alreadySent: 0, total: 0 };
+
+      const contacts = await dbConn.select().from(marketingContacts);
+      const suppressions = await dbConn.select({ email: emailUnsubscribes.email }).from(emailUnsubscribes);
+      const suppressedSet = new Set(suppressions.map(s => s.email.toLowerCase()));
+
+      const alreadySentEmails = await dbConn
+        .select({ email: emailCampaignRecipients.email })
+        .from(emailCampaignRecipients)
+        .where(eq(emailCampaignRecipients.status, "sent"));
+      const alreadySentSet = new Set(alreadySentEmails.map(r => r.email.toLowerCase()));
+
+      // Types that map to academy/school family
+      const academyTypes = new Set(["school", "college", "academy", "student", "teacher", "instructor"]);
+
+      let management = 0;
+      let academy = 0;
+      let blocked = 0;
+      let alreadySent = 0;
+
+      for (const c of contacts) {
+        const email = c.email?.toLowerCase() || "";
+        if (!email || !email.includes("@")) { blocked++; continue; }
+        if (c.status !== "active" || suppressedSet.has(email)) { blocked++; continue; }
+        if (alreadySentSet.has(email)) { alreadySent++; continue; }
+        if (academyTypes.has(c.contactType || "")) {
+          academy++;
+        } else {
+          management++;
+        }
+      }
+
+      return {
+        management,
+        academy,
+        blocked,
+        alreadySent,
+        total: contacts.length,
+      };
+    }),
 
     pauseCampaign: adminUnlockedProcedure
       .input(z.object({ campaignId: z.number() }))

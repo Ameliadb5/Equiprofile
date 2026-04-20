@@ -475,7 +475,15 @@ export function startReminderScheduler() {
 
       const BASE_URL = process.env.BASE_URL || "https://equiprofile.online";
       const { sendEmail: sendCampaignEmail } = await import("./email");
-      const { applyMergeFields, extractFirstName, formatDateGB } = await import("./emailTemplates");
+      const { applyMergeFields } = await import("./emailTemplates");
+
+      // Local helpers (arrow functions — avoid strict-mode function-in-block restriction)
+      const fmtDateGB = (d: Date = new Date()): string =>
+        d.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+      const firstNameOf = (name: string | null | undefined): string => {
+        if (!name) return "";
+        return name.split(/\s+/)[0].replace(/[^a-zA-Z'-]/g, "") || "";
+      };
 
       let windowSentTotal = 0;
 
@@ -559,7 +567,7 @@ export function startReminderScheduler() {
           Math.min(windowRemaining, outreachRemaining, globalRemaining),
         );
 
-        const currentDate = formatDateGB();
+        const currentDate = fmtDateGB();
         let sentCount = 0;
         let failedCount = 0;
 
@@ -588,7 +596,7 @@ export function startReminderScheduler() {
               : `${BASE_URL}/unsubscribe`;
 
             const html = applyMergeFields(campaign.htmlBody, {
-              firstName: extractFirstName(recipient.name),
+              firstName: firstNameOf(recipient.name),
               email: recipient.email,
               currentDate,
               unsubscribeLink: unsubLink,
@@ -683,6 +691,22 @@ export function startReminderScheduler() {
     });
   }
   console.log("[CampaignOutreach] Scheduled 5 automated outreach windows:", SEND_WINDOWS.map(w => w.label).join(", "));
+
+  // ── Campaign Reply Fetcher ────────────────────────────────────────────────
+  // Polls the sending mailbox for incoming replies every 15 minutes during
+  // business hours (08:00–19:00 UTC) on weekdays.
+  cron.schedule("*/15 8-19 * * 1-5", () => {
+    import("./campaignReplyFetcher")
+      .then(({ fetchCampaignReplies }) =>
+        fetchCampaignReplies(50).then((count) => {
+          if (count > 0) {
+            console.log(`[CampaignReplies] Fetched ${count} new reply(s)`);
+          }
+        }),
+      )
+      .catch((err) => console.error("[CampaignReplies] Error:", err));
+  });
+  console.log("[CampaignReplies] Reply poller scheduled (every 15 min, weekdays 08:00–19:00 UTC)");
 
   isRunning = true;
   console.log("[Reminders] Scheduler started successfully");

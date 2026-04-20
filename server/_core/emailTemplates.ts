@@ -867,6 +867,294 @@ ${headerBlock("linear-gradient(135deg, #134e4a 0%, #0f766e 100%)")}
 }
 
 export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
+  // ── Management — 4-step conversion family ────────────────────────────────
+  {
+    id: "mgmt-intro",
+    name: "Management — Intro",
+    description: "First outreach to stables, yards, and owners. Introduces EquiProfile with a clear value proposition and a low-friction CTA.",
+    previewColor: "#2e6da4",
+    category: "management",
+    getHtml: () => wrapEmail(`
+${headerBlock()}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0c1e3c;line-height:1.3;">The professional platform built for equestrian businesses</h1>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.7;">Hi {{firstName}},</p>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.7;">Running a yard, stable, or equestrian business means juggling horse records, client communications, health tracking, and staff — often across notebooks, spreadsheets, and WhatsApp threads.</p>
+  <p style="margin:0 0 24px;font-size:15px;color:#475569;line-height:1.7;">EquiProfile replaces that friction with one clean, professional platform — built specifically for equestrian operations.</p>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 24px;">
+${bulletRow("<strong>Full horse health &amp; vet records</strong> — vaccinations, dental, hoof care, passport")}
+${bulletRow("<strong>Staff &amp; client management</strong> — roles, access levels, booking")}
+${bulletRow("<strong>Reminders &amp; calendar</strong> — never miss a farrier or jab again")}
+${bulletRow("<strong>Secure, shareable records</strong> — export medical passports instantly")}
+  </table>
+  <p style="margin:0 0 28px;font-size:14px;color:#64748b;line-height:1.7;">No credit card required. 7-day free trial. Takes minutes to set up.</p>
+</td></tr>
+<tr><td style="padding:0 40px 40px;text-align:center;">
+  ${ctaButton("Start Your Free Trial", SIGNUP_URL, "#2e6da4")}
+  <p style="margin:16px 0 0;font-size:12px;color:#94a3b8;">Questions? Reply to this email — we read every one.</p>
+</td></tr>
+`),
+  },
+  {
+    id: "mgmt-value",
+    name: "Management — Value",
+    description: "Second outreach highlighting specific time-saving value for yard/stable managers. Concrete benefits, no fluff.",
+    previewColor: "#2e6da4",
+    category: "management",
+    getHtml: () => wrapEmail(`
+${headerBlock()}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0c1e3c;line-height:1.3;">How much time does admin actually cost you?</h1>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.7;">Hi {{firstName}},</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.7;">Most yard and stable managers spend 5–10 hours per week on admin that could be automated. EquiProfile gives that time back.</p>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 24px;">
+${bulletRow("Set health reminders once — get notified automatically")}
+${bulletRow("Clients see real-time horse records — fewer calls to you")}
+${bulletRow("One-click vet reports and travel documents")}
+${bulletRow("Full audit trail — every treatment, every note, timestamped")}
+  </table>
+  <div style="background:#f0f6ff;border-left:4px solid #2e6da4;padding:16px 20px;border-radius:0 8px 8px 0;margin:0 0 28px;">
+    <p style="margin:0;font-size:14px;color:#1e40af;font-weight:600;line-height:1.5;">"I stopped forgetting vaccination dates the day I switched."</p>
+    <p style="margin:4px 0 0;font-size:12px;color:#64748b;">— Stable Owner, UK</p>
+  </div>
+  <p style="margin:0 0 28px;font-size:14px;color:#64748b;line-height:1.7;">Try it free for 7 days — no card, no commitment.</p>
+</td></tr>
+<tr><td style="padding:0 40px 40px;text-align:center;">
+  ${ctaButton("View the Platform", SIGNUP_URL, "#2e6da4")}
+</td></tr>
+`),
+  },
+  {
+    id: "mgmt-proof",
+    name: "Management — Proof",
+    description: "Third outreach with social proof and trust signals for equestrian management. Builds confidence before final push.",
+    previewColor: "#2e6da4",
+    category: "management",
+    getHtml: () => wrapEmail(`
+${headerBlock()}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0c1e3c;line-height:1.3;">Used by equestrian businesses across the UK &amp; Ireland</h1>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.7;">Hi {{firstName}},</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.7;">EquiProfile is trusted by stables, livery yards, and private owners who needed one professional system — not another workaround.</p>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 20px;">
+    <tr><td style="padding:16px;background:#f8fafc;border-radius:10px;margin-bottom:12px;">
+      <p style="margin:0;font-size:14px;color:#0c1e3c;font-weight:600;line-height:1.5;">"Our team runs tighter operations — and clients actually trust us more because the records are always up to date."</p>
+      <p style="margin:6px 0 0;font-size:12px;color:#64748b;">— Livery Yard Manager, Ireland</p>
+    </td></tr>
+  </table>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 28px;">
+${bulletRow("GDPR-compliant record storage")}
+${bulletRow("Works on mobile — manage from the yard or the field")}
+${bulletRow("Trusted by operations with 1 horse to 60+")}
+${bulletRow("Flat-rate pricing — no per-horse fees")}
+  </table>
+</td></tr>
+<tr><td style="padding:0 40px 40px;text-align:center;">
+  ${ctaButton("Start Free Trial", SIGNUP_URL, "#2e6da4")}
+  <p style="margin:12px 0 0;font-size:12px;color:#94a3b8;">7 days free. Upgrade only when you're ready.</p>
+</td></tr>
+`),
+  },
+  {
+    id: "mgmt-nudge",
+    name: "Management — Final Nudge",
+    description: "Final outreach email for management leads. Direct, respectful, low-pressure. Clear close.",
+    previewColor: "#2e6da4",
+    category: "management",
+    getHtml: () => wrapEmail(`
+${headerBlock()}
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0c1e3c;line-height:1.3;">Last note — just in case the timing is right now</h1>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.7;">Hi {{firstName}},</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.7;">I won't keep filling your inbox. But if you've been meaning to sort your horse records, streamline your yard, or give clients a more professional experience — EquiProfile is worth 10 minutes.</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.7;">The free trial is risk-free. You'll know quickly whether it's a fit.</p>
+  <div style="background:#f0f6ff;border-radius:10px;padding:20px 24px;margin:0 0 28px;">
+    <p style="margin:0;font-size:14px;font-weight:600;color:#0c1e3c;">What's included in the free trial:</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-top:10px;">
+${bulletRow("Full platform access for 7 days")}
+${bulletRow("Unlimited horse profiles")}
+${bulletRow("Health records, reminders, calendar")}
+${bulletRow("No credit card required")}
+    </table>
+  </div>
+</td></tr>
+<tr><td style="padding:0 40px 40px;text-align:center;">
+  ${ctaButton("Get Started — It's Free", SIGNUP_URL, "#2e6da4")}
+  <p style="margin:16px 0 0;font-size:12px;color:#94a3b8;">If the timing isn't right, no problem — <a href="{{unsubscribeLink}}" style="color:#94a3b8;">unsubscribe here</a>.</p>
+</td></tr>
+`),
+  },
+  // ── Academy — 4-step conversion family ───────────────────────────────────
+  {
+    id: "academy-intro",
+    name: "Academy — Intro",
+    description: "First outreach to riding schools, colleges, and academies. Introduces the academic/student platform.",
+    previewColor: "#163563",
+    category: "academy_school",
+    getHtml: () => wrapEmail(`
+<tr>
+<td style="background:linear-gradient(135deg, #0c1e3c 0%, #163563 50%, #1a5ca0 100%);padding:36px 40px 28px;text-align:center;">
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+  <tr>
+    <td style="padding-right:16px;vertical-align:middle;">
+      <img src="${LOGO_URL}" alt="EquiProfile" width="52" height="52" style="display:block;border-radius:10px;width:52px;height:52px;border:2px solid rgba(255,255,255,0.22);box-shadow:0 2px 8px rgba(0,0,0,0.25);"/>
+    </td>
+    <td style="vertical-align:middle;text-align:left;">
+      <span style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.3px;line-height:1.1;display:block;">EquiProfile Academy</span>
+      <span style="display:block;margin-top:4px;color:rgba(255,255,255,0.70);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:600;">Structured Equestrian Education</span>
+    </td>
+  </tr>
+</table>
+</td>
+</tr>
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0c1e3c;line-height:1.3;">A structured learning platform designed for equestrian schools</h1>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.7;">Hi {{firstName}},</p>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.7;">Teaching equestrian skills is complex. Tracking student progression, managing lesson content, and keeping parents informed shouldn't be.</p>
+  <p style="margin:0 0 24px;font-size:15px;color:#475569;line-height:1.7;">EquiProfile Academy gives your school a professional, structured digital platform — built specifically for equestrian education.</p>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 28px;">
+${bulletRow("<strong>Structured lesson pathways</strong> — from beginner to advanced rider", "#163563")}
+${bulletRow("<strong>Student progress tracking</strong> — measurable, reportable", "#163563")}
+${bulletRow("<strong>Teacher &amp; instructor portal</strong> — lesson planning, notes, assessments", "#163563")}
+${bulletRow("<strong>Parent visibility</strong> — progress updates without admin overhead", "#163563")}
+  </table>
+</td></tr>
+<tr><td style="padding:0 40px 40px;text-align:center;">
+  ${ctaButton("Explore the Academy Platform", SIGNUP_URL, "#163563")}
+  <p style="margin:16px 0 0;font-size:12px;color:#94a3b8;">7-day free trial. No credit card required.</p>
+</td></tr>
+`),
+  },
+  {
+    id: "academy-value",
+    name: "Academy — Value",
+    description: "Second outreach for academies/schools. Concrete time-saving and professional benefits for instructors and managers.",
+    previewColor: "#163563",
+    category: "academy_school",
+    getHtml: () => wrapEmail(`
+<tr>
+<td style="background:linear-gradient(135deg, #0c1e3c 0%, #163563 50%, #1a5ca0 100%);padding:36px 40px 28px;text-align:center;">
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+  <tr>
+    <td style="padding-right:16px;vertical-align:middle;">
+      <img src="${LOGO_URL}" alt="EquiProfile" width="52" height="52" style="display:block;border-radius:10px;width:52px;height:52px;border:2px solid rgba(255,255,255,0.22);box-shadow:0 2px 8px rgba(0,0,0,0.25);"/>
+    </td>
+    <td style="vertical-align:middle;text-align:left;">
+      <span style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.3px;line-height:1.1;display:block;">EquiProfile Academy</span>
+      <span style="display:block;margin-top:4px;color:rgba(255,255,255,0.70);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:600;">Structured Equestrian Education</span>
+    </td>
+  </tr>
+</table>
+</td>
+</tr>
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0c1e3c;line-height:1.3;">What does your school gain from going digital?</h1>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.7;">Hi {{firstName}},</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.7;">Paper lesson plans, scattered progress notes, and manual parent updates take hours every week. EquiProfile Academy consolidates all of it — so your instructors can focus on teaching.</p>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 24px;">
+${bulletRow("Instructors spend less time on admin, more time teaching", "#163563")}
+${bulletRow("Students learn faster with structured, trackable pathways", "#163563")}
+${bulletRow("Parents stay informed without constant phone calls", "#163563")}
+${bulletRow("School leadership sees real data — enrolment, progression, retention", "#163563")}
+  </table>
+  <div style="background:#eff6ff;border-left:4px solid #163563;padding:16px 20px;border-radius:0 8px 8px 0;margin:0 0 28px;">
+    <p style="margin:0;font-size:14px;color:#1e40af;font-weight:600;line-height:1.5;">"Our admin time dropped significantly in the first term."</p>
+    <p style="margin:4px 0 0;font-size:12px;color:#64748b;">— School Principal, UK</p>
+  </div>
+</td></tr>
+<tr><td style="padding:0 40px 40px;text-align:center;">
+  ${ctaButton("Learn More", SIGNUP_URL, "#163563")}
+</td></tr>
+`),
+  },
+  {
+    id: "academy-proof",
+    name: "Academy — Proof",
+    description: "Third outreach with trust signals and proof for academy/school decision-makers.",
+    previewColor: "#163563",
+    category: "academy_school",
+    getHtml: () => wrapEmail(`
+<tr>
+<td style="background:linear-gradient(135deg, #0c1e3c 0%, #163563 50%, #1a5ca0 100%);padding:36px 40px 28px;text-align:center;">
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+  <tr>
+    <td style="padding-right:16px;vertical-align:middle;">
+      <img src="${LOGO_URL}" alt="EquiProfile" width="52" height="52" style="display:block;border-radius:10px;width:52px;height:52px;border:2px solid rgba(255,255,255,0.22);box-shadow:0 2px 8px rgba(0,0,0,0.25);"/>
+    </td>
+    <td style="vertical-align:middle;text-align:left;">
+      <span style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.3px;line-height:1.1;display:block;">EquiProfile Academy</span>
+      <span style="display:block;margin-top:4px;color:rgba(255,255,255,0.70);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:600;">Structured Equestrian Education</span>
+    </td>
+  </tr>
+</table>
+</td>
+</tr>
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0c1e3c;line-height:1.3;">Trusted by riding schools across the UK &amp; Ireland</h1>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.7;">Hi {{firstName}},</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.7;">EquiProfile Academy is used by riding schools, colleges, and equestrian centres that needed a professional digital infrastructure — without enterprise complexity or cost.</p>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 20px;">
+    <tr><td style="padding:16px;background:#f8fafc;border-radius:10px;">
+      <p style="margin:0;font-size:14px;color:#0c1e3c;font-weight:600;line-height:1.5;">"Our students progress faster because everyone — instructors, students, parents — is working from the same information."</p>
+      <p style="margin:6px 0 0;font-size:12px;color:#64748b;">— Head of Instruction, Riding College, Ireland</p>
+    </td></tr>
+  </table>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 28px;">
+${bulletRow("GDPR-compliant — student data handled properly", "#163563")}
+${bulletRow("Works on any device — no app install required for parents", "#163563")}
+${bulletRow("Scales from 10 to 200+ students", "#163563")}
+${bulletRow("Flat pricing — no per-student fees", "#163563")}
+  </table>
+</td></tr>
+<tr><td style="padding:0 40px 40px;text-align:center;">
+  ${ctaButton("Start Free Trial", SIGNUP_URL, "#163563")}
+  <p style="margin:12px 0 0;font-size:12px;color:#94a3b8;">7 days free. Upgrade only when you're ready.</p>
+</td></tr>
+`),
+  },
+  {
+    id: "academy-nudge",
+    name: "Academy — Final Nudge",
+    description: "Final outreach email for academy/school leads. Respectful close with a clear, low-pressure CTA.",
+    previewColor: "#163563",
+    category: "academy_school",
+    getHtml: () => wrapEmail(`
+<tr>
+<td style="background:linear-gradient(135deg, #0c1e3c 0%, #163563 50%, #1a5ca0 100%);padding:36px 40px 28px;text-align:center;">
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+  <tr>
+    <td style="padding-right:16px;vertical-align:middle;">
+      <img src="${LOGO_URL}" alt="EquiProfile" width="52" height="52" style="display:block;border-radius:10px;width:52px;height:52px;border:2px solid rgba(255,255,255,0.22);box-shadow:0 2px 8px rgba(0,0,0,0.25);"/>
+    </td>
+    <td style="vertical-align:middle;text-align:left;">
+      <span style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.3px;line-height:1.1;display:block;">EquiProfile Academy</span>
+      <span style="display:block;margin-top:4px;color:rgba(255,255,255,0.70);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:600;">Structured Equestrian Education</span>
+    </td>
+  </tr>
+</table>
+</td>
+</tr>
+<tr><td style="padding:40px 40px 0;">
+  <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0c1e3c;line-height:1.3;">One last note — if the timing is finally right</h1>
+  <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.7;">Hi {{firstName}},</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.7;">I won't keep emailing. But if you've been putting off modernising your school's administration — this is the simplest way to start.</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#475569;line-height:1.7;">A free 7-day trial gives you full access. You'll know within a day whether it fits how your school works.</p>
+  <div style="background:#eff6ff;border-radius:10px;padding:20px 24px;margin:0 0 28px;">
+    <p style="margin:0;font-size:14px;font-weight:600;color:#0c1e3c;">What's included in the trial:</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-top:10px;">
+${bulletRow("Full Academy platform access", "#163563")}
+${bulletRow("Student profiles, lessons, and progress tracking", "#163563")}
+${bulletRow("Instructor and parent portals", "#163563")}
+${bulletRow("No credit card required", "#163563")}
+    </table>
+  </div>
+</td></tr>
+<tr><td style="padding:0 40px 40px;text-align:center;">
+  ${ctaButton("Start Free — No Card Needed", SIGNUP_URL, "#163563")}
+  <p style="margin:16px 0 0;font-size:12px;color:#94a3b8;">Not the right time? <a href="{{unsubscribeLink}}" style="color:#94a3b8;">Unsubscribe here</a> and we won't contact you again.</p>
+</td></tr>
+`),
+  },
   // ── Management / Stable / Yard / Owner Campaign Templates ────────────────
   {
     id: "health-tracking",

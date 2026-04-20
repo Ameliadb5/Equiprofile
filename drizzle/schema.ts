@@ -1420,6 +1420,32 @@ export const campaignSendLog = mysqlTable("campaignSendLog", {
 export type CampaignSendLogRow = typeof campaignSendLog.$inferSelect;
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Campaign replies — stores IMAP-fetched replies to campaign emails
+// Enables operator visibility of interested/replied contacts without AI auto-reply
+// ─────────────────────────────────────────────────────────────────────────────
+export const campaignReplies = mysqlTable("campaignReplies", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: varchar("messageId", { length: 500 }).notNull(), // IMAP/RFC 2822 Message-ID
+  fromEmail: varchar("fromEmail", { length: 320 }).notNull(),
+  fromName: varchar("fromName", { length: 200 }),
+  subject: varchar("subject", { length: 500 }),
+  snippet: text("snippet"), // first ~250 chars of body
+  receivedAt: timestamp("receivedAt").notNull(),
+  // Matched context
+  matchedCampaignId: int("matchedCampaignId"),
+  matchedContactId: int("matchedContactId"),
+  // Operator status
+  status: varchar("status", { length: 30 }).default("new").notNull(), // new, read, interested, not_interested, follow_up, converted, do_not_contact
+  notes: text("notes"),
+  sequenceStopped: boolean("sequenceStopped").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CampaignReply = typeof campaignReplies.$inferSelect;
+export type InsertCampaignReply = typeof campaignReplies.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Student System (Phase 2) — Virtual Horses, Tasks, Training, Progress, Study Hub, AI Tutor
 // ─────────────────────────────────────────────────────────────────────────────
 

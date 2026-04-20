@@ -549,58 +549,6 @@ export default function AdminCampaigns() {
         </div>
       )}
 
-      {/* Email Sending Safety / DNS Readiness */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <ShieldCheck className="w-4 h-4 text-blue-600" />
-            Email Sending Readiness
-          </CardTitle>
-          <CardDescription>
-            Ensure DNS and email provider are properly configured before sending campaigns
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              {
-                name: "SPF Record",
-                hint: "TXT record authorizing your SMTP server to send on behalf of your domain.",
-                doc: "v=spf1 include:_spf.google.com ~all",
-              },
-              {
-                name: "DKIM Signing",
-                hint: "Cryptographic signature added by your email provider to authenticate messages.",
-                doc: "Configure via your SMTP/email provider settings.",
-              },
-              {
-                name: "DMARC Policy",
-                hint: "Policy record that tells receiving servers how to handle unauthenticated emails.",
-                doc: 'v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com',
-              },
-              {
-                name: "SMTP Provider",
-                hint: "Ensure SMTP_HOST, SMTP_USER, and SMTP_PASS are configured in your environment.",
-                doc: "SMTP credentials must be set in .env before sending.",
-              },
-            ].map((item) => (
-              <div key={item.name} className="border rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <Mail className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-sm font-medium">{item.name}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mb-1">{item.hint}</p>
-                <code className="text-[10px] text-blue-600 break-all">{item.doc}</code>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            ⚠️ Campaigns will attempt to send via your configured SMTP provider. Ensure DNS records are verified
-            and your sending domain has good reputation before launching campaigns to avoid deliverability issues.
-          </p>
-        </CardContent>
-      </Card>
-
       {/* Templates */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -1353,6 +1301,25 @@ export default function AdminCampaigns() {
 
       {/* Marketing Contacts Section */}
       <MarketingContactsSection />
+
+      {/* Campaign Assignment Preview */}
+      <CampaignAssignmentPreview />
+
+      {/* Replies Inbox */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="w-5 h-5" />
+            Replies Inbox
+          </CardTitle>
+          <CardDescription>
+            Incoming replies to campaign emails — polled automatically every 15 minutes on weekdays
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RepliesInboxSection />
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -1923,6 +1890,222 @@ type ParsedImport = {
 };
 
 const MAPPING_FIELDS = ["email", "name", "businessName", "contactType", "region", "country", "organizationName", "leadFocus"] as const;
+
+// ─── Campaign Replies Inbox ──────────────────────────────────────────────────
+
+const REPLY_STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  new: { label: "New", color: "bg-blue-100 text-blue-700" },
+  read: { label: "Read", color: "bg-slate-100 text-slate-600" },
+  interested: { label: "Interested", color: "bg-emerald-100 text-emerald-700" },
+  not_interested: { label: "Not Interested", color: "bg-slate-100 text-slate-500" },
+  follow_up: { label: "Follow Up", color: "bg-amber-100 text-amber-700" },
+  converted: { label: "Converted", color: "bg-green-100 text-green-700" },
+  do_not_contact: { label: "Do Not Contact", color: "bg-red-100 text-red-600" },
+};
+
+function RepliesInboxSection() {
+  const [statusFilter, setStatusFilter] = useState<"all" | "new" | "read" | "interested" | "not_interested" | "follow_up" | "converted" | "do_not_contact">("all");
+  const utils = trpc.useUtils();
+
+  const { data, isLoading, refetch } = trpc.admin.getCampaignReplies.useQuery(
+    { status: statusFilter, limit: 50, offset: 0 },
+    { refetchInterval: 120_000 },
+  );
+
+  const fetchMutation = trpc.admin.triggerReplyFetch.useMutation({
+    onSuccess: (result) => {
+      toast.success(`Fetched ${result.fetched} new reply(s) from mailbox`);
+      refetch();
+    },
+    onError: (err) => toast.error(`Fetch failed: ${err.message}`),
+  });
+
+  const statusMutation = trpc.admin.updateReplyStatus.useMutation({
+    onSuccess: () => {
+      utils.admin.getCampaignReplies.invalidate();
+      toast.success("Reply status updated");
+    },
+    onError: (err) => toast.error(`Update failed: ${err.message}`),
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All replies</SelectItem>
+            {Object.entries(REPLY_STATUS_LABELS).map(([k, v]) => (
+              <SelectItem key={k} value={k}>{v.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => fetchMutation.mutate()}
+          disabled={fetchMutation.isPending}
+          className="gap-1.5"
+        >
+          {fetchMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+          Check Mailbox
+        </Button>
+        <span className="text-xs text-muted-foreground ml-auto">
+          {data?.total ?? 0} reply(s) total
+        </span>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-2">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}
+        </div>
+      ) : !data?.replies.length ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <Mail className="w-10 h-10 mx-auto mb-3 opacity-20" />
+          <p className="text-sm">No replies found</p>
+          <p className="text-xs mt-1">The mailbox poller runs every 15 minutes on weekdays, or click "Check Mailbox" above.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {data.replies.map((reply) => {
+            const statusInfo = REPLY_STATUS_LABELS[reply.status] ?? REPLY_STATUS_LABELS.new;
+            return (
+              <div key={reply.id} className="border rounded-xl p-4 bg-white dark:bg-[#0f1a2e]/40 hover:shadow-sm transition-shadow">
+                <div className="flex flex-wrap items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <span className="text-sm font-semibold text-[#0c1e3c] dark:text-blue-100 truncate">
+                        {reply.fromName || reply.fromEmail}
+                      </span>
+                      {reply.fromName && (
+                        <span className="text-xs text-muted-foreground truncate">{reply.fromEmail}</span>
+                      )}
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ${statusInfo.color}`}>
+                        {statusInfo.label}
+                      </span>
+                    </div>
+                    <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1 truncate">
+                      {reply.subject || "(no subject)"}
+                    </p>
+                    {reply.snippet && (
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                        {reply.snippet}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {new Date(reply.receivedAt).toLocaleString()}
+                      {reply.matchedCampaignId && (
+                        <span className="ml-2 text-[#2e6da4]">Campaign #{reply.matchedCampaignId}</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-1.5 shrink-0">
+                    <Select
+                      value={reply.status}
+                      onValueChange={(v) =>
+                        statusMutation.mutate({ replyId: reply.id, status: v as "new" | "read" | "interested" | "not_interested" | "follow_up" | "converted" | "do_not_contact" })
+                      }
+                    >
+                      <SelectTrigger className="h-7 text-xs w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(REPLY_STATUS_LABELS).map(([k, v]) => (
+                          <SelectItem key={k} value={k} className="text-xs">{v.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {!reply.sequenceStopped && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                        onClick={() => statusMutation.mutate({ replyId: reply.id, status: reply.status as "new" | "read" | "interested" | "not_interested" | "follow_up" | "converted" | "do_not_contact", stopSequence: true })}
+                        disabled={statusMutation.isPending}
+                      >
+                        Stop Sequence
+                      </Button>
+                    )}
+                    {reply.sequenceStopped && (
+                      <span className="text-[10px] text-orange-500 font-medium text-center">Sequence stopped</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Campaign Assignment Preview ─────────────────────────────────────────────
+
+function CampaignAssignmentPreview() {
+  const { data, isLoading, refetch } = trpc.admin.getCampaignAssignmentPreview.useQuery(undefined, {
+    refetchInterval: 300_000,
+  });
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Users className="w-4 h-4 text-[#2e6da4]" />
+            Contact Assignment Preview
+          </CardTitle>
+          <Button size="sm" variant="ghost" onClick={() => refetch()} className="h-7 px-2 text-xs">
+            Refresh
+          </Button>
+        </div>
+        <CardDescription>
+          How your marketing contacts would be distributed across campaign families
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)}
+          </div>
+        ) : data ? (
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="rounded-xl border border-[#2e6da4]/20 bg-[#f0f6ff] dark:bg-[#0c1e3c]/30 p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Management</p>
+              <p className="text-2xl font-bold text-[#2e6da4]">{data.management}</p>
+              <p className="text-[10px] text-muted-foreground">eligible leads</p>
+            </div>
+            <div className="rounded-xl border border-[#163563]/20 bg-[#eff6ff] dark:bg-[#0c1e3c]/30 p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Academy</p>
+              <p className="text-2xl font-bold text-[#163563]">{data.academy}</p>
+              <p className="text-[10px] text-muted-foreground">eligible leads</p>
+            </div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Already Sent</p>
+              <p className="text-2xl font-bold text-amber-600">{data.alreadySent}</p>
+              <p className="text-[10px] text-muted-foreground">contacts</p>
+            </div>
+            <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Blocked</p>
+              <p className="text-2xl font-bold text-red-500">{data.blocked}</p>
+              <p className="text-[10px] text-muted-foreground">suppressed/invalid</p>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-800/30 p-3 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1">Total</p>
+              <p className="text-2xl font-bold">{data.total}</p>
+              <p className="text-[10px] text-muted-foreground">contacts</p>
+            </div>
+          </div>
+        ) : null}
+        <p className="text-xs text-muted-foreground mt-3">
+          Academy types: school, college, academy, student, teacher, instructor. All others → Management family.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
 
 function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
