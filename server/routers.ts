@@ -4761,7 +4761,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         }
 
         await dbConn.update(campaignSequences)
-          .set({ status: deferredCount > 0 ? "sent" : "sent", sentAt: new Date(), sentCount, failedCount })
+          .set({ status: "sent", sentAt: new Date(), sentCount, failedCount })
           .where(eq(campaignSequences.id, input.sequenceId));
 
         return { sentCount, failedCount, total: allRecipients.length, deferred: deferredCount };

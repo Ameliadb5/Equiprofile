@@ -1942,7 +1942,7 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
                 <CardContent className="pt-4 pb-4 text-center">
                   <p className="text-sm text-muted-foreground">Skipped</p>
                   <p className="text-2xl font-bold text-yellow-600">{importResult.skipped}</p>
-                  <p className="text-[10px] text-muted-foreground">already in DB / suppressed</p>
+                  <p className="text-[10px] text-muted-foreground">already in DB, bounced, or unsubscribed</p>
                 </CardContent>
               </Card>
               <Card>
