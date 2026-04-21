@@ -1760,12 +1760,13 @@ function MarketingContactsSection() {
     offset: page * pageSize,
   });
 
-  // Total count for current filter — re-use a large limit to get total for display
+  // Total count for current filter — capped at 500 to match backend validator max (z.number().max(500)).
+  // Using a higher value causes a 400 validation error from the server.
   const filteredTotal = trpc.admin.getMarketingContacts.useQuery({
     search: searchQuery || undefined,
     country: filterCountry || undefined,
     contactType: filterType || undefined,
-    limit: 10000,
+    limit: 500, // Must not exceed backend validator max of 500
     offset: 0,
   });
 
@@ -2001,7 +2002,7 @@ function MarketingContactsSection() {
               )}
               {hasActiveFilter && (
                 <span className="text-muted-foreground">
-                  {filteredCount} match current filter
+                  {filteredCount}{filteredCount === 500 ? "+" : ""} match current filter
                 </span>
               )}
               {selectedIds.size > 0 && (
@@ -2121,7 +2122,7 @@ function MarketingContactsSection() {
                 <p className="text-sm text-muted-foreground">
                   Page {page + 1} · Showing {contacts.data.length} contacts
                   {hasActiveFilter && filteredCount > 0 && (
-                    <span className="ml-1">of {filteredCount} matching</span>
+                    <span className="ml-1">of {filteredCount}{filteredCount === 500 ? "+" : ""} matching</span>
                   )}
                 </p>
                 <div className="flex gap-2">

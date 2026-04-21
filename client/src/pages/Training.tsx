@@ -295,7 +295,7 @@ function TrainingContent() {
             subtitle="Sessions, schedules, and training programmes"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input

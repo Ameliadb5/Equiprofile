@@ -336,7 +336,7 @@ export default function AdminAnalytics() {
                                   {pct}%
                                 </span>
                               </div>
-                              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                              <div className="w-full h-3 bg-muted/60 rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-primary rounded-full transition-all"
                                   style={{ width: `${pct}%` }}

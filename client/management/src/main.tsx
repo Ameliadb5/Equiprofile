@@ -168,7 +168,17 @@ const trpcClient = trpc.createClient({
           if (response.status === 413) {
             message = "File too large. Maximum upload size is 10MB.";
           }
-          // Return a synthetic Response that tRPC can parse as a batch error.
+          // ⚠️  INTENTIONAL HTTP 200 WORKAROUND — DO NOT CHANGE WITHOUT REVIEW
+          // tRPC's httpBatchLink reads the response body ONLY when the HTTP
+          // status is 2xx.  If we forward the original non-2xx status, the
+          // link skips body parsing entirely and surfaces a generic network
+          // error, hiding the actual message (e.g. "File too large").
+          // By re-wrapping in a 200 response we force the link to parse the
+          // JSON error payload from the batch array item, giving the UI a
+          // meaningful error string.
+          // Side effect: HTTP access logs will record a 200 for these requests.
+          // Use the `data.code` / `data.httpStatus` fields in the tRPC error
+          // object to distinguish real successes from forwarded errors.
           const body = JSON.stringify([
             {
               error: {
@@ -183,7 +193,7 @@ const trpcClient = trpc.createClient({
             },
           ]);
           return new Response(body, {
-            status: response.status,
+            status: 200,
             headers: { "content-type": "application/json" },
           });
         }

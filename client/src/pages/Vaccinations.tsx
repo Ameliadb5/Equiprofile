@@ -31,6 +31,7 @@ import {
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
@@ -234,7 +235,7 @@ function VaccinationsContent() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-6 sm:p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
           <PageHeader
@@ -247,9 +248,8 @@ function VaccinationsContent() {
             resetForm();
             setIsCreateDialogOpen(true);
           }}
-          size="lg"
         >
-          <Plus className="h-5 w-5 mr-2" />
+          <Plus className="h-4 w-4 mr-2" />
           Add Vaccination
         </Button>
       </div>
@@ -260,86 +260,52 @@ function VaccinationsContent() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-foreground">
               <AlertCircle className="h-5 w-5 text-amber-500" />
-              Upcoming & Overdue Vaccinations ({upcomingVaccinations.length})
+              Upcoming & Overdue Vaccinations
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-1">
               {upcomingVaccinations.map((vaccination) => (
-                <Card
+                <div
                   key={vaccination.id}
-                  className={
+                  className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
                     isOverdue(vaccination.nextDueDate)
-                      ? "border-red-300/60 bg-red-50/60 dark:border-red-800/30 dark:bg-red-950/20"
-                      : "border-amber-200/60 bg-amber-50/40 dark:border-amber-800/30 dark:bg-amber-950/20"
-                  }
+                      ? "bg-red-50/60 dark:bg-red-950/20"
+                      : "bg-amber-50/40 dark:bg-amber-950/10"
+                  }`}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-lg">
-                            {vaccination.vaccineName}
-                          </h3>
-                          {isOverdue(vaccination.nextDueDate) && (
-                            <Badge variant="destructive">Overdue</Badge>
-                          )}
-                          {isDueNext30Days(vaccination.nextDueDate) &&
-                            !isOverdue(vaccination.nextDueDate) && (
-                              <Badge
-                                variant="outline"
-                                className="bg-amber-100 dark:bg-amber-950/40"
-                              >
-                                Due Soon
-                              </Badge>
-                            )}
-                        </div>
-                        <div className="text-sm text-muted-foreground mt-1">
-                          <span className="font-medium">
-                            {getHorseName(vaccination.horseId)}
-                          </span>
-                          {vaccination.vaccineType && (
-                            <span> • {vaccination.vaccineType}</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4 mt-2 text-sm">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            Last:{" "}
-                            {new Date(
-                              vaccination.dateAdministered,
-                            ).toLocaleDateString()}
-                          </span>
-                          {vaccination.nextDueDate && (
-                            <span className="flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
-                              <Calendar className="h-4 w-4" />
-                              Next Due:{" "}
-                              {new Date(
-                                vaccination.nextDueDate,
-                              ).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleEdit(vaccination)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDelete(vaccination.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
+                    <Syringe className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium truncate">{vaccination.vaccineName}</p>
+                      {isOverdue(vaccination.nextDueDate) && (
+                        <Badge variant="destructive" className="text-xs h-4 px-1.5">Overdue</Badge>
+                      )}
+                      {isDueNext30Days(vaccination.nextDueDate) && !isOverdue(vaccination.nextDueDate) && (
+                        <Badge variant="outline" className="text-xs h-4 px-1.5 bg-amber-100 dark:bg-amber-950/40">Due Soon</Badge>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-muted-foreground">
+                      <span>{getHorseName(vaccination.horseId)}</span>
+                      {vaccination.vaccineType && <span>· {vaccination.vaccineType}</span>}
+                      {vaccination.nextDueDate && (
+                        <span className="text-amber-600 dark:text-amber-400">
+                          · Due {new Date(vaccination.nextDueDate).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(vaccination)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(vaccination.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               ))}
             </div>
           </CardContent>
@@ -349,84 +315,57 @@ function VaccinationsContent() {
       {/* All Vaccination Records */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            All Vaccination Records ({localVaccinations.length})
-          </CardTitle>
+          <CardTitle>All Vaccination Records</CardTitle>
+          <CardDescription>Vaccination history for all horses</CardDescription>
         </CardHeader>
         <CardContent>
           {localVaccinations.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Syringe className="h-16 w-16 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">No vaccination records yet</p>
-              <p className="text-sm">
-                Add your first vaccination record to get started
-              </p>
+            <div className="text-center py-8">
+              <Syringe className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
+              <p className="font-medium text-muted-foreground mb-4">No vaccination records yet</p>
+              <Button onClick={() => { resetForm(); setIsCreateDialogOpen(true); }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add First Record
+              </Button>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-1">
               {localVaccinations.map((vaccination) => (
-                <Card key={vaccination.id}>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">
-                          {vaccination.vaccineName}
-                        </h3>
-                        <div className="text-sm text-muted-foreground mt-1">
-                          <span className="font-medium">
-                            {getHorseName(vaccination.horseId)}
-                          </span>
-                          {vaccination.vaccineType && (
-                            <span> • {vaccination.vaccineType}</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4 mt-2 text-sm">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            {new Date(
-                              vaccination.dateAdministered,
-                            ).toLocaleDateString()}
-                          </span>
-                          {vaccination.nextDueDate && (
-                            <span className="flex items-center gap-1">
-                              Next:{" "}
-                              {new Date(
-                                vaccination.nextDueDate,
-                              ).toLocaleDateString()}
-                            </span>
-                          )}
-                          {vaccination.vetName && (
-                            <span>Vet: {vaccination.vetName}</span>
-                          )}
-                          {vaccination.cost && (
-                            <span>£{(vaccination.cost / 100).toFixed(2)}</span>
-                          )}
-                        </div>
-                        {vaccination.notes && (
-                          <p className="text-sm mt-2 text-muted-foreground">
-                            {vaccination.notes}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleEdit(vaccination)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDelete(vaccination.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                <div
+                  key={vaccination.id}
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/30 transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <Syringe className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium truncate">{vaccination.vaccineName}</p>
+                      {vaccination.vaccineType && (
+                        <span className="text-xs text-muted-foreground shrink-0">{vaccination.vaccineType}</span>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-muted-foreground">
+                      <span>{getHorseName(vaccination.horseId)}</span>
+                      <span>· {new Date(vaccination.dateAdministered).toLocaleDateString()}</span>
+                      {vaccination.vetName && <span>· {vaccination.vetName}</span>}
+                      {vaccination.nextDueDate && (
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {new Date(vaccination.nextDueDate).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(vaccination)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(vaccination.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               ))}
             </div>
           )}
