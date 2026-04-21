@@ -279,7 +279,7 @@
   }
   .card-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px -8px rgba(46, 109, 164, 0.18);
+    box-shadow: 0 8px 24px -8px hsl(var(--primary) / 0.2);
   }
 
   /* Standard empty-state treatment — consistent across all pages */

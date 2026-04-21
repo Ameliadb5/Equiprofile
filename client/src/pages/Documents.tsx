@@ -115,7 +115,7 @@ const folderConfig: Record<
   feeding: {
     label: "Feeding & Nutrition",
     icon: Apple,
-    gradient: "from-teal-700 to-teal-800",
+    gradient: "from-green-700 to-green-800",
     description: "Feed plans and nutrition records",
   },
   invoice: {
