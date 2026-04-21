@@ -3,6 +3,13 @@ import { trpc } from "@/lib/trpc";
 import { useRealtimeModule } from "../hooks/useRealtime";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -210,8 +217,8 @@ function TreatmentsContent() {
   };
 
   return (
-    <div className="p-4 sm:p-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
           <PageHeader
             title="Treatments"
@@ -424,146 +431,95 @@ function TreatmentsContent() {
       </div>
 
       {/* Active Treatments */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">
-          Active Treatments ({activeTreatments.length})
-        </h2>
-        <div className="grid gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Active Treatments</CardTitle>
+          <CardDescription>Ongoing medications and therapies</CardDescription>
+        </CardHeader>
+        <CardContent>
           {activeTreatments.length === 0 ? (
-            <p className="text-muted-foreground">No active treatments</p>
+            <p className="text-muted-foreground text-sm py-4 text-center">No active treatments</p>
           ) : (
-            activeTreatments.map((treatment: any) => (
-              <div
-                key={treatment.id}
-                className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg">
-                        {treatment.treatmentName || treatment.name}
-                      </h3>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(treatment.status)}`}
-                      >
+            <div className="space-y-1">
+              {activeTreatments.map((treatment: any) => (
+                <div
+                  key={treatment.id}
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/30 transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <Pill className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium truncate">{treatment.treatmentName || treatment.name}</p>
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${getStatusBadge(treatment.status)}`}>
                         {treatment.status}
                       </span>
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
                         {treatment.treatmentType || treatment.type}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Horse:{" "}
-                      {horses?.find((h: any) => h.id === treatment.horseId)
-                        ?.name || "Unknown"}
-                    </p>
-                    {treatment.dosage && (
-                      <p className="text-sm">
-                        <strong>Dosage:</strong> {treatment.dosage}
-                      </p>
-                    )}
-                    {treatment.frequency && (
-                      <p className="text-sm">
-                        <strong>Frequency:</strong> {treatment.frequency}
-                      </p>
-                    )}
-                    <p className="text-sm">
-                      <strong>Started:</strong>{" "}
-                      {new Date(treatment.startDate).toLocaleDateString()}
-                    </p>
-                    {treatment.endDate && (
-                      <p className="text-sm">
-                        <strong>Ends:</strong>{" "}
-                        {new Date(treatment.endDate).toLocaleDateString()}
-                      </p>
-                    )}
-                    {treatment.vetName && (
-                      <p className="text-sm">
-                        <strong>Vet:</strong> {treatment.vetName}
-                      </p>
-                    )}
-                    {treatment.cost && (
-                      <p className="text-sm">
-                        <strong>Cost:</strong> £
-                        {(treatment.cost / 100).toFixed(2)}
-                      </p>
-                    )}
-                    {treatment.notes && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {treatment.notes}
-                      </p>
-                    )}
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-muted-foreground">
+                      <span>{horses?.find((h: any) => h.id === treatment.horseId)?.name || "Unknown"}</span>
+                      {treatment.dosage && <span>· {treatment.dosage}</span>}
+                      <span>· {new Date(treatment.startDate).toLocaleDateString()}</span>
+                      {treatment.endDate && <span>– {new Date(treatment.endDate).toLocaleDateString()}</span>}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEdit(treatment)}
-                    >
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(treatment)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDelete(treatment.id)}
-                    >
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(treatment.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Completed Treatments */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">
-          Completed Treatments ({completedTreatments.length})
-        </h2>
-        <div className="grid gap-4">
-          {completedTreatments.slice(0, 10).map((treatment: any) => (
-            <div
-              key={treatment.id}
-              className="bg-gray-50 border rounded-lg p-4"
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold">
-                      {treatment.treatmentName || treatment.name}
-                    </h3>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(treatment.status)}`}
-                    >
-                      {treatment.status}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Horse:{" "}
-                    {horses?.find((h: any) => h.id === treatment.horseId)
-                      ?.name || "Unknown"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(treatment.startDate).toLocaleDateString()} -{" "}
-                    {treatment.endDate
-                      ? new Date(treatment.endDate).toLocaleDateString()
-                      : "Ongoing"}
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleEdit(treatment)}
+      {completedTreatments.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Completed Treatments</CardTitle>
+            <CardDescription>Previous and finished treatment history</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              {completedTreatments.slice(0, 10).map((treatment: any) => (
+                <div
+                  key={treatment.id}
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/30 transition-colors"
                 >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </div>
+                  <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+                    <Pill className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium truncate text-muted-foreground">{treatment.treatmentName || treatment.name}</p>
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${getStatusBadge(treatment.status)}`}>
+                        {treatment.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-muted-foreground">
+                      <span>{horses?.find((h: any) => h.id === treatment.horseId)?.name || "Unknown"}</span>
+                      <span>· {new Date(treatment.startDate).toLocaleDateString()}</span>
+                      {treatment.endDate && <span>– {new Date(treatment.endDate).toLocaleDateString()}</span>}
+                    </div>
+                  </div>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={() => handleEdit(treatment)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

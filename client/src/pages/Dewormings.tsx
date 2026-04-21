@@ -23,6 +23,7 @@ import {
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
@@ -377,11 +378,11 @@ export default function Dewormings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-foreground">
                 <Calendar className="h-5 w-5 text-amber-500" />
-                Upcoming Dewormings (Next 30 Days)
+                Upcoming (Next 30 Days)
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {upcomingDewormings.map((deworming: any) => {
                   const horse = horses.find(
                     (h: any) => h.id === deworming.horseId,
@@ -389,15 +390,14 @@ export default function Dewormings() {
                   return (
                     <div
                       key={deworming.id}
-                      className="flex justify-between items-center p-2 bg-white rounded"
+                      className="flex items-center justify-between p-3 rounded-lg bg-amber-50/40 dark:bg-amber-950/10"
                     >
-                      <div>
-                        <span className="font-medium">{horse?.name}</span> -{" "}
-                        {deworming.product}
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-medium truncate">{horse?.name}</span>
+                        <span className="text-sm text-muted-foreground shrink-0">· {deworming.productName || deworming.product}</span>
                       </div>
-                      <span className="text-sm text-muted-foreground">
-                        Due:{" "}
-                        {new Date(deworming.nextDueDate).toLocaleDateString()}
+                      <span className="text-xs text-amber-600 dark:text-amber-400 shrink-0 ml-2">
+                        Due {new Date(deworming.nextDueDate).toLocaleDateString()}
                       </span>
                     </div>
                   );
@@ -407,99 +407,64 @@ export default function Dewormings() {
           </Card>
         )}
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {localDewormings.map((deworming: any) => {
-            const horse = horses.find((h: any) => h.id === deworming.horseId);
-            return (
-              <Card key={deworming.id}>
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-start">
-                    <div>
-                      <div className="text-lg">
-                        {horse?.name || "Unknown Horse"}
+        <Card>
+          <CardHeader>
+            <CardTitle>All Deworming Records</CardTitle>
+            <CardDescription>Deworming history for all horses</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {localDewormings.length === 0 ? (
+              <div className="text-center py-8">
+                <Calendar className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">No deworming records yet</p>
+                <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add First Record
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {localDewormings.map((deworming: any) => {
+                  const horse = horses.find((h: any) => h.id === deworming.horseId);
+                  return (
+                    <div
+                      key={deworming.id}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                        <Calendar className="w-4 h-4" />
                       </div>
-                      <div className="text-sm font-normal text-muted-foreground">
-                        {deworming.product}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium truncate">{horse?.name || "Unknown Horse"}</p>
+                          <span className="text-xs text-muted-foreground shrink-0">{deworming.productName || deworming.product}</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-muted-foreground">
+                          <span>{new Date(deworming.dateAdministered).toLocaleDateString()}</span>
+                          {deworming.activeIngredient && <span>· {deworming.activeIngredient}</span>}
+                          {deworming.nextDueDate && (
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(deworming.nextDueDate).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(deworming)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(deworming.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEdit(deworming)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDelete(deworming.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Active Ingredient:</span>{" "}
-                    {deworming.activeIngredient}
-                  </div>
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Dosage:</span>{" "}
-                    {deworming.dosage}
-                  </div>
-                  {deworming.weight && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Weight:</span>{" "}
-                      {deworming.weight} kg
-                    </div>
-                  )}
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Date:</span>{" "}
-                    {new Date(deworming.dateAdministered).toLocaleDateString()}
-                  </div>
-                  {deworming.nextDueDate && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Next Due:</span>{" "}
-                      {new Date(deworming.nextDueDate).toLocaleDateString()}
-                    </div>
-                  )}
-                  {deworming.vet && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Vet:</span>{" "}
-                      {deworming.vet}
-                    </div>
-                  )}
-                  {deworming.cost && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Cost:</span> £
-                      {(deworming.cost / 100).toFixed(2)}
-                    </div>
-                  )}
-                  {deworming.notes && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Notes:</span>{" "}
-                      {deworming.notes}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {localDewormings.length === 0 && (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Calendar className="h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-muted-foreground">No deworming records yet</p>
-              <p className="text-sm text-gray-500">
-                Click "Add Deworming" to create your first record
-              </p>
-            </CardContent>
-          </Card>
-        )}
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );
