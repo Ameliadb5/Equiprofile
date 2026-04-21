@@ -140,22 +140,21 @@ export function getRidingAdvice(weather: WeatherData, hourOfDay?: number): Ridin
     })();
 
   // ── Daylight detection ──────────────────────────────────────────────────
-  // Parse a timestamp like "2024-03-15T06:30" into total minutes since midnight.
-  const toMinutes = (ts: string | undefined): number | null => {
+  // Parse an ISO-like local-time string "2024-03-15T06:30" into minutes since midnight.
+  const parseTimeToMinutes = (ts: string | undefined): number | null => {
     if (!ts) return null;
     const m = ts.match(/T(\d{2}):(\d{2})/);
     if (!m) return null;
     return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
   };
 
-  // Current time in minutes from the weather timestamp (local time).
-  const currentMins = (() => {
-    const m = weather.timestamp.match(/T(\d{2}):(\d{2})/);
-    return m ? parseInt(m[1], 10) * 60 + parseInt(m[2], 10) : hour * 60;
-  })();
+  // Current time in minutes.  Reuses the same parser for consistency — if the timestamp
+  // lacks a minutes component the regex returns null and we fall back to hour * 60
+  // (i.e. treat the current time as the top of the hour, same value already extracted above).
+  const currentMins = parseTimeToMinutes(weather.timestamp) ?? hour * 60;
 
-  const sunriseMins = toMinutes(weather.sunrise);
-  const sunsetMins = toMinutes(weather.sunset);
+  const sunriseMins = parseTimeToMinutes(weather.sunrise);
+  const sunsetMins = parseTimeToMinutes(weather.sunset);
 
   let isNighttime: boolean;
   let isDusk: boolean;
