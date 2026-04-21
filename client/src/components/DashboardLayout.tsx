@@ -334,13 +334,10 @@ function DashboardLayoutContent({
   // When admin is previewing a specific plan type, derive an effective stable-plan flag
   // so the More sheet respects the simulated user's feature set rather than always
   // showing all features.  Real users are unaffected.
-  const effectiveIsStablePlan = (() => {
-    if (isAdmin && viewMode === "stable") return true;
-    if (isAdmin && viewMode !== null && viewMode !== "admin") return false;
-    return isStablePlan;
-  })();
-  // effectiveIsAdmin: admins in their own "admin" view can still see everything;
-  // admins previewing another plan type should be gated like that plan.
+  // Simplified: admin + stable view → true; admin + any other non-admin view → false; otherwise real plan.
+  const effectiveIsStablePlan = isAdmin ? viewMode === "stable" : isStablePlan;
+  // effectiveIsAdmin is true only when the user is an admin AND either has no viewMode set or is
+  // explicitly in "admin" viewMode — ensures admins previewing other plans are gated like those plans.
   const effectiveIsAdmin = isAdmin && (!viewMode || viewMode === "admin");
 
   // Determine which dashboard view is active for users with both dashboards
