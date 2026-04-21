@@ -59,7 +59,7 @@ You received this email because you subscribed to EquiProfile communications or 
 <a href="{{unsubscribeLink}}" style="color:#2e6da4;text-decoration:underline;">Unsubscribe</a> &nbsp;|&nbsp;
 <a href="${SITE_URL}/privacy" style="color:#2e6da4;text-decoration:underline;">Privacy Policy</a>
 </p>
-<p style="margin:6px 0 0 0;font-size:11px;color:#c5cdd8;">
+<p style="margin:6px 0 0 0;font-size:12px;color:#c5cdd8;">
 Amarktai Network Ltd. All rights reserved.
 </p>
 </td></tr>
