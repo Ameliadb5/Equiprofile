@@ -1760,12 +1760,12 @@ function MarketingContactsSection() {
     offset: page * pageSize,
   });
 
-  // Total count for current filter — re-use a large limit to get total for display
+  // Total count for current filter — use max allowed limit (500) to get total for display
   const filteredTotal = trpc.admin.getMarketingContacts.useQuery({
     search: searchQuery || undefined,
     country: filterCountry || undefined,
     contactType: filterType || undefined,
-    limit: 10000,
+    limit: 500,
     offset: 0,
   });
 

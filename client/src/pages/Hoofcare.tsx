@@ -242,8 +242,8 @@ function HoofcareContent() {
     }) || [];
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <PageHeader
             title="Hoofcare"

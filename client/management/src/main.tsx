@@ -168,7 +168,10 @@ const trpcClient = trpc.createClient({
           if (response.status === 413) {
             message = "File too large. Maximum upload size is 10MB.";
           }
-          // Return a synthetic Response that tRPC can parse as a batch error.
+          // Return a synthetic tRPC-formatted batch response with status 200 so
+          // the httpBatchLink correctly parses the error from the array item.
+          // Using the original non-2xx status here would cause some tRPC versions
+          // to skip body parsing entirely, swallowing the error.
           const body = JSON.stringify([
             {
               error: {
@@ -183,7 +186,7 @@ const trpcClient = trpc.createClient({
             },
           ]);
           return new Response(body, {
-            status: response.status,
+            status: 200,
             headers: { "content-type": "application/json" },
           });
         }

@@ -72,50 +72,51 @@ Amarktai Network Ltd. All rights reserved.
 
 /**
  * Standard EquiProfile email letterhead.
- * Premium navy gradient with accent bar, vertical divider, and brand typography.
+ * Clean brand-blue gradient — lighter and more aligned with the product UI.
+ * Logo is displayed without a heavy box/border so it reads cleanly.
  * The accent parameter is retained for backwards compatibility but is not used.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function headerBlock(_accent?: string): string {
   return `<tr>
-<td style="background:linear-gradient(150deg, #040e20 0%, #0c1e3c 55%, #163563 100%);padding:44px 40px 36px;">
+<td style="background:linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);padding:36px 40px 32px;">
 <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
   <tr>
-    <td style="vertical-align:middle;padding-right:20px;width:72px;">
-      <img src="${LOGO_URL}" alt="EquiProfile" width="56" height="56" style="display:block;border-radius:12px;width:56px;height:56px;border:1.5px solid rgba(255,255,255,0.20);box-shadow:0 4px 16px rgba(0,0,0,0.45);"/>
+    <td style="vertical-align:middle;padding-right:18px;width:88px;">
+      <img src="${LOGO_URL}" alt="EquiProfile" width="72" height="72" style="display:block;border-radius:14px;width:72px;height:72px;background:#ffffff;"/>
     </td>
-    <td style="vertical-align:middle;border-left:1px solid rgba(255,255,255,0.12);padding-left:20px;">
-      <span style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1.1;display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">EquiProfile</span>
-      <span style="display:block;margin-top:5px;color:rgba(164,198,255,0.82);font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Professional Equestrian Platform</span>
+    <td style="vertical-align:middle;">
+      <span style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1.1;display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">EquiProfile</span>
+      <span style="display:block;margin-top:4px;color:rgba(219,234,254,0.90);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Professional Equestrian Platform</span>
     </td>
   </tr>
 </table>
 </td>
 </tr>
-<tr><td style="height:3px;background:linear-gradient(90deg, #1a5ca0 0%, #3b82f6 50%, #1a5ca0 100%);"></td></tr>`;
+<tr><td style="height:3px;background:linear-gradient(90deg, #93c5fd 0%, #ffffff 50%, #93c5fd 100%);opacity:0.6;"></td></tr>`;
 }
 
 /**
  * EquiProfile Academy email letterhead.
- * Same premium treatment as headerBlock but with "Academy" branding.
+ * Same clean brand treatment as headerBlock but with "Academy" branding.
  */
 function academyHeaderBlock(): string {
   return `<tr>
-<td style="background:linear-gradient(150deg, #040e20 0%, #0c1e3c 55%, #163563 100%);padding:44px 40px 36px;">
+<td style="background:linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);padding:36px 40px 32px;">
 <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
   <tr>
-    <td style="vertical-align:middle;padding-right:20px;width:72px;">
-      <img src="${LOGO_URL}" alt="EquiProfile Academy" width="56" height="56" style="display:block;border-radius:12px;width:56px;height:56px;border:1.5px solid rgba(255,255,255,0.20);box-shadow:0 4px 16px rgba(0,0,0,0.45);"/>
+    <td style="vertical-align:middle;padding-right:18px;width:88px;">
+      <img src="${LOGO_URL}" alt="EquiProfile Academy" width="72" height="72" style="display:block;border-radius:14px;width:72px;height:72px;background:#ffffff;"/>
     </td>
-    <td style="vertical-align:middle;border-left:1px solid rgba(255,255,255,0.12);padding-left:20px;">
-      <span style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1.1;display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">EquiProfile <span style="color:rgba(147,197,253,0.90);font-weight:500;">Academy</span></span>
-      <span style="display:block;margin-top:5px;color:rgba(164,198,255,0.82);font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Structured Equestrian Education</span>
+    <td style="vertical-align:middle;">
+      <span style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1.1;display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">EquiProfile <span style="color:rgba(186,230,253,0.95);font-weight:500;">Academy</span></span>
+      <span style="display:block;margin-top:4px;color:rgba(219,234,254,0.90);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Structured Equestrian Education</span>
     </td>
   </tr>
 </table>
 </td>
 </tr>
-<tr><td style="height:3px;background:linear-gradient(90deg, #163563 0%, #3b82f6 50%, #163563 100%);"></td></tr>`;
+<tr><td style="height:3px;background:linear-gradient(90deg, #93c5fd 0%, #ffffff 50%, #93c5fd 100%);opacity:0.6;"></td></tr>`;
 }
 
 /** Branded call-to-action button. color should be a solid hex. */

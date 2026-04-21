@@ -274,26 +274,27 @@ export default function Settings() {
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="flex flex-wrap h-auto gap-0.5 w-full">
-              <TabsTrigger value="profile" className="flex items-center gap-1.5 flex-1 min-w-[48px]">
+            <TabsList className="flex h-auto gap-0.5 w-full overflow-x-auto">
+              <TabsTrigger value="profile" className="flex items-center gap-1.5 flex-1 min-w-[64px] py-2">
                 <User className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">Profile</span>
+                <span className="text-xs sm:text-sm">Profile</span>
               </TabsTrigger>
-              <TabsTrigger value="security" className="flex items-center gap-1.5 flex-1 min-w-[48px]">
+              <TabsTrigger value="security" className="flex items-center gap-1.5 flex-1 min-w-[64px] py-2">
                 <Lock className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">Security</span>
+                <span className="text-xs sm:text-sm">Security</span>
               </TabsTrigger>
-              <TabsTrigger value="notifications" className="flex items-center gap-1.5 flex-1 min-w-[48px]">
+              <TabsTrigger value="notifications" className="flex items-center gap-1.5 flex-1 min-w-[64px] py-2">
                 <Bell className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">Notifications</span>
+                <span className="text-xs sm:text-sm hidden xs:inline">Notifications</span>
+                <span className="text-xs sm:hidden">Alerts</span>
               </TabsTrigger>
-              <TabsTrigger value="install" className="flex items-center gap-1.5 flex-1 min-w-[48px]">
+              <TabsTrigger value="install" className="flex items-center gap-1.5 flex-1 min-w-[64px] py-2">
                 <Smartphone className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">App</span>
+                <span className="text-xs sm:text-sm">App</span>
               </TabsTrigger>
-              <TabsTrigger value="help" className="flex items-center gap-1.5 flex-1 min-w-[48px]">
+              <TabsTrigger value="help" className="flex items-center gap-1.5 flex-1 min-w-[64px] py-2">
                 <HelpCircle className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">Help</span>
+                <span className="text-xs sm:text-sm">Help</span>
               </TabsTrigger>
 
             </TabsList>

@@ -212,7 +212,7 @@ function DentalCareContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <PageHeader
             title="Dental Care"
