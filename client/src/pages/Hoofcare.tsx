@@ -515,7 +515,7 @@ function HoofcareContent() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-medium truncate">{getHorseName(record.horseId)}</p>
-                      <span className="text-xs text-muted-foreground capitalize shrink-0">{record.careType}</span>
+                      <span className="text-xs text-muted-foreground shrink-0">{record.careType ? record.careType.charAt(0).toUpperCase() + record.careType.slice(1) : ""}</span>
                       {getConditionBadge(record.hoofCondition)}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
