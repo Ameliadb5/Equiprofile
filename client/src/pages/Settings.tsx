@@ -285,7 +285,7 @@ export default function Settings() {
               </TabsTrigger>
               <TabsTrigger value="notifications" className="flex flex-col items-center gap-1 py-2.5 px-1 rounded-lg text-[10px] sm:text-xs min-h-[52px] sm:min-h-[48px]">
                 <Bell className="w-4 h-4 shrink-0" />
-                <span className="leading-none">Alerts</span>
+                <span className="leading-none">Notifs</span>
               </TabsTrigger>
               <TabsTrigger value="install" className="flex flex-col items-center gap-1 py-2.5 px-1 rounded-lg text-[10px] sm:text-xs min-h-[52px] sm:min-h-[48px]">
                 <Smartphone className="w-4 h-4 shrink-0" />
