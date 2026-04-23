@@ -1,6 +1,8 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
+import { useCountUp } from "@/hooks/useCountUp";
+import { useRecentVisits } from "@/hooks/useRecentVisits";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
   Card,
@@ -190,6 +192,7 @@ function DashboardContent() {
   const [location, setLocation] = useLocation();
   const { viewMode } = useAdminViewMode();
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const { recentPaths, trackVisit } = useRecentVisits();
 
   const { data: stats } = trpc.user.getDashboardStats.useQuery(undefined, {
     retry: false,
@@ -200,7 +203,7 @@ function DashboardContent() {
     {},
     { retry: false },
   );
-  const { data: horses = [] } = trpc.horses.list.useQuery(undefined, {
+  const { data: horses = [], isLoading: horsesLoading } = trpc.horses.list.useQuery(undefined, {
     retry: false,
     staleTime: 2 * 60 * 1000,
   });
@@ -358,6 +361,45 @@ function DashboardContent() {
         ]
       : [];
 
+  // ── Animated counters for stat cards ────────────────────────────────────
+  const animatedHorseCount = useCountUp((horses as any[]).length);
+  const animatedEventCount = useCountUp((upcomingCalendarEvents as any[]).length);
+  const animatedTaskCount = useCountUp(activeTasks.length);
+
+  // ── "All Features" global expand / collapse ──────────────────────────────
+  const FEATURE_LIMIT = 5;
+  const expandableGroupLabels = useMemo(() => {
+    const isStablePlan =
+      user?.role === "admin"
+        ? viewMode === "stable"
+        : subscription?.planTier === "stable";
+    return dashboardModuleGroups
+      .map((g) => ({
+        label: g.label,
+        count: g.items.filter((item: any) => isStablePlan || !item.stableOnly).length,
+      }))
+      .filter((g) => g.count > FEATURE_LIMIT)
+      .map((g) => g.label);
+  }, [user?.role, viewMode, subscription?.planTier]);
+
+  const allExpanded =
+    expandableGroupLabels.length > 0 &&
+    expandableGroupLabels.every((l) => expandedGroups.has(l));
+
+  // ── Build label lookup for recent-visit chips ────────────────────────────
+  const pathLabelMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const group of dashboardModuleGroups) {
+      for (const item of group.items) {
+        map[item.path] = item.label;
+      }
+    }
+    for (const action of quickActions) {
+      map[action.href] = action.label;
+    }
+    return map;
+  }, []);
+
   return (
     <div className="space-y-4 sm:space-y-5 pb-6">
       {/* ── Hero ─────────────────────────────────────────────── */}
@@ -384,9 +426,10 @@ function DashboardContent() {
                 month: "long",
               })}
             </p>
-            {(horses as any[]).length > 0 && (
+            {(horses as any[]).length > 0 && !horsesLoading && (
               <p className="text-emerald-300/60 text-xs mt-1">
-                Managing {(horses as any[]).length} horse{(horses as any[]).length !== 1 ? 's' : ''}
+                Managing {(horses as any[]).length} horse{(horses as any[]).length !== 1 ? "s" : ""}
+                {activeTasks.length > 0 && ` · ${activeTasks.length} active task${activeTasks.length !== 1 ? "s" : ""}`}
               </p>
             )}
           </div>
@@ -401,7 +444,10 @@ function DashboardContent() {
             const ActionIcon = action.icon;
             return (
               <Link key={action.href} href={action.href}>
-                <button className="flex items-center gap-1.5 shrink-0 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 transition-all text-xs font-medium text-white border border-white/15">
+                <button
+                  onClick={() => trackVisit(action.href)}
+                  className="flex items-center gap-1.5 shrink-0 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 transition-all text-xs font-medium text-white border border-white/15"
+                >
                   <div
                     className={`w-4 h-4 rounded-full bg-gradient-to-br ${action.color} flex items-center justify-center`}
                   >
@@ -413,6 +459,23 @@ function DashboardContent() {
             );
           })}
         </div>
+
+        {/* Recent visited chips — only shown once the user has navigated somewhere */}
+        {recentPaths.length > 0 && (
+          <div className="relative mt-2 flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] text-white/35 shrink-0">Recent:</span>
+            {recentPaths.map((path) => (
+              <Link key={path} href={path}>
+                <button
+                  onClick={() => trackVisit(path)}
+                  className="px-2.5 py-1 rounded-full bg-white/[0.06] hover:bg-white/[0.14] active:scale-95 text-[10px] text-white/55 hover:text-white/80 border border-white/10 transition-all"
+                >
+                  {pathLabelMap[path] ?? path}
+                </button>
+              </Link>
+            ))}
+          </div>
+        )}
       </motion.div>
 
       {/* ── Stat Cards ────────────────────────────────────────── */}
@@ -427,7 +490,7 @@ function DashboardContent() {
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-700 to-rose-800 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
               <Heart className="w-4 h-4 text-white" />
             </div>
-            <p className="text-2xl font-bold font-serif leading-none mt-0.5">{(horses as any[]).length}</p>
+            <p className="text-2xl font-bold font-serif leading-none mt-0.5">{animatedHorseCount}</p>
             <p className="text-[10px] text-muted-foreground leading-tight font-medium uppercase tracking-wider">
               Horses
             </p>
@@ -439,7 +502,7 @@ function DashboardContent() {
               <Calendar className="w-4 h-4 text-white" />
             </div>
             <p className="text-2xl font-bold font-serif leading-none mt-0.5">
-              {(upcomingCalendarEvents as any[]).length}
+              {animatedEventCount}
             </p>
             <p className="text-[10px] text-muted-foreground leading-tight font-medium uppercase tracking-wider">
               Events
@@ -452,7 +515,7 @@ function DashboardContent() {
               <Activity className="w-4 h-4 text-white" />
             </div>
             <p className="text-2xl font-bold font-serif leading-none mt-0.5">
-              {activeTasks.length}
+              {animatedTaskCount}
             </p>
             <p className="text-[10px] text-muted-foreground leading-tight font-medium uppercase tracking-wider">
               Tasks
@@ -919,6 +982,20 @@ function DashboardContent() {
             <div className="w-1 h-5 rounded-full bg-gradient-to-b from-primary to-primary/50" />
             <h2 className="font-serif text-base font-semibold">All Features</h2>
             <span className="text-xs text-muted-foreground/70">Your complete toolkit</span>
+            {expandableGroupLabels.length > 0 && (
+              <button
+                onClick={() => {
+                  if (allExpanded) {
+                    setExpandedGroups(new Set());
+                  } else {
+                    setExpandedGroups(new Set(expandableGroupLabels));
+                  }
+                }}
+                className="ml-auto text-[11px] text-muted-foreground/55 hover:text-muted-foreground transition-colors"
+              >
+                {allExpanded ? "Collapse All ↑" : "Expand All ↓"}
+              </button>
+            )}
           </div>
           <div className="space-y-3">
             {dashboardModuleGroups.map((group) => {
@@ -932,9 +1009,8 @@ function DashboardContent() {
               });
               if (items.length === 0) return null;
               const isExpanded = expandedGroups.has(group.label);
-              const LIMIT = 5;
-              const visibleItems = isExpanded ? items : items.slice(0, LIMIT);
-              const hasMore = items.length > LIMIT;
+              const visibleItems = isExpanded ? items : items.slice(0, FEATURE_LIMIT);
+              const hasMore = items.length > FEATURE_LIMIT;
               return (
                 <div key={group.label} className="rounded-xl border border-white/[0.07] bg-card/50 p-4 space-y-3 hover:border-white/[0.12] transition-colors">
                   <div className="flex items-center justify-between">
@@ -954,7 +1030,7 @@ function DashboardContent() {
                         })}
                         className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
                       >
-                        {isExpanded ? "Show less ↑" : `+${items.length - LIMIT} more`}
+                        {isExpanded ? "Show less ↑" : `+${items.length - FEATURE_LIMIT} more`}
                       </button>
                     )}
                   </div>
@@ -965,7 +1041,7 @@ function DashboardContent() {
                       return (
                         <button
                           key={item.path}
-                          onClick={() => setLocation(item.path)}
+                          onClick={() => { trackVisit(item.path); setLocation(item.path); }}
                           className={`group flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-200 text-center active:scale-95 ${
                             isActive
                               ? "border-primary/40 bg-primary/10 shadow-sm"
