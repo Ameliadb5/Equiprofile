@@ -226,6 +226,32 @@ function DocumentsContent() {
     onError: (error) => toast.error(error.message),
   });
 
+  // iOS Safari and some Android browsers return an empty string for file.type
+  // (e.g. CSV selected from Files/iCloud Drive, PDFs from certain apps).
+  // Infer the MIME type from the file extension so uploads don't fail the
+  // server-side allowlist check with an unhelpful "File type not allowed: " error.
+  const inferMimeFromName = (name: string): string => {
+    const ext = (name.match(/\.[^.]+$/) ?? [""])[0].toLowerCase();
+    const map: Record<string, string> = {
+      ".pdf":  "application/pdf",
+      ".csv":  "text/csv",
+      ".txt":  "text/plain",
+      ".doc":  "application/msword",
+      ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ".xls":  "application/vnd.ms-excel",
+      ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      ".jpg":  "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".png":  "image/png",
+      ".gif":  "image/gif",
+      ".webp": "image/webp",
+      ".svg":  "image/svg+xml",
+      ".heic": "image/heic",
+      ".heif": "image/heif",
+    };
+    return map[ext] ?? "";
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -234,8 +260,10 @@ function DocumentsContent() {
         return;
       }
       setSelectedFile(file);
-      // Auto-classify images as Gallery unless the user has already chosen a type
-      const isImage = file.type.startsWith("image/");
+      // Auto-classify images as Gallery unless the user has already chosen a type.
+      // Use inferred type when browser omits file.type (iOS Safari / Android Files).
+      const resolvedType = file.type || inferMimeFromName(file.name);
+      const isImage = resolvedType.startsWith("image/");
       setFormData((prev) => ({
         ...prev,
         documentType: isImage && prev.documentType === "other" ? "gallery" : prev.documentType,
@@ -275,7 +303,9 @@ function DocumentsContent() {
           description: formData.title,
           fileName: selectedFile.name,
           fileData: base64,
-          fileType: selectedFile.type,
+          // Fall back to extension-based inference when browser omits the type
+          // (iOS Safari sends "" for CSV/PDF/Word selected from Files/iCloud Drive).
+          fileType: selectedFile.type || inferMimeFromName(selectedFile.name),
           fileSize: selectedFile.size,
         });
       } catch {

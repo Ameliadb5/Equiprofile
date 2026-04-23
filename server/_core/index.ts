@@ -287,8 +287,30 @@ async function startServer() {
                   ? new Date(subscription.cancel_at * 1000)
                   : null,
               });
+
+              // Keep planTier in preferences in sync with the active price.
+              // Without this, a user who switches from Stable → Pro retains
+              // planTier = "stable" in their preferences indefinitely.
+              const updatedPriceId = subscription.items.data[0]?.price.id || "";
+              const stablePriceIds = [
+                PRICING_PLANS.stable.monthly.priceId,
+                PRICING_PLANS.stable.yearly.priceId,
+              ].filter(Boolean);
+              const updatedPlanTier = stablePriceIds.includes(updatedPriceId)
+                ? "stable"
+                : "pro";
+              const userForPrefsUpdate = await db.getUserById(userId);
+              if (userForPrefsUpdate) {
+                const existingPrefs = userForPrefsUpdate.preferences
+                  ? JSON.parse(userForPrefsUpdate.preferences)
+                  : {};
+                await db.updateUser(userId, {
+                  preferences: JSON.stringify({ ...existingPrefs, planTier: updatedPlanTier }),
+                });
+              }
+
               console.log(
-                `[Stripe Webhook] User ${userId} subscription updated to ${status}`,
+                `[Stripe Webhook] User ${userId} subscription updated to ${status} (tier: ${updatedPlanTier})`,
               );
             }
             break;
