@@ -130,8 +130,8 @@ const handleTrialLockError = (error: unknown) => {
 
 const isExpectedAccessError = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return false;
-  const code = (error as any)?.data?.code;
-  const httpStatus = (error as any)?.data?.httpStatus;
+  const code = error.data?.code;
+  const httpStatus = error.data?.httpStatus;
   return (
     code === "FORBIDDEN" ||
     code === "UNAUTHORIZED" ||
