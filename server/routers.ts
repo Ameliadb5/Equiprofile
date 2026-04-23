@@ -96,6 +96,7 @@ import {
   normalizeCountry,
   normalizeContactType,
   isValidEmail,
+  normalizeImportedEmail,
   parseCSV,
   autoMapColumns,
   mapRowToContact,
@@ -5068,7 +5069,7 @@ Format your response as JSON with keys: recommendation, explanation, precautions
     importMarketingContacts: adminUnlockedProcedure
       .input(z.object({
         contacts: z.array(z.object({
-          email: z.string().email(),
+          email: z.string().optional(),
           name: z.string().optional(),
           businessName: z.string().optional(),
           organizationName: z.string().optional(),
@@ -5095,12 +5096,28 @@ Format your response as JSON with keys: recommendation, explanation, precautions
         let invalid = 0;
         let rejected = 0;
         const rejections: Array<{ email: string; reason: string }> = [];
+        const invalidRows: Array<{ row: number; email: string; reason: string }> = [];
 
-        for (const c of input.contacts) {
-          const email = c.email.trim().toLowerCase();
+        for (let i = 0; i < input.contacts.length; i++) {
+          const c = input.contacts[i];
+          const email = normalizeImportedEmail(c.email);
+
+          // Skip blank email rows from CSV/XLSX imports
+          if (!email) {
+            skipped++;
+            continue;
+          }
 
           // 1. Basic email format validation
-          if (!isValidEmail(email)) { invalid++; continue; }
+          if (!isValidEmail(email)) {
+            invalid++;
+            invalidRows.push({
+              row: i + 1,
+              email: c.email ?? "",
+              reason: "invalid_email_format",
+            });
+            continue;
+          }
 
           // 2. Skip suppressed / existing
           if (suppressedSet.has(email) || existingSet.has(email)) { skipped++; continue; }
@@ -5129,7 +5146,27 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           existingSet.add(email); // prevent duplicates within batch
           imported++;
         }
-        return { imported, skipped, invalid, rejected, rejections: rejections.slice(0, 100), total: input.contacts.length };
+
+        if (imported === 0 && invalidRows.length > 0) {
+          const examples = invalidRows
+            .slice(0, 3)
+            .map((r) => `row ${r.row}: "${r.email}"`)
+            .join(", ");
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `No contacts imported. Invalid email values detected (${invalidRows.length} row(s)). ${examples}`,
+          });
+        }
+
+        return {
+          imported,
+          skipped,
+          invalid,
+          rejected,
+          rejections: rejections.slice(0, 100),
+          invalidRows: invalidRows.slice(0, 100),
+          total: input.contacts.length,
+        };
       }),
 
     deleteMarketingContact: adminUnlockedProcedure

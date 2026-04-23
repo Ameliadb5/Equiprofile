@@ -2438,6 +2438,18 @@ type ParsedImport = {
 
 const MAPPING_FIELDS = ["email", "name", "businessName", "contactType", "region", "country", "organizationName", "leadFocus"] as const;
 
+function normalizeImportedEmail(raw: string | undefined): string {
+  if (!raw) return "";
+  let value = raw.replace(/^\uFEFF/, "").trim();
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    value = value.slice(1, -1).trim();
+  }
+  return value.replace(/\s+/g, "").toLowerCase();
+}
+
 // ─── Campaign Replies Inbox ──────────────────────────────────────────────────
 
 const REPLY_STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -2738,10 +2750,19 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
     // Client-side deduplication — dedupe by email (case-insensitive) before sending
     const seenEmails = new Set<string>();
     let clientDuplicates = 0;
+    let blankEmailRows = 0;
+    let invalidEmailRows = 0;
 
     for (const row of parsed.allRows) {
-      const email = row[reverseMap.email]?.trim();
-      if (!email || !email.includes("@")) continue;
+      const email = normalizeImportedEmail(row[reverseMap.email]);
+      if (!email) {
+        blankEmailRows++;
+        continue;
+      }
+      if (!email.includes("@")) {
+        invalidEmailRows++;
+        continue;
+      }
 
       const emailLower = email.toLowerCase();
       if (seenEmails.has(emailLower)) {
@@ -2763,12 +2784,19 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
     }
 
     if (contacts.length === 0) {
-      toast.error("No valid contacts found with the current mapping");
+      toast.error(
+        `No valid contacts found with the current mapping (blank: ${blankEmailRows}, invalid: ${invalidEmailRows}, duplicates: ${clientDuplicates}).`,
+      );
       return;
     }
 
     if (clientDuplicates > 0) {
       toast.info(`Removed ${clientDuplicates} duplicate email${clientDuplicates > 1 ? "s" : ""} from the file before importing.`);
+    }
+    if (blankEmailRows > 0 || invalidEmailRows > 0) {
+      toast.info(
+        `Skipped ${blankEmailRows} blank and ${invalidEmailRows} malformed email row${blankEmailRows + invalidEmailRows === 1 ? "" : "s"} before import.`,
+      );
     }
 
     importMutation.mutate({ contacts, source: "file_import" });

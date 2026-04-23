@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
+import { useAdminViewMode } from "@/contexts/AdminViewContext";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
@@ -187,6 +188,7 @@ const quickActions = [
 function DashboardContent() {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
+  const { viewMode } = useAdminViewMode();
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   const { data: stats } = trpc.user.getDashboardStats.useQuery(undefined, {
@@ -921,8 +923,9 @@ function DashboardContent() {
           <div className="space-y-3">
             {dashboardModuleGroups.map((group) => {
               const isStablePlan =
-                subscription?.bothDashboardsUnlocked ||
-                subscription?.planTier === "stable";
+                user?.role === "admin"
+                  ? viewMode === "stable"
+                  : subscription?.planTier === "stable";
               const items = group.items.filter((item: any) => {
                 if (!isStablePlan && item.stableOnly) return false;
                 return true;
