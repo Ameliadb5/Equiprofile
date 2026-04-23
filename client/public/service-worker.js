@@ -75,6 +75,26 @@ function isCacheableAPI(pathname) {
   return CACHEABLE_API_PATHS.some((path) => pathname.startsWith(path));
 }
 
+function offlineHtmlFallback() {
+  return caches.match("/index.html").then((cached) => {
+    if (cached) return cached;
+    return new Response("Offline", {
+      status: 503,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  });
+}
+
+function cacheMatchOr503(request) {
+  return caches.match(request).then((cached) => {
+    if (cached) return cached;
+    return new Response("Offline", {
+      status: 503,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  });
+}
+
 // Fetch strategy: network-first for HTML and API, cache-first for hashed assets
 self.addEventListener("fetch", (event) => {
   const { request } = event;
@@ -168,7 +188,7 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => {
           // If offline and we have a cached version, use it
-          return caches.match("/index.html");
+          return offlineHtmlFallback();
         }),
     );
     return;
@@ -188,7 +208,7 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => {
-          return caches.match("/index.html");
+          return offlineHtmlFallback();
         }),
     );
     return;
@@ -224,7 +244,7 @@ self.addEventListener("fetch", (event) => {
       })
       .catch(() => {
         // Try to serve from cache if offline
-        return caches.match(request);
+        return cacheMatchOr503(request);
       }),
   );
 });

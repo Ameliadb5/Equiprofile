@@ -121,12 +121,28 @@ const handleTrialLockError = (error: unknown) => {
   }
 };
 
+const isExpectedAccessError = (error: unknown) => {
+  if (!(error instanceof TRPCClientError)) return false;
+  const code = (error as any)?.data?.code;
+  const httpStatus = (error as any)?.data?.httpStatus;
+  return (
+    code === "FORBIDDEN" ||
+    code === "UNAUTHORIZED" ||
+    code === "PAYMENT_REQUIRED" ||
+    httpStatus === 401 ||
+    httpStatus === 402 ||
+    httpStatus === 403
+  );
+};
+
 queryClient.getQueryCache().subscribe((event) => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.query.state.error;
     redirectToLoginIfUnauthorized(error);
     handleTrialLockError(error);
-    console.error("[API Query Error]", error);
+    if (!isExpectedAccessError(error)) {
+      console.error("[API Query Error]", error);
+    }
   }
 });
 
@@ -135,7 +151,9 @@ queryClient.getMutationCache().subscribe((event) => {
     const error = event.mutation.state.error;
     redirectToLoginIfUnauthorized(error);
     handleTrialLockError(error);
-    console.error("[API Mutation Error]", error);
+    if (!isExpectedAccessError(error)) {
+      console.error("[API Mutation Error]", error);
+    }
   }
 });
 

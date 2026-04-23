@@ -14,11 +14,11 @@
 export function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
 
-  // PWA is always enabled in production; in development only when explicitly set
-  const isProd = import.meta.env.PROD;
+  // PWA is opt-in only (all environments).
+  // This avoids accidental SW interception in go-live unless explicitly enabled.
   const explicitlyEnabled = import.meta.env.VITE_PWA_ENABLED === "true";
 
-  if (isProd || explicitlyEnabled) {
+  if (explicitlyEnabled) {
     // Register the service worker for PWA functionality.
     window.addEventListener("load", () => {
       navigator.serviceWorker
