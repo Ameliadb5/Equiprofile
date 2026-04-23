@@ -68,6 +68,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
+import { normalizeImportedEmail } from "@shared/csvImport";
 import {
   Mail,
   Send,
@@ -2438,18 +2439,6 @@ type ParsedImport = {
 
 const MAPPING_FIELDS = ["email", "name", "businessName", "contactType", "region", "country", "organizationName", "leadFocus"] as const;
 
-function normalizeImportedEmail(raw: string | undefined): string {
-  if (!raw) return "";
-  let value = raw.replace(/^\uFEFF/, "").trim();
-  if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
-  ) {
-    value = value.slice(1, -1).trim();
-  }
-  return value.replace(/\s+/g, "").toLowerCase();
-}
-
 // ─── Campaign Replies Inbox ──────────────────────────────────────────────────
 
 const REPLY_STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -2785,7 +2774,7 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
 
     if (contacts.length === 0) {
       toast.error(
-        `No valid contacts found with the current mapping (blank: ${blankEmailRows}, invalid: ${invalidEmailRows}, duplicates: ${clientDuplicates}).`,
+        `No valid contacts found with the current mapping (blank: ${blankEmailRows}, invalid: ${invalidEmailRows}, duplicates: ${clientDuplicates}). Please check your file format and column mapping.`,
       );
       return;
     }

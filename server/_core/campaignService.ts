@@ -8,6 +8,7 @@
  * - Follow-up sequence scheduling
  * - Country normalization
  */
+import { normalizeImportedEmail } from "@shared/csvImport";
 
 // ─── Country normalization ───────────────────────────────────
 const COUNTRY_ALIASES: Record<string, string> = {
@@ -281,11 +282,6 @@ function detectDelimiter(headerLine: string): string {
   if (semicolonCount > commaCount && semicolonCount >= tabCount) return ";";
   if (tabCount > commaCount && tabCount > semicolonCount) return "\t";
   return ",";
-}
-
-export function normalizeImportedEmail(raw: string | null | undefined): string {
-  if (!raw) return "";
-  return normalizeCsvValue(raw).replace(/\s+/g, "").toLowerCase();
 }
 
 // ─── Column mapping ──────────────────────────────────────────

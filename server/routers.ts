@@ -1,5 +1,6 @@
 // Copyright (c) 2025-2026 Amarktai Network. All rights reserved.
 import { COOKIE_NAME } from "@shared/const";
+import { normalizeImportedEmail } from "@shared/csvImport";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import {
@@ -96,7 +97,6 @@ import {
   normalizeCountry,
   normalizeContactType,
   isValidEmail,
-  normalizeImportedEmail,
   parseCSV,
   autoMapColumns,
   mapRowToContact,
@@ -5100,7 +5100,8 @@ Format your response as JSON with keys: recommendation, explanation, precautions
 
         for (let i = 0; i < input.contacts.length; i++) {
           const c = input.contacts[i];
-          const email = normalizeImportedEmail(c.email);
+          const rawEmail = c.email ?? "";
+          const email = normalizeImportedEmail(rawEmail);
 
           // Skip blank email rows from CSV/XLSX imports
           if (!email) {
@@ -5112,8 +5113,8 @@ Format your response as JSON with keys: recommendation, explanation, precautions
           if (!isValidEmail(email)) {
             invalid++;
             invalidRows.push({
-              row: i + 1,
-              email: c.email ?? "",
+              row: i + 2,
+              email: rawEmail,
               reason: "invalid_email_format",
             });
             continue;
