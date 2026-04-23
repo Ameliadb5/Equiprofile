@@ -374,9 +374,9 @@ function DashboardLayoutContent({
     if (isAdmin && viewMode === "stable") return stableNavItems;
     if (isAdmin && (viewMode === "pro" || viewMode === "student" || viewMode === "teacher")) return menuItems;
     if (isAdmin) return menuItems;
-    return bothDashboardsUnlocked
+    return effectiveBothDashboardsUnlocked
       ? (isOnStablePages ? stableNavItems : menuItems)
-      : (isStablePlan ? stableNavItems : menuItems);
+      : (effectiveIsStablePlan ? stableNavItems : menuItems);
   })();
   // Use effectiveIsStablePlan (not the raw isStablePlan) so that an admin who
   // personally holds a stable subscription but is previewing Pro mode does not

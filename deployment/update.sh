@@ -220,6 +220,17 @@ chmod -R 755 "$APP_DIR"
 success "Permissions set"
 echo ""
 
+# Ensure the uploads directory exists and is writable by the app (www-data).
+# deploy.sh creates this on first install; update.sh must also guarantee it
+# exists on incremental deploys so local-disk file storage never fails with
+# ENOENT or EACCES on the first upload after a fresh VPS provision.
+info "Ensuring uploads directory exists..."
+mkdir -p /var/www/equiprofile/uploads
+chown -R www-data:www-data /var/www/equiprofile/uploads
+chmod -R 755 /var/www/equiprofile/uploads
+success "Uploads directory ready: /var/www/equiprofile/uploads"
+echo ""
+
 # Step 10: Restart service
 info "Starting service..."
 systemctl restart equiprofile
