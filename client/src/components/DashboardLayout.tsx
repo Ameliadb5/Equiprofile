@@ -357,12 +357,15 @@ function DashboardLayoutContent({
   // effectiveIsAdmin is true only when the user is an admin AND either has no viewMode set or is
   // explicitly in "admin" viewMode — ensures admins previewing other plans are gated like those plans.
   const effectiveIsAdmin = isAdmin && (!viewMode || viewMode === "admin");
+  // Dual-dashboard controls are only valid for Stable-plan users with explicit unlock.
+  // This prevents Stable nav controls from appearing for Pro users on mobile.
+  const dualDashboardEligible = effectiveIsStablePlan && bothDashboardsUnlocked;
   // When admin is previewing a specific plan (pro, stable, teacher, etc.), suppress the
   // dual-dashboard switcher and bottom-nav stable branch so Stable nav items don't bleed
-  // into the Pro/teacher/student preview.  Real users always get their real value.
+  // into the Pro/teacher/student preview.
   const effectiveBothDashboardsUnlocked = (isAdmin && !!viewMode && viewMode !== "admin")
     ? false
-    : bothDashboardsUnlocked;
+    : dualDashboardEligible;
 
   // Determine which dashboard view is active for users with both dashboards
   const isOnStablePages = location.startsWith("/stable");

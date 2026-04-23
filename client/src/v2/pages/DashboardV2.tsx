@@ -5,6 +5,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import type { LucideIcon } from "lucide-react";
+import { useCountUp } from "@/hooks/useCountUp";
+import { useRecentVisits } from "@/hooks/useRecentVisits";
 import {
   Heart,
   Calendar,
@@ -197,6 +199,7 @@ function MetricCard({
   href?: string;
   color?: string;
 }) {
+  const animatedValue = useCountUp(value);
   const card = (
     <div className={`rounded-xl border border-[#e4e7ec] dark:border-[#2a3040] bg-white dark:bg-[#181d27] p-5 transition-all duration-200 hover:shadow-md ${href ? "cursor-pointer" : ""}`}>
       <div className="flex items-center gap-4">
@@ -211,7 +214,7 @@ function MetricCard({
             {label}
           </p>
           <p className="mt-0.5 text-2xl font-bold text-[#1a1d24] dark:text-[#e8eaef]">
-            {value}
+            {animatedValue}
           </p>
         </div>
         {href && <ChevronRight className="h-4 w-4 shrink-0 text-[#5c6370]/40" />}
@@ -265,16 +268,19 @@ function QuickActionCard({
   label,
   description,
   path,
+  onNavigate,
 }: {
   icon: LucideIcon;
   label: string;
   description: string;
   path: string;
+  onNavigate?: () => void;
 }) {
   return (
     <Link
       href={path}
-      className="group flex items-center gap-4 rounded-xl border border-[#e4e7ec] dark:border-[#2a3040] bg-white dark:bg-[#181d27] p-4 transition-all duration-200 hover:border-[#4f5fd6]/40 hover:shadow-md"
+      onClick={onNavigate}
+      className="group flex items-center gap-4 rounded-xl border border-[#e4e7ec] dark:border-[#2a3040] bg-white dark:bg-[#181d27] p-4 transition-all duration-200 hover:border-[#4f5fd6]/40 hover:shadow-md active:scale-95"
     >
       <div
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors duration-200 group-hover:bg-[#4f5fd6] group-hover:text-white"
@@ -298,11 +304,13 @@ function ModuleGroupCard({
   items,
   color = ACCENT,
   gradient,
+  onNavigate,
 }: {
   label: string;
   items: { icon: LucideIcon; label: string; path: string }[];
   color?: string;
   gradient?: string;
+  onNavigate?: (path: string) => void;
 }) {
   return (
     <div className="rounded-xl border border-[#e4e7ec] dark:border-[#2a3040] bg-white dark:bg-[#181d27] overflow-hidden">
@@ -323,6 +331,7 @@ function ModuleGroupCard({
               <Link
                 key={item.path}
                 href={item.path}
+                onClick={() => onNavigate?.(item.path)}
                 className="group flex flex-col items-center gap-2 rounded-lg p-3 text-center transition-all duration-200 hover:bg-[#f7f8fa] dark:hover:bg-[#242a38]"
                 aria-label={item.label}
               >
@@ -389,6 +398,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 function DashboardContent() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  const { recentPaths, trackVisit } = useRecentVisits();
 
   const { data: horses, isLoading: horsesLoading } = trpc.horses.list.useQuery();
   const { data: healthAlerts } = trpc.timeline.getHealthAlerts.useQuery({});
@@ -473,6 +483,20 @@ function DashboardContent() {
   const hasHorses = horseCount > 0;
   const firstName = user?.name?.split(" ")[0] ?? "there";
 
+  // ── Recent-visit label lookup ─────────────────────────────────────────────
+  const pathLabelMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const group of dashboardModuleGroups) {
+      for (const item of group.items) {
+        map[item.path] = item.label;
+      }
+    }
+    for (const action of quickActions) {
+      map[action.path] = action.label;
+    }
+    return map;
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#f7f8fa] dark:bg-[#0f1219] relative">
       {/* ── Subtle Premium Background Depth ────────────────────── */}
@@ -489,6 +513,13 @@ function DashboardContent() {
             Welcome back, {firstName}
           </h1>
           <p className="mt-1 text-sm text-[#5c6370] dark:text-[#9ca3b0]">{today}</p>
+          {!isLoading && (horseCount > 0 || upcomingTaskCount > 0) && (
+            <p className="mt-0.5 text-xs text-[#5c6370] dark:text-[#9ca3b0]">
+              {horseCount > 0 && `${horseCount} horse${horseCount !== 1 ? "s" : ""}`}
+              {horseCount > 0 && upcomingTaskCount > 0 && " · "}
+              {upcomingTaskCount > 0 && `${upcomingTaskCount} active task${upcomingTaskCount !== 1 ? "s" : ""}`}
+            </p>
+          )}
         </header>
 
         {/* ── Key Metrics ────────────────────────────────────────── */}
@@ -536,9 +567,29 @@ function DashboardContent() {
           <SectionHeading>Quick Actions</SectionHeading>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {quickActions.map((action) => (
-              <QuickActionCard key={action.path} {...action} />
+              <QuickActionCard
+                key={action.path}
+                {...action}
+                onNavigate={() => trackVisit(action.path)}
+              />
             ))}
           </div>
+          {/* Recent visited chips */}
+          {recentPaths.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-[#5c6370] dark:text-[#9ca3b0] shrink-0">Recent:</span>
+              {recentPaths.map((path) => (
+                <Link key={path} href={path}>
+                  <button
+                    onClick={() => trackVisit(path)}
+                    className="px-3 py-1 rounded-full border border-[#e4e7ec] dark:border-[#2a3040] bg-white dark:bg-[#181d27] text-xs text-[#5c6370] dark:text-[#9ca3b0] hover:border-[#4f5fd6]/40 hover:text-[#4f5fd6] active:scale-95 transition-all duration-200"
+                  >
+                    {pathLabelMap[path] ?? path}
+                  </button>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* ── Module Navigation — desktop only ───────────────────── */}
@@ -546,7 +597,7 @@ function DashboardContent() {
           <SectionHeading>Modules</SectionHeading>
           <div className="mt-4 space-y-4">
             {dashboardModuleGroups.map((group) => (
-              <ModuleGroupCard key={group.label} label={group.label} items={group.items} color={group.color} gradient={group.gradient} />
+              <ModuleGroupCard key={group.label} label={group.label} items={group.items} color={group.color} gradient={group.gradient} onNavigate={trackVisit} />
             ))}
           </div>
         </section>

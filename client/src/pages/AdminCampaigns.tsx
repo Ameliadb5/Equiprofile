@@ -68,6 +68,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
+import { normalizeImportedEmail } from "@shared/csvImport";
 import {
   Mail,
   Send,
@@ -2738,10 +2739,19 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
     // Client-side deduplication — dedupe by email (case-insensitive) before sending
     const seenEmails = new Set<string>();
     let clientDuplicates = 0;
+    let blankEmailRows = 0;
+    let invalidEmailRows = 0;
 
     for (const row of parsed.allRows) {
-      const email = row[reverseMap.email]?.trim();
-      if (!email || !email.includes("@")) continue;
+      const email = normalizeImportedEmail(row[reverseMap.email]);
+      if (!email) {
+        blankEmailRows++;
+        continue;
+      }
+      if (!email.includes("@")) {
+        invalidEmailRows++;
+        continue;
+      }
 
       const emailLower = email.toLowerCase();
       if (seenEmails.has(emailLower)) {
@@ -2763,12 +2773,19 @@ function FileImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
     }
 
     if (contacts.length === 0) {
-      toast.error("No valid contacts found with the current mapping");
+      toast.error(
+        `No valid contacts found with the current mapping (blank: ${blankEmailRows}, invalid: ${invalidEmailRows}, duplicates: ${clientDuplicates}). Please check your file format and column mapping.`,
+      );
       return;
     }
 
     if (clientDuplicates > 0) {
       toast.info(`Removed ${clientDuplicates} duplicate email${clientDuplicates > 1 ? "s" : ""} from the file before importing.`);
+    }
+    if (blankEmailRows > 0 || invalidEmailRows > 0) {
+      toast.info(
+        `Skipped ${blankEmailRows} blank and ${invalidEmailRows} malformed email row${blankEmailRows + invalidEmailRows === 1 ? "" : "s"} before import.`,
+      );
     }
 
     importMutation.mutate({ contacts, source: "file_import" });

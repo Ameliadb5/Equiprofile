@@ -8,6 +8,7 @@
  * - Follow-up sequence scheduling
  * - Country normalization
  */
+import { normalizeImportedEmail } from "@shared/csvImport";
 
 // ─── Country normalization ───────────────────────────────────
 const COUNTRY_ALIASES: Record<string, string> = {
@@ -188,26 +189,39 @@ export function validateContactCompliance(
 
 // ─── CSV parsing ─────────────────────────────────────────────
 export function parseCSV(text: string): Array<Record<string, string>> {
-  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  const cleanedText = stripBom(text);
+  const lines = cleanedText.split(/\r?\n/).filter((l) => l.trim());
   if (lines.length < 2) return [];
 
+  const delimiter = detectDelimiter(lines[0]);
   // Parse header
-  const headers = parseCSVLine(lines[0]);
+  const headers = parseCSVLine(lines[0], delimiter).map((header) =>
+    normalizeCsvValue(header, { trimInternalWhitespace: true }),
+  );
   const rows: Array<Record<string, string>> = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i]);
+    const values = parseCSVLine(lines[i], delimiter).map((value) =>
+      normalizeCsvValue(value),
+    );
     const row: Record<string, string> = {};
+    let hasValue = false;
     for (let j = 0; j < headers.length; j++) {
-      row[headers[j].trim()] = (values[j] || "").trim();
+      const header = headers[j];
+      const value = values[j] || "";
+      if (!header) continue;
+      if (value) hasValue = true;
+      row[header] = value;
     }
-    rows.push(row);
+    if (hasValue) {
+      rows.push(row);
+    }
   }
 
   return rows;
 }
 
-function parseCSVLine(line: string): string[] {
+function parseCSVLine(line: string, delimiter: string): string[] {
   const result: string[] = [];
   let current = "";
   let inQuotes = false;
@@ -228,7 +242,7 @@ function parseCSVLine(line: string): string[] {
     } else {
       if (char === '"') {
         inQuotes = true;
-      } else if (char === ",") {
+      } else if (char === delimiter) {
         result.push(current);
         current = "";
       } else {
@@ -238,6 +252,36 @@ function parseCSVLine(line: string): string[] {
   }
   result.push(current);
   return result;
+}
+
+function stripBom(value: string): string {
+  return value.replace(/^\uFEFF/, "");
+}
+
+function normalizeCsvValue(
+  raw: string,
+  options: { trimInternalWhitespace?: boolean } = {},
+): string {
+  let value = stripBom(raw).trim();
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    value = value.slice(1, -1).trim();
+  }
+  if (options.trimInternalWhitespace) {
+    value = value.replace(/\s+/g, " ").trim();
+  }
+  return value;
+}
+
+function detectDelimiter(headerLine: string): string {
+  const commaCount = (headerLine.match(/,/g) || []).length;
+  const semicolonCount = (headerLine.match(/;/g) || []).length;
+  const tabCount = (headerLine.match(/\t/g) || []).length;
+  if (semicolonCount > commaCount && semicolonCount >= tabCount) return ";";
+  if (tabCount > commaCount && tabCount > semicolonCount) return "\t";
+  return ",";
 }
 
 // ─── Column mapping ──────────────────────────────────────────
@@ -282,7 +326,7 @@ const COLUMN_MAP: Record<string, string> = {
 export function autoMapColumns(headers: string[]): Record<string, string> {
   const mapping: Record<string, string> = {};
   for (const header of headers) {
-    const key = header.trim().toLowerCase();
+    const key = normalizeCsvValue(header, { trimInternalWhitespace: true }).toLowerCase();
     if (COLUMN_MAP[key]) {
       mapping[header] = COLUMN_MAP[key];
     }
@@ -314,10 +358,11 @@ export function mapRowToContact(
     }
   }
 
-  if (!mapped.email || !isValidEmail(mapped.email)) return null;
+  const normalizedEmail = normalizeImportedEmail(mapped.email);
+  if (!normalizedEmail || !isValidEmail(normalizedEmail)) return null;
 
   return {
-    email: mapped.email.trim().toLowerCase(),
+    email: normalizedEmail,
     name: mapped.name || undefined,
     organizationName: mapped.organizationName || undefined,
     businessName: mapped.businessName || mapped.organizationName || undefined,
